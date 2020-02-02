@@ -1,14 +1,16 @@
 # qbittorrent-nox-static
 
-A build script for qBittorent nox to create a partially or fully static using the current releases of the main dependencies.
+A build script for qBittorent-nox to create a partially or fully static using the current releases of the main dependencies.
 
 See here for binaries I have built - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
 
 ## Info
 
-There are 3 scripts.
+There are 3 scripts for 2 platforms.
 
-`staticish` - Recommended - creates mostly static binary that is can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
+### Debian or Ubuntu platforms
+
+`staticish` - Recommended - creates a mostly static binary that is can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
 
 ~~~
 ldd qbittorrent-nox
@@ -27,7 +29,6 @@ libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6
 /lib64/ld-linux-x86-64.so.2
 ~~~
 
-
 `glibc` - creates a fully static binary statically link using glibc that can be moved to any Linux platform with matching architecture. For example you can build on Debian 10 and run on Debian 8. This is basically an extended version of the `staticish` script. Mostly useful to port a modern build to an old platform.
 
 ~~~
@@ -40,9 +41,9 @@ Gives this result:
 not a dynamic executable
 ~~~
 
-*Note: the `musl` script is designed to be used on Alpine Linux.*
+### Alpine Linux platform
 
-`musl` - creates a fully static binary statically link using `musl` in stead of `glibc` that can be moved to any Linux platform with  matching architecture such as build on Alpine 3.11 and run on Debian 8. This is the how the `staticish` script should work on Debian but it's not a easy to build fully static. musl makes it really easy and just worked.
+`musl` - creates a fully static binary statically linked using `musl` instead of `glibc` that can be moved to any Linux platform with matching architecture. For example you can build on Alpine 3.11 and run on Debian 8. This is the how the `staticish` script should work on Debian but it's not a easy to build fully static. `musl` makes it really easy and just worked.
 
 ~~~
 ldd qbittorrent-nox
@@ -62,13 +63,13 @@ Fully static builds were built and tested on:
 
 **Alpine linux 3.11** amd64
 
-Debian 9 users follow this for more info - https://github.com/qbittorrent/qBittorrent/issues/11882
+Debian 9 users follow this for more info when trying to build on this platform - https://github.com/qbittorrent/qBittorrent/issues/11882
 
 ## Script usage
 
 Follow these instructions to install and use this build tool.
 
-Executing the scripts will configure your build environment to make sure you can successfully build `qbittorrent-nox` but will not start the build process. 
+Executing the scripts will configure your build environment to make sure you can successfully build `qbittorrent-nox` but will not start the build process.
 
 ## Download
 
@@ -77,6 +78,7 @@ Use these commands via `ssh` on your Linux platform.
 ### Debian or Ubuntu 
 
 #### staticish
+
 ~~~
 wget -qO ~/qbittorrent-nox-staticish.sh https://git.io/JvLcs
 chmod 700 ~/qbittorrent-nox-staticish.sh
@@ -101,7 +103,7 @@ To execute the script
 ~/qbittorrent-nox-static-glibc.sh
 ~~~
 
-#### Musl - Alpine linux only
+#### Musl - Alpine linux
 
 *Note: you need to install the bash shell on Alpine for this script to run.*
 
@@ -142,6 +144,8 @@ Install a specific module.
 Supported modules
 
 ~~~
+bison (qbittorrent-nox-static-glibc.sh only)
+gawk (qbittorrent-nox-static-glibc.sh only)
 zlib
 icu
 openssl
