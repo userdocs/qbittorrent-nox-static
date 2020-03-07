@@ -1,6 +1,6 @@
 # qbittorrent-nox-static
 
-A build script for qBittorent-nox to create a partially or fully static using the current releases of the main dependencies.
+A build script for `qBittorent-nox` to create a partially or fully static automatically using the current releases of the main dependencies when the script is executed.
 
 See here for binaries I have built - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
 
@@ -10,10 +10,10 @@ There are 3 scripts for 2 platforms.
 
 ### Debian or Ubuntu platforms
 
-`staticish` - Recommended - creates a mostly static binary that is can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
+`staticish` - *Recommended* - creates a mostly static binary that can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
 
 ~~~
-ldd qbittorrent-nox
+ldd ~/qbittorrent-build/bin/qbittorrent-nox
 ~~~
 
 Gives this result:
@@ -32,7 +32,7 @@ libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6
 `glibc` - creates a fully static binary statically link using glibc that can be moved to any Linux platform with matching architecture. For example you can build on Debian 10 and run on Debian 8. This is basically an extended version of the `staticish` script. Mostly useful to port a modern build to an old platform.
 
 ~~~
-ldd qbittorrent-nox
+ldd ~/qbittorrent-build/bin/qbittorrent-nox
 ~~~
 
 Gives this result:
@@ -46,7 +46,7 @@ not a dynamic executable
 `musl` - creates a fully static binary statically linked using `musl` instead of `glibc` that can be moved to any Linux platform with matching architecture. For example you can build on Alpine 3.11 and run on Debian 8. This is the how the `staticish` script should work on Debian but it's not a easy to build fully static. `musl` makes it really easy and just worked.
 
 ~~~
-ldd qbittorrent-nox
+ldd ~/qbittorrent-build/bin/qbittorrent-nox
 ~~~
 
 Gives this result:
@@ -61,7 +61,7 @@ Fully static builds were built and tested on:
 
 **Debian 10 (buster)** amd64 and arm64
 
-**Alpine linux 3.11** amd64
+**Alpine Linux 3.11** amd64
 
 Debian 9 users follow this for more info when trying to build on this platform - https://github.com/qbittorrent/qBittorrent/issues/11882
 
@@ -69,7 +69,7 @@ Debian 9 users follow this for more info when trying to build on this platform -
 
 Follow these instructions to install and use this build tool.
 
-Executing the scripts will configure your build environment to make sure you can successfully build `qbittorrent-nox` but will not start the build process.
+*Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all` is passed as an argument to the script.*
 
 ## Download
 
@@ -203,8 +203,8 @@ Build settings
 *qBittorrent 4.2.1 was built with the following libraries:*
 
 ~~~
-Qt: 5.14.0
-Libtorrent: 1.2.3.0
+Qt: 5.14.1
+Libtorrent: 1.2.4.0
 Boost: 1.72.0
 OpenSSL: 1.1.1d
 zlib: 1.2.11
