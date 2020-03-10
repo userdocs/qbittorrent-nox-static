@@ -117,8 +117,8 @@ echo -e "\n\e[1mChecking if required core dependencies are installed\e[0m\n"
 [[ "$(dpkg -s libtool 2> /dev/null | grep -cow '^Status: install ok installed$')" -eq '1' ]] && echo -e "Dependency - \e[32mOK\e[0m - libtool" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - libtool"; }
 [[ "$(dpkg -s git 2> /dev/null | grep -cow '^Status: install ok installed$')" -eq '1' ]] && echo -e "Dependency - \e[32mOK\e[0m - git" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - git"; }
 [[ "$(dpkg -s perl 2> /dev/null | grep -cow '^Status: install ok installed$')" -eq '1' ]] && echo -e "Dependency - \e[32mOK\e[0m - perl" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - perl"; }
-[[ "$(dpkg -s python 2> /dev/null | grep -cow '^Status: install ok installed$')" -eq '1' ]] && echo -e "Dependency - \e[32mOK\e[0m - python" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python"; }
-[[ "$(dpkg -s python-dev 2> /dev/null | grep -cow '^Status: install ok installed$')" -eq '1' ]] && echo -e "Dependency - \e[32mOK\e[0m - python-dev" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python-dev"; }
+[[ "$(dpkg -s python3 2> /dev/null | grep -cow '^Status: install ok installed$')" -eq '1' ]] && echo -e "Dependency - \e[32mOK\e[0m - python3" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python3"; }
+[[ "$(dpkg -s python3-dev 2> /dev/null | grep -cow '^Status: install ok installed$')" -eq '1' ]] && echo -e "Dependency - \e[32mOK\e[0m - python3-dev" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python3-dev"; }
 #
 ## Check if user is able to install the depedencies, if yes then do so, if no then exit.
 #
@@ -139,7 +139,7 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         echo -e "\n\e[32mInstalling required dependencies\e[0m\n"
         #
-        apt install -y build-essential pkg-config automake libtool git perl python python-dev
+        apt install -y build-essential pkg-config automake libtool git perl python3 python3-dev
         #
         echo -e "\n\e[32mDependencies installed!\e[0m"
         #
@@ -148,7 +148,7 @@ if [[ "$deps_installed" = 'no' ]]; then
     else
         echo -e "\n\e[1mPlease request or install the missing core dependencies before using this script\e[0m"
         #
-        echo -e '\napt install -y build-essential pkg-config automake libtool git perl python python-dev\n'
+        echo -e '\napt install -y build-essential pkg-config automake libtool git perl python3 python3-dev\n'
         #
         exit
     fi
@@ -159,6 +159,12 @@ fi
 if [[ "$deps_installed" = 'yes' ]]; then
     echo -e "\n\e[1mGood, we have all the core dependencies installed, continuing to build\e[0m"
 fi
+#
+## Set some python variables we need.
+#
+export python_version="$(python3 -V | awk '{ print $2 }')"
+export python_short_version="$(echo "$python_version" | sed 's/\.[^.]*$//')"
+export python_link_version="$(echo "$python_version" | cut -f1 -d'.')$(echo "$python_version" | cut -f2 -d'.')"
 #
 ## post build install command via positional parameter.
 #
@@ -190,7 +196,7 @@ fi
 #
 ## Create the configured install directory.
 #
-[[ "$1" =~ $modules ]] && mkdir -p "$install_dir" || :
+[[ "$1" =~ $modules ]] && { mkdir -p "$install_dir"; echo 'using python : '"$python_short_version"' : /usr/bin/python'"$python_short_version"' : /usr/include/python'"$python_short_version"' : /usr/lib/python'"$python_short_version"' ;' > user-config.jam; }
 #
 ## Set lib and include directory paths based on install path.
 #
@@ -406,7 +412,7 @@ if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
     cd "$install_dir/$(tar tf "$file_boost" | head -1 | cut -f1 -d"/")"
     #
     ./bootstrap.sh
-    "$install_dir/bin/b2" -j$(nproc) variant=release threading=multi link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_boost_build" = 'no' ]] || [[ "$skip_boost_build" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost\e[0m module installation"
     [[ "$skip_boost_build" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mboost\e[0m module installation"
@@ -474,8 +480,9 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     git clone --branch "$libtorrent_github_tag" --single-branch --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
     cd "$folder_libtorrent"
     #
-    ./bootstrap.sh "$local_boost" "$local_openssl"
-    "$install_dir/bin/b2" -j$(nproc) dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
+    ./autotool.sh
+    ./configure "$local_boost" "$local_openssl" --with-boost-python
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_qttools" = 'no' ]] || [[ "$skip_qttools" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mlibtorrent\e[0m module installation"
     [[ "$skip_qttools" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mlibtorrent\e[0m module installation"
@@ -540,7 +547,7 @@ fi
 #
 ## Cleanup and exit
 #
-if [[ "$SKIP_DELETE" = 'no' ]]; then
+if [[ "$SKIP_DELETE" = 'no' && -n "$1" ]]; then
     echo -e "\n\e[32mDeleting installation files\e[0m\n"
     #
     [[ -f "$file_bison" ]] && rm -rf {$install_dir/$(tar tf "$file_bison" | grep -Eom1 "(.*)[^/]"),$file_bison}
@@ -555,6 +562,7 @@ if [[ "$SKIP_DELETE" = 'no' ]]; then
     [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
     [[ -f "$file_glibc" ]] && rm -rf {$install_dir/$(tar tf "$file_glibc" | grep -Eom1 "(.*)[^/]"),$file_glibc}
     [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
+    [[ -f "$HOME/user-config.jam" ]] && rm -rf "$HOME/user-config.jam"
 else
     [[ "$skip_qbittorrent" = 'no' ]] || [[ "$skip_qbittorrent" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mDeletion\e[0m\n"
     [[ "$skip_qbittorrent" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mDeletion\e[0m\n"
