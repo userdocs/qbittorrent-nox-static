@@ -117,8 +117,8 @@ echo -e "\n\e[1mChecking if required core dependencies are installed\e[0m\n"
 [[ -n "$(apk info -e libtool)" ]] && echo -e "Dependency - \e[32mOK\e[0m - libtool" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - libtool"; }
 [[ -n "$(apk info -e git)" ]] && echo -e "Dependency - \e[32mOK\e[0m - git" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - git"; }
 [[ -n "$(apk info -e perl)" ]] && echo -e "Dependency - \e[32mOK\e[0m - perl" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - perl"; }
-[[ -n "$(apk info -e python)" ]] && echo -e "Dependency - \e[32mOK\e[0m - python" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python"; }
-[[ -n "$(apk info -e python-dev)" ]] && echo -e "Dependency - \e[32mOK\e[0m - python-dev" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python-dev"; }
+[[ -n "$(apk info -e python3)" ]] && echo -e "Dependency - \e[32mOK\e[0m - python3" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python3"; }
+[[ -n "$(apk info -e python3-dev)" ]] && echo -e "Dependency - \e[32mOK\e[0m - python3-dev" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python3-dev"; }
 [[ -n "$(apk info -e linux-headers)" ]] && echo -e "Dependency - \e[32mOK\e[0m - linux-headers" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - linux-headers"; }
 #
 ## Check if user is able to install the depedencies, if yes then do so, if no then exit.
@@ -143,7 +143,7 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         echo -e "\n\e[32mInstalling required dependencies\e[0m\n"
         #
-        apk add bash bash-completion build-base pkgconf autoconf automake libtool git perl python python-dev linux-headers
+        apk add bash bash-completion build-base pkgconf autoconf automake libtool git perl python3 python3-dev linux-headers
         #
         echo -e "\n\e[32mDependencies installed!\e[0m"
         #
@@ -163,6 +163,12 @@ fi
 if [[ "$deps_installed" = 'yes' ]]; then
     echo -e "\n\e[1mGood, we have all the core dependencies installed, continuing to build\e[0m"
 fi
+#
+## Set some python variables we need.
+#
+export python_version="$(python3 -V | awk '{ print $2 }')"
+export python_short_version="$(echo "$python_version" | sed 's/\.[^.]*$//')"
+export python_link_version="$(echo "$python_version" | cut -f1 -d'.')$(echo "$python_version" | cut -f2 -d'.')"
 #
 ## post build install command via positional parameter.
 #
@@ -194,7 +200,7 @@ fi
 #
 ## Create the configured install directory.
 #
-[[ "$1" =~ $modules ]] && mkdir -p "$install_dir" || :
+[[ "$1" =~ $modules ]] && { mkdir -p "$install_dir"; echo 'using python : '"$python_short_version"' : /usr/bin/python'"$python_short_version"' : /usr/include/python'"$python_short_version"' : /usr/lib/python'"$python_short_version"' ;' > user-config.jam; }
 #
 ## Set lib and include directory paths based on install path.
 #
@@ -203,9 +209,17 @@ export lib_dir="$install_dir/lib"
 #
 ## Set some build settings we need applied
 #
-export CXXFLAGS="-std=c++14"
-export CPPFLAGS="--static -static -I$include_dir"
-export LDFLAGS="--static -static -Wl,--no-as-needed -ldl -L$lib_dir -lpthread -pthread"
+custom_flags_set () {
+    export CXXFLAGS="-std=c++14"
+    export CPPFLAGS="--static -static -I$include_dir"
+    export LDFLAGS="--static -static -Wl,--no-as-needed -ldl -L$lib_dir -lpthread -pthread"
+}
+#
+custom_flags_reset () {
+    export CXXFLAGS="-std=c++14"
+    export CPPFLAGS=""
+    export LDFLAGS=""
+}
 #
 ## Define some build specific variables
 #
@@ -240,6 +254,9 @@ export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBitto
 ## zlib installation
 #
 if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling zlib\e[0m\n"
     #
     file_zlib="$install_dir/zlib.tar.gz"
@@ -249,6 +266,7 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     wget -qO "$file_zlib" "$zlib_url"
     tar xf "$file_zlib" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_zlib" | head -1 | cut -f1 -d"/")"
+    #
     ./configure --prefix="$install_dir" --static
     make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
     make install
@@ -259,6 +277,9 @@ fi
 ## ICU installation
 #
 if [[ "$skip_icu" = 'no' || "$1" = 'icu' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling icu\e[0m\n"
     #
     file_icu="$install_dir/icu.tar.gz"
@@ -268,6 +289,7 @@ if [[ "$skip_icu" = 'no' || "$1" = 'icu' ]]; then
     wget -qO "$file_icu" "$icu_url"
     tar xf "$file_icu" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_icu" | head -1 | cut -f1 -d"/")/source"
+    #
     ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
     make -j$(nproc)
     make install
@@ -279,6 +301,9 @@ fi
 ## openssl installation
 #
 if [[ "$skip_openssl" = 'no' || "$1" = 'openssl' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling openssl\e[0m\n"
     #
     file_openssl="$install_dir/openssl.tar.gz"
@@ -288,6 +313,7 @@ if [[ "$skip_openssl" = 'no' || "$1" = 'openssl' ]]; then
     wget -qO "$file_openssl" "$openssl_url"
     tar xf "$file_openssl" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_openssl" | head -1 | cut -f1 -d"/")"
+    #
     ./config --prefix="$install_dir" threads no-shared no-dso no-comp CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
     make -j$(nproc)
     make install_sw install_ssldirs
@@ -299,6 +325,9 @@ fi
 ## boost build install
 #
 if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling boost build\e[0m\n"
     #
     file_boost_build="$install_dir/build.tar.gz"
@@ -308,6 +337,7 @@ if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
     wget -qO "$file_boost_build" "$boost_build_url"
     tar xf "$file_boost_build" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_boost_build" | head -1 | cut -f1 -d"/")"
+    #
     ./bootstrap.sh
     ./b2 install --prefix="$install_dir"
 else
@@ -318,6 +348,9 @@ fi
 ## boost libraries install
 #
 if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling boost libraries\e[0m\n"
     #
     file_boost="$install_dir/boost.tar.gz"
@@ -327,8 +360,9 @@ if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
     wget -qO "$file_boost" "$boost_url"
     tar xf "$file_boost" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_boost" | head -1 | cut -f1 -d"/")"
+    #
     ./bootstrap.sh
-    "$install_dir/bin/b2" -j$(nproc) variant=release threading=multi link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_boost_build" = 'no' ]] || [[ "$skip_boost_build" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost\e[0m module installation"
     [[ "$skip_boost_build" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mboost\e[0m module installation"
@@ -337,6 +371,9 @@ fi
 ## qt base install
 #
 if [[ "$skip_qtbase" = 'no' ]] || [[ "$1" = 'qtbase' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling QT Base\e[0m\n"
     #
     folder_qtbase="$install_dir/qtbase"
@@ -357,6 +394,9 @@ fi
 ## qt tools install
 #
 if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling QT Tools\e[0m\n"
     #
     folder_qttools="$install_dir/qttools"
@@ -378,6 +418,9 @@ fi
 ## libtorrent install
 #
 if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling Libtorrent\e[0m\n"
     #
     folder_libtorrent="$install_dir/libtorrent"
@@ -387,8 +430,9 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     git clone --branch "$libtorrent_github_tag" --single-branch --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
     cd "$folder_libtorrent"
     #
-    ./bootstrap.sh "$local_boost" "$local_openssl"
-    "$install_dir/bin/b2" -j$(nproc) dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
+    ./autotool.sh
+    ./configure "$local_boost" "$local_openssl" --with-boost-python
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_qttools" = 'no' ]] || [[ "$skip_qttools" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mlibtorrent\e[0m module installation"
     [[ "$skip_qttools" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mlibtorrent\e[0m module installation"
@@ -397,6 +441,9 @@ fi
 ## qBittorrent install (static)
 #
 if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
+    #
+    custom_flags_set
+    #
     echo -e "\n\e[32mInstalling qBittorrent\e[0m\n"
     #
     folder_qbittorrent="$install_dir/qbittorrent"
@@ -425,7 +472,7 @@ fi
 #
 ## Cleanup and exit
 #
-if [[ "$SKIP_DELETE" = 'no' ]]; then
+if [[ "$SKIP_DELETE" = 'no' && -n "$1" ]]; then
     echo -e "\n\e[32mDeleting installation files\e[0m\n"
     #
     [[ -f "$file_zlib" ]] && rm -rf {$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]"),$file_zlib}
@@ -437,6 +484,7 @@ if [[ "$SKIP_DELETE" = 'no' ]]; then
     [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
     [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
     [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
+    [[ -f "$HOME/user-config.jam" ]] && rm -rf "$HOME/user-config.jam"
 else
     [[ "$skip_qbittorrent" = 'no' ]] || [[ "$skip_qbittorrent" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mDeletion\e[0m\n"
     [[ "$skip_qbittorrent" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mDeletion\e[0m\n"
