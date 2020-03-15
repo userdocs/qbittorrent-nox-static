@@ -204,11 +204,45 @@ Build settings
 
 ~~~
 Qt: 5.14.1
-Libtorrent: 1.2.4.0
+Libtorrent: 1.2.5.0
 Boost: 1.72.0
 OpenSSL: 1.1.1d
 zlib: 1.2.11
 ~~~
+
+### Configuration
+
+If you want to configure qBittorrent before you start it you this method
+
+Create the default configuration directory.
+
+~~~
+mkdir -p ~/.config/qBittorrent
+~~~
+
+Create the configuration file.
+
+~~~
+touch ~/.config/qBittorrent/qBittorrent.conf
+~~~
+
+Edit the file
+
+~~~
+nano ~/.config/qBittorrent/qBittorrent.conf
+~~~
+
+Add this. Make sure to change your web ui port. 
+
+~~~
+[LegalNotice]
+Accepted=true
+
+[Preferences]
+WebUI\Port=PORT
+~~~
+
+Save and exit. Now download and run qbittorrent.
 
 ### glibc static
 
@@ -254,6 +288,82 @@ Now you just run it and enjoy!
 
 ~~~
 ~/bin/qbittorrent-nox
+~~~
+
+Default login:
+
+~~~
+username: admin
+password: adminadmin
+~~~
+
+### Nginx proxypass
+
+~~~
+location /qbittorrent/ {
+
+    proxy_pass http://127.0.0.1:00000/;
+    proxy_http_version      1.1;
+    proxy_set_header        X-Forwarded-Host        $server_name:$server_port;
+    proxy_hide_header       Referer;
+    proxy_hide_header       Origin;
+    proxy_set_header        Referer                 '';
+    proxy_set_header        Origin                  '';
+
+}
+~~~
+
+### Systemd service
+
+Location for the systemd service file:
+
+~~~
+/etc/systemd/system/qbittorrent.service
+~~~
+
+Modify the path to the binary and your local username.
+
+~~~
+[Unit]
+
+Description=qbittorrent-nox
+After=network.target
+
+[Service]
+
+User=username
+Group=username
+
+Type=simple
+WorkingDirectory=/home/username
+ExecStart=/home/username/bin/qbittorrent-nox
+TimeoutStopSec=20
+KillMode=mixed
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=multi-user.target
+~~~
+
+After any changes to the services reload using this command.
+
+~~~
+systemctl daemon-reload
+~~~
+
+Now you can enable the serice
+
+~~~
+systemctl enable --now qbittorrent.service
+~~~
+
+Now you can use these commands
+
+~~~
+service qbittorrent stop
+service qbittorrent start
+service qbittorrent restart
 ~~~
 
 ## Credits
