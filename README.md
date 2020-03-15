@@ -2,7 +2,7 @@
 
 A build script for `qBittorent-nox` to create a partially or fully static automatically using the current releases of the main dependencies when the script is executed.
 
-See here for binaries I have built - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
+See here for binaries I have built and how to install them - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
 
 ## Info
 
@@ -12,13 +12,13 @@ There are 3 scripts for 2 platforms.
 
 `staticish` - *Recommended* - creates a mostly static binary that can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
 
-~~~
+~~~bash
 ldd ~/qbittorrent-build/bin/qbittorrent-nox
 ~~~
 
 Gives this result:
 
-~~~
+~~~bash
 linux-vdso.so.1
 libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2
 libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0
@@ -31,13 +31,13 @@ libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6
 
 `glibc` - creates a fully static binary statically link using glibc that can be moved to any Linux platform with matching architecture. For example you can build on Debian 10 and run on Debian 8. This is basically an extended version of the `staticish` script. Mostly useful to port a modern build to an old platform.
 
-~~~
+~~~bash
 ldd ~/qbittorrent-build/bin/qbittorrent-nox
 ~~~
 
 Gives this result:
 
-~~~
+~~~bash
 not a dynamic executable
 ~~~
 
@@ -45,13 +45,13 @@ not a dynamic executable
 
 `musl` - creates a fully static binary statically linked using `musl` instead of `glibc` that can be moved to any Linux platform with matching architecture. For example you can build on Alpine 3.11 and run on Debian 8. This is the how the `staticish` script should work on Debian but it's not a easy to build fully static. `musl` makes it really easy and just worked.
 
-~~~
+~~~bash
 ldd ~/qbittorrent-build/bin/qbittorrent-nox
 ~~~
 
 Gives this result:
 
-~~~
+~~~bash
 statically linked
 ~~~
 
@@ -79,27 +79,27 @@ Use these commands via `ssh` on your Linux platform.
 
 #### staticish
 
-~~~
+~~~bash
 wget -qO ~/qbittorrent-nox-staticish.sh https://git.io/JvLcs
 chmod 700 ~/qbittorrent-nox-staticish.sh
 ~~~
 
 To execute the script
 
-~~~
+~~~bash
 ~/qbittorrent-nox-staticish.sh
 ~~~
 
 #### glibc
 
-~~~
+~~~bash
 wget -qO ~/qbittorrent-nox-static-glibc.sh https://git.io/JvLcG
 chmod 700 ~/qbittorrent-nox-static-glibc.sh
 ~~~
 
 To execute the script
 
-~~~
+~~~bash
 ~/qbittorrent-nox-static-glibc.sh
 ~~~
 
@@ -107,7 +107,7 @@ To execute the script
 
 *Note: you need to install the bash shell on Alpine for this script to run.*
 
-~~~
+~~~bash
 apk add bash
 wget -qO ~/qbittorrent-nox-static-musl.sh https://git.io/JvLcZ
 chmod 700 ~/qbittorrent-nox-static-musl.sh
@@ -115,7 +115,7 @@ chmod 700 ~/qbittorrent-nox-static-musl.sh
 
 To execute the script
 
-~~~
+~~~bash
 ~/qbittorrent-nox-static-musl.sh
 ~~~
 
@@ -123,7 +123,7 @@ To execute the script
 
 Once the script has successfully configured the platform you can execute the help argument to see how it works and what options you have available to you.
 
-~~~
+~~~bash
 ~/qbittorrent-nox-staticish.sh -h
 ~~~
 
@@ -131,13 +131,13 @@ Once the script has successfully configured the platform you can execute the hel
 
 Install all modules and build `qbittorrent-nox` to the default build directory.
 
-~~~
+~~~bash
 ~/qbittorrent-nox-staticish.sh all
 ~~~
 
 Install a specific module.
 
-~~~
+~~~bash
 ~/qbittorrent-nox-static.sh module
 ~~~
 
@@ -160,13 +160,13 @@ qbittorrent
 
 By default the script will build to a hard coded path in the script `$install_dir` as to avoid installing files to a server and causing conflicts.
 
-~~~
+~~~bash
 $HOME/qbittorrent-build
 ~~~
 
 You can modify this dynamically with the `-b` argument
 
-~~~
+~~~bash
 ~/qbittorrent-nox-static.sh all -b "/usr/local"
 ~~~
 
@@ -174,13 +174,13 @@ You can modify this dynamically with the `-b` argument
 
 Once the script has successfully built `qbittorrent-nox` you can install it using this command:
 
-~~~
+~~~bash
 ~/qbittorrent-nox-static.sh install
 ~~~
 
 *Note: If you built to a custom directory you will need to specify this to the install command using the `-b` argument.*
 
-~~~
+~~~bash
 ~/qbittorrent-nox-static.sh install -b "/path/to/built/binary"
 ~~~
 
@@ -216,19 +216,19 @@ If you want to configure qBittorrent before you start it you this method
 
 Create the default configuration directory.
 
-~~~
+~~~bash
 mkdir -p ~/.config/qBittorrent
 ~~~
 
 Create the configuration file.
 
-~~~
+~~~bash
 touch ~/.config/qBittorrent/qBittorrent.conf
 ~~~
 
 Edit the file
 
-~~~
+~~~bash
 nano ~/.config/qBittorrent/qBittorrent.conf
 ~~~
 
@@ -248,7 +248,7 @@ Save and exit. Now download and run qbittorrent.
 
 amd64
 
-~~~
+~~~bash
 mkdir -p ~/bin && source ~/.profile
 wget -qO ~/bin/qbittorrent-nox https://git.io/JvLcC
 chmod 700 ~/bin/qbittorrent-nox
@@ -256,7 +256,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 arm64:
 
-~~~
+~~~bash
 mkdir -p ~/bin && source ~/.profile
 wget -qO ~/bin/qbittorrent-nox https://git.io/JvLcW
 chmod 700 ~/bin/qbittorrent-nox
@@ -264,8 +264,21 @@ chmod 700 ~/bin/qbittorrent-nox
 
 Now you just run it and enjoy!
 
-~~~
+~~~bash
 ~/bin/qbittorrent-nox
+~~~
+
+Some key start-up arguments to help you along. Using the command above with no arguments will loads the defaults or the settings define in the `~/.config/qBittorrent/qBittorrent.conf`
+
+~~~bash
+Options:
+    -v | --version             Display program version and exit
+    -h | --help                Display this help message and exit
+    --webui-port=<port>        Change the Web UI port
+    -d | --daemon              Run in daemon-mode (background)
+    --profile=<dir>            Store configuration files in <dir>
+    --configuration=<name>     Store configuration files in directories
+                               qBittorrent_<name>
 ~~~
 
 ### musl static
@@ -348,19 +361,19 @@ WantedBy=multi-user.target
 
 After any changes to the services reload using this command.
 
-~~~
+~~~bash
 systemctl daemon-reload
 ~~~
 
 Now you can enable the serice
 
-~~~
+~~~bash
 systemctl enable --now qbittorrent.service
 ~~~
 
 Now you can use these commands
 
-~~~
+~~~bash
 service qbittorrent stop
 service qbittorrent start
 service qbittorrent restart
