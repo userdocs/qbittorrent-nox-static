@@ -240,9 +240,9 @@ export openssl_github_tag="$(curl -sNL https://github.com/openssl/openssl/releas
 export openssl_url="https://github.com/openssl/openssl/archive/$openssl_github_tag.tar.gz"
 #
 export boost_version="$(curl -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*)</s(.*)#\2#p')"
-export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
 export boost_github_tag="boost-$boost_version"
 export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
+export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
 #
 export qt_version='5.14'
 export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
@@ -261,7 +261,7 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     #
     file_zlib="$install_dir/zlib.tar.gz"
     #
-    [[ -f "$file_zlib" ]] && rm -rf {$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]"),$file_zlib}
+    [[ -f "$file_zlib" ]] && rm -rf {"$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]")","$file_zlib"}
     #
     wget -qO "$file_zlib" "$zlib_url"
     tar xf "$file_zlib" -C "$install_dir"
@@ -284,7 +284,7 @@ if [[ "$skip_icu" = 'no' || "$1" = 'icu' ]]; then
     #
     file_icu="$install_dir/icu.tar.gz"
     #
-    [[ -f "$file_icu" ]] && rm -rf {$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]"),$file_icu}
+    [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
     #
     wget -qO "$file_icu" "$icu_url"
     tar xf "$file_icu" -C "$install_dir"
@@ -308,7 +308,7 @@ if [[ "$skip_openssl" = 'no' || "$1" = 'openssl' ]]; then
     #
     file_openssl="$install_dir/openssl.tar.gz"
     #
-    [[ -f "$file_openssl" ]] && rm -rf {$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]"),$file_openssl}
+    [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
     #
     wget -qO "$file_openssl" "$openssl_url"
     tar xf "$file_openssl" -C "$install_dir"
@@ -332,7 +332,7 @@ if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
     #
     file_boost_build="$install_dir/build.tar.gz"
     #
-    [[ -f "$file_boost_build" ]] && rm -rf {$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]"),$file_boost_build}
+    [[ -f "$file_boost_build" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]")","$file_boost_build"}
     #
     wget -qO "$file_boost_build" "$boost_build_url"
     tar xf "$file_boost_build" -C "$install_dir"
@@ -353,13 +353,12 @@ if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
     #
     echo -e "\n\e[32mInstalling boost libraries\e[0m\n"
     #
-    file_boost="$install_dir/boost.tar.gz"
+    folder_boost="$install_dir/boost"
     #
-    [[ -f "$file_boost" ]] && rm -rf {$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]"),$file_boost}
+    [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
     #
-    wget -qO "$file_boost" "$boost_url"
-    tar xf "$file_boost" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_boost" | head -1 | cut -f1 -d"/")"
+    git clone --branch "$boost_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/boostorg/boost.git "$folder_boost"
+    cd "$folder_boost"
     #
     ./bootstrap.sh
     "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
@@ -380,7 +379,7 @@ if [[ "$skip_qtbase" = 'no' ]] || [[ "$1" = 'qtbase' ]]; then
     #
     [[ -d "$folder_qtbase" ]] && rm -rf "$folder_qtbase"
     #
-    git clone --branch "$qt_github_tag" --single-branch --depth 1 https://github.com/qt/qtbase.git "$folder_qtbase"
+    git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qtbase.git "$folder_qtbase"
     cd "$folder_qtbase"
     #
     ./configure -prefix "$install_dir" -openssl-linked -static -opensource -confirm-license -release -c++std c++14 -no-shared -no-opengl -no-dbus -no-widgets -no-gui -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS"
@@ -403,7 +402,7 @@ if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
     #
     [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
     #
-    git clone --branch "$qt_github_tag" --single-branch --depth 1 https://github.com/qt/qttools.git "$folder_qttools"
+    git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qttools.git "$folder_qttools"
     cd "$folder_qttools"
     #
     "$install_dir/bin/qmake" -set prefix "$install_dir"
@@ -427,7 +426,7 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     #
     [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
     #
-    git clone --branch "$libtorrent_github_tag" --single-branch --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
+    git clone --branch "$libtorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
     cd "$folder_libtorrent"
     #
     ./autotool.sh
@@ -450,14 +449,14 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     #
     [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
     #
-    git clone --branch "$qbittorrent_github_tag" --single-branch --depth 1 https://github.com/qbittorrent/qBittorrent.git "$folder_qbittorrent"
+    git clone --branch "$qbittorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qbittorrent/qBittorrent.git "$folder_qbittorrent"
     #
     sed -ri 's#static const char DATABASE_URL\[\] = "(.*)";#static const char DATABASE_URL\[\] = "https://github.com/userdocs/qbittorrent-nox-static/raw/master/extras/GeoLite2-Country.mmdb.gz";#g' "$install_dir/qbittorrent/src/base/net/geoipmanager.cpp"
     #
     cd "$folder_qbittorrent"
     #
     ./bootstrap.sh
-    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE=$install_dir/bin
+    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin"
     #
     sed -i 's/-lboost_system//' conf.pri
     sed -i 's/-lcrypto//' conf.pri
@@ -475,11 +474,11 @@ fi
 if [[ "$SKIP_DELETE" = 'no' && -n "$1" ]]; then
     echo -e "\n\e[32mDeleting installation files\e[0m\n"
     #
-    [[ -f "$file_zlib" ]] && rm -rf {$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]"),$file_zlib}
-    [[ -f "$file_icu" ]] && rm -rf {$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]"),$file_icu}
-    [[ -f "$file_openssl" ]] && rm -rf {$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]"),$file_openssl}
-    [[ -f "$file_boost_build" ]] && rm -rf {$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]"),$file_boost_build}
-    [[ -f "$file_boost" ]] && rm -rf {$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]"),$file_boost}
+    [[ -f "$file_zlib" ]] && rm -rf {"$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]")","$file_zlib"}
+    [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
+    [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
+    [[ -f "$file_boost_build" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]")","$file_boost_build"}
+    [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
     [[ -d "$folder_qtbase" ]] && rm -rf "$folder_qtbase"
     [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
     [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
