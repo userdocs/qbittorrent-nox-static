@@ -451,8 +451,6 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     #
     git clone --branch "$qbittorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qbittorrent/qBittorrent.git "$folder_qbittorrent"
     #
-    sed -ri 's#static const char DATABASE_URL\[\] = "(.*)";#static const char DATABASE_URL\[\] = "https://github.com/userdocs/qbittorrent-nox-static/raw/master/extras/GeoLite2-Country.mmdb.gz";#g' "$install_dir/qbittorrent/src/base/net/geoipmanager.cpp"
-    #
     cd "$folder_qbittorrent"
     #
     ./bootstrap.sh
