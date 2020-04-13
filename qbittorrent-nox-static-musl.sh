@@ -239,7 +239,7 @@ export icu_url="$(curl -sNL https://api.github.com/repos/unicode-org/icu/release
 export openssl_github_tag="$(curl -sNL https://github.com/openssl/openssl/releases | grep -Eom1 'OpenSSL_1_1_([0-9][a-z])')"
 export openssl_url="https://github.com/openssl/openssl/archive/$openssl_github_tag.tar.gz"
 #
-export boost_version="$(curl -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*)</s(.*)#\2#p')"
+export boost_version="$(curl -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p')"
 export boost_github_tag="boost-$boost_version"
 export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
 export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
