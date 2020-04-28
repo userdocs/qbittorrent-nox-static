@@ -200,13 +200,13 @@ The default installation path is determined by type of user executing the script
 
 Build settings
 
-*qBittorrent 4.2.3 was built with the following libraries:*
+*qBittorrent 4.2.5 was built with the following libraries:*
 
 ~~~
 Qt: 5.14.2
-Libtorrent: 1.2.5.0
-Boost: 1.72.0
-OpenSSL: 1.1.1f
+Libtorrent: 1.2.6.0
+Boost: 1.73.0
+OpenSSL: 1.1.1g
 zlib: 1.2.11
 ~~~
 
