@@ -86,12 +86,13 @@ echo -e "\n\e[1mScript help\e[0m : \e[32m$(basename -- "$0") -h\e[0m"
 #
 ## This is a list of all modules.
 #
-modules='^(all|bison|gawk|zlib|icu|openssl|boost_build|boost|qtbase|qttools|libtorrent|glibc|qbittorrent)$'
+modules='^(all|bison|gawk|glibc|zlib|icu|openssl|boost_build|boost|qtbase|qttools|libtorrent|qbittorrent)$'
 #
 ## The installation is modular. You can select the parts you want or need here or using ./scriptname module or install everything using ./scriptname all
 #
 [[ "$1" = 'all' ]] && skip_bison='no' || skip_bison='yes'
 [[ "$1" = 'all' ]] && skip_gawk='no' || skip_gawk='yes'
+[[ "$1" = 'all' ]] && skip_glibc='no' || skip_glibc='yes'
 [[ "$1" = 'all' ]] && skip_zlib='no' || skip_zlib='yes'
 [[ "$1" = 'all' ]] && skip_icu='no' || skip_icu='yes'
 [[ "$1" = 'all' ]] && skip_openssl='no' || skip_openssl='yes'
@@ -100,7 +101,6 @@ modules='^(all|bison|gawk|zlib|icu|openssl|boost_build|boost|qtbase|qttools|libt
 [[ "$1" = 'all' ]] && skip_qtbase='no' || skip_qtbase='yes'
 [[ "$1" = 'all' ]] && skip_qttools='no' || skip_qttools='yes'
 [[ "$1" = 'all' ]] && skip_libtorrent='no' || skip_libtorrent='yes'
-[[ "$1" = 'all' ]] && skip_glibc='no' || skip_glibc='yes'
 [[ "$1" = 'all' ]] && skip_qbittorrent='no' || skip_qbittorrent='yes'
 #
 ## Set this to assume yes unless set to no by a dependency check.
@@ -231,6 +231,8 @@ export bison_url="http://ftp.gnu.org/gnu/bison/$(curl -sNL http://ftp.gnu.org/gn
 #
 export gawk_url="http://ftp.gnu.org/gnu/gawk/$(curl -sNL http://ftp.gnu.org/gnu/gawk/ | grep -Eo 'gawk-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
 #
+export glibc_url="http://ftp.gnu.org/gnu/libc/$(curl -sNL http://ftp.gnu.org/gnu/libc/ | grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
+#
 export zlib_github_tag="$(curl -sNL https://github.com/madler/zlib/releases | grep -Eom1 'v1.2.([0-9]{1,2})')"
 export zlib_url="https://github.com/madler/zlib/archive/$zlib_github_tag.tar.gz"
 #
@@ -248,8 +250,6 @@ export qt_version='5.14'
 export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
 #
 export libtorrent_github_tag="$(curl -sNL https://api.github.com/repos/arvidn/libtorrent/releases/latest | sed -rn 's#(.*)"tag_name": "(.*)",#\2#p')"
-#
-export glibc_url="http://ftp.gnu.org/gnu/libc/$(curl -sNL http://ftp.gnu.org/gnu/libc/ | grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
 #
 export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
 #
@@ -504,8 +504,8 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     git clone --branch "$libtorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
     cd "$folder_libtorrent"
     #
-    ./autotool.sh
-    ./configure "$local_boost" "$local_openssl" --with-boost-python
+	echo '' > Jamroot.jam
+	#
     "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_qttools" = 'no' ]] || [[ "$skip_qttools" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mlibtorrent\e[0m module installation"
