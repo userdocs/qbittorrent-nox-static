@@ -79,7 +79,7 @@ Use these commands via `ssh` on your Linux platform.
 
 ### Debian or Ubuntu 
 
-#### staticish - Debain or Ubuntu Linux
+#### staticish - Debian or Ubuntu Linux
 
 ~~~bash
 wget -qO ~/qbittorrent-nox-staticish.sh https://git.io/JvLcs
@@ -92,7 +92,7 @@ To execute the script
 ~/qbittorrent-nox-staticish.sh
 ~~~
 
-#### glibc - Debain or Ubuntu Linux
+#### glibc - Debian or Ubuntu Linux
 
 ~~~bash
 wget -qO ~/qbittorrent-nox-static-glibc.sh https://git.io/JvLcG
