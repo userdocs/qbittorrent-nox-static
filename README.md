@@ -10,7 +10,7 @@ There are 3 scripts for 2 platforms.
 
 ### Debian or Ubuntu platforms
 
-`staticish` - *Recommended* - creates a mostly static binary that can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
+`staticish` - *Recommended* - quickly creates a mostly static binary that can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
 
 ~~~bash
 ldd ~/qbittorrent-build/bin/qbittorrent-nox
@@ -29,7 +29,7 @@ libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6
 /lib64/ld-linux-x86-64.so.2
 ~~~
 
-`glibc` - creates a fully static binary statically link using glibc that can be moved to any Linux platform with matching architecture. For example you can build on Debian 10 and run on Debian 8. This is basically an extended version of the `staticish` script. Mostly useful to port a modern build to an old platform.
+`glibc` - creates a fully static binary statically link using a locally installed glibc that can be moved to any Linux platform with matching architecture. For example you can build on Debian 10 and run on Debian 8. This is basically an extended version of the `staticish` script. Mostly useful to port a modern build to an old platform.
 
 ~~~bash
 ldd ~/qbittorrent-build/bin/qbittorrent-nox
@@ -59,7 +59,9 @@ statically linked
 
 Fully static builds were built and tested on:
 
-**Debian 10 (buster)** amd64 and arm64
+**Debian 10 (buster)** amd64
+
+**Ubuntu 20.04 (focal)** amd64
 
 **Alpine Linux 3.11** amd64
 
@@ -77,7 +79,7 @@ Use these commands via `ssh` on your Linux platform.
 
 ### Debian or Ubuntu 
 
-#### staticish
+#### staticish - Debain or Ubuntu Linux
 
 ~~~bash
 wget -qO ~/qbittorrent-nox-staticish.sh https://git.io/JvLcs
@@ -90,7 +92,7 @@ To execute the script
 ~/qbittorrent-nox-staticish.sh
 ~~~
 
-#### glibc
+#### glibc - Debain or Ubuntu Linux
 
 ~~~bash
 wget -qO ~/qbittorrent-nox-static-glibc.sh https://git.io/JvLcG
@@ -254,31 +256,10 @@ wget -qO ~/bin/qbittorrent-nox https://git.io/JvLcC
 chmod 700 ~/bin/qbittorrent-nox
 ~~~
 
-arm64:
-
-~~~bash
-mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://git.io/JvLcW
-chmod 700 ~/bin/qbittorrent-nox
-~~~
-
 Now you just run it and enjoy!
 
 ~~~bash
 ~/bin/qbittorrent-nox
-~~~
-
-Some key start-up arguments to help you along. Using the command above with no arguments will loads the defaults or the settings define in the `~/.config/qBittorrent/qBittorrent.conf`
-
-~~~bash
-Options:
-    -v | --version             Display program version and exit
-    -h | --help                Display this help message and exit
-    --webui-port=<port>        Change the Web UI port
-    -d | --daemon              Run in daemon-mode (background)
-    --profile=<dir>            Store configuration files in <dir>
-    --configuration=<name>     Store configuration files in directories
-                               qBittorrent_<name>
 ~~~
 
 ### musl static
@@ -289,12 +270,6 @@ amd64:
 mkdir -p ~/bin && source ~/.profile
 wget -qO ~/bin/qbittorrent-nox https://git.io/JvLc0
 chmod 700 ~/bin/qbittorrent-nox
-~~~
-
-arm64
-
-~~~
-none available yet
 ~~~
 
 Now you just run it and enjoy!
@@ -309,6 +284,19 @@ Default login:
 username: admin
 password: adminadmin
 ~~~
+
+Some key start-up arguments to help you along. Using the command above with no arguments will loads the defaults or the settings define in the `~/.config/qBittorrent/qBittorrent.conf`
+
+```bash
+Options:
+    -v | --version             Display program version and exit
+    -h | --help                Display this help message and exit
+    --webui-port=<port>        Change the Web UI port
+    -d | --daemon              Run in daemon-mode (background)
+    --profile=<dir>            Store configuration files in <dir>
+    --configuration=<name>     Store configuration files in directories
+                               qBittorrent_<name>
+```
 
 ### Nginx proxypass
 
