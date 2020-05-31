@@ -206,7 +206,7 @@ Build settings
 
 ~~~
 Qt: 5.14.2
-Libtorrent: 1.2.6.0
+Libtorrent: 1.2.7.0
 Boost: 1.73.0
 OpenSSL: 1.1.1g
 zlib: 1.2.11
