@@ -200,7 +200,7 @@ fi
 #
 ## Create the configured install directory.
 #
-[[ "$1" =~ $modules ]] && { mkdir -p "$install_dir"; echo 'using python : '"$python_short_version"' : /usr/bin/python'"$python_short_version"' : /usr/include/python'"$python_short_version"' : /usr/lib/python'"$python_short_version"' ;' > user-config.jam; }
+[[ "$1" =~ $modules ]] && { mkdir -p "$install_dir"; echo 'using python : '"$python_short_version"' : /usr/bin/python'"$python_short_version"' : /usr/include/python'"$python_short_version"' : /usr/lib/python'"$python_short_version"' ;' > "$HOME/user-config.jam"; }
 #
 ## Set lib and include directory paths based on install path.
 #
