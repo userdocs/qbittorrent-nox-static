@@ -206,7 +206,7 @@ Build settings
 
 ~~~
 Qt: 5.14.2
-Libtorrent: 1.2.7.0
+Libtorrent: 1.2.8.0
 Boost: 1.73.0
 OpenSSL: 1.1.1g
 zlib: 1.2.11
@@ -328,20 +328,22 @@ Modify the path to the binary and your local username.
 [Unit]
 
 Description=qbittorrent-nox
-After=network.target
+Wants=network-online.target
+After=network-online.target nss-lookup.target
 
 [Service]
 
 User=username
 Group=username
 
-Type=simple
+Type=exec
 WorkingDirectory=/home/username
+
 ExecStart=/home/username/bin/qbittorrent-nox
-TimeoutStopSec=20
-KillMode=mixed
+KillMode=control-group
 Restart=always
-RestartSec=2
+RestartSec=5
+TimeoutStopSec=infinity
 
 [Install]
 WantedBy=multi-user.target
