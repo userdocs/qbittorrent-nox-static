@@ -246,7 +246,7 @@ export boost_github_tag="boost-$boost_version"
 export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
 export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
 #
-export qt_version='5.14'
+export qt_version='5.15'
 export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
 #
 export libtorrent_github_tag="$(curl -sNL https://api.github.com/repos/arvidn/libtorrent/releases/latest | sed -rn 's#(.*)"tag_name": "(.*)",#\2#p')"
