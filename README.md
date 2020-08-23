@@ -63,7 +63,7 @@ Fully static builds were built and tested on:
 
 **Ubuntu 20.04 (focal)** amd64
 
-**Alpine Linux 3.11** amd64
+**Alpine Linux 3.12** amd64
 
 Debian 9 users follow this for more info when trying to build on this platform - https://github.com/qbittorrent/qBittorrent/issues/11882
 
@@ -205,9 +205,9 @@ Build settings
 *qBittorrent 4.2.5 was built with the following libraries:*
 
 ~~~
-Qt: 5.14.2
-Libtorrent: 1.2.8.0
-Boost: 1.73.0
+Qt: 5.15.0
+Libtorrent: 1.2.9.0
+Boost: 1.74.0
 OpenSSL: 1.1.1g
 zlib: 1.2.11
 ~~~
