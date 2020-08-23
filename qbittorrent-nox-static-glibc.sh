@@ -231,7 +231,8 @@ export bison_url="http://ftp.gnu.org/gnu/bison/$(curl -sNL http://ftp.gnu.org/gn
 #
 export gawk_url="http://ftp.gnu.org/gnu/gawk/$(curl -sNL http://ftp.gnu.org/gnu/gawk/ | grep -Eo 'gawk-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
 #
-export glibc_url="http://ftp.gnu.org/gnu/libc/$(curl -sNL http://ftp.gnu.org/gnu/libc/ | grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
+# export glibc_url="http://ftp.gnu.org/gnu/libc/$(curl -sNL http://ftp.gnu.org/gnu/libc/ | grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
+export glibc_url="http://ftp.gnu.org/gnu/libc/glibc-2.31.tar.gz"
 #
 export zlib_github_tag="$(curl -sNL https://github.com/madler/zlib/releases | grep -Eom1 'v1.2.([0-9]{1,2})')"
 export zlib_url="https://github.com/madler/zlib/archive/$zlib_github_tag.tar.gz"
