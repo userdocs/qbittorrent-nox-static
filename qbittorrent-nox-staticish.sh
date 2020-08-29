@@ -193,7 +193,7 @@ fi
 #
 ## Create the configured install directory.
 #
-[[ "$1" =~ $modules ]] && { mkdir -p "$install_dir"; echo 'using python : '"$python_short_version"' : /usr/bin/python'"$python_short_version"' : /usr/include/python'"$python_short_version"' : /usr/lib/python'"$python_short_version"' ;' > "$HOME/user-config.jam"; }
+[[ "$1" =~ $modules ]] && { mkdir -p "$install_dir/logs"; mkdir -p "$install_dir/completed"; echo 'using python : '"$python_short_version"' : /usr/bin/python'"$python_short_version"' : /usr/include/python'"$python_short_version"' : /usr/lib/python'"$python_short_version"' ;' > "$HOME/user-config.jam"; }
 #
 ## Set lib and include directory paths based on install path.
 #
@@ -206,12 +206,6 @@ custom_flags_set () {
     export CXXFLAGS="-std=c++14"
     export CPPFLAGS="-I$include_dir"
     export LDFLAGS="-Wl,--no-as-needed -ldl -L$lib_dir -lpthread -pthread"
-}
-#
-custom_flags_reset () {
-    export CXXFLAGS="-std=c++14"
-    export CPPFLAGS=""
-    export LDFLAGS=""
 }
 #
 ## Define some build specific variables
@@ -234,8 +228,9 @@ export openssl_url="https://github.com/openssl/openssl/archive/$openssl_github_t
 #
 export boost_version="$(curl -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p')"
 export boost_github_tag="boost-$boost_version"
-export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
 export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
+export boost_url_status="$(curl -o /dev/null --silent --head --write-out '%{http_code}' https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz)"
+export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
 #
 export qt_version='5.15'
 export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
@@ -261,8 +256,8 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     cd "$install_dir/$(tar tf "$file_zlib" | head -1 | cut -f1 -d"/")"
     #
     ./configure --prefix="$install_dir" --static
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
-    make install
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/zlib.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
 else
     echo -e "\nSkipping \e[95mzlib\e[0m module installation"
 fi
@@ -307,9 +302,9 @@ if [[ "$skip_openssl" = 'no' || "$1" = 'openssl' ]]; then
     tar xf "$file_openssl" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_openssl" | head -1 | cut -f1 -d"/")"
     #
-    ./config --prefix="$install_dir" threads no-shared no-dso no-comp CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
-    make -j$(nproc)
-    make install_sw install_ssldirs
+    ./config --prefix="$install_dir" threads no-shared no-dso no-comp CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/openssl.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/openssl.log.txt"
+    make install_sw install_ssldirs 2>&1 | tee -a "$install_dir/logs/openssl.log.txt"
 else
     [[ "$skip_icu" = 'no' ]] || [[ "$skip_icu" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mopenssl\e[0m module installation"
     [[ "$skip_icu" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mopenssl\e[0m module installation"
@@ -331,8 +326,8 @@ if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
     tar xf "$file_boost_build" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_boost_build" | head -1 | cut -f1 -d"/")"
     #
-    ./bootstrap.sh
-    ./b2 install --prefix="$install_dir"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost_build.log.txt" 2>&1 | tee "$install_dir/logs/boost_build.log.txt"
+    ./b2 install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/boost_build.log.txt"
 else
     [[ "$skip_openssl" = 'no' ]] || [[ "$skip_openssl" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost_build\e[0m module installation"
     [[ "$skip_openssl" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mboost_build\e[0m module installation"
@@ -342,19 +337,29 @@ fi
 #
 if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
     #
-    custom_flags_set
+    if [[ "$boost_url_status" -eq '200' ]]; then
+        file_boost="$install_dir/boost.tar.gz"
+        #
+        [[ -f "$file_boost" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]")","$file_boost"}
+        #
+        wget -qO "$file_boost" "$boost_url"
+        #
+        tar xf "$file_boost" -C "$install_dir"
+        #
+        cd "$install_dir/boost_${boost_version//./_}"
+    fi
     #
-    echo -e "\n\e[32mInstalling boost libraries\e[0m\n"
-    #
-    folder_boost="$install_dir/boost"
-    #
-    [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
-    #
-    git clone --branch "$boost_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/boostorg/boost.git "$folder_boost"
-    cd "$folder_boost"
-    #
+    if [[ "$boost_url_status" -eq '403' ]]; then
+        folder_boost="$install_dir/boost_${boost_version//./_}"
+        #
+        [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
+        #
+        git clone --branch "$boost_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/boostorg/boost.git "$folder_boost"
+        #
+        cd "$folder_boost"
+    fi
     ./bootstrap.sh
-    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_boost_build" = 'no' ]] || [[ "$skip_boost_build" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost\e[0m module installation"
     [[ "$skip_boost_build" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mboost\e[0m module installation"
@@ -375,9 +380,9 @@ if [[ "$skip_qtbase" = 'no' ]] || [[ "$1" = 'qtbase' ]]; then
     git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qtbase.git "$folder_qtbase"
     cd "$folder_qtbase"
     #
-    ./configure -prefix "$install_dir" -openssl-linked -static -opensource -confirm-license -release -c++std c++14 -no-shared -no-opengl -no-dbus -no-widgets -no-gui -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS"
-    make -j$(nproc)
-    make install
+    ./configure -prefix "$install_dir" -openssl-linked -static -opensource -confirm-license -release -c++std c++14 -no-shared -no-opengl -no-dbus -no-widgets -no-gui -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/qtbase.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
 else
     [[ "$skip_boost" = 'no' ]] || [[ "$skip_boost" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqtbase\e[0m module installation"
     [[ "$skip_boost" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mqtbase\e[0m module installation"
@@ -400,8 +405,8 @@ if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
     #
     "$install_dir/bin/qmake" -set prefix "$install_dir"
     "$install_dir/bin/qmake"
-    make -j$(nproc)
-    make install
+    make -j$(nproc) 2>&1 | tee "$install_dir/logs/qttools.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
 else
     [[ "$skip_qtbase" = 'no' ]] || [[ "$skip_qtbase" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqttools\e[0m module installation"
     [[ "$skip_qtbase" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mqttools\e[0m module installation"
@@ -420,6 +425,11 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
     #
     git clone --branch "$libtorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
+    #
+    export BOOST_ROOT=$install_dir/boost_${boost_version//./_}/
+    export BOOST_INCLUDEDIR=$install_dir/boost_${boost_version//./_}/boost
+    export BOOST_BUILD_PATH=$install_dir/boost_${boost_version//./_}/tools/build
+    #
     cd "$folder_libtorrent"
     #
 	echo "boost-build $install_dir/share/boost-build/src/kernel ;" > boost-build.jam
@@ -446,8 +456,8 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     #
     cd "$folder_qbittorrent"
     #
-    ./bootstrap.sh
-    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/qbittorrent.log.txt"
+    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/qbittorrent.log.txt"
     #
     sed -i 's/-lboost_system//' conf.pri
     sed -i 's/-lcrypto//' conf.pri
@@ -455,6 +465,8 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     #
     make -j$(nproc)
     make install
+	#
+	[[ -f "$install_dir/bin/qbittorrent-nox" ]] && cp -f "$install_dir/bin/qbittorrent-nox" "$install_dir/completed/qbittorrent-nox"
 else
     [[ "$skip_libtorrent" = 'no' ]] || [[ "$skip_libtorrent" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqbittorrent\e[0m module installation"
     [[ "$skip_libtorrent" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mqbittorrent\e[0m module installation"
@@ -469,6 +481,7 @@ if [[ "$SKIP_DELETE" = 'no' && -n "$1" ]]; then
     [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
     [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
     [[ -f "$file_boost_build" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]")","$file_boost_build"}
+    [[ -f "$file_boost" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]")","$file_boost"}
     [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
     [[ -d "$folder_qtbase" ]] && rm -rf "$folder_qtbase"
     [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
