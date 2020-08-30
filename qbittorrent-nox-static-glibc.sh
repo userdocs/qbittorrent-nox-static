@@ -208,7 +208,7 @@ export lib_dir="$install_dir/lib"
 custom_flags_set () {
     export CXXFLAGS="-std=c++14"
     export CPPFLAGS="-I$include_dir"
-    export LDFLAGS="-Wl,--no-as-needed -ldl -L$lib_dir -lpthread -pthread"
+    export LDFLAGS="-Wl,--no-as-needed -L$lib_dir -lpthread -pthread"
 }
 #
 custom_flags_reset () {
@@ -271,9 +271,9 @@ if [[ "$skip_bison" = 'no' ||  "$1" = 'bison' ]]; then
     tar xf "$file_bison" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_bison" | head -1 | cut -f1 -d"/")"
     #
-    ./configure --prefix="$install_dir" | tee "$install_dir/logs/bison.log.txt"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" | tee -a "$install_dir/logs/bison.log.txt"
-    make install | tee -a "$install_dir/logs/bison.log.txt"
+    ./configure --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/bison.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/bison.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/bison.log.txt"
 else
     echo -e "\nSkipping \e[95mbison\e[0m module installation"
 fi
@@ -294,9 +294,9 @@ if [[ "$skip_gawk" = 'no' ||  "$1" = 'gawk' ]]; then
     tar xf "$file_gawk" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_gawk" | head -1 | cut -f1 -d"/")"
     #
-    ./configure --prefix="$install_dir" | tee "$install_dir/logs/gawk.log.txt"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" | tee -a "$install_dir/logs/gawk.log.txt"
-    make install | tee -a "$install_dir/logs/gawk.log.txt"
+    ./configure --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/gawk.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/gawk.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/gawk.log.txt"
 else
     [[ "$skip_bison" = 'no' ]] || [[ "$skip_bison" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mgawk\e[0m module installation"
     [[ "$skip_bison" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mgawk\e[0m module installation"
@@ -319,9 +319,9 @@ if [[ "$skip_glibc" = 'no' ]] || [[ "$1" = 'glibc' ]]; then
     mkdir -p "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
     cd "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
     #
-    "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/configure" --prefix="$HOME/qbittorrent-build" --enable-static-nss | tee "$install_dir/logs/glibc.log.txt"
-    make -j$(nproc) | tee -a "$install_dir/logs/glibc.log.txt"
-    make install | tee -a "$install_dir/logs/glibc.log.txt"
+    "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/configure" --prefix="$HOME/qbittorrent-build" --enable-static-nss 2>&1 | tee "$install_dir/logs/glibc.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/glibc.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/glibc.log.txt"
 else
     [[ "$skip_gawk" = 'no' ]] || [[ "$skip_gawk" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mglibc\e[0m module installation"
     [[ "$skip_gawk" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mglibc\e[0m module installation"
@@ -343,11 +343,12 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     tar xf "$file_zlib" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_zlib" | head -1 | cut -f1 -d"/")"
     #
-    ./configure --prefix="$install_dir" --static
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/zlib.log.txt"
+    ./configure --prefix="$install_dir" --static 2>&1 | tee "$install_dir/logs/zlib.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
 else
-    echo -e "\nSkipping \e[95mzlib\e[0m module installation"
+    [[ "$skip_glibc" = 'no' ]] || [[ "$skip_glibc" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mzlib\e[0m module installation"
+    [[ "$skip_glibc" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mzlib\e[0m module installation"
 fi
 #
 ## ICU installation
@@ -491,9 +492,9 @@ if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
     git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qttools.git "$folder_qttools"
     cd "$folder_qttools"
     #
-    "$install_dir/bin/qmake" -set prefix "$install_dir"
-    "$install_dir/bin/qmake"
-    make -j$(nproc) 2>&1 | tee "$install_dir/logs/qttools.log.txt"
+    "$install_dir/bin/qmake" -set prefix "$install_dir" 2>&1 | tee "$install_dir/logs/qttools.log.txt"
+    "$install_dir/bin/qmake" QMAKE_CXXFLAGS="-static" QMAKE_LFLAGS="-static" 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
 else
     [[ "$skip_qtbase" = 'no' ]] || [[ "$skip_qtbase" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqttools\e[0m module installation"
@@ -520,8 +521,6 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     #
     cd "$folder_libtorrent"
     #
-	echo "boost-build $install_dir/share/boost-build/src/kernel ;" > boost-build.jam
-	#
     "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_qttools" = 'no' ]] || [[ "$skip_qttools" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mlibtorrent\e[0m module installation"
@@ -545,7 +544,7 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     cd "$folder_qbittorrent"
     #
     ./bootstrap.sh 2>&1 | tee "$install_dir/logs/qbittorrent.log.txt"
-    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/qbittorrent.log.txt"
+    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="--static -static $CPPFLAGS" LDFLAGS="--static -static $LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -ldl -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/qbittorrent.log.txt"
     #
     sed -i 's/-lboost_system//' conf.pri
     sed -i 's/-lcrypto//' conf.pri
