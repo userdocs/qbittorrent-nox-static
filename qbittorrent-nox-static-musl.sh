@@ -128,6 +128,7 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         echo -e "\n\e[32mUpdating\e[0m\n"
         #
+        "cp" -f /etc/apk/repositories /etc/apk/repositories.backup
         echo 'http://dl-cdn.alpinelinux.org/alpine/latest-stable/main' > /etc/apk/repositories
         echo 'http://dl-cdn.alpinelinux.org/alpine/latest-stable/community' >> /etc/apk/repositories
         #
