@@ -20,9 +20,9 @@ Gives this result:
 
 ~~~bash
 linux-vdso.so.1
-libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2
 libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0
-libstdc++.so.6 => /usr/lib/x86_64-linux-gnu/libstdc++.so.6
+libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2
+libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6
 libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6
 libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1
 libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6
