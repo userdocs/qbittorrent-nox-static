@@ -212,7 +212,7 @@ export lib_dir="$install_dir/lib"
 custom_flags_set () {
     export CXXFLAGS="-std=c++14"
     export CPPFLAGS="--static -static -I$include_dir"
-    export LDFLAGS="--static -static -Wl,--no-as-needed -ldl -L$lib_dir -lpthread -pthread"
+    export LDFLAGS="--static -static -Wl,--no-as-needed -L$lib_dir -lpthread -pthread"
 }
 #
 ## Define some build specific variables
@@ -262,8 +262,8 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     tar xf "$file_zlib" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_zlib" | head -1 | cut -f1 -d"/")"
     #
-    ./configure --prefix="$install_dir" --static
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/zlib.log.txt"
+    ./configure --prefix="$install_dir" --static 2>&1 | tee "$install_dir/logs/zlib.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
 else
     echo -e "\nSkipping \e[95mzlib\e[0m module installation"
@@ -410,9 +410,9 @@ if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
     git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qttools.git "$folder_qttools"
     cd "$folder_qttools"
     #
-    "$install_dir/bin/qmake" -set prefix "$install_dir"
-    "$install_dir/bin/qmake"
-    make -j$(nproc) 2>&1 | tee "$install_dir/logs/qttools.log.txt"
+    "$install_dir/bin/qmake" -set prefix "$install_dir" 2>&1 | tee "$install_dir/logs/qttools.log.txt"
+    "$install_dir/bin/qmake" 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
 else
     [[ "$skip_qtbase" = 'no' ]] || [[ "$skip_qtbase" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqttools\e[0m module installation"
@@ -439,8 +439,6 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     #
     cd "$folder_libtorrent"
     #
-	echo "boost-build $install_dir/share/boost-build/src/kernel ;" > boost-build.jam
-	#
     "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
 else
     [[ "$skip_qttools" = 'no' ]] || [[ "$skip_qttools" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mlibtorrent\e[0m module installation"
