@@ -128,13 +128,13 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         echo -e "\n\e[32mUpdating\e[0m\n"
         #
-        echo 'http://dl-cdn.alpinelinux.org/alpine/latest-stable/main' > /etc/apk/repositories
-        echo 'http://dl-cdn.alpinelinux.org/alpine/latest-stable/community' >> /etc/apk/repositories
+        CDN_URL="http://dl-cdn.alpinelinux.org/alpine/latest-stable/main"
         #
         set +e
         #
-        apk update
-        apk upgrade
+        apk update --repository="$CDN_URL"
+        apk upgrade --repository="$CDN_URL"
+        #
         apk fix
         #
         set -e
@@ -143,7 +143,7 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         echo -e "\n\e[32mInstalling required dependencies\e[0m\n"
         #
-        apk add bash bash-completion build-base pkgconf autoconf automake libtool git perl python3 python3-dev linux-headers
+        apk add bash bash-completion build-base pkgconf autoconf automake libtool git perl python3 python3-dev linux-headers --repository="$CDN_URL"
         #
         echo -e "\n\e[32mDependencies installed!\e[0m"
         #
@@ -470,8 +470,8 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     #
     make -j$(nproc)
     make install
-	#
-	[[ -f "$install_dir/bin/qbittorrent-nox" ]] && cp -f "$install_dir/bin/qbittorrent-nox" "$install_dir/completed/qbittorrent-nox"
+    #
+    [[ -f "$install_dir/bin/qbittorrent-nox" ]] && cp -f "$install_dir/bin/qbittorrent-nox" "$install_dir/completed/qbittorrent-nox"
 else
     [[ "$skip_libtorrent" = 'no' ]] || [[ "$skip_libtorrent" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqbittorrent\e[0m module installation"
     [[ "$skip_libtorrent" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mqbittorrent\e[0m module installation"
