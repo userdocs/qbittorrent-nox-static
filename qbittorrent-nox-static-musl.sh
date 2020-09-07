@@ -20,15 +20,15 @@ SKIP_DELETE='no'
 #
 while (( "$#" )); do
   case "$1" in
-    -b|--build-directory)
+    '-b' | '--build-directory')
       BUILD_DIR=$2
       shift 2
       ;;
-    -nodel|--no-delete)
+    '-nodel' | '--no-delete')
       SKIP_DELETE='yes'
       shift
       ;;
-    -h|--help)
+    '-h' | '--help')
       echo -e "\n\e[1mDefault build location:\e[0m \e[32m$HOME/qbittorrent-build\e[0m"
       echo -e "\n\e[32m-b\e[0m or \e[32m--build-directory\e[0m to set the location of the build directory. Paths are relative to the script location. Recommended that you use a full path."
       echo -e "\n\e[32mall\e[0m - install all modules to the default or specific build directory (when -b is used)"
@@ -53,11 +53,17 @@ while (( "$#" )); do
       echo -e "\nlocal = \e[32m\$HOME/bin\e[0m\n"
       exit 1
       ;;
-    --) # end argument parsing
+    '-p' | '--proxy')
+      # WHEREVER YOU SEE THESE `${PROXY}` VARIABLES, DO NOT QUOTE THESE WITH QUOTATION MARKS!
+      PROXY="-x$2"
+      git config --global http.https://github.com.proxy "$2"
+      shift 2
+      ;;
+    '--') # end argument parsing
       shift
       break
       ;;
-    -*|--*=) # unsupported flags
+    '-'*|'--'*=) # unsupported flags
       echo -e "\nError: Unsupported flag - \e[31m$1\e[0m - use \e[32m-h\e[0m or \e[32m--help\e[0m to see the valid options\n" >&2
       exit 1
       ;;
@@ -225,27 +231,27 @@ export local_openssl="--with-openssl=$install_dir"
 #
 ## Define some URLs to download our apps. They are dynamic and set the most recent version or release.
 #
-export zlib_github_tag="$(curl -sNL https://github.com/madler/zlib/releases | grep -Eom1 'v1.2.([0-9]{1,2})')"
+export zlib_github_tag="$(curl ${PROXY} -sNL https://github.com/madler/zlib/releases | grep -Eom1 'v1.2.([0-9]{1,2})')"
 export zlib_url="https://github.com/madler/zlib/archive/$zlib_github_tag.tar.gz"
 #
-export icu_url="$(curl -sNL https://api.github.com/repos/unicode-org/icu/releases/latest | grep -Eom1 'ht(.*)icu4c(.*)-src.tgz')"
+export icu_url="$(curl ${PROXY} -sNL https://api.github.com/repos/unicode-org/icu/releases/latest | grep -Eom1 'ht(.*)icu4c(.*)-src.tgz')"
 #
-export openssl_github_tag="$(curl -sNL https://github.com/openssl/openssl/releases | grep -Eom1 'OpenSSL_1_1_([0-9][a-z])')"
+export openssl_github_tag="$(curl ${PROXY} -sNL https://github.com/openssl/openssl/releases | grep -Eom1 'OpenSSL_1_1_([0-9][a-z])')"
 export openssl_url="https://github.com/openssl/openssl/archive/$openssl_github_tag.tar.gz"
 #
-export boost_version="$(curl -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p')"
+export boost_version="$(curl ${PROXY} -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p')"
 export boost_github_tag="boost-$boost_version"
 export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
-export boost_url_status="$(curl -o /dev/null --silent --head --write-out '%{http_code}' https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz)"
+export boost_url_status="$(curl ${PROXY} -o /dev/null -s --head --write-out '%{http_code}' https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz)"
 export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
 #
 export qt_version='5.15'
-export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
+export qt_github_tag="$(curl ${PROXY} -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
 #
 export libtorrent_version='1.2'
-export libtorrent_github_tag="$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eom1 "v$libtorrent_version.([0-9]{1,2})")"
+export libtorrent_github_tag="$(curl ${PROXY} -sNL https://github.com/arvidn/libtorrent/releases | grep -Eom1 "v$libtorrent_version.([0-9]{1,2})")"
 #
-export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
+export qbittorrent_github_tag="$(curl ${PROXY} -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
 #
 ## zlib installation
 #
@@ -259,7 +265,7 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     #
     [[ -f "$file_zlib" ]] && rm -rf {"$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]")","$file_zlib"}
     #
-    curl -sSLR -o "$file_zlib" "$zlib_url"
+    curl ${PROXY} -sSLR -o "$file_zlib" "$zlib_url"
     tar xf "$file_zlib" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_zlib" | head -1 | cut -f1 -d"/")"
     #
@@ -282,7 +288,7 @@ if [[ "$skip_icu" = 'no' || "$1" = 'icu' ]]; then
     #
     [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
     #
-    curl -sSLR -o "$file_icu" "$icu_url"
+    curl ${PROXY} -sSLR -o "$file_icu" "$icu_url"
     tar xf "$file_icu" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_icu" | head -1 | cut -f1 -d"/")/source"
     #
@@ -306,7 +312,7 @@ if [[ "$skip_openssl" = 'no' || "$1" = 'openssl' ]]; then
     #
     [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
     #
-    curl -sSLR -o "$file_openssl" "$openssl_url"
+    curl ${PROXY} -sSLR -o "$file_openssl" "$openssl_url"
     tar xf "$file_openssl" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_openssl" | head -1 | cut -f1 -d"/")"
     #
@@ -330,7 +336,7 @@ if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
     #
     [[ -f "$file_boost_build" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]")","$file_boost_build"}
     #
-    curl -sSLR -o "$file_boost_build" "$boost_build_url"
+    curl ${PROXY} -sSLR -o "$file_boost_build" "$boost_build_url"
     tar xf "$file_boost_build" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_boost_build" | head -1 | cut -f1 -d"/")"
     #
@@ -350,7 +356,7 @@ if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
         #
         [[ -f "$file_boost" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]")","$file_boost"}
         #
-        curl -sSLR -o "$file_boost" "$boost_url"
+        curl ${PROXY} -sSLR -o "$file_boost" "$boost_url"
         #
         tar xf "$file_boost" -C "$install_dir"
         #
