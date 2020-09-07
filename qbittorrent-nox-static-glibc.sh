@@ -268,7 +268,7 @@ if [[ "$skip_bison" = 'no' ||  "$1" = 'bison' ]]; then
     #
     [[ -f "$file_bison" ]] && rm -rf {"$install_dir/$(tar tf "$file_bison" | grep -Eom1 "(.*)[^/]")","$file_bison"}
     #
-    wget -qO "$file_bison" "$bison_url"
+    curl -sSLR -o "$file_bison" "$bison_url"
     tar xf "$file_bison" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_bison" | head -1 | cut -f1 -d"/")"
     #
@@ -291,7 +291,7 @@ if [[ "$skip_gawk" = 'no' ||  "$1" = 'gawk' ]]; then
     #
     [[ -f "$file_gawk" ]] && rm -rf {"$install_dir/$(tar tf "$file_gawk" | grep -Eom1 "(.*)[^/]")","$file_gawk"}
     #
-    wget -qO "$file_gawk" "$gawk_url"
+    curl -sSLR -o "$file_gawk" "$gawk_url"
     tar xf "$file_gawk" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_gawk" | head -1 | cut -f1 -d"/")"
     #
@@ -315,7 +315,7 @@ if [[ "$skip_glibc" = 'no' ]] || [[ "$1" = 'glibc' ]]; then
     #
     [[ -f "$file_glibc" ]] && rm -rf {"$install_dir/$(tar tf "$file_glibc" | grep -Eom1 "(.*)[^/]")","$file_glibc"}
     #
-    wget -qO "$file_glibc" "$glibc_url"
+    curl -sSLR -o "$file_glibc" "$glibc_url"
     tar xf "$file_glibc" -C "$install_dir"
     mkdir -p "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
     cd "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
@@ -340,7 +340,7 @@ if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
     #
     [[ -f "$file_zlib" ]] && rm -rf {"$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]")","$file_zlib"}
     #
-    wget -qO "$file_zlib" "$zlib_url"
+    curl -sSLR -o "$file_zlib" "$zlib_url"
     tar xf "$file_zlib" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_zlib" | head -1 | cut -f1 -d"/")"
     #
@@ -364,7 +364,7 @@ if [[ "$skip_icu" = 'no' || "$1" = 'icu' ]]; then
     #
     [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
     #
-    wget -qO "$file_icu" "$icu_url"
+    curl -sSLR -o "$file_icu" "$icu_url"
     tar xf "$file_icu" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_icu" | head -1 | cut -f1 -d"/")/source"
     #
@@ -388,7 +388,7 @@ if [[ "$skip_openssl" = 'no' || "$1" = 'openssl' ]]; then
     #
     [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
     #
-    wget -qO "$file_openssl" "$openssl_url"
+    curl -sSLR -o "$file_openssl" "$openssl_url"
     tar xf "$file_openssl" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_openssl" | head -1 | cut -f1 -d"/")"
     #
@@ -412,7 +412,7 @@ if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
     #
     [[ -f "$file_boost_build" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]")","$file_boost_build"}
     #
-    wget -qO "$file_boost_build" "$boost_build_url"
+    curl -sSLR -o "$file_boost_build" "$boost_build_url"
     tar xf "$file_boost_build" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_boost_build" | head -1 | cut -f1 -d"/")"
     #
@@ -432,7 +432,7 @@ if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
         #
         [[ -f "$file_boost" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]")","$file_boost"}
         #
-        wget -qO "$file_boost" "$boost_url"
+        curl -sSLR -o "$file_boost" "$boost_url"
         #
         tar xf "$file_boost" -C "$install_dir"
         #
