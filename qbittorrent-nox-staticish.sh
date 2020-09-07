@@ -355,7 +355,7 @@ if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
         #
         [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
         #
-        git clone --branch "$boost_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/boostorg/boost.git "$folder_boost"
+        git clone --single-branch --no-tags --branch "$boost_github_tag" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 https://github.com/boostorg/boost.git "$folder_boost"
         #
         cd "$folder_boost"
     fi
@@ -378,7 +378,7 @@ if [[ "$skip_qtbase" = 'no' ]] || [[ "$1" = 'qtbase' ]]; then
     #
     [[ -d "$folder_qtbase" ]] && rm -rf "$folder_qtbase"
     #
-    git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qtbase.git "$folder_qtbase"
+    git clone --single-branch --no-tags --branch "$qt_github_tag" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 https://github.com/qt/qtbase.git "$folder_qtbase"
     cd "$folder_qtbase"
     #
     ./configure -prefix "$install_dir" -openssl-linked -static -opensource -confirm-license -release -c++std c++14 -no-shared -no-opengl -no-dbus -no-widgets -no-gui -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/qtbase.log.txt"
@@ -401,7 +401,7 @@ if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
     #
     [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
     #
-    git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qttools.git "$folder_qttools"
+    git clone --single-branch --no-tags --branch "$qt_github_tag" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 https://github.com/qt/qttools.git "$folder_qttools"
     cd "$folder_qttools"
     #
     "$install_dir/bin/qmake" -set prefix "$install_dir" 2>&1 | tee "$install_dir/logs/qttools.log.txt"
@@ -425,7 +425,7 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     #
     [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
     #
-    git clone --branch "$libtorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
+    git clone --single-branch --no-tags --branch "$libtorrent_github_tag" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
     #
     export BOOST_ROOT=$install_dir/boost_${boost_version//./_}/
     export BOOST_INCLUDEDIR=$install_dir/boost_${boost_version//./_}/boost
@@ -451,7 +451,7 @@ if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
     #
     [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
     #
-    git clone --branch "$qbittorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qbittorrent/qBittorrent.git "$folder_qbittorrent"
+    git clone --single-branch --no-tags --branch "$qbittorrent_github_tag" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 https://github.com/qbittorrent/qBittorrent.git "$folder_qbittorrent"
     #
     cd "$folder_qbittorrent"
     #
