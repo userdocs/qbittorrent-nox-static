@@ -252,7 +252,7 @@ export qt_version='5.15'
 export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
 #
 export libtorrent_version='1.2'
-export libtorrent_version="$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eom1 "v$libtorrent_version.([0-9]{1,2})")"
+export libtorrent_github_tag="$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eom1 "v$libtorrent_version.([0-9]{1,2})")"
 #
 export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
 #
