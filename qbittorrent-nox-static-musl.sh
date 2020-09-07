@@ -242,7 +242,8 @@ export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_
 export qt_version='5.15'
 export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
 #
-export libtorrent_github_tag="$(curl -sNL https://api.github.com/repos/arvidn/libtorrent/releases/latest | sed -rn 's#(.*)"tag_name": "(.*)",#\2#p')"
+export libtorrent_version='1.2'
+export libtorrent_version="$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eom1 "v$libtorrent_version.([0-9]{1,2})")"
 #
 export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
 #
@@ -285,9 +286,9 @@ if [[ "$skip_icu" = 'no' || "$1" = 'icu' ]]; then
     tar xf "$file_icu" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_icu" | head -1 | cut -f1 -d"/")/source"
     #
-    ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS"
-    make -j$(nproc)
-    make install
+    ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/icu.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/icu.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/icu.log.txt"
 else
     [[ "$skip_zlib" = 'no' ]] || [[ "$skip_zlib" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95micu\e[0m module installation"
     [[ "$skip_zlib" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95micu\e[0m module installation"
@@ -439,7 +440,7 @@ if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
     #
     cd "$folder_libtorrent"
     #
-    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/libtorrent.log.txt"
 else
     [[ "$skip_qttools" = 'no' ]] || [[ "$skip_qttools" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mlibtorrent\e[0m module installation"
     [[ "$skip_qttools" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mlibtorrent\e[0m module installation"
