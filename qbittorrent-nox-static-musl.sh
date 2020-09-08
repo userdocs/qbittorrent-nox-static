@@ -225,27 +225,33 @@ export local_openssl="--with-openssl=$install_dir"
 #
 ## Define some URLs to download our apps. They are dynamic and set the most recent version or release.
 #
-export zlib_github_tag="$(curl -sNL https://github.com/madler/zlib/releases | grep -Eom1 'v1.2.([0-9]{1,2})')"
-export zlib_url="https://github.com/madler/zlib/archive/$zlib_github_tag.tar.gz"
+export zlib_github_tag="$(curl ${PROXY} -H "Accept: application/json" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0" -sSNL \
+                               https://api.github.com/repos/madler/zlib/tags?per_page=32 | grep 'name' | cut -d\" -f4 | grep -Em1 '1\.2\.')"
+export zlib_url='https://github.com/madler/zlib/archive/'"$zlib_github_tag"'.tar.gz'
 #
-export icu_url="$(curl -sNL https://api.github.com/repos/unicode-org/icu/releases/latest | grep -Eom1 'ht(.*)icu4c(.*)-src.tgz')"
+export icu_url="$(curl ${PROXY} -H "Accept: application/json" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0" -sSNL \
+                       https://api.github.com/repos/unicode-org/icu/releases/latest | grep 'browser_download_url' | cut -d\" -f4 | grep -Em1 'icu4c(.+)-src.tgz')"
 #
-export openssl_github_tag="$(curl -sNL https://github.com/openssl/openssl/releases | grep -Eom1 'OpenSSL_1_1_([0-9][a-z])')"
-export openssl_url="https://github.com/openssl/openssl/archive/$openssl_github_tag.tar.gz"
+export openssl_github_tag="$(curl ${PROXY} -H "Accept: application/json" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0" -sSNL \
+                                  https://api.github.com/repos/openssl/openssl/tags?per_page=32 | grep 'name' | cut -d\" -f4 | grep -Em1 'OpenSSL_1_1_[0-9][a-z]')"
+export openssl_url='https://github.com/openssl/openssl/archive/'"$openssl_github_tag"'.tar.gz'
 #
-export boost_version="$(curl -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p')"
-export boost_github_tag="boost-$boost_version"
+export boost_prefix='boost-'
+export boost_github_tag="$(curl ${PROXY} -H "Accept: application/json" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0" -sSNL \
+                             https://api.github.com/repos/boostorg/boost/tags?per_page=32 | grep 'name' | cut -d\" -f4 | grep -Em1 ${boost_prefix}'1\.[0-9].+')"
+export boost_version="${boost_github_tag/${boost_prefix}/}"
 export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
-export boost_url_status="$(curl -o /dev/null --silent --head --write-out '%{http_code}' https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz)"
-export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
+export boost_url_status="$(curl ${PROXY} -o /dev/null -s --head --write-out '%{http_code}' https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz)"
+export boost_build_url='https://github.com/boostorg/build/archive/'"$boost_github_tag"'.tar.gz'
 #
-export qt_version='5.15'
-export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
+export qt_github_tag="$(curl ${PROXY} -H "Accept: application/json" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0" -sSNL \
+                             https://api.github.com/repos/qt/qtbase/tags?per_page=32 | grep 'name' | cut -d\" -f4 | grep -Em1 '5\.15\.')"
 #
-export libtorrent_version='1.2'
-export libtorrent_github_tag="$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eom1 "v$libtorrent_version.([0-9]{1,2})")"
+export libtorrent_github_tag="$(curl ${PROXY} -H "Accept: application/json" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0" -sSNL \
+                                     https://api.github.com/repos/arvidn/libtorrent/tags?per_page=32 | grep 'name' | cut -d\" -f4 | grep -Em1 'libtorrent-1\.2\.')"
 #
-export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
+export qbittorrent_github_tag="$(curl ${PROXY} -H "Accept: application/json" -H "User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:74.0) Gecko/20100101 Firefox/74.0" -sSNL \
+                                      https://api.github.com/repos/qbittorrent/qBittorrent/tags?per_page=32 | grep 'name' | cut -d\" -f4 | grep -Em1 'release-[0-9]\.')"
 #
 ## zlib installation
 #
