@@ -12,6 +12,8 @@
 #
 set -e
 #
+alias curl='"curl" --retry 5 --retry-delay 10 --retry-max-time 60'
+#
 ## Define some special arguments we can use to set the build directory without editing the script.
 #
 PARAMS=""
