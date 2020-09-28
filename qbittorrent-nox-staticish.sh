@@ -327,7 +327,7 @@ if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
     tar xf "$file_boost_build" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_boost_build" | head -1 | cut -f1 -d"/")"
     #
-    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost_build.log.txt" 2>&1 | tee "$install_dir/logs/boost_build.log.txt"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost_build.log.txt"
     ./b2 install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/boost_build.log.txt"
 else
     [[ "$skip_openssl" = 'no' ]] || [[ "$skip_openssl" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost_build\e[0m module installation"
@@ -337,6 +337,8 @@ fi
 ## boost libraries install
 #
 if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
+    #
+    custom_flags_set
     #
     if [[ "$boost_url_status" -eq '200' ]]; then
         file_boost="$install_dir/boost.tar.gz"
@@ -359,8 +361,9 @@ if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
         #
         cd "$folder_boost"
     fi
-    ./bootstrap.sh
-    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir"
+    #
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost.log.txt"
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/boost.log.txt"
 else
     [[ "$skip_boost_build" = 'no' ]] || [[ "$skip_boost_build" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost\e[0m module installation"
     [[ "$skip_boost_build" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mboost\e[0m module installation"
@@ -381,7 +384,7 @@ if [[ "$skip_qtbase" = 'no' ]] || [[ "$1" = 'qtbase' ]]; then
     git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qtbase.git "$folder_qtbase"
     cd "$folder_qtbase"
     #
-    ./configure -prefix "$install_dir" -openssl-linked -static -opensource -confirm-license -release -c++std c++14 -no-shared -no-opengl -no-dbus -no-widgets -no-gui -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/qtbase.log.txt"
+    ./configure -prefix "$install_dir" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/qtbase.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
 else
