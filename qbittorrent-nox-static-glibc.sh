@@ -17,6 +17,7 @@ set -e
 PARAMS=""
 BUILD_DIR=""
 SKIP_DELETE='no'
+SKIP_ICU='yes'
 #
 while (( "$#" )); do
   case "$1" in
@@ -26,6 +27,10 @@ while (( "$#" )); do
       ;;
     -nodel|--no-delete)
       SKIP_DELETE='yes'
+      shift
+      ;;
+    -icu|--icu)
+      SKIP_ICU='no'
       shift
       ;;
     -h|--help)
@@ -94,7 +99,7 @@ modules='^(all|bison|gawk|glibc|zlib|icu|openssl|boost_build|boost|qtbase|qttool
 [[ "$1" = 'all' ]] && skip_gawk='no' || skip_gawk='yes'
 [[ "$1" = 'all' ]] && skip_glibc='no' || skip_glibc='yes'
 [[ "$1" = 'all' ]] && skip_zlib='no' || skip_zlib='yes'
-[[ "$1" = 'all' ]] && skip_icu='no' || skip_icu='yes'
+[[ "$1" = 'all' ]] && skip_icu="$SKIP_ICU" || skip_icu='yes'
 [[ "$1" = 'all' ]] && skip_openssl='no' || skip_openssl='yes'
 [[ "$1" = 'all' ]] && skip_boost_build='no' || skip_boost_build='yes'
 [[ "$1" = 'all' ]] && skip_boost='no' || skip_boost='yes'
