@@ -263,7 +263,7 @@ download_folder () {
     echo -e "\n\e[32mInstalling $1\e[0m\n"
     folder_name="$install_dir/$1"
     [[ -d "$folder_name" ]] && rm -rf "$folder_name"
-    git ${GIT_PROXY} clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 "${url_github}" "${folder_name}" || :
+    git ${GIT_PROXY} clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 "${url_github}" "${folder_name}"
     cd "${folder_name}${subdir}"
 }
 #
