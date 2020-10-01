@@ -245,9 +245,6 @@ curl="curl --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 10 --retry-
 #
 ## Functions
 #
-
-#
-## a download and extract function
 download_file () {
     url_filename="${2}"
     [[ -n "$3" ]] && subdir="/$3" || : 
