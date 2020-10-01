@@ -47,7 +47,7 @@ while (( "$#" )); do
       shift
       ;;
     -p|--proxy)
-	  export GIT_PROXY="-c http.sslVerify=false -c http.https://github.com.proxy=$2"
+      export GIT_PROXY="-c http.sslVerify=false -c http.https://github.com.proxy=$2"
       export CURL_PROXY="-x $2"
       shift
       ;;
@@ -251,7 +251,7 @@ download_file () {
     echo -e "\n\e[32mInstalling $1\e[0m\n"
     file_name="$install_dir/$1.tar.gz"
     [[ -f "$file_name" ]] && rm -rf {"$install_dir/$(tar tf "$file_name" | grep -Eom1 "(.*)[^/]")","$file_name"}
-	${curl} "${url_filename}" -o "$file_name"
+    ${curl} "${url_filename}" -o "$file_name"
     tar xf "$file_name" -C "$install_dir"
     cd "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")${subdir}"
 }
