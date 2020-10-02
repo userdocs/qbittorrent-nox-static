@@ -242,7 +242,11 @@ export local_openssl="--with-openssl=$install_dir"
 ## Curl
 #
 curl() {
-  $(type -P curl) -sSLNq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 ${CURL_PROXY} "$@"
+  if [[ -z "$CURL_PROXY" ]]; then
+    $(type -P curl) -sSLNq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
+  else
+    $(type -P curl) -sSLNq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 --proxy-insecure ${CURL_PROXY} "$@"
+  fi
 }
 #
 ## Functions
