@@ -247,7 +247,7 @@ curl="curl --connect-timeout 5 --max-time 10 --retry 5 --retry-delay 10 --retry-
 #
 download_file () {
     url_filename="${2}"
-    [[ -n "$3" ]] && subdir="/$3" || : 
+    [[ -n "$3" ]] && subdir="/$3" || subdir=""
     echo -e "\n\e[32mInstalling $1\e[0m\n"
     file_name="$install_dir/$1.tar.gz"
     [[ -f "$file_name" ]] && rm -rf {"$install_dir/$(tar tf "$file_name" | grep -Eom1 "(.*)[^/]")","$file_name"}
@@ -259,7 +259,7 @@ download_file () {
 download_folder () {
     github_tag="${1}_github_tag"
     url_github="${2}"
-    [[ -n "$3" ]] && subdir="/$3" || :
+    [[ -n "$3" ]] && subdir="/$3" || subdir=""
     echo -e "\n\e[32mInstalling $1\e[0m\n"
     folder_name="$install_dir/$1"
     [[ -d "$folder_name" ]] && rm -rf "$folder_name"
