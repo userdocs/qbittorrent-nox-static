@@ -366,9 +366,9 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
     download_file "$app_name" "${!app_url}"
     #
-    ./configure --prefix="$install_dir" --static 2>&1 | tee "$install_dir/logs/zlib.log.txt"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
+    ./configure --prefix="$install_dir" --static 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     delete_function "$app_name"
 else
@@ -383,9 +383,9 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
     download_file "$app_name" "${!app_url}" "/source"
     #
-    ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/icu.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/icu.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/icu.log.txt"
+    ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     delete_function "$app_name"
 else
@@ -400,7 +400,7 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
     download_file "$app_name" "${!app_url}"
     #
-    ./configure --prefix="$install_dir" --disable-shared --enable-static --enable-utf --enable-jit --enable-pcre16 --enable-pcre32 --enable-pcregrep-libz CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/icu.log.txt"
+    ./configure --prefix="$install_dir" --disable-shared --enable-static --enable-utf --enable-jit --enable-pcre16 --enable-pcre32 --enable-pcregrep-libz CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
@@ -418,7 +418,7 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
     download_file "$app_name" "${!app_url}"
     #
-    ./configure --prefix="$install_dir" --disable-shared --enable-static --enable-unicode --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-pcre2grep-libz CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/icu.log.txt"
+    ./configure --prefix="$install_dir" --disable-shared --enable-static --enable-unicode --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-pcre2grep-libz CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
@@ -435,9 +435,9 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
     download_file "$app_name" "${!app_url}"
     #
-    ./config --prefix="$install_dir" threads no-shared no-dso no-comp CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/openssl.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/openssl.log.txt"
-    make install_sw install_ssldirs 2>&1 | tee -a "$install_dir/logs/openssl.log.txt"
+    ./config --prefix="$install_dir" threads no-shared no-dso no-comp CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install_sw install_ssldirs 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     delete_function "$app_name"
 else
@@ -452,8 +452,8 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
     download_file "$app_name" "${!app_url}"
     #
-    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost_build.log.txt"
-    ./b2 install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/boost_build.log.txt"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    ./b2 install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     delete_function "$app_name"
 else
@@ -477,8 +477,8 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
         download_folder "$app_name" "${!app_github_url}"
     fi
     #
-    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost.log.txt"
-    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/boost.log.txt"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
 else
     application_skip
 fi
@@ -491,9 +491,9 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     download_folder "$app_name" "${!app_github_url}"
     #
-    ./configure -prefix "$install_dir" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/qtbase.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
+    ./configure -prefix "$install_dir" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     delete_function "$app_name"
 else
@@ -508,10 +508,10 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     download_folder "$app_name" "${!app_github_url}"
     #
-    "$install_dir/bin/qmake" -set prefix "$install_dir" 2>&1 | tee "$install_dir/logs/qttools.log.txt"
-    "$install_dir/bin/qmake" 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
+    "$install_dir/bin/qmake" -set prefix "$install_dir" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    "$install_dir/bin/qmake" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     delete_function "$app_name"
 else
@@ -533,7 +533,7 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
         export BOOST_INCLUDEDIR="$install_dir/boost"
         export BOOST_BUILD_PATH="$install_dir/boost"
         #
-        "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/libtorrent.log.txt"
+        "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
         #
         delete_function boost
         delete_function "$app_name"
@@ -550,8 +550,8 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     download_folder "$app_name" "${!app_github_url}"
     #
-    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/qbittorrent.log.txt"
-    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/qbittorrent.log.txt"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     sed -i 's/-lboost_system//' conf.pri
     sed -i 's/-lcrypto//' conf.pri
