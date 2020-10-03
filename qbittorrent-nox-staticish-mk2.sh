@@ -21,8 +21,6 @@ PARAMS=""
 BUILD_DIR=""
 SKIP_DELETE='no'
 SKIP_ICU='yes'
-SKIP_PCRE='yes'
-SKIP_PCRE2='yes'
 GITHUB_TAG=''
 GIT_PROXY=''
 CURL_PROXY=''
@@ -41,14 +39,6 @@ while (( "$#" )); do
       ;;
     -icu|--icu)
       SKIP_ICU='no'
-      shift
-      ;;
-    -pcre|--pcre)
-      SKIP_PCRE='no'
-      shift
-      ;;
-    -pcre2|--pcre2)
-      SKIP_PCRE2='no'
       shift
       ;;
     -m|--master)
@@ -118,14 +108,12 @@ echo -e "\n\e[1mScript help\e[0m : \e[32m$(basename -- "$0") -h\e[0m"
 #
 ## This is a list of all modules.
 #
-modules='^(all|zlib|icu|pcre|pcre2|openssl|boost_build|boost|qtbase|qttools|libtorrent|qbittorrent)$'
+modules='^(all|zlib|icu|openssl|boost_build|boost|qtbase|qttools|libtorrent|qbittorrent)$'
 #
 ## The installation is modular. You can select the parts you want or need here or using ./scriptname module or install everything using ./scriptname all
 #
 [[ "$1" = 'all' ]] && skip_zlib='no' || skip_zlib='yes'
 [[ "$1" = 'all' ]] && skip_icu="$SKIP_ICU" || skip_icu='yes'
-[[ "$1" = 'all' ]] && skip_pcre="$SKIP_PCRE" || skip_pcre='yes'
-[[ "$1" = 'all' ]] && skip_pcre2="$SKIP_PCRE2" || skip_pcre2='yes'
 [[ "$1" = 'all' ]] && skip_openssl='no' || skip_openssl='yes'
 [[ "$1" = 'all' ]] && skip_boost_build='no' || skip_boost_build='yes'
 [[ "$1" = 'all' ]] && skip_boost='no' || skip_boost='yes'
@@ -254,9 +242,9 @@ export local_openssl="--with-openssl=$install_dir"
 #
 curl () {
     if [[ -z "$CURL_PROXY" ]]; then
-        "$(type -P curl)" -sSLNq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
+        "$(type -P curl)" -sSLN4q --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
     else
-        "$(type -P curl)" -sSLNq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 --proxy-insecure ${CURL_PROXY} "$@" 
+        "$(type -P curl)" -sSLN4q --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 --proxy-insecure ${CURL_PROXY} "$@" 
     fi
 }
 #
@@ -319,9 +307,6 @@ export zlib_url="https://github.com/madler/zlib/archive/$zlib_github_tag.tar.gz"
 #
 export icu_url="$(curl https://api.github.com/repos/unicode-org/icu/releases/latest > $curl_url_data && grep -Eom1 'ht(.*)icu4c(.*)-src.tgz' $curl_url_data)"
 #
-export pcre_url="https://ftp.pcre.org/pub/pcre/$(curl https://ftp.pcre.org/pub/pcre/ > $curl_url_data && grep -Eo 'pcre-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' $curl_url_data | sort -V | tail -1)"
-export pcre2_url="https://ftp.pcre.org/pub/pcre/$(curl https://ftp.pcre.org/pub/pcre/ > $curl_url_data && grep -Eo 'pcre2-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' $curl_url_data | sort -V | tail -1)"
-#
 export openssl_github_tag="$(curl https://github.com/openssl/openssl/releases > $curl_url_data && grep -Eom1 'OpenSSL_1_1_([0-9][a-z])' $curl_url_data)"
 export openssl_url="https://github.com/openssl/openssl/archive/$openssl_github_tag.tar.gz"
 #
@@ -334,9 +319,9 @@ export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_
 export boost_github_url="https://github.com/boostorg/boost.git"
 #
 export qt_version='5.15'
-export qtbase_github_tag="$(curl https://github.com/qt/qtbase/releases> $curl_url_data && grep -Eom1 "v$qt_version.([0-9]{1,2})" $curl_url_data)"
+export qtbase_github_tag="$(curl https://github.com/qt/qtbase/releases > $curl_url_data && grep -Eom1 "v$qt_version.([0-9]{1,2})" $curl_url_data)"
 export qtbase_github_url="https://github.com/qt/qtbase.git"
-export qttools_github_tag="$(curl https://github.com/qt/qttools/releases> $curl_url_data && grep -Eom1 "v$qt_version.([0-9]{1,2})" $curl_url_data)"
+export qttools_github_tag="$(curl https://github.com/qt/qttools/releases > $curl_url_data && grep -Eom1 "v$qt_version.([0-9]{1,2})" $curl_url_data)"
 export qttools_github_url="https://github.com/qt/qttools.git"
 #
 export libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
@@ -384,41 +369,6 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     download_file "$app_name" "${!app_url}" "/source"
     #
     ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
-    #
-    delete_function "$app_name"
-else
-    application_skip
-fi
-#
-## pcre installation
-#
-application_name pcre
-#
-if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
-    custom_flags_set
-    download_file "$app_name" "${!app_url}"
-    #
-    ./configure --prefix="$install_dir" --disable-shared --enable-static --enable-utf --enable-jit --enable-pcre16 --enable-pcre32 --enable-pcregrep-libz CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
-    #
-    delete_function "$app_name"
-else
-    application_skip
-fi
-#
-#
-## pcre2 installation
-#
-application_name pcre2
-#
-if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
-    custom_flags_set
-    download_file "$app_name" "${!app_url}"
-    #
-    ./configure --prefix="$install_dir" --disable-shared --enable-static --enable-unicode --enable-jit --enable-pcre2-16 --enable-pcre2-32 --enable-pcre2grep-libz CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
@@ -491,7 +441,8 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     download_folder "$app_name" "${!app_github_url}"
     #
-    ./configure -prefix "$install_dir" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+	[[ "$SKIP_ICU" = 'no' ]] && icu='-icu' || icu='-no-icu'
+    ./configure -prefix "$install_dir" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
@@ -557,8 +508,8 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     sed -i 's/-lcrypto//' conf.pri
     sed -i 's/-lssl//' conf.pri
     #
-    make -j$(nproc)
-    make install
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt" 
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     [[ -f "$install_dir/bin/qbittorrent-nox" ]] && cp -f "$install_dir/bin/qbittorrent-nox" "$install_dir/completed/qbittorrent-nox"
     #
