@@ -6,31 +6,59 @@
 #
 # @author - userdocs
 #
+# @contributors IceCodeNew
+# 
 # @credits - https://gist.github.com/notsure2
 #
 ## https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #
 set -e
 #
-## Define some special arguments we can use to set the build directory without editing the script.
+## Do not edit these variables. They set the default values to some critical variables.
 #
+WORKING_DIR="$(printf "$(dirname "$0")" | pwd)" # used for the cd commands to cd back to the working directory the script was executed from.
 PARAMS=""
 BUILD_DIR=""
 SKIP_DELETE='no'
+SKIP_BISON='no'
+SKIP_GAWK='no'
+SKIP_GLIBC='no'
 SKIP_ICU='yes'
+GITHUB_TAG=''
+GIT_PROXY=''
+CURL_PROXY=''
+STATIC='yes'
+#
+## This section controls our flags that we can pass to the script to modify some variables and behaviour.
 #
 while (( "$#" )); do
   case "$1" in
     -b|--build-directory)
-      BUILD_DIR=$2
+      BUILD_DIR="$2"
       shift 2
       ;;
-    -nodel|--no-delete)
+    -n|--no-delete)
       SKIP_DELETE='yes'
       shift
       ;;
-    -icu|--icu)
+    -i|--icu)
       SKIP_ICU='no'
+      shift
+      ;;
+    -m|--master)
+      GITHUB_TAG='master'
+      shift
+      ;;
+    -p|--proxy)
+      export GIT_PROXY="-c http.sslVerify=false -c http.https://github.com.proxy=$2"
+      export CURL_PROXY="-x $2"
+      shift
+      ;;
+    '-ish'|'--ish')
+      STATIC='no'
+	  SKIP_BISON='yes'
+	  SKIP_GAWK='yes'
+	  SKIP_GLIBC='yes'
       shift
       ;;
     -h|--help)
@@ -77,9 +105,17 @@ done
 #
 eval set -- "$PARAMS"
 #
-## The build and installation directory. If the argument -b is used to set a build dir that directory is set and used. If nothing is specifed or the switch is not used it defaults to the hardcoed ~/qbittorrent-build
+## The build and installation directory. If the argument -b is used to set a build dir that directory is set and used. If nothing is specified or the switch is not used it defaults to the hard-coded ~/qbittorrent-build
 #
-[[ -n "$BUILD_DIR" ]] && export install_dir="$BUILD_DIR" || export install_dir="$HOME/qbittorrent-build"
+if [[ -n "$BUILD_DIR" ]]; then
+	if [[ "$BUILD_DIR" =~ ^/ ]]; then
+		export install_dir="$BUILD_DIR"
+	else
+		export install_dir="${HOME}/${BUILD_DIR}"
+	fi
+else
+    export install_dir="$HOME/qbittorrent-build"
+fi
 #
 ## Echo the build directory.
 #
@@ -95,9 +131,9 @@ modules='^(all|bison|gawk|glibc|zlib|icu|openssl|boost_build|boost|qtbase|qttool
 #
 ## The installation is modular. You can select the parts you want or need here or using ./scriptname module or install everything using ./scriptname all
 #
-[[ "$1" = 'all' ]] && skip_bison='no' || skip_bison='yes'
-[[ "$1" = 'all' ]] && skip_gawk='no' || skip_gawk='yes'
-[[ "$1" = 'all' ]] && skip_glibc='no' || skip_glibc='yes'
+[[ "$1" = 'all' ]] && skip_bison="$SKIP_BISON" || skip_bison='yes'
+[[ "$1" = 'all' ]] && skip_gawk="$SKIP_GAWK" || skip_gawk='yes'
+[[ "$1" = 'all' ]] && skip_glibc="$SKIP_GLIBC" || skip_glibc='yes'
 [[ "$1" = 'all' ]] && skip_zlib='no' || skip_zlib='yes'
 [[ "$1" = 'all' ]] && skip_icu="$SKIP_ICU" || skip_icu='yes'
 [[ "$1" = 'all' ]] && skip_openssl='no' || skip_openssl='yes'
@@ -230,368 +266,350 @@ export PKG_CONFIG_PATH="-L$lib_dir/pkgconfig"
 export local_boost="--with-boost=$install_dir"
 export local_openssl="--with-openssl=$install_dir"
 #
+## Functions
+#
+curl () {
+    if [[ -z "$CURL_PROXY" ]]; then
+        "$(type -P curl)" -sSLN4q --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
+    else
+        "$(type -P curl)" -sSLN4q --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 --proxy-insecure ${CURL_PROXY} "$@" 
+    fi
+}
+#
+download_file () {
+    url_filename="${2}"
+    [[ -n "$3" ]] && subdir="/$3" || subdir=""
+    echo -e "\n\e[32mInstalling $1\e[0m\n"
+    file_name="$install_dir/$1.tar.gz"
+    [[ -f "$file_name" ]] && rm -rf {"$install_dir/$(tar tf "$file_name" | grep -Eom1 "(.*)[^/]")","$file_name"}
+    curl "${url_filename}" -o "$file_name"
+    tar xf "$file_name" -C "$install_dir"
+	mkdir -p "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")${subdir}"
+    cd "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")${subdir}"
+}
+#
+download_folder () {
+    github_tag="${1}_github_tag"
+    url_github="${2}"
+    [[ -n "$3" ]] && subdir="/$3" || subdir=""
+    echo -e "\n\e[32mInstalling $1\e[0m\n"
+    folder_name="$install_dir/$1"
+    [[ -d "$folder_name" ]] && rm -rf "$folder_name"
+    git ${GIT_PROXY} clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 "${url_github}" "${folder_name}"
+	mkdir -p "${folder_name}${subdir}"
+    cd "${folder_name}${subdir}"
+}
+#
+## a file deletion function
+#
+delete_function () {
+    if [[ "$SKIP_DELETE" = 'no' ]]; then
+        [[ "$2" = 'last' ]] && echo -e "\n\e[91mDeleting $1 installation files and folders\e[0m\n" || echo -e "\n\e[91mDeleting $1 installation files and folders\e[0m"
+        #
+        file_name="$install_dir/$1.tar.gz"
+        folder_name="$install_dir/$1"
+        [[ -f "$file_name" ]] && rm -rf {"$install_dir/$(tar tf "$file_name" | grep -Eom1 "(.*)[^/]")","$file_name"}
+        [[ -d "$folder_name" ]] && rm -rf "$folder_name"
+        cd "$WORKING_DIR"
+    else
+        [[ "$2" = 'last' ]] && echo -e "\n\e[91mSkipping $1 deletion\e[0m\n" || echo -e "\n\e[91mSkipping $1 deletion\e[0m"
+    fi
+}
+#
+application_name () {
+    export last_app_name="skip_$app_name"
+    export app_name="$1"
+    export app_name_skip="skip_$app_name"
+    export app_url="${app_name}_url"
+    export app_github_url="${app_name}_github_url"
+}
+#
+application_skip () {
+    [[ "$1" = 'last' ]] && echo -e "\nSkipping \e[95m$app_name\e[0m module installation\n" || echo -e "\nSkipping \e[95m$app_name\e[0m module installation"
+}
+#
 ## Define some URLs to download our apps. They are dynamic and set the most recent version or release.
 #
-export bison_url="http://ftpmirror.gnu.org/gnu/bison/$(curl -sSNL http://ftpmirror.gnu.org/gnu/bison/ | grep -Eo 'bison-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
+curl_url_data="$HOME/.curl_url_data"
 #
-export gawk_url="http://ftpmirror.gnu.org/gnu/gawk/$(curl -sSNL http://ftpmirror.gnu.org/gnu/gawk/ | grep -Eo 'gawk-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
+export bison_url="http://ftpmirror.gnu.org/gnu/bison/$(curl http://ftpmirror.gnu.org/gnu/bison/ > $curl_url_data && grep -Eo 'bison-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' $curl_url_data | sort -V | tail -1)"
 #
-# export glibc_url="http://ftpmirror.gnu.org/gnu/libc/$(curl -sSNL http://ftpmirror.gnu.org/gnu/libc/ | grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' | sort -V | tail -1)"
+export gawk_url="http://ftpmirror.gnu.org/gnu/gawk/$(curl http://ftpmirror.gnu.org/gnu/gawk/ > $curl_url_data && grep -Eo 'gawk-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' $curl_url_data | sort -V | tail -1)"
+#
+# export glibc_url="http://ftpmirror.gnu.org/gnu/libc/$(curl http://ftpmirror.gnu.org/gnu/libc/ > $curl_url_data && grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' $curl_url_data | sort -V | tail -1)"
 export glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-2.31.tar.gz"
 #
-export zlib_github_tag="$(curl -sNL https://github.com/madler/zlib/releases | grep -Eom1 'v1.2.([0-9]{1,2})')"
+export zlib_github_tag="$(curl https://github.com/madler/zlib/releases > $curl_url_data && grep -Eom1 'v1.2.([0-9]{1,2})' $curl_url_data)"
 export zlib_url="https://github.com/madler/zlib/archive/$zlib_github_tag.tar.gz"
 #
-export icu_url="$(curl -sNL https://api.github.com/repos/unicode-org/icu/releases/latest | grep -Eom1 'ht(.*)icu4c(.*)-src.tgz')"
+export icu_url="$(curl https://api.github.com/repos/unicode-org/icu/releases/latest > $curl_url_data && grep -Eom1 'ht(.*)icu4c(.*)-src.tgz' $curl_url_data)"
 #
-export openssl_github_tag="$(curl -sNL https://github.com/openssl/openssl/releases | grep -Eom1 'OpenSSL_1_1_([0-9][a-z])')"
+export openssl_github_tag="$(curl https://github.com/openssl/openssl/releases > $curl_url_data && grep -Eom1 'OpenSSL_1_1_([0-9][a-z])' $curl_url_data)"
 export openssl_url="https://github.com/openssl/openssl/archive/$openssl_github_tag.tar.gz"
 #
-export boost_version="$(curl -sNL https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p')"
+export boost_version="$(curl https://www.boost.org/users/download/ | sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p')"
 export boost_github_tag="boost-$boost_version"
+export boost_build_github_tag="boost-$boost_version"
 export boost_url="https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz"
 export boost_url_status="$(curl -o /dev/null --silent --head --write-out '%{http_code}' https://dl.bintray.com/boostorg/release/$boost_version/source/boost_${boost_version//./_}.tar.gz)"
 export boost_build_url="https://github.com/boostorg/build/archive/$boost_github_tag.tar.gz"
+export boost_github_url="https://github.com/boostorg/boost.git"
 #
 export qt_version='5.15'
-export qt_github_tag="$(curl -sNL https://github.com/qt/qtbase/releases | grep -Eom1 "v$qt_version.([0-9]{1,2})")"
+export qtbase_github_tag="$(curl https://github.com/qt/qtbase/releases > $curl_url_data && grep -Eom1 "v$qt_version.([0-9]{1,2})" $curl_url_data)"
+export qtbase_github_url="https://github.com/qt/qtbase.git"
+export qttools_github_tag="$(curl https://github.com/qt/qttools/releases > $curl_url_data && grep -Eom1 "v$qt_version.([0-9]{1,2})" $curl_url_data)"
+export qttools_github_url="https://github.com/qt/qttools.git"
+#
+export libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
+#
+export qbittorrent_github_url="https://github.com/qbittorrent/qBittorrent.git"
 #
 export libtorrent_version='1.2'
-export libtorrent_github_tag="$(curl -sNL https://github.com/arvidn/libtorrent/releases | grep -Eom1 "v$libtorrent_version.([0-9]{1,2})")"
+if [[ "$GITHUB_TAG" = 'master' ]]; then
+    export libtorrent_github_tag="RC_${libtorrent_version//./_}"
+else
+    export libtorrent_github_tag="$(curl https://github.com/arvidn/libtorrent/releases > $curl_url_data && grep -Eom1 "v$libtorrent_version.([0-9]{1,2})" $curl_url_data)"
+fi
 #
-export qbittorrent_github_tag="$(curl -sNL https://github.com/qbittorrent/qBittorrent/releases | grep -Eom1 'release-([0-9]{1,4}\.?)+')"
+if [[ "$GITHUB_TAG" = 'master' ]]; then
+    export qbittorrent_github_tag="master"
+else
+    export qbittorrent_github_tag="$(curl https://github.com/qbittorrent/qBittorrent/releases > $curl_url_data && grep -Eom1 'release-([0-9]{1,4}\.?)+' $curl_url_data)"
+fi
+#
+[[ -f "$curl_url_data" ]] && rm -f "$curl_url_data" || :
 #
 ## bison
 #
-if [[ "$skip_bison" = 'no' ||  "$1" = 'bison' ]]; then
-    #
+application_name bison
+#
+if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_reset
+    download_file "$app_name" "${!app_url}"
     #
-    echo -e "\n\e[32mInstalling bison\e[0m\n"
+    ./configure --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    file_bison="$install_dir/bison.tar.gz"
-    #
-    [[ -f "$file_bison" ]] && rm -rf {"$install_dir/$(tar tf "$file_bison" | grep -Eom1 "(.*)[^/]")","$file_bison"}
-    #
-    wget -qO "$file_bison" "$bison_url"
-    tar xf "$file_bison" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_bison" | head -1 | cut -f1 -d"/")"
-    #
-    ./configure --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/bison.log.txt"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/bison.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/bison.log.txt"
+    delete_function "$app_name"
 else
-    echo -e "\nSkipping \e[95mbison\e[0m module installation"
+    application_skip
 fi
 #
 ## gawk
 #
-if [[ "$skip_gawk" = 'no' ||  "$1" = 'gawk' ]]; then
-    #
+application_name gawk
+#
+if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_reset
+    download_file "$app_name" "${!app_url}"
     #
-    echo -e "\n\e[32mInstalling gawk\e[0m\n"
+    ./configure --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    file_gawk="$install_dir/gawk.tar.gz"
-    #
-    [[ -f "$file_gawk" ]] && rm -rf {"$install_dir/$(tar tf "$file_gawk" | grep -Eom1 "(.*)[^/]")","$file_gawk"}
-    #
-    wget -qO "$file_gawk" "$gawk_url"
-    tar xf "$file_gawk" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_gawk" | head -1 | cut -f1 -d"/")"
-    #
-    ./configure --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/gawk.log.txt"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/gawk.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/gawk.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_bison" = 'no' ]] || [[ "$skip_bison" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mgawk\e[0m module installation"
-    [[ "$skip_bison" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mgawk\e[0m module installation"
+    application_skip
 fi
 #
 ## glibc static
 #
-if [[ "$skip_glibc" = 'no' ]] || [[ "$1" = 'glibc' ]]; then
-    #
+application_name glibc
+#
+if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_reset
+    download_file "$app_name" "${!app_url}"
     #
-    echo -e "\n\e[32mInstalling glibc\e[0m\n"
+	mkdir -p build
+	cd build
+    "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")/configure" --prefix="$install_dir" --enable-static-nss 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    file_glibc="$install_dir/glibc.tar.xz"
-    #
-    [[ -f "$file_glibc" ]] && rm -rf {"$install_dir/$(tar tf "$file_glibc" | grep -Eom1 "(.*)[^/]")","$file_glibc"}
-    #
-    wget -qO "$file_glibc" "$glibc_url"
-    tar xf "$file_glibc" -C "$install_dir"
-    mkdir -p "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
-    cd "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/build"
-    #
-    "$install_dir/$(tar tf "$file_glibc" | head -1 | cut -f1 -d"/")/configure" --prefix="$HOME/qbittorrent-build" --enable-static-nss 2>&1 | tee "$install_dir/logs/glibc.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/glibc.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/glibc.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_gawk" = 'no' ]] || [[ "$skip_gawk" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mglibc\e[0m module installation"
-    [[ "$skip_gawk" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mglibc\e[0m module installation"
+    application_skip
 fi
 #
 ## zlib installation
 #
-if [[ "$skip_zlib" = 'no' ||  "$1" = 'zlib' ]]; then
-    #
+application_name zlib
+#
+if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
+    download_file "$app_name" "${!app_url}"
     #
-    echo -e "\n\e[32mInstalling zlib\e[0m\n"
+    ./configure --prefix="$install_dir" --static 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    file_zlib="$install_dir/zlib.tar.gz"
-    #
-    [[ -f "$file_zlib" ]] && rm -rf {"$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]")","$file_zlib"}
-    #
-    wget -qO "$file_zlib" "$zlib_url"
-    tar xf "$file_zlib" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_zlib" | head -1 | cut -f1 -d"/")"
-    #
-    ./configure --prefix="$install_dir" --static 2>&1 | tee "$install_dir/logs/zlib.log.txt"
-    make -j$(nproc) CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/zlib.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_glibc" = 'no' ]] || [[ "$skip_glibc" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mzlib\e[0m module installation"
-    [[ "$skip_glibc" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mzlib\e[0m module installation"
+    application_skip
 fi
 #
 ## ICU installation
 #
-if [[ "$skip_icu" = 'no' || "$1" = 'icu' ]]; then
-    #
+application_name icu
+#
+if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
+    download_file "$app_name" "${!app_url}" "/source"
     #
-    echo -e "\n\e[32mInstalling icu\e[0m\n"
+    ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    file_icu="$install_dir/icu.tar.gz"
-    #
-    [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
-    #
-    wget -qO "$file_icu" "$icu_url"
-    tar xf "$file_icu" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_icu" | head -1 | cut -f1 -d"/")/source"
-    #
-    ./configure --prefix="$install_dir" --disable-shared --enable-static CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/icu.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/icu.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/icu.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_zlib" = 'no' ]] || [[ "$skip_zlib" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95micu\e[0m module installation"
-    [[ "$skip_zlib" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95micu\e[0m module installation"
+    application_skip
 fi
 #
 ## openssl installation
 #
-if [[ "$skip_openssl" = 'no' || "$1" = 'openssl' ]]; then
-    #
+application_name openssl
+#
+if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
+    download_file "$app_name" "${!app_url}"
     #
-    echo -e "\n\e[32mInstalling openssl\e[0m\n"
+    ./config --prefix="$install_dir" threads no-shared no-dso no-comp CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install_sw install_ssldirs 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    file_openssl="$install_dir/openssl.tar.gz"
-    #
-    [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
-    #
-    wget -qO "$file_openssl" "$openssl_url"
-    tar xf "$file_openssl" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_openssl" | head -1 | cut -f1 -d"/")"
-    #
-    ./config --prefix="$install_dir" threads no-shared no-dso no-comp CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/openssl.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/openssl.log.txt"
-    make install_sw install_ssldirs 2>&1 | tee -a "$install_dir/logs/openssl.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_icu" = 'no' ]] || [[ "$skip_icu" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mopenssl\e[0m module installation"
-    [[ "$skip_icu" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mopenssl\e[0m module installation"
+    application_skip
 fi
 #
 ## boost build install
 #
-if [[ "$skip_boost_build" = 'no' ]] || [[ "$1" = 'boost_build' ]]; then
-    #
+application_name boost_build
+#
+if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_set
+    download_file "$app_name" "${!app_url}"
     #
-    echo -e "\n\e[32mInstalling boost build\e[0m\n"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    ./b2 install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    file_boost_build="$install_dir/build.tar.gz"
-    #
-    [[ -f "$file_boost_build" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]")","$file_boost_build"}
-    #
-    wget -qO "$file_boost_build" "$boost_build_url"
-    tar xf "$file_boost_build" -C "$install_dir"
-    cd "$install_dir/$(tar tf "$file_boost_build" | head -1 | cut -f1 -d"/")"
-    #
-    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost_build.log.txt"
-    ./b2 install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/boost_build.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_openssl" = 'no' ]] || [[ "$skip_openssl" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost_build\e[0m module installation"
-    [[ "$skip_openssl" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mboost_build\e[0m module installation"
+    application_skip
 fi
 #
 ## boost libraries install
 #
-if [[ "$skip_boost" = 'no' ]] || [[ "$1" = 'boost' ]]; then
-    #
+application_name boost
+#
+if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     #
     if [[ "$boost_url_status" -eq '200' ]]; then
-        file_boost="$install_dir/boost.tar.gz"
-        #
-        [[ -f "$file_boost" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]")","$file_boost"}
-        #
-        wget -qO "$file_boost" "$boost_url"
-        #
-        tar xf "$file_boost" -C "$install_dir"
-        #
-        cd "$install_dir/boost_${boost_version//./_}"
+        download_file "$app_name" "$boost_url"
+        mv -f "$install_dir/boost_${boost_version//./_}/" "$install_dir/boost"
+		cd "$install_dir/boost"
     fi
     #
     if [[ "$boost_url_status" -eq '403' ]]; then
-        folder_boost="$install_dir/boost_${boost_version//./_}"
-        #
-        [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
-        #
-        git clone --branch "$boost_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/boostorg/boost.git "$folder_boost"
-        #
-        cd "$folder_boost"
+        download_folder "$app_name" "${!app_github_url}"
     fi
     #
-    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/boost.log.txt"
-    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/boost.log.txt"
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" variant=release threading=multi link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
 else
-    [[ "$skip_boost_build" = 'no' ]] || [[ "$skip_boost_build" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mboost\e[0m module installation"
-    [[ "$skip_boost_build" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mboost\e[0m module installation"
+    application_skip
 fi
 #
 ## qt base install
 #
-if [[ "$skip_qtbase" = 'no' ]] || [[ "$1" = 'qtbase' ]]; then
-    #
+application_name qtbase
+#
+if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
+    download_folder "$app_name" "${!app_github_url}"
     #
-    echo -e "\n\e[32mInstalling QT Base\e[0m\n"
+	[[ "$SKIP_ICU" = 'no' ]] && icu='-icu' || icu='-no-icu'
+    ./configure -prefix "$install_dir" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    folder_qtbase="$install_dir/qtbase"
-    #
-    [[ -d "$folder_qtbase" ]] && rm -rf "$folder_qtbase"
-    #
-    git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qtbase.git "$folder_qtbase"
-    cd "$folder_qtbase"
-    #
-    ./configure -prefix "$install_dir" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/qtbase.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/qtbase.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_boost" = 'no' ]] || [[ "$skip_boost" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqtbase\e[0m module installation"
-    [[ "$skip_boost" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mqtbase\e[0m module installation"
+    application_skip
 fi
 #
 ## qt tools install
 #
-if [[ "$skip_qttools" = 'no' ]] || [[ "$1" = 'qttools' ]]; then
-    #
+application_name qttools
+#
+if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
+    download_folder "$app_name" "${!app_github_url}"
     #
-    echo -e "\n\e[32mInstalling QT Tools\e[0m\n"
+    "$install_dir/bin/qmake" -set prefix "$install_dir" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    "$install_dir/bin/qmake" QMAKE_CXXFLAGS="-static" QMAKE_LFLAGS="-static" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
-    folder_qttools="$install_dir/qttools"
-    #
-    [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
-    #
-    git clone --branch "$qt_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qt/qttools.git "$folder_qttools"
-    cd "$folder_qttools"
-    #
-    "$install_dir/bin/qmake" -set prefix "$install_dir" 2>&1 | tee "$install_dir/logs/qttools.log.txt"
-    "$install_dir/bin/qmake" QMAKE_CXXFLAGS="-static" QMAKE_LFLAGS="-static" 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
-    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
-    make install 2>&1 | tee -a "$install_dir/logs/qttools.log.txt"
+    delete_function "$app_name"
 else
-    [[ "$skip_qtbase" = 'no' ]] || [[ "$skip_qtbase" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqttools\e[0m module installation"
-    [[ "$skip_qtbase" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mqttools\e[0m module installation"
+    application_skip
 fi
 #
 ## libtorrent install
 #
-if [[ "$skip_libtorrent" = 'no' ]] || [[ "$1" = 'libtorrent' ]]; then
-    #
-    custom_flags_set
-    #
-    echo -e "\n\e[32mInstalling Libtorrent\e[0m\n"
-    #
-    folder_libtorrent="$install_dir/libtorrent"
-    #
-    [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
-    #
-    git clone --branch "$libtorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/arvidn/libtorrent.git "$folder_libtorrent"
-    #
-    export BOOST_ROOT=$install_dir/boost_${boost_version//./_}/
-    export BOOST_INCLUDEDIR=$install_dir/boost_${boost_version//./_}/boost
-    export BOOST_BUILD_PATH=$install_dir/boost_${boost_version//./_}/tools/build
-    #
-    cd "$folder_libtorrent"
-    #
-    "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/libtorrent.log.txt"
+application_name libtorrent
+#
+if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
+    if [[ ! -d "$install_dir/boost" ]]; then
+        echo -e "\n\e[91mWarning\e[0m - You must install the boost module before you can use the libtorrent module"
+    else
+        custom_flags_set
+        download_folder "$app_name" "${!app_github_url}"
+        #
+        export BOOST_ROOT="$install_dir/boost"
+        export BOOST_INCLUDEDIR="$install_dir/boost"
+        export BOOST_BUILD_PATH="$install_dir/boost"
+        #
+        "$install_dir/bin/b2" -j$(nproc) python="$python_short_version" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxstd=14 cxxflags="$CXXFLAGS" cflags="$CPPFLAGS" linkflags="$LDFLAGS" toolset=gcc install --prefix="$install_dir" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+        #
+        delete_function boost
+        delete_function "$app_name"
+    fi
 else
-    [[ "$skip_qttools" = 'no' ]] || [[ "$skip_qttools" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mlibtorrent\e[0m module installation"
-    [[ "$skip_qttools" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mlibtorrent\e[0m module installation"
+    application_skip
 fi
 #
 ## qBittorrent install (static)
 #
-if [[ "$skip_qbittorrent" = 'no' ]] || [[ "$1" = 'qbittorrent' ]]; then
-    #
+application_name qbittorrent
+#
+if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
+    download_folder "$app_name" "${!app_github_url}"
     #
-    echo -e "\n\e[32mInstalling qBittorrent\e[0m\n"
-    #
-    folder_qbittorrent="$install_dir/qbittorrent"
-    #
-    [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
-    #
-    git clone --branch "$qbittorrent_github_tag" --recursive -j$(nproc) --depth 1 https://github.com/qbittorrent/qBittorrent.git "$folder_qbittorrent"
-    #
-    cd "$folder_qbittorrent"
-    #
-    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/qbittorrent.log.txt"
-    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="--static -static $CPPFLAGS" LDFLAGS="--static -static $LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/qbittorrent.log.txt"
+	[[ "$STATIC" = 'no' ]] && static='' || static='--static -static'
+	#
+    ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$static $CPPFLAGS" LDFLAGS="$static $LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     sed -i 's/-lboost_system//' conf.pri
     sed -i 's/-lcrypto//' conf.pri
     sed -i 's/-lssl//' conf.pri
     #
-    make -j$(nproc)
-    make install
+    make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt" 
+    make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     [[ -f "$install_dir/bin/qbittorrent-nox" ]] && cp -f "$install_dir/bin/qbittorrent-nox" "$install_dir/completed/qbittorrent-nox"
-else
-    [[ "$skip_libtorrent" = 'no' ]] || [[ "$skip_libtorrent" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mqbittorrent\e[0m module installation"
-    [[ "$skip_libtorrent" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mqbittorrent\e[0m module installation"
-fi
-#
-## Cleanup and exit
-#
-if [[ "$SKIP_DELETE" = 'no' && -n "$1" ]]; then
-    echo -e "\n\e[32mDeleting installation files\e[0m\n"
     #
-    [[ -f "$file_bison" ]] && rm -rf {"$install_dir/$(tar tf "$file_bison" | grep -Eom1 "(.*)[^/]")","$file_bison"}
-    [[ -f "$file_gawk" ]] && rm -rf {"$install_dir/$(tar tf "$file_gawk" | grep -Eom1 "(.*)[^/]")","$file_gawk"}
-    [[ -f "$file_glibc" ]] && rm -rf {"$install_dir/$(tar tf "$file_glibc" | grep -Eom1 "(.*)[^/]")","$file_glibc"}
-    [[ -f "$file_zlib" ]] && rm -rf {"$install_dir/$(tar tf "$file_zlib" | grep -Eom1 "(.*)[^/]")","$file_zlib"}
-    [[ -f "$file_icu" ]] && rm -rf {"$install_dir/$(tar tf "$file_icu" | grep -Eom1 "(.*)[^/]")","$file_icu"}
-    [[ -f "$file_openssl" ]] && rm -rf {"$install_dir/$(tar tf "$file_openssl" | grep -Eom1 "(.*)[^/]")","$file_openssl"}
-    [[ -f "$file_boost_build" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost_build" | grep -Eom1 "(.*)[^/]")","$file_boost_build"}
-    [[ -f "$file_boost" ]] && rm -rf {"$install_dir/$(tar tf "$file_boost" | grep -Eom1 "(.*)[^/]")","$file_boost"}
-    [[ -d "$folder_boost" ]] && rm -rf "$folder_boost"
-    [[ -d "$folder_qtbase" ]] && rm -rf "$folder_qtbase"
-    [[ -d "$folder_qttools" ]] && rm -rf "$folder_qttools"
-    [[ -d "$folder_libtorrent" ]] && rm -rf "$folder_libtorrent"
-    [[ -d "$folder_qbittorrent" ]] && rm -rf "$folder_qbittorrent"
-    [[ -f "$HOME/user-config.jam" ]] && rm -rf "$HOME/user-config.jam"
+    delete_function "$app_name" last
 else
-    [[ "$skip_qbittorrent" = 'no' ]] || [[ "$skip_qbittorrent" = 'yes' && "$1" =~ $modules ]] && echo -e "\nSkipping \e[95mDeletion\e[0m\n"
-    [[ "$skip_qbittorrent" = 'yes' && ! "$1" =~ $modules ]] && echo -e "Skipping \e[95mDeletion\e[0m\n"
+    application_skip last
 fi
 #
-##
+## Exit the script.
 #
 exit
