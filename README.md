@@ -6,30 +6,13 @@ See here for binaries I have built and how to install them - [Downloads](https:/
 
 ## Info
 
-There are 3 scripts for 2 platforms.
+There are 2 scripts for 2 platforms.
 
 ### Debian or Ubuntu platforms
 
-`staticish` - *Recommended* - quickly creates a mostly static binary that can be moved to another matching platform. For example you can build on Debian 10 and run on Debian 10 because Glibc is dynamically linked linked to the build platform.
+`glibc` - This create a fully static `qbittorrent-nox` binary using [libc](https://www.gnu.org/software/libc/). This is that standard on Debian Linux.
 
-~~~bash
-ldd ~/qbittorrent-build/bin/qbittorrent-nox
-~~~
-
-Gives this result:
-
-~~~bash
-linux-vdso.so.1
-libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0
-libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2
-libstdc++.so.6 => /lib/x86_64-linux-gnu/libstdc++.so.6
-libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6
-libgcc_s.so.1 => /lib/x86_64-linux-gnu/libgcc_s.so.1
-libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6
-/lib64/ld-linux-x86-64.so.2
-~~~
-
-`glibc` - creates a fully static binary statically link using a locally installed glibc that can be moved to any Linux platform with matching architecture. For example you can build on Debian 10 and run on Debian 8. This is basically an extended version of the `staticish` script. Mostly useful to port a modern build to an old platform.
+The final result will show this when using `ldd`
 
 ~~~bash
 ldd ~/qbittorrent-build/bin/qbittorrent-nox
@@ -43,7 +26,9 @@ not a dynamic executable
 
 ### Alpine Linux platform
 
-`musl` - creates a fully static binary statically linked using `musl` instead of `glibc` that can be moved to any Linux platform with matching architecture. For example you can build on Alpine 3.11 and run on Debian 8. This is the how the `staticish` script should work on Debian but it's not a easy to build fully static. `musl` makes it really easy and just worked.
+`musl` - This create a fully static `qbittorrent-nox` binary using [musl](https://wiki.musl-libc.org/). This is that standard on Alpine Linux.
+
+The final result will show this when using `ldd`
 
 ~~~bash
 ldd ~/qbittorrent-build/bin/qbittorrent-nox
@@ -65,32 +50,17 @@ Fully static builds were built and tested on:
 
 **Alpine Linux 3.12** amd64
 
-Debian 9 users follow this for more info when trying to build on this platform - https://github.com/qbittorrent/qBittorrent/issues/11882
-
 ## Script usage
 
 Follow these instructions to install and use this build tool.
 
-*Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all` is passed as an argument to the script.*
+*Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all`  or a specific module name is passed as an argument to the script.*
 
 ## Download
 
 Use these commands via `ssh` on your Linux platform.
 
 ### Debian or Ubuntu 
-
-#### staticish - Debian or Ubuntu Linux
-
-~~~bash
-wget -qO ~/qbittorrent-nox-staticish.sh https://git.io/JvLcs
-chmod 700 ~/qbittorrent-nox-staticish.sh
-~~~
-
-To execute the script
-
-~~~bash
-~/qbittorrent-nox-staticish.sh
-~~~
 
 #### glibc - Debian or Ubuntu Linux
 
@@ -129,6 +99,20 @@ Once the script has successfully configured the platform you can execute the hel
 ~/qbittorrent-nox-staticish.sh -h
 ~~~
 
+These flags are available.
+
+`-b` | `--build-directory` - This flag followed but a path will allow you to specify the build directory location. Relative directories are assumed to be in your `$HOME` and full paths used as typed.
+
+`-n` | `--no-delete` -  After each module completes it removes the build folder and downloaded archives. This stops that in case you need to check something.  This is mostly for testing and can be generally ignored.
+
+`-i` | `--icu` - This will install ICU to use with the build process. It creates a binary of around 50M compared to the default method with creates a 20M binary.
+
+`-m` | `--master` - For `libtorrent` this script will use the main branch for the version being used by the script. So instead of the release `1.2.10` we will use the branch `RC_1_2`. For `qbittorrent` the scrip will use the master branch.
+
+`-p` | `--proxy` - Allows you to specify a proxy to use will all external calls made by the script. Used by `curl` and `git`.
+
+`-ish` | `--staticish` - `glibc` only - will create a statically linked binary with the exclusion of `libc`. Faster build time but less portable. This is mostly for testing and can be generally ignored.
+
 ## Build options
 
 Install all modules and build `qbittorrent-nox` to the default build directory.
@@ -148,15 +132,15 @@ Supported modules
 ~~~
 bison (qbittorrent-nox-static-glibc.sh only)
 gawk (qbittorrent-nox-static-glibc.sh only)
+glibc (qbittorrent-nox-static-glibc.sh only)
 zlib
-icu
+icu (optional)
 openssl
 boost_build
 boost
 qtbase
 qttools
 libtorrent
-glibc (qbittorrent-nox-static-glibc.sh only)
 qbittorrent
 ~~~
 
@@ -208,7 +192,7 @@ Build settings
 Qt: 5.15.0
 Libtorrent: 1.2.10.0
 Boost: 1.74.0
-OpenSSL: 1.1.1g
+OpenSSL: 1.1.1h
 zlib: 1.2.11
 ~~~
 
@@ -244,7 +228,7 @@ Accepted=true
 WebUI\Port=PORT
 ~~~
 
-Save and exit. Now download and run qbittorrent.
+Save and exit. Now download and run `qbittorrent-nox`.
 
 ### glibc static
 
@@ -252,7 +236,7 @@ amd64
 
 ~~~bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://git.io/JvLcC
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/4.2.5.1.2.10/amd64-glibc-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ~~~
 
@@ -268,7 +252,7 @@ amd64:
 
 ~~~
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://git.io/JvLc0
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/4.2.5.1.2.10/amd64-musl-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ~~~
 
