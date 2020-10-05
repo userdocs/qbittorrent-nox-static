@@ -56,9 +56,9 @@ while (( "$#" )); do
       ;;
     '-ish'|'--ish')
       STATIC='no'
-	  SKIP_BISON='yes'
-	  SKIP_GAWK='yes'
-	  SKIP_GLIBC='yes'
+      SKIP_BISON='yes'
+      SKIP_GAWK='yes'
+      SKIP_GLIBC='yes'
       shift
       ;;
     -h|--help)
@@ -108,11 +108,11 @@ eval set -- "$PARAMS"
 ## The build and installation directory. If the argument -b is used to set a build dir that directory is set and used. If nothing is specified or the switch is not used it defaults to the hard-coded ~/qbittorrent-build
 #
 if [[ -n "$BUILD_DIR" ]]; then
-	if [[ "$BUILD_DIR" =~ ^/ ]]; then
-		export install_dir="$BUILD_DIR"
-	else
-		export install_dir="${HOME}/${BUILD_DIR}"
-	fi
+    if [[ "$BUILD_DIR" =~ ^/ ]]; then
+        export install_dir="$BUILD_DIR"
+    else
+        export install_dir="${HOME}/${BUILD_DIR}"
+    fi
 else
     export install_dir="$HOME/qbittorrent-build"
 fi
@@ -284,7 +284,7 @@ download_file () {
     [[ -f "$file_name" ]] && rm -rf {"$install_dir/$(tar tf "$file_name" | grep -Eom1 "(.*)[^/]")","$file_name"}
     curl "${url_filename}" -o "$file_name"
     tar xf "$file_name" -C "$install_dir"
-	mkdir -p "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")${subdir}"
+    mkdir -p "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")${subdir}"
     cd "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")${subdir}"
 }
 #
@@ -296,7 +296,7 @@ download_folder () {
     folder_name="$install_dir/$1"
     [[ -d "$folder_name" ]] && rm -rf "$folder_name"
     git ${GIT_PROXY} clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j$(nproc) --depth 1 "${url_github}" "${folder_name}"
-	mkdir -p "${folder_name}${subdir}"
+    mkdir -p "${folder_name}${subdir}"
     cd "${folder_name}${subdir}"
 }
 #
@@ -422,8 +422,8 @@ if [[ "${!app_name_skip}" = 'no' || "$1" = "$app_name" ]]; then
     custom_flags_reset
     download_file "$app_name" "${!app_url}"
     #
-	mkdir -p build
-	cd build
+    mkdir -p build
+    cd build
     "$install_dir/$(tar tf "$file_name" | head -1 | cut -f1 -d"/")/configure" --prefix="$install_dir" --enable-static-nss 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
@@ -510,7 +510,7 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     if [[ "$boost_url_status" -eq '200' ]]; then
         download_file "$app_name" "$boost_url"
         mv -f "$install_dir/boost_${boost_version//./_}/" "$install_dir/boost"
-		cd "$install_dir/boost"
+        cd "$install_dir/boost"
     fi
     #
     if [[ "$boost_url_status" -eq '403' ]]; then
@@ -531,7 +531,7 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     download_folder "$app_name" "${!app_github_url}"
     #
-	[[ "$SKIP_ICU" = 'no' ]] && icu='-icu' || icu='-no-icu'
+    [[ "$SKIP_ICU" = 'no' ]] && icu='-icu' || icu='-no-icu'
     ./configure -prefix "$install_dir" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
@@ -591,8 +591,8 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     download_folder "$app_name" "${!app_github_url}"
     #
-	[[ "$STATIC" = 'no' ]] && static='' || static='--static -static'
-	#
+    [[ "$STATIC" = 'no' ]] && static='' || static='--static -static'
+    #
     ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$static $CPPFLAGS" LDFLAGS="$static $LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
