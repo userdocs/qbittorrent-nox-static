@@ -54,13 +54,6 @@ while (( "$#" )); do
       export CURL_PROXY="-x $2"
       shift
       ;;
-    '-ish'|'--ish')
-      STATIC='no'
-      SKIP_BISON='yes'
-      SKIP_GAWK='yes'
-      SKIP_GLIBC='yes'
-      shift
-      ;;
     -h|--help)
       echo -e "\n\e[1mDefault build location:\e[0m \e[32m$HOME/qbittorrent-build\e[0m"
       echo -e "\n\e[32m-b\e[0m or \e[32m--build-directory\e[0m to set the location of the build directory. Paths are relative to the script location. Recommended that you use a full path."
@@ -248,8 +241,8 @@ export lib_dir="$install_dir/lib"
 #
 custom_flags_set () {
     export CXXFLAGS="-std=c++14"
-    export CPPFLAGS="-I$include_dir"
-    export LDFLAGS="-Wl,--no-as-needed -L$lib_dir -lpthread -pthread"
+    export CPPFLAGS="--static -static -I$include_dir"
+    export LDFLAGS="--static -static -Wl,--no-as-needed -L$lib_dir -lpthread -pthread"
 }
 #
 custom_flags_reset () {
@@ -591,10 +584,8 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     custom_flags_set
     download_folder "$app_name" "${!app_github_url}"
     #
-    [[ "$STATIC" = 'no' ]] && static='' || static='--static -static'
-    #
     ./bootstrap.sh 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
-    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$static $CPPFLAGS" LDFLAGS="$static $LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
+    ./configure --prefix="$install_dir" "$local_boost" --disable-gui CXXFLAGS="$CXXFLAGS" CPPFLAGS="$CPPFLAGS" LDFLAGS="$LDFLAGS -l:libboost_system.a" openssl_CFLAGS="-I$include_dir" openssl_LIBS="-L$lib_dir -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I$include_dir" libtorrent_LIBS="-L$lib_dir -l:libtorrent.a" zlib_CFLAGS="-I$include_dir" zlib_LIBS="-L$lib_dir -l:libz.a" QT_QMAKE="$install_dir/bin" 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
     sed -i 's/-lboost_system//' conf.pri
     sed -i 's/-lcrypto//' conf.pri
