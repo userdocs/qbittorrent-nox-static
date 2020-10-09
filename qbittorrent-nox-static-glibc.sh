@@ -525,7 +525,7 @@ if [[ "${!app_name_skip}" = 'no' ]] || [[ "$1" = "$app_name" ]]; then
     download_folder "$app_name" "${!app_github_url}"
     #
     [[ "$SKIP_ICU" = 'no' ]] && icu='-icu' || icu='-no-icu'
-    ./configure -prefix "$install_dir" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
+    ./configure -prefix "$install_dir" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
     make -j$(nproc) 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     make install 2>&1 | tee -a "$install_dir/logs/$app_name.log.txt"
     #
