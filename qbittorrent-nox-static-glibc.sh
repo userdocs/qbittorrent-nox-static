@@ -163,9 +163,9 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         set +e
         #
-        apt update -y
-        apt upgrade -y
-        apt autoremove -y
+        apt-get update -y
+        apt-get upgrade -y
+        apt-get autoremove -y
         #
         set -e
         #
@@ -173,7 +173,7 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         echo -e "\n\e[32mInstalling required dependencies\e[0m\n"
         #
-        apt install -y build-essential pkg-config automake libtool git perl python3 python3-dev
+        apt-get install -y build-essential pkg-config automake libtool git perl python3 python3-dev
         #
         echo -e "\n\e[32mDependencies installed!\e[0m"
         #
@@ -182,7 +182,7 @@ if [[ "$deps_installed" = 'no' ]]; then
     else
         echo -e "\n\e[1mPlease request or install the missing core dependencies before using this script\e[0m"
         #
-        echo -e '\napt install -y build-essential pkg-config automake libtool git perl python3 python3-dev\n'
+        echo -e '\napt-get install -y build-essential pkg-config automake libtool git perl python3 python3-dev\n'
         #
         exit
     fi
