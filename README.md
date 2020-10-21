@@ -406,7 +406,7 @@ WantedBy=default.target
 After any changes to the services reload using this command.
 
 ```bash
-systemctl daemon-reload
+systemctl --user daemon-reload
 ```
 
 Now you can enable the service
