@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 #
-# Copyright 2019 by userdocs and contributors
+# Copyright 2020 by userdocs and contributors
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -14,7 +14,7 @@
 #
 set -e
 #
-## Do not edit these variables. They set the default values to some critical variables.
+## Do not edit these variables. They set the default values for some critical variables.
 #
 WORKING_DIR="$(printf "$(dirname "$0")" | pwd)" # used for the cd commands to cd back to the working directory the script was executed from.
 PARAMS=""
@@ -31,63 +31,71 @@ STATIC='yes'
 while (( "$#" )); do
   case "$1" in
     -b|--build-directory)
-      BUILD_DIR="$2"
-      shift 2
-      ;;
+        BUILD_DIR="$2"
+        shift 2
+        ;;
     -n|--no-delete)
-      SKIP_DELETE='yes'
-      shift
-      ;;
+        SKIP_DELETE='yes'
+        shift
+        ;;
     -i|--icu)
-      SKIP_ICU='no'
-      shift
-      ;;
+        SKIP_ICU='no'
+        shift
+        ;;
     -m|--master)
-      GITHUB_TAG='master'
-      shift
-      ;;
+        GITHUB_TAG='master'
+        shift
+        ;;
+    -lm|--libtorrent-master)
+        libtorrent_github_tag='lm_master'
+        shift
+        ;;
+    -qm|--qbittorrent-master)
+        qbittorrent_github_tag='qm_master'
+        shift
+        ;;
     -p|--proxy)
-      export GIT_PROXY="-c http.sslVerify=false -c http.https://github.com.proxy=$2"
-      export CURL_PROXY="-x $2"
-      shift
-      ;;
+        export GIT_PROXY="-c http.sslVerify=false -c http.https://github.com.proxy=$2"
+        export CURL_PROXY="-x $2"
+        shift
+        ;;
     -h|--help)
-      echo -e "\n\e[1mDefault build location:\e[0m \e[32m$HOME/qbittorrent-build\e[0m"
-      echo -e "\n\e[32m-b\e[0m or \e[32m--build-directory\e[0m to set the location of the build directory. Paths are relative to the script location. Recommended that you use a full path."
-      echo -e "\n\e[32mall\e[0m - install all modules to the default or specific build directory (when -b is used)"
-      #
-      echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") all\e[0m - Will install all modules and build qbittorrent to the default build location"
-      echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") all -b \"\$HOME/build\"\e[0m - Will specify a build directory and install all modules to that custom location"
-      echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") module\e[0m - Will install a single module to the default build location"
-      echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") module -b \"\$HOME/build\"\e[0m - will specify a custom build directory and install a specific module use to that custom location"
-      #
-      echo -e "\n\e[32mmodule\e[0m - install a specific module to the default or defined build directory"
-      echo -e "\n\e[1mSupported modules\e[0m"
-      echo -e "\n\e[95mzlib\nicu\nopenssl\nboost_build\nboost\nqtbase\nqttools\nlibtorrent\nqbittorrent\e[0m"
-      #
-      echo -e "\n\e[1mPost build options\e[0m"
-      echo -e "\nThe binary can be installed using the install argument."
-      echo -e "\n\e[32m$(basename -- "$0") install\e[0m"
-      echo -e "\nIf you installed to a specified build directory you need to specify that location using -b"
-      echo -e "\n\e[32m$(basename -- "$0") install -b \"\$HOME/build\"\e[0m"
-      #
-      echo -e "\nThe installation directories depend on the user executing the script."
-      echo -e "\nroot = \e[32m/usr/local\e[0m"
-      echo -e "\nlocal = \e[32m\$HOME/bin\e[0m\n"
-      exit 1
-      ;;
+        echo -e "\n\e[1mDefault build location:\e[0m \e[32m$HOME/qbittorrent-build\e[0m"
+        echo -e "\n\e[32m-b\e[0m or \e[32m--build-directory\e[0m to set the location of the build directory. Paths are relative to the script location. Recommended that you use a full path."
+        echo -e "\n\e[32mall\e[0m - install all modules to the default or specific build directory (when -b is used)"
+        #
+        echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") all\e[0m - Will install all modules and build qbittorrent to the default build location"
+        echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") all -b \"\$HOME/build\"\e[0m - Will specify a build directory and install all modules to that custom location"
+        echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") module\e[0m - Will install a single module to the default build location"
+        echo -e "\n\e[1mExample:\e[0m \e[32m$(basename -- "$0") module -b \"\$HOME/build\"\e[0m - will specify a custom build directory and install a specific module use to that custom location"
+        #
+        echo -e "\n\e[32mmodule\e[0m - install a specific module to the default or defined build directory"
+        echo -e "\n\e[1mSupported modules\e[0m"
+        echo -e "\n\e[95mzlib\nicu\nopenssl\nboost_build\nboost\nqtbase\nqttools\nlibtorrent\nqbittorrent\e[0m"
+        #
+        echo -e "\n\e[1mPost build options\e[0m"
+        echo -e "\nThe binary can be installed using the install argument."
+        echo -e "\n\e[32m$(basename -- "$0") install\e[0m"
+        echo -e "\nIf you installed to a specified build directory you need to specify that location using -b"
+        echo -e "\n\e[32m$(basename -- "$0") install -b \"\$HOME/build\"\e[0m"
+        #
+        echo -e "\nThe installation directories depend on the user executing the script."
+        echo -e "\nroot = \e[32m/usr/local\e[0m"
+        echo -e "\nlocal = \e[32m\$HOME/bin\e[0m\n"
+        exit 1
+        ;;
     --) # end argument parsing
-      shift
-      break
-      ;;
+        shift
+        break
+        ;;
     -*|--*=) # unsupported flags
-      echo -e "\nError: Unsupported flag - \e[31m$1\e[0m - use \e[32m-h\e[0m or \e[32m--help\e[0m to see the valid options\n" >&2
-      exit 1
-      ;;
+        echo -e "\nError: Unsupported flag - \e[31m$1\e[0m - use \e[32m-h\e[0m or \e[32m--help\e[0m to see the valid options\n" >&2
+        exit 1
+        ;;
     *) # preserve positional arguments
-      PARAMS="$PARAMS $1"
-      shift
-      ;;
+        PARAMS="$PARAMS $1"
+        shift
+        ;;
   esac
 done
 #
@@ -360,13 +368,13 @@ export libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
 export qbittorrent_github_url="https://github.com/qbittorrent/qBittorrent.git"
 #
 export libtorrent_version='1.2'
-if [[ "$GITHUB_TAG" = 'master' ]]; then
+if [[ "$GITHUB_TAG" = 'master' || "$libtorrent_github_tag" = 'lm_master' ]]; then
     export libtorrent_github_tag="RC_${libtorrent_version//./_}"
 else
     export libtorrent_github_tag="$(curl https://github.com/arvidn/libtorrent/releases > $curl_url_data && grep -Eom1 "v$libtorrent_version.([0-9]{1,2})" $curl_url_data)"
 fi
 #
-if [[ "$GITHUB_TAG" = 'master' ]]; then
+if [[ "$GITHUB_TAG" = 'master' || "$qbittorrent_github_tag" = 'qm_master' ]]; then
     export qbittorrent_github_tag="master"
 else
     export qbittorrent_github_tag="$(curl https://github.com/qbittorrent/qBittorrent/releases > $curl_url_data && grep -Eom1 'release-([0-9]{1,4}\.?)+' $curl_url_data)"
