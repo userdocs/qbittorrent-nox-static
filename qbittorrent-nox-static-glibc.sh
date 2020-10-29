@@ -16,7 +16,7 @@ set -e
 #
 ## Do not edit these variables. They set the default values for some critical variables.
 #
-WORKING_DIR="$(printf "$(dirname "$0")" | pwd)" # used for the cd commands to cd back to the working directory the script was executed from.
+WORKING_DIR="$(printf "%s" "$(pwd <(dirname "$0"))")" # used for the cd commands to cd back to the working directory the script was executed from.
 PARAMS=""
 BUILD_DIR=""
 SKIP_DELETE='no'
@@ -145,22 +145,21 @@ modules='^(all|bison|gawk|glibc|zlib|icu|openssl|boost_build|boost|qtbase|qttool
 [[ "$1" = 'all' ]] && skip_libtorrent='no' || skip_libtorrent='yes'
 [[ "$1" = 'all' ]] && skip_qbittorrent='no' || skip_qbittorrent='yes'
 #
-## Set this to assume yes unless set to no by a dependency check.
+## Check for required dependencies
 #
-deps_installed='yes'
-#
-## Check for required and optional dependencies
+REQPKGS=(build-essential pkg-config automake libtool git perl python3 python3-dev)
 #
 echo -e "\n\e[1mChecking if required core dependencies are installed\e[0m\n"
 #
-[[ "$(dpkg -s build-essential 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - build-essential" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - build-essential"; }
-[[ "$(dpkg -s pkg-config 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - pkg-config" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - pkg-config"; }
-[[ "$(dpkg -s automake 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - automake" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - automake"; }
-[[ "$(dpkg -s libtool 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - libtool" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - libtool"; }
-[[ "$(dpkg -s git 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - git" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - git"; }
-[[ "$(dpkg -s perl 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - perl" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - perl"; }
-[[ "$(dpkg -s python3 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - python3" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python3"; }
-[[ "$(dpkg -s python3-dev 2> /dev/null)" ]] && echo -e "Dependency - \e[32mOK\e[0m - python3-dev" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - python3-dev"; }
+for pkg in "${REQPKGS[@]}"; do
+    if dpkg -l "$pkg" >/dev/null 2>&1; then
+        deps_installed='yes'
+        echo -e "Dependency - \e[32mOK\e[0m - $pkg"
+    else
+        deps_installed='no'
+        echo -e "Dependency - \e[31mNO\e[0m - $pkg"
+    fi
+done
 #
 ## Check if user is able to install the depedencies, if yes then do so, if no then exit.
 #
