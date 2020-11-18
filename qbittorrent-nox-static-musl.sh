@@ -150,6 +150,7 @@ echo -e "\n\e[1mChecking if required core dependencies are installed\e[0m\n"
 [[ -n "$(apk info -e bash)" ]] && echo -e "Dependency - \e[32mOK\e[0m - bash" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - bash"; }
 [[ -n "$(apk info -e bash-completion)" ]] && echo -e "Dependency - \e[32mOK\e[0m - bash-completion" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - bash-completion"; }
 [[ -n "$(apk info -e build-base)" ]] && echo -e "Dependency - \e[32mOK\e[0m - build-base" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - build-base"; }
+[[ -n "$(apk info -e curl)" ]] && echo -e "Dependency - \e[32mOK\e[0m - curl" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - curl"; }
 [[ -n "$(apk info -e pkgconf)" ]] && echo -e "Dependency - \e[32mOK\e[0m - pkgconf" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - pkgconf"; }
 [[ -n "$(apk info -e autoconf)" ]] && echo -e "Dependency - \e[32mOK\e[0m - autoconf" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - autoconf"; }
 [[ -n "$(apk info -e automake)" ]] && echo -e "Dependency - \e[32mOK\e[0m - automake" || { deps_installed='no'; echo -e "Dependency - \e[31mNO\e[0m - automake"; }
@@ -182,7 +183,7 @@ if [[ "$deps_installed" = 'no' ]]; then
         #
         echo -e "\n\e[32mInstalling required dependencies\e[0m\n"
         #
-        apk add bash bash-completion build-base pkgconf autoconf automake libtool git perl python3 python3-dev linux-headers --repository="$CDN_URL"
+        apk add bash bash-completion build-base curl pkgconf autoconf automake libtool git perl python3 python3-dev linux-headers --repository="$CDN_URL"
         #
         echo -e "\n\e[32mDependencies installed!\e[0m"
         #
