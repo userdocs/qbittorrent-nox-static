@@ -268,11 +268,11 @@ export local_openssl="--with-openssl=$install_dir"
 #
 ## Functions
 #
-curl () {
+curl() {
     if [[ -z "$CURL_PROXY" ]]; then
-        "$(type -P curl)" -sSLN4q --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
+        "$(type -P curl)" -sNL4fq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 "$@"
     else
-        "$(type -P curl)" -sSLN4q --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 --proxy-insecure ${CURL_PROXY} "$@" 
+        "$(type -P curl)" -sNL4fq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 --proxy-insecure ${CURL_PROXY} "$@"
     fi
 }
 #
@@ -369,13 +369,13 @@ export libtorrent_version='1.2'
 if [[ "$GITHUB_TAG" = 'master' || "$libtorrent_github_tag" = 'lm_master' ]]; then
     export libtorrent_github_tag="RC_${libtorrent_version//./_}"
 else
-    export libtorrent_github_tag="$(curl https://github.com/arvidn/libtorrent/releases > $curl_url_data && grep -Eom1 "v$libtorrent_version.([0-9]{1,2})" $curl_url_data)"
+    export libtorrent_github_tag="$(grep -Eom1 "v$libtorrent_version.([0-9]{1,2})" <(curl https://github.com/arvidn/libtorrent/tags))"
 fi
 #
 if [[ "$GITHUB_TAG" = 'master' || "$qbittorrent_github_tag" = 'qm_master' ]]; then
     export qbittorrent_github_tag="master"
 else
-    export qbittorrent_github_tag="$(curl https://github.com/qbittorrent/qBittorrent/releases > $curl_url_data && grep -Eom1 'release-([0-9]{1,4}\.?)+' $curl_url_data)"
+    export qbittorrent_github_tag="$(grep -Eom1 'release-([0-9]{1,4}\.?)+' <(curl https://github.com/qbittorrent/qBittorrent/tags))"
 fi
 #
 [[ -f "$curl_url_data" ]] && rm -f "$curl_url_data" || :
