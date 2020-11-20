@@ -1,5 +1,7 @@
 # qbittorrent-nox-static
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/9817ad80d35c480aa9842b53001d55b0)](https://app.codacy.com/gh/userdocs/qbittorrent-nox-static?utm_source=github.com&utm_medium=referral&utm_content=userdocs/qbittorrent-nox-static&utm_campaign=Badge_Grade)
+
 There are two platform specific bash scripts that will do three main things on their respective platform:
 
 -   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
