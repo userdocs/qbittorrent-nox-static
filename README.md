@@ -3,9 +3,7 @@
 There are two platform specific bash scripts that will do three main things on their respective platform:
 
 -   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
-
 -   Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
-
 -   Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
 
 Here is an example build profile:
@@ -76,8 +74,10 @@ Use these commands via `ssh` on your Linux platform.
 
 ### glibc - Debian or Ubuntu Linux
 
+User
+
 ```bash
-wget -qO ~/qbittorrent-nox-static-glibc.sh https://git.io/JvLcG
+wget -qO ~/qbittorrent-nox-static-glibc.sh https://git.io/gqbittorrent
 chmod 700 ~/qbittorrent-nox-static-glibc.sh
 ```
 
@@ -87,7 +87,27 @@ To execute the script
 ~/qbittorrent-nox-static-glibc.sh
 ```
 
-### Musl - Alpine linux
+docker glibc
+
+```bash
+docker run -it -v $HOME/qb-build:/root debian:stable /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/gqbittorrent | bash -s all'
+```
+
+**Note:** Please see the flag summary section below to see what options you can pass and how to use them
+
+You can modify the installation command by editing this platform
+
+```bash
+bash -s all
+```
+
+For example
+
+```bash
+bash -s all -i -m
+```
+
+### Musl - Alpine Linux
 
 **Note:** You need to install the bash shell on Alpine for this script to run.
 
@@ -98,7 +118,7 @@ apk add bash
 Now download and execute the script.
 
 ```bash
-wget -qO ~/qbittorrent-nox-static-musl.sh https://git.io/JvLcZ
+wget -qO ~/qbittorrent-nox-static-musl.sh https://git.io/mqbittorrent
 chmod 700 ~/qbittorrent-nox-static-musl.sh
 ```
 
@@ -106,6 +126,26 @@ To execute the script
 
 ```bash
 ~/qbittorrent-nox-static-musl.sh
+```
+
+docker musl
+
+```bash
+docker run -it -v $HOME/qb-build:/root alpine:latest /bin/ash -c 'apk update && apk add bash curl && cd && curl -sL git.io/mqbittorrent | bash -s all'
+```
+
+**Note:** Please see the flag summary section below to see what options you can pass and how to use them
+
+You can modify the installation command by editing this platform
+
+```bash
+bash -s all
+```
+
+For example
+
+```bash
+bash -s all -i -m
 ```
 
 ## Build help
@@ -118,6 +158,8 @@ Once the script has successfully configured the platform you can execute the hel
 ```
 
 ### Flags and arguments summarised
+
+Please use this feature to get help with a script option.
 
 ```bash
 Here are a list of available options
@@ -159,7 +201,7 @@ Install all default modules and build `qbittorrent-nox` to the default build dir
 ~/qbittorrent-nox-staticish.sh all
 ```
 
-### Build - modules (optional)
+### Build - modules (optional and mostly for debugging and testing)
 
 ```bash
 ~/qbittorrent-nox-static.sh module
@@ -186,14 +228,16 @@ qbittorrent (default)
 
 By default the script will build to a hard coded path in the script `$install_dir` as to avoid installing files to a server and causing conflicts.
 
+**Note:** This path is relative to the scripts location by default.
+
 ```bash
-~/qbittorrent-build
+qbittorrent-build
 ```
 
 You can modify this dynamically with the `-b` argument
 
 ```bash
-~/qbittorrent-nox-static.sh all -b "/usr/local"
+./qbittorrent-nox-static.sh all -b "/usr/local"
 ```
 
 ### Installation
@@ -201,24 +245,24 @@ You can modify this dynamically with the `-b` argument
 Once the script has successfully built `qbittorrent-nox` you can install it using this command:
 
 ```bash
-~/qbittorrent-nox-static.sh install
+./qbittorrent-nox-static.sh install
 ```
 
 **Note:** If you built to a custom directory you will need to specify this to the install command using the `-b` argument.
 
 ```bash
-~/qbittorrent-nox-static.sh install -b "/path/to/built/binary"
+./qbittorrent-nox-static.sh install -b "/path/to/built/binary"
 ```
 
 The default installation path is determined by type of user executing the script.
 
-**Root** - Built to - `$HOME/qbittorrent-build`
+**Root** - Built to - `qbittorrent-build`
 
 **Root** - Optionally installed to `/usr/local`
 
 **Note:** A local user still requires the core dependencies are installed to proceed.
 
-**Local user** - Built to - `$HOME/qbittorrent-build`
+**Local user** - Built to - `qbittorrent-build`
 
 **Local user** - Optionally installed to `$HOME/bin`
 
