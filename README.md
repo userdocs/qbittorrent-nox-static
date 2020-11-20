@@ -2,11 +2,11 @@
 
 There are two platform specific bash scripts that will do three main things on their respective platform:
 
-- Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
+-   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
 
-- Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
+-   Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
 
-- Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
+-   Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
 
 Here is an example build profile:
 
@@ -122,15 +122,15 @@ Once the script has successfully configured the platform you can execute the hel
 ```bash
 Here are a list of available options
 
- Use: -b  or --build-directory   Help: -h-b  or --help-build-directory
- Use: -n  or --no-delete         Help: -h-n  or --help-no-delete
- Use: -i  or --icu               Help: -h-i  or --help-icu
- Use: -m  or --master            Help: -h-m  or --help-master
- Use: -lm or --libtorrent-master Help: -h-lm or --help-libtorrent-master
- Use: -lt or --libtorrent-tag    Help: -h-lt or --help-libtorrent-tag
- Use: -qm or --qbittorrent-masterHelp: -h-qm or --help-qbittorrent-master
- Use: -qt or --qbittorrent-tag   Help: -h-qt or --help-qbittorrent-tag
- Use: -p  or --proxy             Help: -h-p  or --help-proxy
+ Use: -b  or --build-directory    Help: -h-b  or --help-build-directory
+ Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
+ Use: -i  or --icu                Help: -h-i  or --help-icu
+ Use: -m  or --master             Help: -h-m  or --help-master
+ Use: -lm or --libtorrent-master  Help: -h-lm or --help-libtorrent-master
+ Use: -lt or --libtorrent-tag     Help: -h-lt or --help-libtorrent-tag
+ Use: -qm or --qbittorrent-master Help: -h-qm or --help-qbittorrent-master
+ Use: -qt or --qbittorrent-tag    Help: -h-qt or --help-qbittorrent-tag
+ Use: -p  or --proxy              Help: -h-p  or --help-proxy
 
 Module specific help - flags are used with the modules listed here.
 
