@@ -2,25 +2,25 @@
 
 There are two platform specific bash scripts that will do three main things on their respective platform:
 
-**1:** Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
+-   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
 
-**2:** Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
+-   Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
 
-**3:** Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
+-   Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
 
 Here is an example build profile:
 
-```
-qBittorrent 4.2.5 was built with the following libraries:
+```none
+qBittorrent 4.3.0.1 was built with the following libraries:
 
 Qt: 5.15.1
-Libtorrent: 1.2.10.0
+Libtorrent: 1.2.11.0
 Boost: 1.74.0
 OpenSSL: 1.1.1h
 zlib: 1.2.11
 ```
 
-Typically the script is deployed on a freshly created VPS but long as the system meets the core dependencies requirements tested for by the script, the script can be run as a local user.
+Typically the script is deployed on a freshly created VPS or docker but long as the system meets the core dependencies requirements tested for by the script, the script can be run as a local user.
 
 See here for binaries I have built and how to install them - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
 
@@ -70,7 +70,7 @@ Fully static builds were built and tested on:
 
 Follow these instructions to install and use this build tool.
 
-*Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all`  or a specific module name is passed as an argument to the script.*
+_Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all`  or a specific module name is passed as an argument to the script._
 
 Use these commands via `ssh` on your Linux platform.
 
@@ -89,7 +89,7 @@ To execute the script
 
 ### Musl - Alpine linux
 
-*Note: you need to install the bash shell on Alpine for this script to run.*
+_Note: you need to install the bash shell on Alpine for this script to run._
 
 ```bash
 apk add bash
@@ -113,28 +113,43 @@ To execute the script
 Once the script has successfully configured the platform you can execute the help argument to see how it works and what options you have available to you.
 
 ```bash
-~/qbittorrent-nox-staticish.sh -h
+~/qbittorrent-nox-static-glibc.sh -h
+~/qbittorrent-nox-static-musl.sh -h
 ```
 
 ### Flags and arguments summarised
 
-`all` - Will build all default modules.
+```bash
+Here are a list of available options
 
-These flags are available.
+ Use: -b  or --build-directory   Help: -h-b  or --help-build-directory
+ Use: -n  or --no-delete         Help: -h-n  or --help-no-delete
+ Use: -i  or --icu               Help: -h-i  or --help-icu
+ Use: -m  or --master            Help: -h-m  or --help-master
+ Use: -lm or --libtorrent-master Help: -h-lm or --help-libtorrent-master
+ Use: -lt or --libtorrent-tag    Help: -h-lt or --help-libtorrent-tag
+ Use: -qm or --qbittorrent-masterHelp: -h-qm or --help-qbittorrent-master
+ Use: -qt or --qbittorrent-tag   Help: -h-qt or --help-qbittorrent-tag
+ Use: -p  or --proxy             Help: -h-p  or --help-proxy
 
-`-b` | `--build-directory` - This flag followed but a path will allow you to specify the build directory location. Relative directories are assumed to be in your `$HOME` and full paths used as typed. Applies to all modules.
+Module specific help - flags are used with the modules listed here.
 
-`-n` | `--no-delete` -  After each module completes it removes the build folder and downloaded archives. This stops that in case you need to check something.  This is mostly for testing and can be generally ignored. Applies to all modules.
+Use: all or module-name          Usage: ~/qbittorrent-nox-static-musl.sh all
 
-`-i` | `--icu` - This will install ICU to use with the build process. It creates a binary of around 50M compared to the default method with creates a 20M binary. Applies to the `icu` module.
-
-`-m` | `--master` - For `libtorrent` this script will use the main branch for the version being used by the script. So instead of the release `1.2.10` we will use the branch `RC_1_2`. For `qbittorrent` the scrip will use the master branch. Applies to `libtorrent` and `qbitorrent` module.
-
-`-ml` | `--master-libtorrent` - For `libtorrent` this script will use the main branch for the version being used by the script. Applies to the `libtorrent` module.
-
-`-mq` | `--master-qbittorrent` - For `qbittorrent` the scrip will use the master branch. Applies to the `qbitorrent` module.
-
-`-p` | `--proxy` - Allows you to specify a proxy to use will all external calls made by the script. Used by `curl` and `git`. Applies to all modules
+ all         - Install all modules
+ install     - optional Install the ~/qbittorrent-build/completed/qbittorrent-nox binary
+ bison       - required Build bison
+ gawk        - required Build gawk
+ glibc       - required Build libc locally to statically link nss
+ zlib        - required Build zlib locally
+ icu         - optional Build ICU locally
+ openssl     - required Build openssl locally
+ boost       - required Download, extract and bootstrap the boost build files
+ qtbase      - required Build qtbase locally
+ qttools     - required Build qttools locally
+ libtorrent  - required Build libtorrent locally with b2
+ qbittorrent - required Build qbitorrent locally
+```
 
 ### Build - default profile
 
@@ -152,7 +167,7 @@ Install all default modules and build `qbittorrent-nox` to the default build dir
 
 Supported modules
 
-```
+```bash
 bison (qbittorrent-nox-static-glibc.sh only)
 gawk (qbittorrent-nox-static-glibc.sh only)
 glibc (qbittorrent-nox-static-glibc.sh only)
@@ -189,7 +204,7 @@ Once the script has successfully built `qbittorrent-nox` you can install it usin
 ~/qbittorrent-nox-static.sh install
 ```
 
-*Note: If you built to a custom directory you will need to specify this to the install command using the `-b` argument.*
+_Note: If you built to a custom directory you will need to specify this to the install command using the `-b` argument._
 
 ```bash
 ~/qbittorrent-nox-static.sh install -b "/path/to/built/binary"
@@ -201,7 +216,7 @@ The default installation path is determined by type of user executing the script
 
 **Root** - Optionally installed to `/usr/local`
 
-*Note: A local user still requires the core dependencies are installed to proceed.*
+_Note: A local user still requires the core dependencies are installed to proceed._
 
 **Local user** - Built to - `$HOME/qbittorrent-build`
 
@@ -233,7 +248,7 @@ nano ~/.config/qBittorrent/qBittorrent.conf
 
 Add this. Make sure to change your web ui port. 
 
-```
+```ini
 [LegalNotice]
 Accepted=true
 
@@ -261,7 +276,7 @@ Now you just run it and enjoy!
 
 amd64:
 
-```
+```bash
 mkdir -p ~/bin && source ~/.profile
 wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/4.3.0.1.2.10/amd64-musl-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
@@ -269,13 +284,13 @@ chmod 700 ~/bin/qbittorrent-nox
 
 Now you just run it and enjoy!
 
-```
+```bash
 ~/bin/qbittorrent-nox
 ```
 
 Default login:
 
-```
+```bash
 username: admin
 password: adminadmin
 ```
@@ -305,23 +320,33 @@ If you would like to run a second instance using another configuration you can d
 
 This will create a new configuration directory using this suffix.
 
-`~/.config/qbittorrent_NAME`
+```bash
+~/.config/qbittorrent_NAME
+```
 
 And you can now configure this instance separately.
 
 ### Nginx proxypass
 
-```
+```nginx
 location /qbittorrent/ {
+	proxy_pass http://127.0.0.1:8080/;
+	proxy_http_version      1.1;
+	proxy_set_header        X-Forwarded-Host        $http_host;
+	http2_push_preload on; # Enable http2 push
 
-    proxy_pass http://127.0.0.1:00000/;
-    proxy_http_version      1.1;
-    proxy_set_header        X-Forwarded-Host        $server_name:$server_port;
-    proxy_hide_header       Referer;
-    proxy_hide_header       Origin;
-    proxy_set_header        Referer                 '';
-    proxy_set_header        Origin                  '';
+	# The following directives effectively nullify Cross-site request forgery (CSRF)
+	# protection mechanism in qBittorrent, only use them when you encountered connection problems.
+	# You should consider disable "Enable Cross-site request forgery (CSRF) protection"
+	# setting in qBittorrent instead of using these directives to tamper the headers.
+	# The setting is located under "Options -> WebUI tab" in qBittorrent since v4.1.2.
+	#proxy_hide_header       Referer;
+	#proxy_hide_header       Origin;
+	#proxy_set_header        Referer                 '';
+	#proxy_set_header        Origin                  '';
 
+	# Not needed since qBittorrent v4.1.0
+	#add_header              X-Frame-Options         "SAMEORIGIN";
 }
 ```
 
@@ -329,13 +354,13 @@ location /qbittorrent/ {
 
 Location for the systemd service file:
 
-```
+```bash
 /etc/systemd/system/qbittorrent.service
 ```
 
 Modify the path to the binary and your local username.
 
-```
+```ini
 [Unit]
 
 Description=qbittorrent-nox
@@ -366,7 +391,7 @@ After any changes to the services reload using this command.
 systemctl daemon-reload
 ```
 
-Now you can enable the serice
+Now you can enable the service
 
 ```bash
 systemctl enable --now qbittorrent.service
@@ -384,13 +409,13 @@ systemctl restart qbittorrent
 
 You can also use a local systemd service.
 
-```
+```bash
 ~/.config/systemd/user/qbittorrent.service
 ```
 
 You can use this configuration with no modification required.
 
-```
+```ini
 [Unit]
 Description=qbittorrent
 After=network-online.target
@@ -427,4 +452,4 @@ systemctl --user restart qbittorrent
 
 Inspired by these gists
 
-https://gist.github.com/notsure2
+<https://gist.github.com/notsure2>
