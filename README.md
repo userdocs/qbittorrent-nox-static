@@ -2,11 +2,11 @@
 
 There are two platform specific bash scripts that will do three main things on their respective platform:
 
--   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
+- Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
 
--   Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
+- Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
 
--   Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
+- Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
 
 Here is an example build profile:
 
@@ -70,7 +70,7 @@ Fully static builds were built and tested on:
 
 Follow these instructions to install and use this build tool.
 
-_Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all`  or a specific module name is passed as an argument to the script._
+**Note:** Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all`  or a specific module name is passed as an argument to the script.
 
 Use these commands via `ssh` on your Linux platform.
 
@@ -89,7 +89,7 @@ To execute the script
 
 ### Musl - Alpine linux
 
-_Note: you need to install the bash shell on Alpine for this script to run._
+**Note:** You need to install the bash shell on Alpine for this script to run.
 
 ```bash
 apk add bash
@@ -187,7 +187,7 @@ qbittorrent (default)
 By default the script will build to a hard coded path in the script `$install_dir` as to avoid installing files to a server and causing conflicts.
 
 ```bash
-$HOME/qbittorrent-build
+~/qbittorrent-build
 ```
 
 You can modify this dynamically with the `-b` argument
@@ -204,7 +204,7 @@ Once the script has successfully built `qbittorrent-nox` you can install it usin
 ~/qbittorrent-nox-static.sh install
 ```
 
-_Note: If you built to a custom directory you will need to specify this to the install command using the `-b` argument._
+**Note:** If you built to a custom directory you will need to specify this to the install command using the `-b` argument.
 
 ```bash
 ~/qbittorrent-nox-static.sh install -b "/path/to/built/binary"
@@ -216,7 +216,7 @@ The default installation path is determined by type of user executing the script
 
 **Root** - Optionally installed to `/usr/local`
 
-_Note: A local user still requires the core dependencies are installed to proceed._
+**Note:** A local user still requires the core dependencies are installed to proceed.
 
 **Local user** - Built to - `$HOME/qbittorrent-build`
 
