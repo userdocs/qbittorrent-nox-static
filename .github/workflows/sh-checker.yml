@@ -2,7 +2,6 @@ name: sh-checker
 on:
     push:
     pull_request:
-	workflow_dispatch:
 jobs:
     sh-checker:
         runs-on: ubuntu-latest
