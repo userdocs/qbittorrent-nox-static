@@ -154,6 +154,23 @@ while (("${#}")); do
 			qb_curl_proxy="${2}"
 			shift 2
 			;;
+		-h-p | --help-proxy)
+			echo
+			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " Specify a proxy URL and PORT to use with curl and git"
+			echo
+			echo -e " ${td}Example:${cend} ${td}${clb}-p${cend} ${td}${clc}username:password@https://123.456.789.321:8443${cend}"
+			echo
+			echo -e " ${td}${clb}-p${cend} ${td}${clc}https://proxy.com:12345${cend}"
+			echo
+			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option:${cend}"
+			echo
+			echo -e " ${td}${clb}-p${cend} ${td}${clc}https://proxy.com:12345${cend} ${td}${clb}-h-p${cend}"
+			echo
+			[[ -n "${qb_curl_proxy}" ]] && echo -e " proxy command: ${clc}${qb_curl_proxy}${tn}${cend}"
+			exit 1
+			;;
 		--) # end argument parsing
 			shift
 			break
@@ -706,24 +723,6 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-lt${cend} ${clc}release-4.3.0.1${cend}"
 			echo
-			exit 1
-			;;
-		-h-p | --help-proxy)
-			echo
-			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Specify a proxy URL and PORT to use with curl and git"
-			echo
-			echo -e " ${td}Example${cend} - ${td}${clc}username:password@https://123.456.789.321:8443${cend}"
-			echo
-			echo -e " ${clb}-p${cend} ${clc}https://proxy.com:12345${cend}"
-			echo
-			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option:${cend}"
-			echo
-			echo -e " ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend} ${clb}-p${cend} ${clc}https://proxy.com:12345${cend} ${clb}-h-p${cend}"
-			echo
-			[[ -n "${qb_git_proxy}" ]] && echo -e " git proxy command: ${qb_git_proxy}"
-			[[ -n "${qb_curl_proxy}" ]] && echo -e " curl proxy command: ${qb_curl_proxy}${tn}"
 			exit 1
 			;;
 		--) # end argument parsing
