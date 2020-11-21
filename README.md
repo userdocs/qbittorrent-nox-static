@@ -3,7 +3,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9817ad80d35c480aa9842b53001d55b0)](https://app.codacy.com/gh/userdocs/qbittorrent-nox-static?utm_source=github.com&utm_medium=referral&utm_content=userdocs/qbittorrent-nox-static&utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static/badge)](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static)
 
-There are two platform specific bash scripts that will do three main things on their respective platform:
+There is one bash script for 3 platforms. This script will do these three main things on Debian Stable, Ubuntu 20.04 or Alpine 3.12:
 
 -   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
 -   Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
@@ -21,7 +21,7 @@ OpenSSL: 1.1.1h
 zlib: 1.2.11
 ```
 
-Typically the script is deployed on a freshly created VPS or docker but long as the system meets the core dependencies requirements tested for by the script, the script can be run as a local user.
+Typically the script is intended to be deployed on a docker or VPS but long as your system meets the core dependency requirements tested for by the script, the script can be run as a local user.
 
 See here for binaries I have built and how to install them - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
 
@@ -75,66 +75,43 @@ Follow these instructions to install and use this build tool.
 
 Use these commands via `ssh` on your Linux platform.
 
-### glibc - Debian or Ubuntu Linux
+### Debian or Ubuntu or Alpine Linux
 
 User
 
 ```bash
-wget -qO ~/qbittorrent-nox-static-glibc.sh https://git.io/gqbittorrent
-chmod 700 ~/qbittorrent-nox-static-glibc.sh
+wget -qO ~/qbittorrent-nox-static.sh https://git.io/qbstatic
+chmod 700 ~/qbittorrent-nox-static.sh
 ```
 
-To execute the script
-
-```bash
-~/qbittorrent-nox-static-glibc.sh
-```
-
-docker glibc
-
-```bash
-docker run -it -v $HOME/qb-build:/root debian:stable /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/gqbittorrent | bash -s all'
-```
-
-**Note:** Please see the flag summary section below to see what options you can pass and how to use them
-
-You can modify the installation command by editing this platform
-
-```bash
-bash -s all
-```
-
-For example
-
-```bash
-bash -s all -i -m
-```
-
-### Musl - Alpine Linux
-
-**Note:** You need to install the bash shell on Alpine for this script to run.
+For Alpine specifically, you need to install bash to use this script.
 
 ```bash
 apk add bash
 ```
 
-Now download and execute the script.
+To execute the script use this command:
 
 ```bash
-wget -qO ~/qbittorrent-nox-static-musl.sh https://git.io/mqbittorrent
-chmod 700 ~/qbittorrent-nox-static-musl.sh
+~/qbittorrent-nox-static.sh
 ```
 
-To execute the script
+docker Debian
 
 ```bash
-~/qbittorrent-nox-static-musl.sh
+docker run -it -v $HOME/qb-build:/root debian:latest /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/qbstatic | bash -s all -i -lm'
 ```
 
-docker musl
+docker Ubuntu
 
 ```bash
-docker run -it -v $HOME/qb-build:/root alpine:latest /bin/ash -c 'apk update && apk add bash curl && cd && curl -sL git.io/mqbittorrent | bash -s all'
+docker run -it -v $HOME/qb-build:/root ubuntu:latest /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/qbstatic | bash -s all -i -lm'
+```
+
+docker Alpine
+
+```bash
+docker run -it -v $HOME/qb-build:/root alpine:latest /bin/ash -c 'apk update && apk add bash curl && cd && curl -sL git.io/qbstatic | bash -s all -i -lm'
 ```
 
 **Note:** Please see the flag summary section below to see what options you can pass and how to use them
@@ -145,10 +122,10 @@ You can modify the installation command by editing this platform
 bash -s all
 ```
 
-For example
+For example, as in our docker commands:
 
 ```bash
-bash -s all -i -m
+bash -s all -i -lm
 ```
 
 ## Build help
@@ -156,8 +133,7 @@ bash -s all -i -m
 Once the script has successfully configured the platform you can execute the help argument to see how it works and what options you have available to you.
 
 ```bash
-~/qbittorrent-nox-static-glibc.sh -h
-~/qbittorrent-nox-static-musl.sh -h
+~/qbittorrent-nox-static.sh
 ```
 
 ### Flags and arguments summarised
@@ -179,7 +155,7 @@ Here are a list of available options
 
 Module specific help - flags are used with the modules listed here.
 
-Use: all or module-name          Usage: ~/qbittorrent-nox-static-musl.sh all
+Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
  all         - Install all modules
  install     - optional Install the ~/qbittorrent-build/completed/qbittorrent-nox binary
@@ -189,7 +165,7 @@ Use: all or module-name          Usage: ~/qbittorrent-nox-static-musl.sh all
  zlib        - required Build zlib locally
  icu         - optional Build ICU locally
  openssl     - required Build openssl locally
- boost       - required Download, extract and bootstrap the boost build files
+ boost       - required Download, extract and build the boost library files
  qtbase      - required Build qtbase locally
  qttools     - required Build qttools locally
  libtorrent  - required Build libtorrent locally with b2
@@ -201,7 +177,7 @@ Use: all or module-name          Usage: ~/qbittorrent-nox-static-musl.sh all
 Install all default modules and build `qbittorrent-nox` to the default build directory.
 
 ```bash
-~/qbittorrent-nox-staticish.sh all
+~/qbittorrent-nox-static.sh all
 ```
 
 ### Build - modules (optional and mostly for debugging and testing)
@@ -213,13 +189,12 @@ Install all default modules and build `qbittorrent-nox` to the default build dir
 Supported modules
 
 ```bash
-bison (qbittorrent-nox-static-glibc.sh only)
-gawk (qbittorrent-nox-static-glibc.sh only)
-glibc (qbittorrent-nox-static-glibc.sh only)
+bison (Debian/Ubuntu only)
+gawk (Debian/Ubuntu only)
+glibc (Debian/Ubuntu only)
 zlib (default)
 icu (optional on either platform)
 openssl (default)
-boost_build (default)
 boost (default)
 qtbase (default)
 qttools (default)
@@ -229,7 +204,7 @@ qbittorrent (default)
 
 ### Build - paths
 
-By default the script will build to a hard coded path in the script `$install_dir` as to avoid installing files to a server and causing conflicts.
+By default the script will built to a hard coded path defined by the scripts `$install_dir` variable as to avoid installing files to a server and causing conflicts.
 
 **Note:** This path is relative to the scripts location by default.
 
