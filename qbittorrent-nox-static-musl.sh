@@ -70,13 +70,22 @@ set_default_values() {
 # This function will check for a list of defined dependencies from the qb_required_pkgs array. Apps like python3 and python2 are dynamically set
 #####################################################################################################################################################
 check_dependencies() {
-	qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "linux-headers") # Define our list of required core packages in an array.
 	#
-	## Check for required dependencies
+	## Define our ALpine list of required core packages in an array.
+	[[ "${what_os}" =~ ^alpine$ ]] && qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "linux-headers")
+	#
+	## Define our Debian/Ubuntu list of required core packages in an array.
+	[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && qb_required_pkgs=("build-essential" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "python${qb_python_version}-numpy")
+	#
 	echo -e "${tn}${tb}Checking if required core dependencies are installed${cend}${tn}"
 	#
 	for pkg in "${qb_required_pkgs[@]}"; do
-		if apk info -e "${pkg}" > /dev/null 2>&1; then
+		#
+		[[ "${what_os}" =~ ^alpine$ ]] && pkgman() { apk info -e "${pkg}"; }
+		#
+		[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && pkgman() { dpkg -s "${pkg}"; }
+		#
+		if pkgman > /dev/null 2>&1; then
 			echo -e "Dependency - ${cg}OK${cend} - ${pkg}"
 		else
 			if [[ -n "${pkg}" ]]; then
@@ -101,6 +110,10 @@ check_dependencies() {
 			[[ "${what_os}" =~ ^alpine$ ]] && apk upgrade --repository="${CDN_URL}"
 			[[ "${what_os}" =~ ^alpine$ ]] && apk fix
 			#
+			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get update -y
+			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get upgrade -y
+			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get autoremove -y
+			#
 			set -e
 			#
 			[[ -f /var/run/reboot-required ]] && {
@@ -109,6 +122,8 @@ check_dependencies() {
 			}
 			#
 			echo -e "${tn}${cg}Installing required dependencies${cend}${tn}"
+			#
+			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get install -y "${qb_checked_required_pkgs[@]}"
 			#
 			[[ "${what_os}" =~ ^alpine$ ]] && apk add "${qb_checked_required_pkgs[@]}" --repository="${CDN_URL}"
 			#
