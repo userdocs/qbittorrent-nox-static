@@ -46,7 +46,7 @@ cend="\e[0m"  # [c]olor[end]
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
-	what_os="$(source /etc/os-release && echo "${ID}")"
+	what_os="$(source /etc/os-release && echo "${ID}")" # A consistent way to get our OS ID.
 	#
 	[[ "${what_os}" = 'alpine' ]] && delete=("bison" "gawk" "glibc") # remove modules when used on alpine.
 	#
@@ -124,6 +124,7 @@ check_dependencies() {
 			echo -e "${tn}${cg}Installing required dependencies${cend}${tn}"
 			#
 			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get install -y "${qb_checked_required_pkgs[@]}"
+			#
 			[[ "${what_os}" =~ ^alpine$ ]] && apk add "${qb_checked_required_pkgs[@]}" --repository="${CDN_URL}"
 			#
 			echo -e "${tn}${cg}Dependencies installed!${cend}"
@@ -184,20 +185,72 @@ done
 #
 eval set -- "${params1[@]}" # Set positional arguments in their proper place.
 #####################################################################################################################################################
-# 2: curl and git download functions - default is no proxy
+# 2:  curl test download functions - default is no proxy - curl is a test function and curl_curl is the command function
 #####################################################################################################################################################
-curl() {
+curl_curl() {
 	if [[ -z "${qb_curl_proxy}" ]]; then
-		"$(type -P curl)" -sNL4fq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 "${@}"
+		"$(type -P curl)" -sNL4fq --connect-timeout 5 --retry 5 --retry-delay 5 --retry-max-time 25 "${@}"
 	else
-		"$(type -P curl)" -sNL4fq --connect-timeout 5 --retry 5 --retry-delay 10 --retry-max-time 60 --proxy-insecure -x "${qb_curl_proxy}" "${@}"
+		"$(type -P curl)" -sNL4fq --connect-timeout 5 --retry 5 --retry-delay 5 --retry-max-time 25 --proxy-insecure -x "${qb_curl_proxy}" "${@}"
 	fi
 }
-git() {
+#
+curl() {
+	if [[ "$(
+		curl_curl "${@}" > /dev/null
+		echo "$?"
+	)" =~ ^(28|7)$ ]]; then
+		echo -e "${cy}There is an issue with your proxy settings or network connection${cend}"
+		echo
+		exit
+	else
+		curl_curl "${@}"
+	fi
+}
+#####################################################################################################################################################
+# 3: git test download functions - default is no proxy - git is a test function and git_git is the command function
+#####################################################################################################################################################
+git_git() {
 	if [[ -z "${qb_git_proxy}" ]]; then
 		"$(type -P git)" "${@}"
 	else
 		"$(type -P git)" -c http.sslVerify=false -c http.https://github.com.proxy="${qb_git_proxy}" "${@}"
+	fi
+}
+#
+git() {
+	if [[ "${2}" = '-t' ]]; then
+		url_test="${1}"
+		tag_flag="${2}"
+		tag_test="${3}"
+	else
+		url_test="${11}" # 11th place in our download filder function.
+	fi
+	#
+	status="$(
+		git_git ls-remote --exit-code "${url_test}" "${tag_flag}" "${tag_test}" > /dev/null 2>&1
+		echo "${?}"
+	)"
+	#
+	if [[ "$status" = '128' ]]; then
+		echo "error_url"
+	elif [[ "${tag_flag}" = '-t' && "${status}" = '0' ]]; then
+		echo "${tag_test}"
+	elif [[ "${tag_flag}" = '-t' && "${status}" -eq '2' ]]; then
+		echo "error_tag"
+	else
+		git_git "${@}"
+	fi
+}
+#
+test_git_ouput() {
+	if [[ "${1}" = "error_tag" ]]; then
+		echo -e "${tn} ${cy}Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
+	elif [[ "${1}" = "error_url" ]]; then
+		echo
+		echo -e " ${cy}There is an issue with your proxy settings or network connection${cend}"
+		echo
+		exit
 	fi
 }
 #####################################################################################################################################################
@@ -251,32 +304,32 @@ set_module_urls() {
 	# glibc_url="http://ftpmirror.gnu.org/gnu/libc/$(grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl http://ftpmirror.gnu.org/gnu/libc/) | sort -V | tail -1)"
 	glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-2.31.tar.gz"
 	#
-	zlib_github_tag="$(grep -Eom1 'v1.2.([0-9]{1,2})' <(curl https://github.com/madler/zlib/releases))"
+	zlib_github_tag="$(grep -Eom1 'v1.2.([0-9]{1,2})' <(curl https://github.com/madler/zlib/releases))" || zlib_github_tag="null_value"
 	zlib_url="https://github.com/madler/zlib/archive/${zlib_github_tag}.tar.gz"
 	#
-	icu_url="$(grep -Eom1 'ht(.*)icu4c(.*)-src.tgz' <(curl https://api.github.com/repos/unicode-org/icu/releases/latest))"
+	icu_url="$(grep -Eom1 'ht(.*)icu4c(.*)-src.tgz' <(curl https://api.github.com/repos/unicode-org/icu/releases/latest))" || icu_url="null_value"
 	#
-	openssl_github_tag="$(grep -Eom1 'OpenSSL_1_1_([0-9][a-z])' <(curl "https://github.com/openssl/openssl/releases"))"
+	openssl_github_tag="$(grep -Eom1 'OpenSSL_1_1_([0-9][a-z])' <(curl "https://github.com/openssl/openssl/releases"))" || openssl_github_tag="null_value"
 	openssl_url="https://github.com/openssl/openssl/archive/${openssl_github_tag}.tar.gz"
 	#
 	boost_version="$(sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p' <(curl "https://www.boost.org/users/download/"))"
 	boost_github_tag="boost-${boost_version}"
 	boost_url="https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz"
-	boost_url_status="$(curl -o /dev/null --silent --head --write-out '%{http_code}' "https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
+	boost_url_status="$(curl -o /dev/null --silent --head --write-out '%{http_code}' "https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")" || boost_url_status="null_value"
 	boost_github_url="https://github.com/boostorg/boost.git"
 	#
 	qt_version='5.15'
-	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qtbase/releases"))"
+	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qtbase/releases"))" || qtbase_github_tag="null_value"
 	qtbase_github_url="https://github.com/qt/qtbase.git"
-	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qttools/releases"))"
+	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qttools/releases"))" || qttools_github_tag="null_value"
 	qttools_github_url="https://github.com/qt/qttools.git"
 	#
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
-	libtorrent_github_tag_default="$(grep -Eom1 "v${libtorrent_version}.([0-9]{1,2})" <(curl "https://github.com/arvidn/libtorrent/tags"))"
+	libtorrent_github_tag_default="$(grep -Eom1 "v${libtorrent_version}.([0-9]{1,2})" <(curl "https://github.com/arvidn/libtorrent/tags"))" || libtorrent_github_tag_default="null_value"
 	libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
 	#
 	qbittorrent_github_url="https://github.com/qbittorrent/qBittorrent.git"
-	qbittorrent_github_tag_default="$(grep -Eom1 'release-([0-9]{1,4}\.?)+' <(curl "https://github.com/qbittorrent/qBittorrent/tags"))"
+	qbittorrent_github_tag_default="$(grep -Eom1 'release-([0-9]{1,4}\.?)+$' <(curl "https://github.com/qbittorrent/qBittorrent/tags"))" || qbittorrent_github_tag_default="null_value"
 	qbittorrent_github_tag="${qbitorrent_github_tag:-$qbittorrent_github_tag_default}"
 }
 #####################################################################################################################################################
@@ -351,32 +404,24 @@ installation_modules() {
 	fi
 }
 #####################################################################################################################################################
-# These functions test provided github repo URLS and then tags, and then test the returned output against OK, error, URL error conditions.
+# This function will test to see if a Jamfile patch file exists via the variable patches_github_url for the tag used.
 #####################################################################################################################################################
-test_github_tag() {
-	github_test_url="${1}"
-	github_test_tag="${2}"
+apply_patches() {
+	[[ -d "$install_dir/patches" ]] && rm -rf "$install_dir/patches"
+	#
+	[[ "$libtorrent_github_tag" =~ ^(libtorrent-1_1_[0-9]{1,2}|RC_1_1) ]] && libtorrent_patch_github_tag="RC_1_1"
+	[[ "$libtorrent_github_tag" =~ ^(libtorrent-1_2_[0-9]{1,2}|RC_1_2|v1.2\.[0-9]{1,2})$ ]] && libtorrent_patch_github_tag="RC_1_2"
+	[[ "$libtorrent_github_tag" =~ ^(RC_2_0|v2\.[0-9](\.[0-9]{1,2})?)$ ]] && libtorrent_patch_github_tag="RC_2_0"
+	#
+	patches_github_url="https://raw.githubusercontent.com/userdocs/python-libtorrent-binding/master/patches/$libtorrent_patch_github_tag/Jamfile"
+	#
 	if [[ "$(
-		curl -I "${github_test_url/\.git/}" > /dev/null
-		echo "${?}"
+		curl "$patches_github_url" > /dev/null
+		echo "$?"
 	)" -ne '22' ]]; then
-		if git ls-remote --exit-code "${github_test_url}" -t "${github_test_tag}" > /dev/null 2>&1; then
-			echo "${github_test_tag}"
-		else
-			echo "error_tag"
-		fi
+		curl "$patches_github_url" -o "$install_dir/libtorrent/bindings/python/Jamfile"
 	else
-		echo "error_22"
-	fi
-}
-#
-test_github_tag_ouput() {
-	if [[ "${1}" = "error_tag" ]]; then
-		echo -e "${tn} ${cy}Sorry but this tag ${cr}$2${cend} ${cy}could not be verified${cend}"
-	elif [[ "${1}" = "error_22" ]]; then
-		echo -e "${tn}${cr}${3}${cend}"
-		echo
-		echo -e "${cy}This URL is returning a curl 22 error. Please verify it.${cend}"
+		curl "https://raw.githubusercontent.com/arvidn/libtorrent/$libtorrent_patch_github_tag/Jamfile" -o "$install_dir/libtorrent/Jamfile"
 	fi
 }
 #####################################################################################################################################################
@@ -520,6 +565,13 @@ while (("${#}")); do
 			qb_build_dir="${2}"
 			shift 2
 			;;
+		-bs | --boot-strap)
+			mkdir -p "$install_dir/patches"
+			echo
+			echo -e "${clc}$install_dir/patches${cend} created"
+			echo
+			exit
+			;;
 		-n | --no-delete)
 			qb_skip_delete='yes'
 			shift
@@ -530,37 +582,31 @@ while (("${#}")); do
 			shift
 			;;
 		-m | --master)
-			lt_tag_supplied="RC_${libtorrent_version//./_}"
-			libtorrent_github_tag="$(test_github_tag "${libtorrent_github_url}" "${lt_tag_supplied}")"
-			test_github_tag_ouput "${lt_tag_supplied}" "${2}" "${libtorrent_github_url}"
+			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${libtorrent_version//./_}")"
+			test_git_ouput "${libtorrent_github_tag}" "RC_${libtorrent_version//./_}" "libtorrent"
 			#
-			qb_tag_supplied="master"
-			qbittorrent_github_tag="$(test_github_tag "${qbittorrent_github_url}" "${qb_tag_supplied}")"
-			test_github_tag_ouput "$qbittorrent_github_tag" "${qb_tag_supplied}" "${qbittorrent_github_url}"
+			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
+			test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
 			shift
 			;;
 		-lm | --libtorrent-master)
-			lt_tag_supplied="RC_${libtorrent_version//./_}"
-			libtorrent_github_tag="$(test_github_tag "${libtorrent_github_url}" "${lt_tag_supplied}")"
-			test_github_tag_ouput "${lt_tag_supplied}" "${2}" "${libtorrent_github_url}"
+			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${libtorrent_version//./_}")"
+			test_git_ouput "${libtorrent_github_tag}" "RC_${libtorrent_version//./_}" "libtorrent"
 			shift
 			;;
 		-lt | --libtorrent-tag)
-			lt_tag_supplied="$2"
-			libtorrent_github_tag="$(test_github_tag "${libtorrent_github_url}" "${lt_tag_supplied}")"
-			test_github_tag_ouput "${lt_tag_supplied}" "${2}" "${libtorrent_github_url}"
+			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "$2")"
+			test_git_ouput "${libtorrent_github_tag}" "$2" "libtorrent"
 			shift 2
 			;;
 		-qm | --qbittorrent-master)
-			qb_tag_supplied="master"
-			qbittorrent_github_tag="$(test_github_tag "${qbittorrent_github_url}" "${qb_tag_supplied}")"
-			test_github_tag_ouput "$qbittorrent_github_tag" "${qb_tag_supplied}" "${qbittorrent_github_url}"
+			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
+			test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
 			shift
 			;;
 		-qt | --qbittorrent-tag)
-			qb_tag_supplied="${2}"
-			qbittorrent_github_tag="$(test_github_tag "${qbittorrent_github_url}" "${qb_tag_supplied}")"
-			test_github_tag_ouput "$qbittorrent_github_tag" "${qb_tag_supplied}" "${qbittorrent_github_url}"
+			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "$2")"
+			test_git_ouput "${qbittorrent_github_tag}" "$2" "qbittorrent"
 			shift 2
 			;;
 		-h | --help)
@@ -568,6 +614,7 @@ while (("${#}")); do
 			echo -e "${tb}${tu}Here are a list of available options${cend}"
 			echo
 			echo -e " ${cg}Use:${cend} ${clb}-b${cend}  ${td}or${cend} ${clb}--build-directory${cend}    ${cy}Help:${cend} ${clb}-h-b${cend}  ${td}or${cend} ${clb}--help-build-directory${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-bs${cend}  ${td}or${cend} ${clb}--boot-strap${cend}        ${cy}Help:${cend} ${clb}-h-bs${cend}  ${td}or${cend} ${clb}--help-boot-strap${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-i${cend}  ${td}or${cend} ${clb}--icu${cend}                ${cy}Help:${cend} ${clb}-h-i${cend}  ${td}or${cend} ${clb}--help-icu${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-m${cend}  ${td}or${cend} ${clb}--master${cend}             ${cy}Help:${cend} ${clb}-h-m${cend}  ${td}or${cend} ${clb}--help-master${cend}"
@@ -615,6 +662,18 @@ while (("${#}")); do
 			echo
 			echo -e " ${td}Example:${cend} ${td}${cg}${qb_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}module${cend} ${clb}-b${cend} ${td}${clc}\"\$HOME/build\"${cend} ${td}- will specify a custom build directory and install a specific module use to that custom location${cend}"
 			#
+			echo
+			exit 1
+			;;
+		-h-bs | --help-boot-strap)
+			echo
+			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " Creates this dir: ${cc}${qb_install_dir_short}/patches${cend}"
+			echo
+			echo -e " Add you patches here in the format module name, for example."
+			echo
+			echo -e " ${cc}${qb_install_dir_short}/patches/liborrent${cend}"
 			echo
 			exit 1
 			;;
@@ -681,7 +740,7 @@ while (("${#}")); do
 			echo -e " ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend}${clb} -lt ${clc}RC_2_0${cend} ${clb}-h-lt${cend}"
 			if [[ ! "${libtorrent_github_tag}" =~ (error_tag|error_22) ]]; then
 				echo
-				echo -e " ${td}This tag that will be used is: ${cg}$libtorrent_github_tag${cend}"
+				echo -e " ${td}This is tag that will be used is: ${cg}$libtorrent_github_tag${cend}"
 			fi
 			echo
 			echo -e " ${td}This flag must be provided with arguments.${cend}"
@@ -741,6 +800,13 @@ while (("${#}")); do
 done
 #
 eval set -- "${params2[@]}" # Set positional arguments in their proper place.
+#####################################################################################################################################################
+# Lets dip out now if we find that any github tags failed validation
+#####################################################################################################################################################
+[[ "${libtorrent_github_tag}" = "error_tag" || "${qbittorrent_github_tag}" = "error_tag" ]] && {
+	echo
+	exit
+}
 #####################################################################################################################################################
 # Functions part 2: Use some of our functions
 #####################################################################################################################################################
@@ -926,7 +992,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		BOOST_INCLUDEDIR="${install_dir}/boost"
 		BOOST_BUILD_PATH="${install_dir}/boost"
 		#
-		"${install_dir}/boost/b2" -j"$(nproc)" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static runtime-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${install_dir}" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
+		apply_patches
+		#
+		"${install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${install_dir}" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
 		#
 		delete_function boost
 		delete_function "${app_name}"
