@@ -12,7 +12,7 @@ There is one bash script for 3 platforms. This script will do these three main t
 Here is an example build profile:
 
 ```none
-qBittorrent 4.3.0.1 was built with the following libraries:
+qBittorrent 4.3.1 was built with the following libraries:
 
 Qt: 5.15.1
 Libtorrent: 1.2.11.0
@@ -144,6 +144,7 @@ Please use this feature to get help with a script option.
 Here are a list of available options
 
  Use: -b  or --build-directory    Help: -h-b  or --help-build-directory
+ Use: -bs or --boot-strap         Help: -h-bs or --help-boot-strap
  Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
  Use: -i  or --icu                Help: -h-i  or --help-icu
  Use: -m  or --master             Help: -h-m  or --help-master
