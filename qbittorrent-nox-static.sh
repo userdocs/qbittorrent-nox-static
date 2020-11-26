@@ -150,6 +150,10 @@ check_dependencies() {
 #####################################################################################################################################################
 while (("${#}")); do
 	case "${1}" in
+    		-b | --build-directory)
+			qb_build_dir="${2}"
+			shift 2
+			;;
 		-p | --proxy)
 			qb_git_proxy="${2}"
 			qb_curl_proxy="${2}"
@@ -561,10 +565,6 @@ set_module_urls # see functions
 #####################################################################################################################################################
 while (("${#}")); do
 	case "${1}" in
-		-b | --build-directory)
-			qb_build_dir="${2}"
-			shift 2
-			;;
 		-bs | --boot-strap)
 			mkdir -p "$install_dir/patches"
 			echo
@@ -614,7 +614,7 @@ while (("${#}")); do
 			echo -e "${tb}${tu}Here are a list of available options${cend}"
 			echo
 			echo -e " ${cg}Use:${cend} ${clb}-b${cend}  ${td}or${cend} ${clb}--build-directory${cend}    ${cy}Help:${cend} ${clb}-h-b${cend}  ${td}or${cend} ${clb}--help-build-directory${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bs${cend}  ${td}or${cend} ${clb}--boot-strap${cend}        ${cy}Help:${cend} ${clb}-h-bs${cend}  ${td}or${cend} ${clb}--help-boot-strap${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-bs${cend} ${td}or${cend} ${clb}--boot-strap${cend}        ${cy}Help:${cend} ${clb}-h-bs${cend}  ${td}or${cend} ${clb}--help-boot-strap${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-i${cend}  ${td}or${cend} ${clb}--icu${cend}                ${cy}Help:${cend} ${clb}-h-i${cend}  ${td}or${cend} ${clb}--help-icu${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-m${cend}  ${td}or${cend} ${clb}--master${cend}             ${cy}Help:${cend} ${clb}-h-m${cend}  ${td}or${cend} ${clb}--help-master${cend}"
@@ -673,7 +673,7 @@ while (("${#}")); do
 			echo
 			echo -e " Add you patches here in the format module name, for example."
 			echo
-			echo -e " ${cc}${qb_install_dir_short}/patches/liborrent${cend}"
+			echo -e " ${cc}${qb_install_dir_short}/patches${cend}"
 			echo
 			exit 1
 			;;
@@ -924,6 +924,8 @@ application_name boost
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
+	#
+	[[ -d "${install_dir}/boost" ]] && delete_function "${app_name}"
 	#
 	if [[ "${boost_url_status}" -eq '200' ]]; then
 		download_file "${app_name}" "${boost_url}"
