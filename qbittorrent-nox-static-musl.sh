@@ -263,29 +263,25 @@ test_git_ouput() {
 #####################################################################################################################################################
 set_build_directory() {
 	if [[ -n "${qb_build_dir}" ]]; then
-		qb_install_dir="${qb_build_dir}"
-		#
 		if [[ "${qb_build_dir}" =~ ^/ ]]; then
-			install_dir="${qb_build_dir}"
-			qb_install_dir_short="${install_dir/$HOME/\~}"
+			qb_install_dir="${qb_build_dir}"
+			qb_install_dir_short="${qb_install_dir/$HOME/\~}"
 		else
-			install_dir="${qb_working_dir}/${qb_build_dir}"
+			qb_install_dir="${qb_working_dir}/${qb_build_dir}"
 			qb_install_dir_short="${qb_working_dir_short}/${qb_build_dir}"
 		fi
-	else
-		install_dir="${qb_install_dir}"
 	fi
 	#
 	## Set lib and include directory paths based on install path.
-	include_dir="${install_dir}/include"
-	lib_dir="${install_dir}/lib"
+	include_dir="${qb_install_dir}/include"
+	lib_dir="${qb_install_dir}/lib"
 	#
 	## Define some build specific variables
-	PATH="${install_dir}/bin:${HOME}/bin${PATH:+:${PATH}}"
+	PATH="${qb_install_dir}/bin:${HOME}/bin${PATH:+:${PATH}}"
 	LD_LIBRARY_PATH="-L${lib_dir}"
 	PKG_CONFIG_PATH="-L${lib_dir}/pkgconfig"
-	local_boost="--with-boost=${install_dir}"
-	local_openssl="--with-openssl=${install_dir}"
+	local_boost="--with-boost=${qb_install_dir}"
+	local_openssl="--with-openssl=${qb_install_dir}"
 }
 #####################################################################################################################################################
 # This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the installation_modules function
@@ -386,8 +382,8 @@ installation_modules() {
 		fi
 		#
 		## Create the directories we need.
-		mkdir -p "${install_dir}/logs"
-		mkdir -p "${install_dir}/completed"
+		mkdir -p "${qb_install_dir}/logs"
+		mkdir -p "${qb_install_dir}/completed"
 		#
 		## Set some python variables we need.
 		python_major="$(python${qb_python_version} -c "import sys; print(sys.version_info[0])")"
@@ -415,7 +411,7 @@ installation_modules() {
 # This function will test to see if a Jamfile patch file exists via the variable patches_github_url for the tag used.
 #####################################################################################################################################################
 apply_patches() {
-	[[ -d "$install_dir/patches" ]] && rm -rf "$install_dir/patches"
+	[[ -d "$qb_install_dir/patches" ]] && rm -rf "$qb_install_dir/patches"
 	#
 	[[ "$libtorrent_github_tag" =~ ^(libtorrent-1_1_[0-9]{1,2}|RC_1_1) ]] && libtorrent_patch_github_tag="RC_1_1"
 	[[ "$libtorrent_github_tag" =~ ^(libtorrent-1_2_[0-9]{1,2}|RC_1_2|v1.2\.[0-9]{1,2})$ ]] && libtorrent_patch_github_tag="RC_1_2"
@@ -427,23 +423,23 @@ apply_patches() {
 		curl "$patches_github_url" > /dev/null
 		echo "$?"
 	)" -ne '22' ]]; then
-		curl "$patches_github_url" -o "$install_dir/libtorrent/bindings/python/Jamfile"
+		curl "$patches_github_url" -o "$qb_install_dir/libtorrent/bindings/python/Jamfile"
 	else
-		curl "https://raw.githubusercontent.com/arvidn/libtorrent/$libtorrent_patch_github_tag/Jamfile" -o "$install_dir/libtorrent/Jamfile"
+		curl "https://raw.githubusercontent.com/arvidn/libtorrent/$libtorrent_patch_github_tag/Jamfile" -o "$qb_install_dir/libtorrent/Jamfile"
 	fi
 }
 #####################################################################################################################################################
 # This function installs qt
 #####################################################################################################################################################
 install_qbittorrent() {
-	if [[ -f "${install_dir}/completed/qbittorrent-nox" ]]; then
+	if [[ -f "${qb_install_dir}/completed/qbittorrent-nox" ]]; then
 		#
 		if [[ "$(id -un)" = 'root' ]]; then
 			mkdir -p "/usr/local/bin"
-			cp -rf "${install_dir}/completed/qbittorrent-nox" "/usr/local/bin"
+			cp -rf "${qb_install_dir}/completed/qbittorrent-nox" "/usr/local/bin"
 		else
 			mkdir -p "${HOME}/bin"
-			cp -rf "${install_dir}/completed/qbittorrent-nox" "${HOME}/bin"
+			cp -rf "${qb_install_dir}/completed/qbittorrent-nox" "${HOME}/bin"
 		fi
 		#
 		echo -e "${tn}qbittorrent-nox has been installed!${tn}"
@@ -468,12 +464,12 @@ download_file() {
 		url_filename="${2}"
 		[[ -n "${3}" ]] && subdir="/${3}" || subdir=""
 		echo -e "${tn}${cg}Installing $1${cend}${tn}"
-		file_name="${install_dir}/${1}.tar.gz"
-		[[ -f "${file_name}" ]] && rm -rf {"${install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
+		file_name="${qb_install_dir}/${1}.tar.gz"
+		[[ -f "${file_name}" ]] && rm -rf {"${qb_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
 		curl "${url_filename}" -o "${file_name}"
-		tar xf "${file_name}" -C "${install_dir}"
-		mkdir -p "${install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
-		cd "${install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
+		tar xf "${file_name}" -C "${qb_install_dir}"
+		mkdir -p "${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
+		cd "${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
 	else
 		echo
 		echo "You must provide a filename name for the function - download_file"
@@ -493,7 +489,7 @@ download_folder() {
 		url_github="${2}"
 		[[ -n "${3}" ]] && subdir="/${3}" || subdir=""
 		echo -e "${tn}${cg}Installing ${1}${cend}${tn}"
-		folder_name="${install_dir}/${1}"
+		folder_name="${qb_install_dir}/${1}"
 		[[ -d "${folder_name}" ]] && rm -rf "${folder_name}"
 		git clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "${url_github}" "${folder_name}"
 		mkdir -p "${folder_name}${subdir}"
@@ -516,9 +512,9 @@ delete_function() {
 		if [[ -z "${qb_skip_delete}" ]]; then
 			[[ "$2" = 'last' ]] && echo -e "${tn}${clr}Deleting $1 installation files and folders${cend}${tn}" || echo -e "${tn}${clr}Deleting ${1} installation files and folders${cend}"
 			#
-			file_name="${install_dir}/${1}.tar.gz"
-			folder_name="${install_dir}/${1}"
-			[[ -f "${file_name}" ]] && rm -rf {"${install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
+			file_name="${qb_install_dir}/${1}.tar.gz"
+			folder_name="${qb_install_dir}/${1}"
+			[[ -f "${file_name}" ]] && rm -rf {"${qb_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
 			[[ -d "${folder_name}" ]] && rm -rf "${folder_name}"
 			cd "${qb_working_dir}"
 		else
@@ -570,9 +566,9 @@ set_module_urls # see functions
 while (("${#}")); do
 	case "${1}" in
 		-bs | --boot-strap)
-			mkdir -p "$install_dir/patches"
+			mkdir -p "$qb_install_dir/patches"
 			echo
-			echo -e "${clc}$install_dir/patches${cend} created"
+			echo -e "${clc}$qb_install_dir_short/patches${cend} created"
 			echo
 			exit
 			;;
@@ -618,7 +614,7 @@ while (("${#}")); do
 			echo -e "${tb}${tu}Here are a list of available options${cend}"
 			echo
 			echo -e " ${cg}Use:${cend} ${clb}-b${cend}  ${td}or${cend} ${clb}--build-directory${cend}    ${cy}Help:${cend} ${clb}-h-b${cend}  ${td}or${cend} ${clb}--help-build-directory${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bs${cend} ${td}or${cend} ${clb}--boot-strap${cend}        ${cy}Help:${cend} ${clb}-h-bs${cend}  ${td}or${cend} ${clb}--help-boot-strap${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-bs${cend} ${td}or${cend} ${clb}--boot-strap${cend}         ${cy}Help:${cend} ${clb}-h-bs${cend}  ${td}or${cend} ${clb}--help-boot-strap${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-i${cend}  ${td}or${cend} ${clb}--icu${cend}                ${cy}Help:${cend} ${clb}-h-i${cend}  ${td}or${cend} ${clb}--help-icu${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-m${cend}  ${td}or${cend} ${clb}--master${cend}             ${cy}Help:${cend} ${clb}-h-m${cend}  ${td}or${cend} ${clb}--help-master${cend}"
@@ -826,9 +822,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_reset
 	download_file "${app_name}" "${!app_url}"
 	#
-	./configure --prefix="${install_dir}" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	./configure --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -843,9 +839,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "$1" = "${app_name}" ]]; then
 	custom_flags_reset
 	download_file "${app_name}" "${!app_url}"
 	#
-	./configure --prefix="$install_dir" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	./configure --prefix="$qb_install_dir" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -862,9 +858,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	#
 	mkdir -p build
 	cd build
-	"${install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")/configure" --prefix="${install_dir}" --enable-static-nss 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" 2>&1 | tee -a "${install_dir}/logs/$app_name.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	"${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")/configure" --prefix="${qb_install_dir}" --enable-static-nss 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/$app_name.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -879,9 +875,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
 	#
-	./configure --prefix="${install_dir}" --static 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	./configure --prefix="${qb_install_dir}" --static 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -896,9 +892,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}" "/source"
 	#
-	./configure --prefix="${install_dir}" --disable-shared --enable-static CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	./configure --prefix="${qb_install_dir}" --disable-shared --enable-static CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -913,9 +909,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
 	#
-	./config --prefix="${install_dir}" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install_sw install_ssldirs 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	./config --prefix="${qb_install_dir}" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install_sw install_ssldirs 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -929,20 +925,20 @@ application_name boost
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	#
-	[[ -d "${install_dir}/boost" ]] && delete_function "${app_name}"
+	[[ -d "${qb_install_dir}/boost" ]] && delete_function "${app_name}"
 	#
 	if [[ "${boost_url_status}" -eq '200' ]]; then
 		download_file "${app_name}" "${boost_url}"
-		mv -f "${install_dir}/boost_${boost_version//./_}/" "${install_dir}/boost"
-		cd "${install_dir}/boost"
+		mv -f "${qb_install_dir}/boost_${boost_version//./_}/" "${qb_install_dir}/boost"
+		cd "${qb_install_dir}/boost"
 	fi
 	#
 	if [[ "${boost_url_status}" -eq '403' ]]; then
 		download_folder "${app_name}" "${!app_github_url}"
 	fi
 	#
-	"${install_dir}/boost/bootstrap.sh" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	"${install_dir}/boost/b2" -j"$(nproc)" variant=release threading=multi link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" toolset=gcc install --prefix="${install_dir}" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	"${qb_install_dir}/boost/bootstrap.sh" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	"${qb_install_dir}/boost/b2" -j"$(nproc)" variant=release threading=multi link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" toolset=gcc install --prefix="${qb_install_dir}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 else
 	application_skip
 fi
@@ -956,9 +952,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	download_folder "${app_name}" "${!app_github_url}"
 	#
 	[[ "${qb_skip_icu}" = 'no' ]] && icu='-icu' || icu='-no-icu'
-	./configure -prefix "${install_dir}" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$install_dir/logs/$app_name.log.txt"
-	make -j"$(nproc)" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	./configure -prefix "${qb_install_dir}" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$qb_install_dir/logs/$app_name.log.txt"
+	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -973,10 +969,10 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_folder "${app_name}" "${!app_github_url}"
 	#
-	"${install_dir}/bin/qmake" -set prefix "${install_dir}" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	"${install_dir}/bin/qmake" QMAKE_CXXFLAGS="-static" QMAKE_LFLAGS="-static" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	"${qb_install_dir}/bin/qmake" -set prefix "${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	"${qb_install_dir}/bin/qmake" QMAKE_CXXFLAGS="-static" QMAKE_LFLAGS="-static" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
 else
@@ -988,19 +984,19 @@ fi
 application_name libtorrent
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
-	if [[ ! -d "${install_dir}/boost" ]]; then
+	if [[ ! -d "${qb_install_dir}/boost" ]]; then
 		echo -e "${tn}${clr}Warning${cend} - You must install the boost module before you can use the libtorrent module"
 	else
 		custom_flags_set
 		download_folder "${app_name}" "${!app_github_url}"
 		#
-		BOOST_ROOT="${install_dir}/boost"
-		BOOST_INCLUDEDIR="${install_dir}/boost"
-		BOOST_BUILD_PATH="${install_dir}/boost"
+		BOOST_ROOT="${qb_install_dir}/boost"
+		BOOST_INCLUDEDIR="${qb_install_dir}/boost"
+		BOOST_BUILD_PATH="${qb_install_dir}/boost"
 		#
 		apply_patches
 		#
-		"${install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${install_dir}" 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
+		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		delete_function boost
 		delete_function "${app_name}"
@@ -1017,17 +1013,17 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_folder "${app_name}" "${!app_github_url}"
 	#
-	./bootstrap.sh 2>&1 | tee "${install_dir}/logs/${app_name}.log.txt"
-	./configure --prefix="${install_dir}" "${local_boost}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${install_dir}/bin" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	./bootstrap.sh 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	./configure --prefix="${qb_install_dir}" "${local_boost}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	sed -i 's/-lboost_system//' conf.pri
 	sed -i 's/-lcrypto//' conf.pri
 	sed -i 's/-lssl//' conf.pri
 	#
-	make -j"$(nproc)" 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${install_dir}/logs/${app_name}.log.txt"
+	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
-	[[ -f "${install_dir}/bin/qbittorrent-nox" ]] && cp -f "${install_dir}/bin/qbittorrent-nox" "${install_dir}/completed/qbittorrent-nox"
+	[[ -f "${qb_install_dir}/bin/qbittorrent-nox" ]] && cp -f "${qb_install_dir}/bin/qbittorrent-nox" "${qb_install_dir}/completed/qbittorrent-nox"
 	#
 	delete_function "${app_name}" last
 else
