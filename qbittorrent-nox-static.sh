@@ -21,7 +21,7 @@
 #####################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #####################################################################################################################################################
-set -e -a
+set -a
 #####################################################################################################################################################
 # Unset some variables to set defaults.
 #####################################################################################################################################################
@@ -41,14 +41,38 @@ tb="\e[1m" && td="\e[2m" && tu="\e[4m" && tn="\n" # [t]ext[b]old && [t]ext[d]im 
 cdef="\e[39m" # [c]olor[default]
 cend="\e[0m"  # [c]olor[end]
 #####################################################################################################################################################
+# CHeck we are on a supported OS and release.
+#####################################################################################################################################################
+what_id="$(source /etc/os-release && printf "%s" "${ID}")" # an easy and consistent way to get our os info.
+what_version_codename="$(source /etc/os-release && printf "%s" "${VERSION_CODENAME}")"
+what_version_id="$(source /etc/os-release && printf "%s" "${VERSION_ID}")"
+[[ "${what_id}" =~ ^(alpine)$ ]] && {
+	what_version_codename="alpine"
+} # add apline to codename check to just be consistent.
+#
+if [[ ! "${what_version_codename}" =~ ^(alpine|stretch|buster|bullseye|bionic|focal|groovy|hirsute)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
+	echo
+	echo -e " ${cly}This is not a supported OS. There is no reason to continue.${cend}"
+	echo
+	echo -e " id: ${td}${cly}${what_id}${cend} codename: ${td}${cly}${what_version_codename}${cend} version: ${td}${clr}${what_version_id}${cend}"
+	echo
+	echo -e " ${td}These are the supported platforms${cend}"
+	echo
+	echo -e " ${clm}Debian${cend} - ${clb}stretch${cend} - ${clb}buster${cend} - ${clb}bullseye${cend}"
+	echo
+	echo -e " ${clm}Ubuntu${cend} - ${clb}bionic${cend} - ${clb}focal${cend} -${clb} groovy${cend} - ${clb}hirsute${cend}"
+	echo
+	echo -e " ${clm}Alpine${cend} - ${clb}3.10.0${cend} or greater"
+	echo
+	exit
+fi
+#####################################################################################################################################################
 # This function sets some default values we use but whose values can be overridden by certain flags
 #####################################################################################################################################################
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
-	what_os="$(source /etc/os-release && echo "${ID}")" # A consistent way to get our OS ID.
-	#
-	[[ "${what_os}" = 'alpine' ]] && delete=("bison" "gawk" "glibc") # remove modules when used on alpine.
+	[[ "${what_id}" = 'alpine' ]] && delete=("bison" "gawk" "glibc") # remove modules when used on alpine.
 	#
 	[[ "${1}" != 'install' ]] && delete+=("install") # remove this module by default unless provided as a first argument to the script.
 	#
@@ -72,18 +96,18 @@ set_default_values() {
 check_dependencies() {
 	#
 	## Define our ALpine list of required core packages in an array.
-	[[ "${what_os}" =~ ^alpine$ ]] && qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "linux-headers")
+	[[ "${what_id}" =~ ^(alpine)$ ]] && qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "linux-headers")
 	#
 	## Define our Debian/Ubuntu list of required core packages in an array.
-	[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && qb_required_pkgs=("build-essential" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "python${qb_python_version}-numpy")
+	[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && qb_required_pkgs=("build-essential" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "python${qb_python_version}-numpy")
 	#
 	echo -e "${tn}${tb}Checking if required core dependencies are installed${cend}${tn}"
 	#
 	for pkg in "${qb_required_pkgs[@]}"; do
 		#
-		[[ "${what_os}" =~ ^alpine$ ]] && pkgman() { apk info -e "${pkg}"; }
+		[[ "${what_id}" =~ ^(alpine)$ ]] && pkgman() { apk info -e "${pkg}"; }
 		#
-		[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && pkgman() { dpkg -s "${pkg}"; }
+		[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && pkgman() { dpkg -s "${pkg}"; }
 		#
 		if pkgman > /dev/null 2>&1; then
 			echo -e "Dependency - ${cg}OK${cend} - ${pkg}"
@@ -102,17 +126,17 @@ check_dependencies() {
 			#
 			echo -e "${tn}${cg}Updating${cend}${tn}"
 			#
-			[[ "${what_os}" =~ ^alpine$ ]] && CDN_URL="http://dl-cdn.alpinelinux.org/alpine/latest-stable/main"
+			[[ "${what_id}" =~ ^(alpine)$ ]] && CDN_URL="http://dl-cdn.alpinelinux.org/alpine/latest-stable/main"
 			#
 			set +e
 			#
-			[[ "${what_os}" =~ ^alpine$ ]] && apk update --repository="${CDN_URL}"
-			[[ "${what_os}" =~ ^alpine$ ]] && apk upgrade --repository="${CDN_URL}"
-			[[ "${what_os}" =~ ^alpine$ ]] && apk fix
+			[[ "${what_id}" =~ ^(alpine)$ ]] && apk update --repository="${CDN_URL}"
+			[[ "${what_id}" =~ ^(alpine)$ ]] && apk upgrade --repository="${CDN_URL}"
+			[[ "${what_id}" =~ ^(alpine)$ ]] && apk fix
 			#
-			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get update -y
-			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get upgrade -y
-			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get autoremove -y
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get update -y
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get upgrade -y
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get autoremove -y
 			#
 			set -e
 			#
@@ -123,9 +147,9 @@ check_dependencies() {
 			#
 			echo -e "${tn}${cg}Installing required dependencies${cend}${tn}"
 			#
-			[[ "${what_os}" =~ ^(debian|ubuntu)$ ]] && apt-get install -y "${qb_checked_required_pkgs[@]}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get install -y "${qb_checked_required_pkgs[@]}"
 			#
-			[[ "${what_os}" =~ ^alpine$ ]] && apk add "${qb_checked_required_pkgs[@]}" --repository="${CDN_URL}"
+			[[ "${what_id}" =~ ^(alpine)$ ]] && apk add "${qb_checked_required_pkgs[@]}" --repository="${CDN_URL}"
 			#
 			echo -e "${tn}${cg}Dependencies installed!${cend}"
 			#
@@ -630,9 +654,9 @@ while (("${#}")); do
 			echo
 			echo -e " ${td}${clm}all${cend}         ${td}-${cend} ${td}Install all modules${cend}"
 			echo -e " ${td}${clm}install${cend}     ${td}-${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qb_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
-			[[ "${what_os}" != 'alpine' ]] && echo -e "${td} ${clm}bison${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
-			[[ "${what_os}" != 'alpine' ]] && echo -e " ${td}${clm}gawk${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
-			[[ "${what_os}" != 'alpine' ]] && echo -e " ${td}${clm}glibc${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
+			[[ "${what_id}" != 'alpine' ]] && echo -e "${td} ${clm}bison${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
+			[[ "${what_id}" != 'alpine' ]] && echo -e " ${td}${clm}gawk${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
+			[[ "${what_id}" != 'alpine' ]] && echo -e " ${td}${clm}glibc${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
 			echo -e " ${td}${clm}zlib${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
 			echo -e " ${td}${clm}icu${cend}         ${td}-${cend} ${td}${cly}optional${cend} ${td}Build ICU locally${cend}"
 			echo -e " ${td}${clm}openssl${cend}     ${td}-${cend} ${td}${clr}required${cend} ${td}Build openssl locally${cend}"
