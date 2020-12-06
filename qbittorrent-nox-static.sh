@@ -25,7 +25,7 @@ set -a
 #####################################################################################################################################################
 # Unset some variables to set defaults.
 #####################################################################################################################################################
-unset PARAMS qb_skip_delete qb_skip_icu qb_git_proxy qb_curl_proxy qb_install_dir qb_build_dir qb_working_dir qb_modules_test qb_python_version
+unset qb_skip_delete qb_skip_icu qb_git_proxy qb_curl_proxy qb_install_dir qb_build_dir qb_working_dir qb_modules_test qb_python_version
 #####################################################################################################################################################
 # Color me up Scotty - define some color values to use as variables in the scripts.
 #####################################################################################################################################################
@@ -43,14 +43,16 @@ cend="\e[0m"  # [c]olor[end]
 #####################################################################################################################################################
 # CHeck we are on a supported OS and release.
 #####################################################################################################################################################
-what_id="$(source /etc/os-release && printf "%s" "${ID}")" # an easy and consistent way to get our os info.
-what_version_codename="$(source /etc/os-release && printf "%s" "${VERSION_CODENAME}")"
-what_version_id="$(source /etc/os-release && printf "%s" "${VERSION_ID}")"
-[[ "${what_id}" =~ ^(alpine)$ ]] && {
-	what_version_codename="alpine"
-} # add apline to codename check to just be consistent.
+what_id="$(source /etc/os-release && printf "%s" "${ID}")"                             # Get the main platform name, for example: debian, ubuntu or alpine
+what_version_codename="$(source /etc/os-release && printf "%s" "${VERSION_CODENAME}")" # Get the codename for this this OS. Note, ALpine does not have a unique codename.
+what_version_id="$(source /etc/os-release && printf "%s" "${VERSION_ID}")"             # Get the version number for this codename, for example: 10, 20.04, 3.12.4
 #
-if [[ ! "${what_version_codename}" =~ ^(alpine|stretch|buster|bullseye|bionic|focal|groovy|hirsute)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
+if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpine. We check for min v3.10 later with codenames.
+	what_version_codename="alpine"
+fi
+#
+## Check against allowed codenames or if the codename is alpine version greater thab 3.10
+if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bionic|focal)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
 	echo
 	echo -e " ${cly}This is not a supported OS. There is no reason to continue.${cend}"
 	echo
@@ -58,9 +60,9 @@ if [[ ! "${what_version_codename}" =~ ^(alpine|stretch|buster|bullseye|bionic|fo
 	echo
 	echo -e " ${td}These are the supported platforms${cend}"
 	echo
-	echo -e " ${clm}Debian${cend} - ${clb}stretch${cend} - ${clb}buster${cend} - ${clb}bullseye${cend}"
+	echo -e " ${clm}Debian${cend} - ${clb}buster${cend}"
 	echo
-	echo -e " ${clm}Ubuntu${cend} - ${clb}bionic${cend} - ${clb}focal${cend} -${clb} groovy${cend} - ${clb}hirsute${cend}"
+	echo -e " ${clm}Ubuntu${cend} - ${clb}bionic${cend} - ${clb}focal${cend}"
 	echo
 	echo -e " ${clm}Alpine${cend} - ${clb}3.10.0${cend} or greater"
 	echo
@@ -72,42 +74,54 @@ fi
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
-	[[ "${what_id}" = 'alpine' ]] && delete=("bison" "gawk" "glibc") # remove modules when used on alpine.
+	libtorrent_version='1.2' # Set this here so it is easy to see and change
 	#
-	[[ "${1}" != 'install' ]] && delete+=("install") # remove this module by default unless provided as a first argument to the script.
+	qt_version='5.15' # Set this here so it is easy to see and change
 	#
-	[[ "${qb_skip_icu}" != 'no' ]] && delete+=("icu")
+	qb_python_version="3" # we are only using python3 but it's easier to just change this if we need to.
 	#
 	qb_modules=("all" "install" "bison" "gawk" "glibc" "zlib" "icu" "openssl" "boost" "qtbase" "qttools" "libtorrent" "qbittorrent") # Define our list of available modules in an array.
 	#
-	libtorrent_version='1.2' # Set this here so it is easy to see and change
+	delete=() # modules listed in this array will be removed from teh default list of modules, changing the behaviour of all or install
 	#
-	qb_python_version="3" # we are only using python3 but it's easier to just change this if we need to.
+	if [[ "${what_id}" =~ ^(alpine)$ ]]; then # if alpines delete modules we don't use and set the required packages array
+		delete+=("bison" "gawk" "glibc")
+		qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "linux-headers")
+	fi
+	#
+	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based set the required packages array
+		qb_required_pkgs=("build-essential" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "python${qb_python_version}-numpy")
+	fi
+	#
+	if [[ "${1}" != 'install' ]]; then # remove this module by default unless provided as a first argument to the script.
+		delete+=("install")
+	fi
+	#
+	if [[ "${qb_skip_icu}" != 'no' ]]; then # skip icu by default unless the -i flag is used
+		delete+=("icu")
+	fi
 	#
 	qb_working_dir="$(printf "%s" "$(pwd <(dirname "${0}"))")" # Get the full path to the scripts location to use with setting some path related variables.
 	qb_working_dir_short="${qb_working_dir/$HOME/\~}"          # echo the working dir but replace the $HOME path with ~
 	#
-	qb_install_dir="${qb_working_dir}/qbittorrent-build" # install relative to the script location.
-	qb_install_dir_short="${qb_install_dir/$HOME/\~}"    # echo the install dir but replace the $HOME path with ~
+	qb_install_dir="${qb_working_dir}/qbuild"         # install relative to the script location.
+	qb_install_dir_short="${qb_install_dir/$HOME/\~}" # echo the install dir but replace the $HOME path with ~
 }
 #####################################################################################################################################################
 # This function will check for a list of defined dependencies from the qb_required_pkgs array. Apps like python3 and python2 are dynamically set
 #####################################################################################################################################################
 check_dependencies() {
-	#
-	## Define our ALpine list of required core packages in an array.
-	[[ "${what_id}" =~ ^(alpine)$ ]] && qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "linux-headers")
-	#
-	## Define our Debian/Ubuntu list of required core packages in an array.
-	[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && qb_required_pkgs=("build-essential" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "python${qb_python_version}-numpy")
-	#
 	echo -e "${tn}${tb}Checking if required core dependencies are installed${cend}${tn}"
 	#
 	for pkg in "${qb_required_pkgs[@]}"; do
 		#
-		[[ "${what_id}" =~ ^(alpine)$ ]] && pkgman() { apk info -e "${pkg}"; }
+		if [[ "${what_id}" =~ ^(alpine)$ ]]; then
+			pkgman() { apk info -e "${pkg}"; }
+		fi
 		#
-		[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && pkgman() { dpkg -s "${pkg}"; }
+		if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
+			pkgman() { dpkg -s "${pkg}"; }
+		fi
 		#
 		if pkgman > /dev/null 2>&1; then
 			echo -e "Dependency - ${cg}OK${cend} - ${pkg}"
@@ -120,25 +134,22 @@ check_dependencies() {
 		fi
 	done
 	#
-	## Check if user is able to install the dependencies, if yes then do so, if no then exit.
-	if [[ "${deps_installed}" = 'no' ]]; then
+	if [[ "${deps_installed}" = 'no' ]]; then # Check if user is able to install the dependencies, if yes then do so, if no then exit.
 		if [[ "$(id -un)" = 'root' ]]; then
-			#
 			echo -e "${tn}${cg}Updating${cend}${tn}"
 			#
-			[[ "${what_id}" =~ ^(alpine)$ ]] && CDN_URL="http://dl-cdn.alpinelinux.org/alpine/latest-stable/main"
+			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
+				CDN_URL="http://dl-cdn.alpinelinux.org/alpine/latest-stable/main"
+				apk update --repository="${CDN_URL}"
+				apk upgrade --repository="${CDN_URL}"
+				apk fix
+			fi
 			#
-			set +e
-			#
-			[[ "${what_id}" =~ ^(alpine)$ ]] && apk update --repository="${CDN_URL}"
-			[[ "${what_id}" =~ ^(alpine)$ ]] && apk upgrade --repository="${CDN_URL}"
-			[[ "${what_id}" =~ ^(alpine)$ ]] && apk fix
-			#
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get update -y
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get upgrade -y
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get autoremove -y
-			#
-			set -e
+			if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
+				apt-get update -y
+				apt-get upgrade -y
+				apt-get autoremove -y
+			fi
 			#
 			[[ -f /var/run/reboot-required ]] && {
 				echo -e "${tn}${cr}This machine requires a reboot to continue installation. Please reboot now.${cend}${tn}"
@@ -147,14 +158,23 @@ check_dependencies() {
 			#
 			echo -e "${tn}${cg}Installing required dependencies${cend}${tn}"
 			#
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && apt-get install -y "${qb_checked_required_pkgs[@]}"
+			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
+				if ! apk add "${qb_checked_required_pkgs[@]}" --repository="${CDN_URL}"; then
+					echo
+					exit
+				fi
+			fi
 			#
-			[[ "${what_id}" =~ ^(alpine)$ ]] && apk add "${qb_checked_required_pkgs[@]}" --repository="${CDN_URL}"
+			if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
+				if ! apt-get install -y "${qb_checked_required_pkgs[@]}"; then
+					echo
+					exit
+				fi
+			fi
 			#
 			echo -e "${tn}${cg}Dependencies installed!${cend}"
 			#
 			deps_installed='yes'
-			#
 		else
 			echo -e "${tn}${tb}Please request or install the missing core dependencies before using this script${cend}"
 			#
@@ -182,6 +202,10 @@ while (("${#}")); do
 			qb_git_proxy="${2}"
 			qb_curl_proxy="${2}"
 			shift 2
+			;;
+		-o | --optimize)
+			optimize="-march=native"
+			shift
 			;;
 		-h-p | --help-proxy)
 			echo
@@ -221,19 +245,17 @@ curl_curl() {
 	else
 		"$(type -P curl)" -sNL4fq --connect-timeout 5 --retry 5 --retry-delay 5 --retry-max-time 25 --proxy-insecure -x "${qb_curl_proxy}" "${@}"
 	fi
+
 }
-#
+
 curl() {
-	if [[ "$(
-		curl_curl "${@}" > /dev/null
-		echo "$?"
-	)" =~ ^(28|7)$ ]]; then
-		echo -e "${cy}There is an issue with your proxy settings or network connection${cend}"
-		echo
-		exit
-	else
-		curl_curl "${@}"
+	if ! curl_curl "${@}"; then
+		echo 'error_url'
 	fi
+}
+
+curl_test() {
+	curl_curl "${@}"
 }
 #####################################################################################################################################################
 # 3: git test download functions - default is no proxy - git is a test function and git_git is the command function
@@ -252,33 +274,38 @@ git() {
 		tag_flag="${2}"
 		tag_test="${3}"
 	else
-		url_test="${11}" # 11th place in our download filder function.
+		url_test="${11}" # 11th place in our download folder function
 	fi
 	#
-	status="$(
-		git_git ls-remote --exit-code "${url_test}" "${tag_flag}" "${tag_test}" > /dev/null 2>&1
-		echo "${?}"
-	)"
-	#
-	if [[ "$status" = '128' ]]; then
-		echo "error_url"
-	elif [[ "${tag_flag}" = '-t' && "${status}" = '0' ]]; then
-		echo "${tag_test}"
-	elif [[ "${tag_flag}" = '-t' && "${status}" -eq '2' ]]; then
-		echo "error_tag"
-	else
-		git_git "${@}"
-	fi
-}
-#
-test_git_ouput() {
-	if [[ "${1}" = "error_tag" ]]; then
-		echo -e "${tn} ${cy}Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
-	elif [[ "${1}" = "error_url" ]]; then
+	if ! curl -I "${url_test%\.git}" &> /dev/null; then
 		echo
 		echo -e " ${cy}There is an issue with your proxy settings or network connection${cend}"
 		echo
 		exit
+	fi
+	#
+	status="$(
+		git_git ls-remote --exit-code "${url_test}" "${tag_flag}" "${tag_test}" &> /dev/null
+		echo "${?}"
+	)"
+	#
+	if [[ "${tag_flag}" = '-t' && "${status}" = '0' ]]; then
+		echo "${tag_test}"
+	elif [[ "${tag_flag}" = '-t' && "${status}" -ge '1' ]]; then
+		echo 'error_tag'
+	else
+		if ! git_git "${@}"; then
+			echo
+			echo -e " ${cy}There is an issue with your proxy settings or network connection${cend}"
+			echo
+			exit
+		fi
+	fi
+}
+#
+test_git_ouput() {
+	if [[ "${1}" = 'error_tag' ]]; then
+		echo -e "${tn} ${cy}Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
 	fi
 }
 #####################################################################################################################################################
@@ -311,13 +338,13 @@ set_build_directory() {
 # This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the installation_modules function
 #####################################################################################################################################################
 custom_flags_set() {
-	CXXFLAGS="-std=c++14"
-	CPPFLAGS="--static -static -I${include_dir}"
-	LDFLAGS="--static -static -Wl,--no-as-needed -L${lib_dir} -lpthread -pthread"
+	CXXFLAGS="${optimize/*/$optimize }-std=c++14"
+	CPPFLAGS="${optimize/*/$optimize }--static -static -I${include_dir}"
+	LDFLAGS="${optimize/*/$optimize }--static -static -Wl,--no-as-needed -L${lib_dir} -lpthread -pthread"
 }
 #
 custom_flags_reset() {
-	CXXFLAGS="-std=c++14"
+	CXXFLAGS="${optimize/*/$optimize }-std=c++14"
 	CPPFLAGS=""
 	LDFLAGS=""
 }
@@ -332,33 +359,34 @@ set_module_urls() {
 	# glibc_url="http://ftpmirror.gnu.org/gnu/libc/$(grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl http://ftpmirror.gnu.org/gnu/libc/) | sort -V | tail -1)"
 	glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-2.31.tar.gz"
 	#
-	zlib_github_tag="$(grep -Eom1 'v1.2.([0-9]{1,2})' <(curl https://github.com/madler/zlib/releases))" || zlib_github_tag="null_value"
+	zlib_github_tag="$(grep -Eom1 'v1.2.([0-9]{1,2})' <(curl https://github.com/madler/zlib/releases))"
 	zlib_url="https://github.com/madler/zlib/archive/${zlib_github_tag}.tar.gz"
 	#
-	icu_url="$(grep -Eom1 'ht(.*)icu4c(.*)-src.tgz' <(curl https://api.github.com/repos/unicode-org/icu/releases/latest))" || icu_url="null_value"
+	icu_url="$(grep -Eom1 'ht(.*)icu4c(.*)-src.tgz' <(curl https://api.github.com/repos/unicode-org/icu/releases/latest))"
 	#
-	openssl_github_tag="$(grep -Eom1 'OpenSSL_1_1_([0-9][a-z])' <(curl "https://github.com/openssl/openssl/releases"))" || openssl_github_tag="null_value"
+	openssl_github_tag="$(grep -Eom1 'OpenSSL_1_1_([0-9][a-z])' <(curl "https://github.com/openssl/openssl/releases"))"
 	openssl_url="https://github.com/openssl/openssl/archive/${openssl_github_tag}.tar.gz"
 	#
 	boost_version="$(sed -rn 's#(.*)e">Version (.*\.[0-9]{1,2})</s(.*)#\2#p' <(curl "https://www.boost.org/users/download/"))"
 	boost_github_tag="boost-${boost_version}"
 	boost_url="https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz"
-	boost_url_status="$(curl -o /dev/null --silent --head --write-out '%{http_code}' "https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")" || boost_url_status="null_value"
+	boost_url_status="$(curl_test -so /dev/null --head --write-out '%{http_code}' "https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
 	boost_github_url="https://github.com/boostorg/boost.git"
 	#
-	qt_version='5.15'
-	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qtbase/releases"))" || qtbase_github_tag="null_value"
+	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qtbase/releases"))"
 	qtbase_github_url="https://github.com/qt/qtbase.git"
-	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qttools/releases"))" || qttools_github_tag="null_value"
+	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qttools/releases"))"
 	qttools_github_url="https://github.com/qt/qttools.git"
 	#
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
-	libtorrent_github_tag_default="$(grep -Eom1 "v${libtorrent_version}.([0-9]{1,2})" <(curl "https://github.com/arvidn/libtorrent/tags"))" || libtorrent_github_tag_default="null_value"
+	libtorrent_github_tag_default="$(grep -Eom1 "v${libtorrent_version}.([0-9]{1,2})" <(curl "https://github.com/arvidn/libtorrent/tags"))"
 	libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
 	#
 	qbittorrent_github_url="https://github.com/qbittorrent/qBittorrent.git"
-	qbittorrent_github_tag_default="$(grep -Eom1 'release-([0-9]{1,4}\.?)+$' <(curl "https://github.com/qbittorrent/qBittorrent/tags"))" || qbittorrent_github_tag_default="null_value"
+	qbittorrent_github_tag_default="$(grep -Eom1 'release-([0-9]{1,4}\.?)+$' <(curl "https://github.com/qbittorrent/qBittorrent/tags"))"
 	qbittorrent_github_tag="${qbitorrent_github_tag:-$qbittorrent_github_tag_default}"
+	#
+	url_test="$(curl -so /dev/null "https://www.google.com")"
 }
 #####################################################################################################################################################
 # This function verifies the module names from the array qb_modules in the default values function.
@@ -410,14 +438,14 @@ installation_modules() {
 		mkdir -p "${qb_install_dir}/completed"
 		#
 		## Set some python variables we need.
-		python_major="$(python${qb_python_version} -c "import sys; print(sys.version_info[0])")"
-		python_minor="$(python${qb_python_version} -c "import sys; print(sys.version_info[1])")"
-		python_micro="$(python${qb_python_version} -c "import sys; print(sys.version_info[2])")"
+		python_major="$(python"${qb_python_version}" -c "import sys; print(sys.version_info[0])")"
+		python_minor="$(python"${qb_python_version}" -c "import sys; print(sys.version_info[1])")"
+		python_micro="$(python"${qb_python_version}" -c "import sys; print(sys.version_info[2])")"
 		#
 		python_short_version="${python_major}.${python_minor}"
 		python_link_version="${python_major}${python_minor}"
 		#
-		echo -e "using gcc : : : <cxxflags>-std=c++14 ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" > "$HOME/user-config.jam"
+		echo -e "using gcc : : : <cflags>${optimize/*/$optimize }-std=c++14 <cxxflags>${optimize/*/$optimize }-std=c++14 ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" > "$HOME/user-config.jam"
 		#
 		## Echo the build directory.
 		echo -e "${tn}${tb}Install Prefix${cend} : ${clc}${qb_install_dir_short}${cend}"
@@ -441,15 +469,12 @@ apply_patches() {
 	[[ "$libtorrent_github_tag" =~ ^(libtorrent-1_2_[0-9]{1,2}|RC_1_2|v1.2\.[0-9]{1,2})$ ]] && libtorrent_patch_github_tag="RC_1_2"
 	[[ "$libtorrent_github_tag" =~ ^(RC_2_0|v2\.[0-9](\.[0-9]{1,2})?)$ ]] && libtorrent_patch_github_tag="RC_2_0"
 	#
-	patches_github_url="https://raw.githubusercontent.com/userdocs/python-libtorrent-binding/master/patches/$libtorrent_patch_github_tag/Jamfile"
+	patches_github_url="https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/master/patches/$libtorrent_patch_github_tag/Jamfile"
 	#
-	if [[ "$(
-		curl "$patches_github_url" > /dev/null
-		echo "$?"
-	)" -ne '22' ]]; then
-		curl "$patches_github_url" -o "$qb_install_dir/libtorrent/bindings/python/Jamfile"
+	if curl_test "$patches_github_url" -o "$qb_install_dir/libtorrent/bindings/python/Jamfile"; then
+		true
 	else
-		curl "https://raw.githubusercontent.com/arvidn/libtorrent/$libtorrent_patch_github_tag/Jamfile" -o "$qb_install_dir/libtorrent/Jamfile"
+		curl_test "https://raw.githubusercontent.com/arvidn/libtorrent/$libtorrent_patch_github_tag/Jamfile" -o "$qb_install_dir/libtorrent/Jamfile"
 	fi
 }
 #####################################################################################################################################################
@@ -481,6 +506,20 @@ install_qbittorrent() {
 	fi
 }
 #####################################################################################################################################################
+# This function is to test a directory exists before attemtping to cd and fail with and exit code if it doesn't.
+#####################################################################################################################################################
+_cd() {
+	if cd "${1}" > /dev/null 2>&1; then
+		cd "${1}" || exit
+	else
+		echo -e "This directory does not exist. There is a problem"
+		echo
+		echo -e "${clr}${1}${cend}"
+		echo
+		exit 1
+	fi
+}
+#####################################################################################################################################################
 # This function is for downloading source code archives
 #####################################################################################################################################################
 download_file() {
@@ -492,8 +531,9 @@ download_file() {
 		[[ -f "${file_name}" ]] && rm -rf {"${qb_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
 		curl "${url_filename}" -o "${file_name}"
 		tar xf "${file_name}" -C "${qb_install_dir}"
-		mkdir -p "${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
-		cd "${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
+		app_dir="${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
+		mkdir -p "${app_dir}"
+		_cd "${app_dir}"
 	else
 		echo
 		echo "You must provide a filename name for the function - download_file"
@@ -517,7 +557,7 @@ download_folder() {
 		[[ -d "${folder_name}" ]] && rm -rf "${folder_name}"
 		git clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "${url_github}" "${folder_name}"
 		mkdir -p "${folder_name}${subdir}"
-		cd "${folder_name}${subdir}"
+		[[ -d "${folder_name}${subdir}" ]] && _cd "${folder_name}${subdir}"
 	else
 		echo
 		echo "You must provide a tag name for the function - download_folder"
@@ -540,7 +580,7 @@ delete_function() {
 			folder_name="${qb_install_dir}/${1}"
 			[[ -f "${file_name}" ]] && rm -rf {"${qb_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
 			[[ -d "${folder_name}" ]] && rm -rf "${folder_name}"
-			cd "${qb_working_dir}"
+			[[ -d "${qb_working_dir}" ]] && _cd "${qb_working_dir}"
 		else
 			[[ "${2}" = 'last' ]] && echo -e "${tn}${clr}Skipping $1 deletion${cend}${tn}" || echo -e "${tn}${clr}Skipping ${1} deletion${cend}"
 		fi
@@ -654,9 +694,9 @@ while (("${#}")); do
 			echo
 			echo -e " ${td}${clm}all${cend}         ${td}-${cend} ${td}Install all modules${cend}"
 			echo -e " ${td}${clm}install${cend}     ${td}-${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qb_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
-			[[ "${what_id}" != 'alpine' ]] && echo -e "${td} ${clm}bison${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
-			[[ "${what_id}" != 'alpine' ]] && echo -e " ${td}${clm}gawk${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
-			[[ "${what_id}" != 'alpine' ]] && echo -e " ${td}${clm}glibc${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
 			echo -e " ${td}${clm}zlib${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
 			echo -e " ${td}${clm}icu${cend}         ${td}-${cend} ${td}${cly}optional${cend} ${td}Build ICU locally${cend}"
 			echo -e " ${td}${clm}openssl${cend}     ${td}-${cend} ${td}${clr}required${cend} ${td}Build openssl locally${cend}"
@@ -825,18 +865,27 @@ done
 #
 eval set -- "${params2[@]}" # Set positional arguments in their proper place.
 #####################################################################################################################################################
+# Functions part 2: Use some of our functions
+#####################################################################################################################################################
+[[ "${*}" =~ ([[:space:]]|^)"install"([[:space:]]|$) ]] && install_qbittorrent "${@}" # see functions
+#####################################################################################################################################################
 # Lets dip out now if we find that any github tags failed validation
 #####################################################################################################################################################
+[[ "${url_test}" = "error_url" ]] && {
+	echo
+	echo -e " ${cy}There is an issue with your proxy settings or network connection${cend}"
+	echo
+	exit
+}
+#
 [[ "${libtorrent_github_tag}" = "error_tag" || "${qbittorrent_github_tag}" = "error_tag" ]] && {
 	echo
 	exit
 }
 #####################################################################################################################################################
-# Functions part 2: Use some of our functions
+# Functions part 3: Use some of our functions
 #####################################################################################################################################################
 installation_modules "${@}" # see functions
-#
-[[ "${*}" =~ ([[:space:]]|^)"install"([[:space:]]|$) ]] && install_qbittorrent "${@}" # see functions
 #####################################################################################################################################################
 # bison installation
 #####################################################################################################################################################
@@ -881,8 +930,8 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	download_file "${app_name}" "${!app_url}"
 	#
 	mkdir -p build
-	cd build
-	"${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")/configure" --prefix="${qb_install_dir}" --enable-static-nss 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	_cd "${app_dir}/build"
+	"${app_dir}/configure" --prefix="${qb_install_dir}" --enable-static-nss 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/$app_name.log.txt"
 	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
@@ -913,7 +962,7 @@ fi
 application_name icu
 #
 if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
-	custom_flags_set
+	custom_flags_reset
 	download_file "${app_name}" "${!app_url}" "/source"
 	#
 	./configure --prefix="${qb_install_dir}" --disable-shared --enable-static CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
@@ -951,18 +1000,18 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	#
 	[[ -d "${qb_install_dir}/boost" ]] && delete_function "${app_name}"
 	#
-	if [[ "${boost_url_status}" -eq '200' ]]; then
+	if [[ "${boost_url_status}" =~ (200) ]]; then
 		download_file "${app_name}" "${boost_url}"
 		mv -f "${qb_install_dir}/boost_${boost_version//./_}/" "${qb_install_dir}/boost"
-		cd "${qb_install_dir}/boost"
+		_cd "${qb_install_dir}/boost"
 	fi
 	#
-	if [[ "${boost_url_status}" -eq '403' ]]; then
+	if [[ "${boost_url_status}" =~ (403|404) ]]; then
 		download_folder "${app_name}" "${!app_github_url}"
 	fi
 	#
 	"${qb_install_dir}/boost/bootstrap.sh" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
-	"${qb_install_dir}/boost/b2" -j"$(nproc)" variant=release threading=multi link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" toolset=gcc install --prefix="${qb_install_dir}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	"${qb_install_dir}/boost/b2" -j"$(nproc)" variant=release threading=multi link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 else
 	application_skip
 fi
@@ -976,7 +1025,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	download_folder "${app_name}" "${!app_github_url}"
 	#
 	[[ "${qb_skip_icu}" = 'no' ]] && icu='-icu' || icu='-no-icu'
-	./configure -prefix "${qb_install_dir}" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "$include_dir" -L "$lib_dir" QMAKE_LFLAGS="$LDFLAGS" 2>&1 | tee "$qb_install_dir/logs/$app_name.log.txt"
+	./configure -prefix "${qb_install_dir}" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "${include_dir}" -L "${lib_dir}" QMAKE_LFLAGS="${LDFLAGS}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
@@ -1020,7 +1069,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		#
 		apply_patches
 		#
-		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" cxxstd=14 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		delete_function boost
 		delete_function "${app_name}"
@@ -1039,10 +1088,6 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	#
 	./bootstrap.sh 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	./configure --prefix="${qb_install_dir}" "${local_boost}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
-	#
-	sed -i 's/-lboost_system//' conf.pri
-	sed -i 's/-lcrypto//' conf.pri
-	sed -i 's/-lssl//' conf.pri
 	#
 	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
