@@ -794,11 +794,13 @@ while (("${#}")); do
 			echo
 			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
-			echo -e " Creates this dir: ${cc}${qb_install_dir_short}/patches${cend}"
+			echo -e " Creates dirs in this structure: ${cc}${qb_install_dir_short}/patches/TAG/patch${cend}"
 			echo
-			echo -e " Add you patches here in the format module name, for example."
+			echo -e " Add you patches there, for example."
 			echo
-			echo -e " ${cc}${qb_install_dir_short}/patches${cend}"
+			echo -e " ${cc}${qb_install_dir_short}/patches/RC_1_2/patch${cend}"
+			echo
+			echo -e " ${cc}${qb_install_dir_short}/patches/430/patch${cend}"
 			echo
 			exit 1
 			;;
