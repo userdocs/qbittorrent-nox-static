@@ -74,6 +74,9 @@ fi
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
+	# In this repo the structure needs to be like this /patches/RC_1_2/patch and/or /patches/430/patch and you patch file will be automatically fetched and loadded for those matching tags.
+	patches_url="" # Provide a git url in this format - https://raw.githubusercontent.com/username/repo/master/patches"
+	#
 	libtorrent_version='1.2' # Set this here so it is easy to see and change
 	#
 	qt_version='5.15' # Set this here so it is easy to see and change
@@ -206,6 +209,18 @@ while (("${#}")); do
 		-o | --optimize)
 			optimize="-march=native"
 			shift
+			;;
+		-h-o | --help-optimize)
+			echo
+			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " ${cly}Warning, using this flag will mean your static build is limited to a matching CPU${cend}"
+			echo
+			echo -e " Example: ${clb}-o${cend}"
+			echo
+			echo -e " Additonal flags used: ${clc}-march=native${cend}"
+			echo
+			exit 1
 			;;
 		-h-p | --help-proxy)
 			echo
@@ -482,8 +497,6 @@ apply_patches() {
 		[[ "${patch_app_name}" = libtorrent && ! -d "$qb_install_dir/patches/${lt_patch_github_tag}" ]] && mkdir -p "$qb_install_dir/patches/${lt_patch_github_tag}"
 		[[ "${patch_app_name}" = qbittorrent && ! -d "$qb_install_dir/patches/${qb_patch_github_tag}" ]] && mkdir -p "$qb_install_dir/patches/${qb_patch_github_tag}"
 		#
-		patches_url="https://raw.githubusercontent.com/userdocs/filehostsdgsging/master/patches"
-		#
 		if [[ "${patch_app_name}" = 'libtorrent' ]]; then
 			if [[ -f "$qb_install_dir/patches/${lt_patch_github_tag}/patch" ]]; then
 				echo -e "${cr} Using existing patch file${cend}"
@@ -726,14 +739,15 @@ while (("${#}")); do
 			echo
 			echo -e " ${cg}Use:${cend} ${clb}-b${cend}  ${td}or${cend} ${clb}--build-directory${cend}    ${cy}Help:${cend} ${clb}-h-b${cend}  ${td}or${cend} ${clb}--help-build-directory${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-bs${cend} ${td}or${cend} ${clb}--boot-strap${cend}         ${cy}Help:${cend} ${clb}-h-bs${cend} ${td}or${cend} ${clb}--help-boot-strap${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-i${cend}  ${td}or${cend} ${clb}--icu${cend}                ${cy}Help:${cend} ${clb}-h-i${cend}  ${td}or${cend} ${clb}--help-icu${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-m${cend}  ${td}or${cend} ${clb}--master${cend}             ${cy}Help:${cend} ${clb}-h-m${cend}  ${td}or${cend} ${clb}--help-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-lm${cend} ${td}or${cend} ${clb}--libtorrent-master${cend}  ${cy}Help:${cend} ${clb}-h-lm${cend} ${td}or${cend} ${clb}--help-libtorrent-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-lt${cend} ${td}or${cend} ${clb}--libtorrent-tag${cend}     ${cy}Help:${cend} ${clb}-h-lt${cend} ${td}or${cend} ${clb}--help-libtorrent-tag${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-m${cend}  ${td}or${cend} ${clb}--master${cend}             ${cy}Help:${cend} ${clb}-h-m${cend}  ${td}or${cend} ${clb}--help-master${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-o${cend}  ${td}or${cend} ${clb}--optimize${cend}           ${cy}Help:${cend} ${clb}-h-o${cend}  ${td}or${cend} ${clb}--help-optimize${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-p${cend}  ${td}or${cend} ${clb}--proxy${cend}              ${cy}Help:${cend} ${clb}-h-p${cend}  ${td}or${cend} ${clb}--help-proxy${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-qm${cend} ${td}or${cend} ${clb}--qbittorrent-master${cend} ${cy}Help:${cend} ${clb}-h-qm${cend} ${td}or${cend} ${clb}--help-qbittorrent-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-qt${cend} ${td}or${cend} ${clb}--qbittorrent-tag${cend}    ${cy}Help:${cend} ${clb}-h-qt${cend} ${td}or${cend} ${clb}--help-qbittorrent-tag${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-p${cend}  ${td}or${cend} ${clb}--proxy${cend}              ${cy}Help:${cend} ${clb}-h-p${cend}  ${td}or${cend} ${clb}--help-proxy${cend}"
 			echo
 			echo -e "${tb}${tu}Module specific help - flags are used with the modules listed here.${cend}"
 			echo
