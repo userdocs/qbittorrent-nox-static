@@ -145,21 +145,22 @@ Here are a list of available options
 
  Use: -b  or --build-directory    Help: -h-b  or --help-build-directory
  Use: -bs or --boot-strap         Help: -h-bs or --help-boot-strap
- Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
  Use: -i  or --icu                Help: -h-i  or --help-icu
- Use: -m  or --master             Help: -h-m  or --help-master
  Use: -lm or --libtorrent-master  Help: -h-lm or --help-libtorrent-master
  Use: -lt or --libtorrent-tag     Help: -h-lt or --help-libtorrent-tag
+ Use: -m  or --master             Help: -h-m  or --help-master
+ Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
+ Use: -o  or --optimize           Help: -h-o  or --help-optimize
+ Use: -p  or --proxy              Help: -h-p  or --help-proxy
  Use: -qm or --qbittorrent-master Help: -h-qm or --help-qbittorrent-master
  Use: -qt or --qbittorrent-tag    Help: -h-qt or --help-qbittorrent-tag
- Use: -p  or --proxy              Help: -h-p  or --help-proxy
 
 Module specific help - flags are used with the modules listed here.
 
 Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
  all         - Install all modules
- install     - optional Install the ~/qbittorrent-build/completed/qbittorrent-nox binary
+ install     - optional Install the ~/qb-build/completed/qbittorrent-nox binary
  bison       - required Build bison
  gawk        - required Build gawk
  glibc       - required Build libc locally to statically link nss
