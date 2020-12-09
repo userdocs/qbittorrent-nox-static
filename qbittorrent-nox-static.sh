@@ -387,9 +387,9 @@ set_module_urls() {
 	boost_url_status="$(curl_test -so /dev/null --head --write-out '%{http_code}' "https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
 	boost_github_url="https://github.com/boostorg/boost.git"
 	#
-	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})(-beta[0-9])?" <(curl "https://github.com/qt/qtbase/releases"))"
+	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qtbase/releases"))"
 	qtbase_github_url="https://github.com/qt/qtbase.git"
-	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})(-beta[0-9])?" <(curl "https://github.com/qt/qttools/releases"))"
+	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qttools/releases"))"
 	qttools_github_url="https://github.com/qt/qttools.git"
 	#
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
