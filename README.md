@@ -27,7 +27,7 @@ See here for binaries I have built and how to install them - [Downloads](https:/
 
 ## Debian or Ubuntu platforms
 
-`glibc` - This script creates a fully static `qbittorrent-nox` binary using [libc](https://www.gnu.org/software/libc/).
+The script creates a fully static `qbittorrent-nox` binary using [libc](https://www.gnu.org/software/libc/).
 
 The final result will show this when using `ldd`
 
@@ -43,7 +43,7 @@ not a dynamic executable
 
 ## Alpine Linux platform
 
-`musl` - This script creates a fully static `qbittorrent-nox` binary using [musl](https://wiki.musl-libc.org/).
+The script creates a fully static `qbittorrent-nox` binary using [musl](https://wiki.musl-libc.org/).
 
 The final result will show this when using `ldd`
 
@@ -116,7 +116,7 @@ docker run -it -v $HOME/qb-build:/root alpine:latest /bin/ash -c 'apk update && 
 
 **Note:** Please see the flag summary section below to see what options you can pass and how to use them
 
-You can modify the installation command by editing this platform
+You can modify the installation command by editing this part of the docker command.
 
 ```bash
 bash -s all
@@ -133,33 +133,36 @@ bash -s all -i -lm
 Once the script has successfully configured the platform you can execute the help argument to see how it works and what options you have available to you.
 
 ```bash
-~/qbittorrent-nox-static.sh
+~/qbittorrent-nox-static.sh -h
 ```
 
 ### Flags and arguments summarised
 
-Please use this feature to get help with a script option.
+Please use this feature to get help with a script option. Here is what you will see.
 
 ```bash
 Here are a list of available options
 
  Use: -b  or --build-directory    Help: -h-b  or --help-build-directory
+ Use: -d  or --debug              Help: -h-d  or --help-debug
  Use: -bs or --boot-strap         Help: -h-bs or --help-boot-strap
- Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
  Use: -i  or --icu                Help: -h-i  or --help-icu
- Use: -m  or --master             Help: -h-m  or --help-master
  Use: -lm or --libtorrent-master  Help: -h-lm or --help-libtorrent-master
  Use: -lt or --libtorrent-tag     Help: -h-lt or --help-libtorrent-tag
+ Use: -m  or --master             Help: -h-m  or --help-master
+ Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
+ Use: -o  or --optimize           Help: -h-o  or --help-optimize
+ Use: -p  or --proxy              Help: -h-p  or --help-proxy
+ Use: -pr or --patch-repo         Help: -h-pr or --help-patch-repo
  Use: -qm or --qbittorrent-master Help: -h-qm or --help-qbittorrent-master
  Use: -qt or --qbittorrent-tag    Help: -h-qt or --help-qbittorrent-tag
- Use: -p  or --proxy              Help: -h-p  or --help-proxy
 
 Module specific help - flags are used with the modules listed here.
 
-Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
+Use: all or module-name          Usage: ~/docker/qbittorrent-nox-static.sh all -i
 
  all         - Install all modules
- install     - optional Install the ~/qbittorrent-build/completed/qbittorrent-nox binary
+ install     - optional Install the ~/docker/qb-build/completed/qbittorrent-nox binary
  bison       - required Build bison
  gawk        - required Build gawk
  glibc       - required Build libc locally to statically link nss
@@ -171,6 +174,7 @@ Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
  qttools     - required Build qttools locally
  libtorrent  - required Build libtorrent locally with b2
  qbittorrent - required Build qbitorrent locally
+
 ```
 
 ### Build - default profile
