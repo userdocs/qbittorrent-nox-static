@@ -25,7 +25,7 @@ set -a
 #####################################################################################################################################################
 # Unset some variables to set defaults.
 #####################################################################################################################################################
-unset qb_skip_delete qb_skip_icu qb_git_proxy qb_curl_proxy qb_install_dir qb_build_dir qb_working_dir qb_modules_test qb_python_version
+unset qb_skip_delete qb_skip_icu qb_git_proxy qb_curl_proxy qb_install_dir qb_build_dir qb_working_dir qb_modules_test qb_python_version patches_url
 #####################################################################################################################################################
 # Color me up Scotty - define some color values to use as variables in the scripts.
 #####################################################################################################################################################
@@ -74,8 +74,7 @@ fi
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
-	# In this repo the structure needs to be like this /patches/RC_1_2/patch and/or /patches/430/patch and you patch file will be automatically fetched and loadded for those matching tags.
-	patches_url="" # Provide a git url in this format - https://raw.githubusercontent.com/username/repo/master/patches"
+	patches_url="" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and you patch file will be automatically fetched and loadded for those matching tags.
 	#
 	libtorrent_version='1.2' # Set this here so it is easy to see and change
 	#
@@ -220,7 +219,7 @@ while (("${#}")); do
 			echo
 			echo -e " Additonal flags used: ${clc}-march=native${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		-h-p | --help-proxy)
 			echo
@@ -237,7 +236,7 @@ while (("${#}")); do
 			echo -e " ${td}${clb}-p${cend} ${td}${clc}https://proxy.com:12345${cend} ${td}${clb}-h-p${cend}"
 			echo
 			[[ -n "${qb_curl_proxy}" ]] && echo -e " proxy command: ${clc}${qb_curl_proxy}${tn}${cend}"
-			exit 1
+			exit
 			;;
 		--) # end argument parsing
 			shift
@@ -479,56 +478,57 @@ installation_modules() {
 #####################################################################################################################################################
 apply_patches() {
 	patch_app_name="${1}"
+	# Libtorrent has two tag formats libtorrent-1_2_11 and the newer v1.2.11. Moving forward v1.2.11 is the standard format. Make sure we always get the same outcome for either
+	[[ "${libtorrent_github_tag}" =~ ^RC_ ]] && libtorrent_patch_tag="${libtorrent_github_tag}"
+	[[ "${libtorrent_github_tag}" =~ ^libtorrent- ]] && libtorrent_patch_tag="${libtorrent_github_tag#libtorrent-}" && libtorrent_patch_tag="${libtorrent_patch_tag//_/\.}"
+	[[ "${libtorrent_github_tag}" =~ ^v[0-9] ]] && libtorrent_patch_tag="${libtorrent_github_tag#v}"
 	#
-	[[ "$libtorrent_github_tag" =~ ^(libtorrent-1_1_[0-9]{1,2}|RC_1_1) ]] && lt_patch_github_tag="RC_1_1"
-	[[ "$libtorrent_github_tag" =~ ^(libtorrent-1_2_[0-9]{1,2}|RC_1_2|v1.2\.[0-9]{1,2})$ ]] && lt_patch_github_tag="RC_1_2"
-	[[ "$libtorrent_github_tag" =~ ^(RC_2_0|v2\.0(\.[0-9]{1,2})?)$ ]] && lt_patch_github_tag="RC_2_0"
-	[[ "$libtorrent_github_tag" =~ ^(RC_2_1|v2\.1(\.[0-9]{1,2})?)$ ]] && lt_patch_github_tag="RC_2_1"
+	# qbittorrent has a consistent tag format of release-4.3.1.
+	qbittorrent_patch_tag="${qbittorrent_github_tag#release-}"
 	#
-	[[ "${qbittorrent_github_tag/release-/}" =~ (4.2.[0-9]{1,2}) ]] && qb_patch_github_tag="420"
-	[[ "${qbittorrent_github_tag/release-/}" =~ (4.3.[0-9]{1,2}) ]] && qb_patch_github_tag="430"
-	[[ "${qbittorrent_github_tag/release-/}" =~ (4.4.[0-9]{1,2}) ]] && qb_patch_github_tag="440"
-	[[ "${qbittorrent_github_tag/release-/}" =~ (4.5.[0-9]{1,2}) ]] && qb_patch_github_tag="450"
+	if [[ "${patch_app_name}" == 'bootstrap-help' ]]; then
+		return
+	fi
 	#
 	if [[ "${patch_app_name}" == 'bootstrap' ]]; then
-		mkdir -p "$qb_install_dir/patches/${lt_patch_github_tag}"
-		mkdir -p "$qb_install_dir/patches/${qb_patch_github_tag}"
+		mkdir -p "${qb_install_dir}/patches/libtorrent/${libtorrent_patch_tag}"
+		mkdir -p "${qb_install_dir}/patches/qbittorrent/${qbittorrent_patch_tag}"
 	else
-		[[ "${patch_app_name}" = libtorrent && ! -d "$qb_install_dir/patches/${lt_patch_github_tag}" ]] && mkdir -p "$qb_install_dir/patches/${lt_patch_github_tag}"
-		[[ "${patch_app_name}" = qbittorrent && ! -d "$qb_install_dir/patches/${qb_patch_github_tag}" ]] && mkdir -p "$qb_install_dir/patches/${qb_patch_github_tag}"
+		patch_tag="${patch_app_name}_patch_tag"
+		patch_dir="${qb_install_dir}/patches/${patch_app_name}/${!patch_tag}"
+		patch_file="${patch_dir}/patch"
+		patch_file_url="https://raw.githubusercontent.com/${patches_url}/master/patches/${patch_app_name}/${!patch_tag}/patch"
+		patch_jamfile="${qb_install_dir}/libtorrent/Jamfile"
+		patch_jamfile_url="https://raw.githubusercontent.com/${patches_url}/master/patches/${patch_app_name}/${!patch_tag}/Jamfile"
 		#
-		if [[ "${patch_app_name}" = 'libtorrent' ]]; then
-			if [[ -f "$qb_install_dir/patches/${lt_patch_github_tag}/patch" ]]; then
-				echo -e "${cr} Using existing patch file${cend}"
-				echo
-			else
-				if curl_test "${patches_url}/${lt_patch_github_tag}/patch" -o "$qb_install_dir/patches/${lt_patch_github_tag}/patch"; then
-					echo -e "${cr} Using downloaded patch file${cend}"
-					echo
-				fi
-			fi
-			[[ -f "$qb_install_dir/patches/${lt_patch_github_tag}/patch" ]] && patch -p1 < "$qb_install_dir/patches/${lt_patch_github_tag}/patch"
-			#
-			# Jamfile patches
-			if curl_test "${patches_url}/${lt_patch_github_tag}/Jamfile" -o "$qb_install_dir/libtorrent/bindings/python/Jamfile"; then
-				true
-			else
-				curl "https://raw.githubusercontent.com/arvidn/libtorrent/${lt_patch_github_tag}/Jamfile" -o "${qb_install_dir}/libtorrent/Jamfile"
+		[[ ! -d "${patch_dir}" ]] && mkdir -p "${patch_dir}"
+		#
+		if [[ -f "${patch_file}" ]]; then
+			[[ "${patch_app_name}" == 'libtorrent' ]] && echo # purely comsetic
+			echo -e "${cr} Using ${!patch_tag} existing patch file${cend}"
+			[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
+		else
+			if curl_test "${patch_file_url}" -o "${patch_file}"; then
+				[[ "${patch_app_name}" == 'libtorrent' ]] && echo # purely comsetic
+				echo -e "${cr} Using ${!patch_tag} downloaded patch file${cend}"
+				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
 		fi
 		#
-		if [[ "${patch_app_name}" = 'qbittorrent' ]]; then
-			if [[ -f "$qb_install_dir/patches/${qb_patch_github_tag}/patch" ]]; then
-				echo -e "${cr} Using existing patch file${cend}"
+		if [[ "${patch_app_name}" == 'libtorrent' ]]; then
+			if curl_test "${patch_jamfile_url}" -o "${patch_jamfile}"; then
+				echo
+				echo -e "${cr} Using downloaded custom Jamfile file${cend}"
 				echo
 			else
-				if curl_test "${patches_url}/${qb_patch_github_tag}/patch" -o "$qb_install_dir/patches/${qb_patch_github_tag}/patch"; then
-					echo -e "${cr} Using downloaded patch file${cend}"
-					echo
-				fi
+				curl_test "https://raw.githubusercontent.com/arvidn/libtorrent/${libtorrent_patch_tag}/Jamfile" -o "${patch_jamfile}"
+				echo
+				echo -e "${cr} Using libtorrent branch master Jamfile file${cend}"
+				echo
 			fi
-			[[ -f "$qb_install_dir/patches/${qb_patch_github_tag}/patch" ]] && patch -p1 < "$qb_install_dir/patches/${qb_patch_github_tag}/patch"
 		fi
+		#
+		[[ -f "${patch_file}" ]] && patch -p1 < "${patch_file}"
 	fi
 }
 #####################################################################################################################################################
@@ -545,10 +545,10 @@ install_qbittorrent() {
 			cp -rf "${qb_install_dir}/completed/qbittorrent-nox" "${HOME}/bin"
 		fi
 		#
-		echo -e "${tn}qbittorrent-nox has been installed!${tn}"
-		echo -e "Run it using this command:${tn}"
+		echo -e " ${tn}${tu}qbittorrent-nox has been installed!${cend}${tn}"
+		echo -e " Run it using this command:${tn}"
 		#
-		[[ "$(id -un)" = 'root' ]] && echo -e "${cg}qbittorrent-nox${cend}${tn}" || echo -e "${cg}~/bin/qbittorrent-nox${cend}${tn}"
+		[[ "$(id -un)" = 'root' ]] && echo -e " ${cg}qbittorrent-nox${cend}${tn}" || echo -e " ${cg}~/bin/qbittorrent-nox${cend}${tn}"
 		#
 		exit
 	else
@@ -688,13 +688,18 @@ while (("${#}")); do
 			echo
 			echo -e " ${cly}Using the defaults, these directories have been created:${cend}"
 			echo
-			echo -e " ${clc}$qb_install_dir_short/patches/${lt_patch_github_tag}${cend}"
+			echo -e " ${clc}$qb_install_dir_short/patches/libtorrent/${libtorrent_patch_tag}${cend}"
 			echo
-			echo -e " ${clc}$qb_install_dir_short/patches/${qb_patch_github_tag}${cend}"
+			echo -e " ${clc}$qb_install_dir_short/patches/qbittorrent/${qbittorrent_patch_tag}${cend}"
 			echo
-			echo -e " If a patch file is found in these directories it will be applied to the relevant module with a matching tag."
+			echo -e " If a patch file, named ${cg}patch${cend} is found in these directories it will be applied to the relevant module with a matching tag."
 			echo
 			exit
+			;;
+		-d | --debug)
+			lt_debug="debug-symbols=on"
+			qb_debug="--enable-debug"
+			shift
 			;;
 		-n | --no-delete)
 			qb_skip_delete='yes'
@@ -723,6 +728,21 @@ while (("${#}")); do
 			test_git_ouput "${libtorrent_github_tag}" "$2" "libtorrent"
 			shift 2
 			;;
+		-pr | --patch-repo)
+			if [[ "$(curl "https://github.com/${2}")" != 'error_url' ]]; then
+				patches_url="${2}"
+			else
+				echo
+				echo -e " ${cy}This repo does not exist:${cend}"
+				echo
+				echo -e " https://github.com/${2}"
+				echo
+				echo -e " ${cy}Please provide a valid username and repo.${cend}"
+				echo
+				exit
+			fi
+			shift 2
+			;;
 		-qm | --qbittorrent-master)
 			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
 			test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
@@ -738,6 +758,7 @@ while (("${#}")); do
 			echo -e "${tb}${tu}Here are a list of available options${cend}"
 			echo
 			echo -e " ${cg}Use:${cend} ${clb}-b${cend}  ${td}or${cend} ${clb}--build-directory${cend}    ${cy}Help:${cend} ${clb}-h-b${cend}  ${td}or${cend} ${clb}--help-build-directory${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-d${cend}  ${td}or${cend} ${clb}--debug${cend}              ${cy}Help:${cend} ${clb}-h-d${cend}  ${td}or${cend} ${clb}--help-debug${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-bs${cend} ${td}or${cend} ${clb}--boot-strap${cend}         ${cy}Help:${cend} ${clb}-h-bs${cend} ${td}or${cend} ${clb}--help-boot-strap${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-i${cend}  ${td}or${cend} ${clb}--icu${cend}                ${cy}Help:${cend} ${clb}-h-i${cend}  ${td}or${cend} ${clb}--help-icu${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-lm${cend} ${td}or${cend} ${clb}--libtorrent-master${cend}  ${cy}Help:${cend} ${clb}-h-lm${cend} ${td}or${cend} ${clb}--help-libtorrent-master${cend}"
@@ -746,6 +767,7 @@ while (("${#}")); do
 			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-o${cend}  ${td}or${cend} ${clb}--optimize${cend}           ${cy}Help:${cend} ${clb}-h-o${cend}  ${td}or${cend} ${clb}--help-optimize${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-p${cend}  ${td}or${cend} ${clb}--proxy${cend}              ${cy}Help:${cend} ${clb}-h-p${cend}  ${td}or${cend} ${clb}--help-proxy${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-pr${cend} ${td}or${cend} ${clb}--patch-repo${cend}         ${cy}Help:${cend} ${clb}-h-pr${cend} ${td}or${cend} ${clb}--help-patch-repo${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-qm${cend} ${td}or${cend} ${clb}--qbittorrent-master${cend} ${cy}Help:${cend} ${clb}-h-qm${cend} ${td}or${cend} ${clb}--help-qbittorrent-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-qt${cend} ${td}or${cend} ${clb}--qbittorrent-tag${cend}    ${cy}Help:${cend} ${clb}-h-qt${cend} ${td}or${cend} ${clb}--help-qbittorrent-tag${cend}"
 			echo
@@ -767,7 +789,7 @@ while (("${#}")); do
 			echo -e " ${td}${clm}libtorrent${cend}  ${td}-${cend} ${td}${clr}required${cend} ${td}Build libtorrent locally with b2${cend}"
 			echo -e " ${td}${clm}qbittorrent${cend} ${td}-${cend} ${td}${clr}required${cend} ${td}Build qbitorrent locally${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		-h-b | --help-build-directory)
 			echo
@@ -788,21 +810,30 @@ while (("${#}")); do
 			echo -e " ${td}Example:${cend} ${td}${cg}${qb_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}module${cend} ${clb}-b${cend} ${td}${clc}\"\$HOME/build\"${cend} ${td}- will specify a custom build directory and install a specific module use to that custom location${cend}"
 			#
 			echo
-			exit 1
+			exit
 			;;
 		-h-bs | --help-boot-strap)
+			apply_patches bootstrap-help
 			echo
 			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
-			echo -e " Creates dirs in this structure: ${cc}${qb_install_dir_short}/patches/TAG/patch${cend}"
+			echo -e " Creates dirs in this structure: ${cc}${qb_install_dir_short}/patches/APPNAME/TAG/patch${cend}"
 			echo
 			echo -e " Add you patches there, for example."
 			echo
-			echo -e " ${cc}${qb_install_dir_short}/patches/RC_1_2/patch${cend}"
+			echo -e " ${cc}${qb_install_dir_short}/patches/libtorrent/${libtorrent_patch_tag}/patch${cend}"
 			echo
-			echo -e " ${cc}${qb_install_dir_short}/patches/430/patch${cend}"
+			echo -e " ${cc}${qb_install_dir_short}/patches/qbittorrent/${qbittorrent_patch_tag}/patch${cend}"
 			echo
-			exit 1
+			exit
+			;;
+		-h-d | --help-debug)
+			echo
+			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " Enables debug symbols for libtorrent and qbitorrent when building"
+			echo
+			exit
 			;;
 		-h-n | --help-no-delete)
 			echo
@@ -814,7 +845,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-n${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		-h-i | --help-icu)
 			echo
@@ -826,7 +857,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-i${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		-h-m | --help-master)
 			echo
@@ -840,7 +871,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-lm${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		-h-lm | --help-libtorrent-master)
 			echo
@@ -854,7 +885,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-lm${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		-h-lt | --help-libtorrent-tag)
 			echo
@@ -874,7 +905,29 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-lt${cend} ${clc}libtorrent-1_2_11${cend}"
 			echo
-			exit 1
+			exit
+			;;
+		-h-pr | --help-patch-repo)
+			apply_patches bootstrap-help
+			echo
+			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " Specify a username and repo to use patches hosted on github${cend}"
+			echo
+			echo -e " ${cg}Example:${cend} ${clb}-pr${cend} ${clc}usnerame/repo${cend}"
+			echo
+			echo -e " ${cy}There is a specific github directory format you need to use with this flag${cend}"
+			echo
+			echo -e " ${clc}patches/libtorrent/$libtorrent_patch_tag/patch${cend}"
+			echo -e " ${clc}patches/libtorrent/$libtorrent_patch_tag/Jamfile${cend} ${clr}(defaults to branch master)${cend}"
+			echo
+			echo -e " ${clc}patches/qbittorrent/$qbittorrent_patch_tag/patch${cend}"
+			echo
+			echo -e " ${cy}If an installation tag matches a hosted tag patch file, it will be automaticlaly used.${cend}"
+			echo
+			echo -e " The tag name will alway be an abbreviated version of the default or specificed tag.${cend}"
+			echo
+			exit
 			;;
 		-h-qm | --help-qbittorrent-master)
 			echo
@@ -888,7 +941,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-lm${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		-h-qt | --help-qbittorrent-tag)
 			echo
@@ -909,7 +962,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${clb}-lt${cend} ${clc}release-4.3.0.1${cend}"
 			echo
-			exit 1
+			exit
 			;;
 		--) # end argument parsing
 			shift
@@ -1126,13 +1179,13 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		custom_flags_set
 		download_folder "${app_name}" "${!app_github_url}"
 		#
+		apply_patches "${app_name}"
+		#
 		BOOST_ROOT="${qb_install_dir}/boost"
 		BOOST_INCLUDEDIR="${qb_install_dir}/boost"
 		BOOST_BUILD_PATH="${qb_install_dir}/boost"
 		#
-		apply_patches "${app_name}"
-		#
-		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" cxxstd=14 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" "${lt_debug}" cxxstd=14 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		delete_function boost
 		delete_function "${app_name}"
@@ -1152,7 +1205,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	apply_patches "${app_name}"
 	#
 	./bootstrap.sh 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
-	./configure --prefix="${qb_install_dir}" "${local_boost}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	./configure --prefix="${qb_install_dir}" "${local_boost}" "${qb_debug}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
