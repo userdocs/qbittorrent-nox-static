@@ -88,7 +88,7 @@ set_default_values() {
 	#
 	if [[ "${what_id}" =~ ^(alpine)$ ]]; then # if alpines delete modules we don't use and set the required packages array
 		delete+=("bison" "gawk" "glibc")
-		qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "linux-headers")
+		qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "py${qb_python_version}-numpy-dev" "linux-headers")
 	fi
 	#
 	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based set the required packages array
@@ -387,9 +387,9 @@ set_module_urls() {
 	boost_url_status="$(curl_test -so /dev/null --head --write-out '%{http_code}' "https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
 	boost_github_url="https://github.com/boostorg/boost.git"
 	#
-	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qtbase/releases"))"
+	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})(-beta[0-9])?" <(curl "https://github.com/qt/qtbase/releases"))"
 	qtbase_github_url="https://github.com/qt/qtbase.git"
-	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qttools/releases"))"
+	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})(-beta[0-9])?" <(curl "https://github.com/qt/qttools/releases"))"
 	qttools_github_url="https://github.com/qt/qttools.git"
 	#
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
@@ -608,7 +608,9 @@ download_folder() {
 		[[ -n "${3}" ]] && subdir="/${3}" || subdir=""
 		echo -e "${tn}${cg}Installing ${1}${cend}${tn}"
 		folder_name="${qb_install_dir}/${1}"
+		folder_inc="${qb_install_dir}/include/${1}"
 		[[ -d "${folder_name}" ]] && rm -rf "${folder_name}"
+		[[ "${lt_only}" == 'true' && -d "${folder_inc}" ]] && rm -rf "${folder_inc}"
 		git clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "${url_github}" "${folder_name}"
 		mkdir -p "${folder_name}${subdir}"
 		[[ -d "${folder_name}${subdir}" ]] && _cd "${folder_name}${subdir}"
@@ -723,6 +725,10 @@ while (("${#}")); do
 			test_git_ouput "${libtorrent_github_tag}" "RC_${libtorrent_version//./_}" "libtorrent"
 			shift
 			;;
+		-lo | --libtorrent-only)
+			lt_only='true'
+			shift
+			;;
 		-lt | --libtorrent-tag)
 			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "$2")"
 			test_git_ouput "${libtorrent_github_tag}" "$2" "libtorrent"
@@ -762,6 +768,7 @@ while (("${#}")); do
 			echo -e " ${cg}Use:${cend} ${clb}-bs${cend} ${td}or${cend} ${clb}--boot-strap${cend}         ${cy}Help:${cend} ${clb}-h-bs${cend} ${td}or${cend} ${clb}--help-boot-strap${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-i${cend}  ${td}or${cend} ${clb}--icu${cend}                ${cy}Help:${cend} ${clb}-h-i${cend}  ${td}or${cend} ${clb}--help-icu${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-lm${cend} ${td}or${cend} ${clb}--libtorrent-master${cend}  ${cy}Help:${cend} ${clb}-h-lm${cend} ${td}or${cend} ${clb}--help-libtorrent-master${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-lo${cend} ${td}or${cend} ${clb}--libtorrent-only${cend}    ${cy}Help:${cend} ${clb}-h-lo${cend} ${td}or${cend} ${clb}--help-libtorrent-only${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-lt${cend} ${td}or${cend} ${clb}--libtorrent-tag${cend}     ${cy}Help:${cend} ${clb}-h-lt${cend} ${td}or${cend} ${clb}--help-libtorrent-tag${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-m${cend}  ${td}or${cend} ${clb}--master${cend}             ${cy}Help:${cend} ${clb}-h-m${cend}  ${td}or${cend} ${clb}--help-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
@@ -773,7 +780,7 @@ while (("${#}")); do
 			echo
 			echo -e "${tb}${tu}Module specific help - flags are used with the modules listed here.${cend}"
 			echo
-			echo -e "${cg}Use:${cend} ${clm}all${cend} ${td}or${cend} ${clm}module-name${cend}          ${cy}Usage:${cend} ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend} ${clm}all${cend} ${clb}-i${cend}"
+			echo -e " ${cg}Use:${cend} ${clm}all${cend} ${td}or${cend} ${clm}module-name${cend}          ${cg}Usage:${cend} ${clc}${qb_working_dir_short}/$(basename -- "$0")${cend} ${clm}all${cend} ${clb}-i${cend}"
 			echo
 			echo -e " ${td}${clm}all${cend}         ${td}-${cend} ${td}Install all modules${cend}"
 			echo -e " ${td}${clm}install${cend}     ${td}-${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qb_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
@@ -884,6 +891,18 @@ while (("${#}")); do
 			echo -e " ${td}This flag is provided with no arguments.${cend}"
 			echo
 			echo -e " ${clb}-lm${cend}"
+			echo
+			exit
+			;;
+		-h-lo | --help-libtorrent-only)
+			echo
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " ${clb}-lo${cend} is just convenience command so you can rebuild libtorrent without having to rebuild boost"
+			echo
+			echo -e " ${cg}Usage:${cend} ${clc}${qb_working_dir_short}/$(basename -- "$0")${cend} ${clm}boost libtorrent${cend} ${clb}-lo${cend}"
+			echo
+			echo -e " ${cy}This will still require the libtorrent dependencies are installed${cend}"
 			echo
 			exit
 			;;
@@ -1127,7 +1146,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	fi
 	#
 	"${qb_install_dir}/boost/bootstrap.sh" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
-	"${qb_install_dir}/boost/b2" -j"$(nproc)" variant=release threading=multi link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	[[ "${lt_only}" != 'true' ]] && "${qb_install_dir}/boost/b2" -j"$(nproc)" variant=release threading=multi link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 else
 	application_skip
 fi
@@ -1175,6 +1194,8 @@ application_name libtorrent
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	if [[ ! -d "${qb_install_dir}/boost" ]]; then
 		echo -e "${tn}${clr}Warning${cend} - You must install the boost module before you can use the libtorrent module"
+		echo
+		echo -e "${tn}${clg}Notice${cend} - If you just need to install libotorrent and skip building boost libraries use the -lo flag: boost libtorrent -lo"
 	else
 		custom_flags_set
 		download_folder "${app_name}" "${!app_github_url}"
