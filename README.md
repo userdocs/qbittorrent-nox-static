@@ -17,7 +17,7 @@ qBittorrent 4.3.1 was built with the following libraries:
 Qt: 5.15.1
 Libtorrent: 1.2.11.0
 Boost: 1.74.0
-OpenSSL: 1.1.1h
+OpenSSL: 1.1.1i
 zlib: 1.2.11
 ```
 
@@ -148,6 +148,7 @@ Here are a list of available options
  Use: -bs or --boot-strap         Help: -h-bs or --help-boot-strap
  Use: -i  or --icu                Help: -h-i  or --help-icu
  Use: -lm or --libtorrent-master  Help: -h-lm or --help-libtorrent-master
+ Use: -lo or --libtorrent-only    Help: -h-lo or --help-libtorrent-only
  Use: -lt or --libtorrent-tag     Help: -h-lt or --help-libtorrent-tag
  Use: -m  or --master             Help: -h-m  or --help-master
  Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
@@ -159,13 +160,10 @@ Here are a list of available options
 
 Module specific help - flags are used with the modules listed here.
 
-Use: all or module-name          Usage: ~/docker/qbittorrent-nox-static.sh all -i
+ Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
  all         - Install all modules
- install     - optional Install the ~/docker/qb-build/completed/qbittorrent-nox binary
- bison       - required Build bison
- gawk        - required Build gawk
- glibc       - required Build libc locally to statically link nss
+ install     - optional Install the ~/qb-build/completed/qbittorrent-nox binary
  zlib        - required Build zlib locally
  icu         - optional Build ICU locally
  openssl     - required Build openssl locally
@@ -174,7 +172,6 @@ Use: all or module-name          Usage: ~/docker/qbittorrent-nox-static.sh all -
  qttools     - required Build qttools locally
  libtorrent  - required Build libtorrent locally with b2
  qbittorrent - required Build qbitorrent locally
-
 ```
 
 ### Build - default profile
@@ -289,7 +286,7 @@ amd64
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/4.3.0.1.2.10/amd64-glibc-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.1_v1.2.11/amd64-glibc-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -322,17 +319,41 @@ username: admin
 password: adminadmin
 ```
 
-Some key start-up arguments to help you along. Using the command above with no arguments will loads the defaults or the settings define in the `~/.config/qBittorrent/qBittorrent.conf`
+Some key start-up arguments to help you along. Using the command above with no arguments will loads the defaults or the settings defined in the `~/.config/qBittorrent/qBittorrent.conf`
 
-```bash
+```
+Usage:
+    ./qbittorrent-nox [options][(<filename> | <url>)...]
 Options:
-    -v | --version             Display program version and exit
-    -h | --help                Display this help message and exit
-    --webui-port=<port>        Change the Web UI port
-    -d | --daemon              Run in daemon-mode (background)
-    --profile=<dir>            Store configuration files in <dir>
-    --configuration=<name>     Store configuration files in directories
-                               qBittorrent_<name>
+    \-v | --version                Display program version and exit
+    \-h | --help                   Display this help message and exit
+    \--webui-port=<port>           Change the Web UI port
+    \-d | --daemon                 Run in daemon-mode (background)
+    \--profile=<dir>               Store configuration files in <dir>
+    \--configuration=<name>        Store configuration files in directories
+                                   qBittorrent\_<name>
+    \--relative-fastresume         Hack into libtorrent fastresume files and make
+                                   file paths relative to the profile directory
+    files or URLs                  Download the torrents passed by the user
+
+Options when adding new torrents:
+    \--save-path=<path>            Torrent save path
+    \--add-paused=&lt;true|false>  Add torrents as started or paused
+    \--skip-hash-check             Skip hash check
+    \--category=<name>             Assign torrents to category. If the category
+                                   doesn't exist, it will be created.
+    \--sequential                  Download files in sequential order
+    \--first-and-last              Download first and last pieces first
+    \--skip-dialog=&lt;true|false> Specify whether the "Add New Torrent" dialog
+                                   opens when adding a torrent.
+
+Option values may be supplied via environment variables. For option named
+'parameter-name', environment variable name is 'QBT_PARAMETER_NAME' (in upper
+case, '-' replaced with '_'). To pass flag values, set the variable to '1' or
+'TRUE'. For example, to disable the splash screen:
+QBT_NO_SPLASH=1 ./qbittorrent-nox
+Command line parameters take precedence over environment variables
+
 ```
 
 ### Second instance
@@ -357,9 +378,9 @@ And you can now configure this instance separately.
 
 ```nginx
 location /qbittorrent/ {
-	proxy_pass http://127.0.0.1:8080/;
-	proxy_http_version      1.1;
-	proxy_set_header        X-Forwarded-Host        $http_host;
+	proxy_pass               http://127.0.0.1:8080/;
+	proxy_http_version       1.1;
+	proxy_set_header         X-Forwarded-Host        $http_host;
 	http2_push_preload on; # Enable http2 push
 
 	# The following directives effectively nullify Cross-site request forgery (CSRF)
@@ -389,25 +410,20 @@ Modify the path to the binary and your local username.
 
 ```ini
 [Unit]
-
-Description=qbittorrent-nox
+Description=qBittorrent-nox service
+Documentation=man:qbittorrent-nox(1)
 Wants=network-online.target
 After=network-online.target nss-lookup.target
 
 [Service]
-
-User=username
-Group=username
-
+# if you have systemd &lt; 240 (Ubuntu 18.10 and earlier, for example), you probably want to use Type=simple instead
 Type=exec
-WorkingDirectory=/home/username
-
-ExecStart=/home/username/bin/qbittorrent-nox
-KillMode=control-group
-Restart=always
-RestartSec=5
-TimeoutStopSec=infinity
-
+# change user as needed
+User=qbtuser
+# The -d flag should not be used in this setup
+ExecStart=/usr/bin/qbittorrent-nox
+# uncomment this for versions of qBittorrent &lt; 4.2.0 to set the maximum number of open files to unlimited
+#LimitNOFILE=infinity
 [Install]
 WantedBy=multi-user.target
 ```
@@ -445,11 +461,14 @@ You can use this configuration with no modification required.
 ```ini
 [Unit]
 Description=qbittorrent
-After=network-online.target
+Wants=network-online.target
+After=network-online.target nss-lookup.target
 
 [Service]
-Type=simple
+Type=exec
 ExecStart=%h/bin/qbittorrent-nox
+Restart=on-failure
+SyslogIdentifier=qbittorrent-nox
 
 [Install]
 WantedBy=default.target
