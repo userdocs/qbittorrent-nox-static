@@ -345,9 +345,6 @@ set_build_directory() {
 	PATH="${qb_install_dir}/bin:${HOME}/bin${PATH:+:${PATH}}"
 	LD_LIBRARY_PATH="-L${lib_dir}"
 	PKG_CONFIG_PATH="-L${lib_dir}/pkgconfig"
-	local_boost="--with-boost=${qb_install_dir}/boost"
-	local_boost_lib="--with-boost-libdir=${lib_dir}"
-	local_openssl="--with-openssl=${qb_install_dir}"
 }
 #####################################################################################################################################################
 # This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the installation_modules function
@@ -1216,7 +1213,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		apply_patches "${app_name}"
 		#
 		./bootstrap.sh 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
-		./configure --prefix="${qb_install_dir}" "${local_boost}" "${local_boost_lib}" "${qb_debug}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+		./configure --prefix="${qb_install_dir}" "${qb_debug}" --with-boost="${qb_install_dir}/boost" --with-boost-libdir="${lib_dir}" openssl_CFLAGS=${include_dir} openssl_LIBS=${lib_dir} --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 		make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
