@@ -346,7 +346,7 @@ set_build_directory() {
 	LD_LIBRARY_PATH="-L${lib_dir}"
 	PKG_CONFIG_PATH="-L${lib_dir}/pkgconfig"
 	local_boost="--with-boost=${qb_install_dir}/boost"
-	local_boost_lib="--with-boost-libdir="${lib_dir}""
+	local_boost_lib="--with-boost-libdir=${lib_dir}"
 	local_openssl="--with-openssl=${qb_install_dir}"
 }
 #####################################################################################################################################################
