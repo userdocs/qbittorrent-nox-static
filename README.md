@@ -3,7 +3,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9817ad80d35c480aa9842b53001d55b0)](https://app.codacy.com/gh/userdocs/qbittorrent-nox-static?utm_source=github.com&utm_medium=referral&utm_content=userdocs/qbittorrent-nox-static&utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static/badge)](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static)
 
-There is one bash script for 3 platforms. This script will do these three main things on Debian Stable, Ubuntu 20.04 or Alpine 3.12:
+There is one bash script for 3 platforms. This script will do these three main things on Debian Stable, Ubuntu 18.04/20.04 or Alpine 3.10+:
 
 -   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
 -   Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
@@ -21,7 +21,7 @@ OpenSSL: 1.1.1i
 zlib: 1.2.11
 ```
 
-Typically the script is intended to be deployed on a docker or VPS but long as your system meets the core dependency requirements tested for by the script, the script can be run as a local user.
+Typically the script is intended to be deployed and built using a docker or VPS but long as your system meets the core dependency requirements tested for by the script, the script can be run as a local user.
 
 See here for binaries I have built and how to install them - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
 
@@ -59,13 +59,15 @@ statically linked
 
 ## Script information
 
-Fully static builds were built and tested on:
+Fully static builds were built on:
 
 **Debian 10 (buster)** amd64
 
-**Ubuntu 20.04 (focal)** amd64
-
 **Alpine Linux 3.12** amd64
+
+and also tested on:
+
+**Ubuntu 20.04 (focal)** amd64
 
 ## Script usage
 
@@ -148,7 +150,6 @@ Here are a list of available options
  Use: -bs or --boot-strap         Help: -h-bs or --help-boot-strap
  Use: -i  or --icu                Help: -h-i  or --help-icu
  Use: -lm or --libtorrent-master  Help: -h-lm or --help-libtorrent-master
- Use: -lo or --libtorrent-only    Help: -h-lo or --help-libtorrent-only
  Use: -lt or --libtorrent-tag     Help: -h-lt or --help-libtorrent-tag
  Use: -m  or --master             Help: -h-m  or --help-master
  Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
@@ -321,7 +322,7 @@ password: adminadmin
 
 Some key start-up arguments to help you along. Using the command above with no arguments will loads the defaults or the settings defined in the `~/.config/qBittorrent/qBittorrent.conf`
 
-```
+```none
 Usage:
     ./qbittorrent-nox [options][(<filename> | <url>)...]
 Options:
@@ -411,7 +412,6 @@ Modify the path to the binary and your local username.
 ```ini
 [Unit]
 Description=qBittorrent-nox service
-Documentation=man:qbittorrent-nox(1)
 Wants=network-online.target
 After=network-online.target nss-lookup.target
 
