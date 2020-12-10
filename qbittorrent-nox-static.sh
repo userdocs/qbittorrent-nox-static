@@ -82,7 +82,7 @@ set_default_values() {
 	#
 	qb_python_version="3" # we are only using python3 but it's easier to just change this if we need to.
 	#
-	qb_modules=("all" "install" "bison" "gawk" "glibc" "zlib" "icu" "openssl" "boost" "qtbase" "qttools" "libtorrent" "qbittorrent") # Define our list of available modules in an array.
+	qb_modules=("all" "install" "bison" "gawk" "glibc" "zlib" "icu" "openssl" "boost" "libtorrent" "qtbase" "qttools" "qbittorrent") # Define our list of available modules in an array.
 	#
 	delete=() # modules listed in this array will be removed from teh default list of modules, changing the behaviour of all or install
 	#
@@ -345,7 +345,8 @@ set_build_directory() {
 	PATH="${qb_install_dir}/bin:${HOME}/bin${PATH:+:${PATH}}"
 	LD_LIBRARY_PATH="-L${lib_dir}"
 	PKG_CONFIG_PATH="-L${lib_dir}/pkgconfig"
-	local_boost="--with-boost=${qb_install_dir}"
+	local_boost="--with-boost=${qb_install_dir}/boost"
+	local_boost_lib="--with-boost-libdir="${lib_dir}""
 	local_openssl="--with-openssl=${qb_install_dir}"
 }
 #####################################################################################################################################################
@@ -516,7 +517,12 @@ apply_patches() {
 		fi
 		#
 		if [[ "${patch_app_name}" == 'libtorrent' ]]; then
-			if curl_test "${patch_jamfile_url}" -o "${patch_jamfile}"; then
+			if [[ -f "${patch_dir}/Jamfile" ]]; then
+				cp -f "${patch_dir}/Jamfile" "${patch_jamfile}"
+				echo
+				echo -e "${cr} Using existing custom Jamfile file${cend}"
+				echo
+			elif curl_test "${patch_jamfile_url}" -o "${patch_jamfile}"; then
 				echo
 				echo -e "${cr} Using downloaded custom Jamfile file${cend}"
 				echo
@@ -610,7 +616,7 @@ download_folder() {
 		folder_name="${qb_install_dir}/${1}"
 		folder_inc="${qb_install_dir}/include/${1}"
 		[[ -d "${folder_name}" ]] && rm -rf "${folder_name}"
-		[[ "${lt_only}" == 'true' && -d "${folder_inc}" ]] && rm -rf "${folder_inc}"
+		[[ "${1}" == 'libtorrent' && -d "${folder_inc}" ]] && rm -rf "${folder_inc}"
 		git clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "${url_github}" "${folder_name}"
 		mkdir -p "${folder_name}${subdir}"
 		[[ -d "${folder_name}${subdir}" ]] && _cd "${folder_name}${subdir}"
@@ -725,10 +731,6 @@ while (("${#}")); do
 			test_git_ouput "${libtorrent_github_tag}" "RC_${libtorrent_version//./_}" "libtorrent"
 			shift
 			;;
-		-lo | --libtorrent-only)
-			lt_only='true'
-			shift
-			;;
 		-lt | --libtorrent-tag)
 			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "$2")"
 			test_git_ouput "${libtorrent_github_tag}" "$2" "libtorrent"
@@ -768,7 +770,6 @@ while (("${#}")); do
 			echo -e " ${cg}Use:${cend} ${clb}-bs${cend} ${td}or${cend} ${clb}--boot-strap${cend}         ${cy}Help:${cend} ${clb}-h-bs${cend} ${td}or${cend} ${clb}--help-boot-strap${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-i${cend}  ${td}or${cend} ${clb}--icu${cend}                ${cy}Help:${cend} ${clb}-h-i${cend}  ${td}or${cend} ${clb}--help-icu${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-lm${cend} ${td}or${cend} ${clb}--libtorrent-master${cend}  ${cy}Help:${cend} ${clb}-h-lm${cend} ${td}or${cend} ${clb}--help-libtorrent-master${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-lo${cend} ${td}or${cend} ${clb}--libtorrent-only${cend}    ${cy}Help:${cend} ${clb}-h-lo${cend} ${td}or${cend} ${clb}--help-libtorrent-only${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-lt${cend} ${td}or${cend} ${clb}--libtorrent-tag${cend}     ${cy}Help:${cend} ${clb}-h-lt${cend} ${td}or${cend} ${clb}--help-libtorrent-tag${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-m${cend}  ${td}or${cend} ${clb}--master${cend}             ${cy}Help:${cend} ${clb}-h-m${cend}  ${td}or${cend} ${clb}--help-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-n${cend}  ${td}or${cend} ${clb}--no-delete${cend}          ${cy}Help:${cend} ${clb}-h-n${cend}  ${td}or${cend} ${clb}--help-no-delete${cend}"
@@ -891,18 +892,6 @@ while (("${#}")); do
 			echo -e " ${td}This flag is provided with no arguments.${cend}"
 			echo
 			echo -e " ${clb}-lm${cend}"
-			echo
-			exit
-			;;
-		-h-lo | --help-libtorrent-only)
-			echo
-			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " ${clb}-lo${cend} is just convenience command so you can rebuild libtorrent without having to rebuild boost"
-			echo
-			echo -e " ${cg}Usage:${cend} ${clc}${qb_working_dir_short}/$(basename -- "$0")${cend} ${clm}boost libtorrent${cend} ${clb}-lo${cend}"
-			echo
-			echo -e " ${cy}This will still require the libtorrent dependencies are installed${cend}"
 			echo
 			exit
 			;;
@@ -1146,7 +1135,32 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	fi
 	#
 	"${qb_install_dir}/boost/bootstrap.sh" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
-	[[ "${lt_only}" != 'true' ]] && "${qb_install_dir}/boost/b2" -j"$(nproc)" variant=release threading=multi link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+else
+	application_skip
+fi
+#####################################################################################################################################################
+# libtorrent installation
+#####################################################################################################################################################
+application_name libtorrent
+#
+if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
+	if [[ ! -d "${qb_install_dir}/boost" ]]; then
+		echo -e "${tn}${clr}Warning${cend} - You must install the boost module before you can use the libtorrent module"
+		echo
+	else
+		custom_flags_set
+		download_folder "${app_name}" "${!app_github_url}"
+		#
+		apply_patches "${app_name}"
+		#
+		BOOST_ROOT="${qb_install_dir}/boost"
+		BOOST_INCLUDEDIR="${qb_install_dir}/boost"
+		BOOST_BUILD_PATH="${qb_install_dir}/boost"
+		#
+		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" "${lt_debug}" cxxstd=14 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+		#
+		delete_function "${app_name}"
+	fi
 else
 	application_skip
 fi
@@ -1187,53 +1201,31 @@ else
 	application_skip
 fi
 #####################################################################################################################################################
-# libtorrent installation
+# qBittorrent installation
 #####################################################################################################################################################
-application_name libtorrent
+application_name qbittorrent
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	if [[ ! -d "${qb_install_dir}/boost" ]]; then
-		echo -e "${tn}${clr}Warning${cend} - You must install the boost module before you can use the libtorrent module"
+		echo -e "${tn}${clr}Warning${cend} - You must install the boost libtorrent qbtbase qttools modules before you can use the qbittorrent module"
 		echo
-		echo -e "${tn}${clg}Notice${cend} - If you just need to install libotorrent and skip building boost libraries use the -lo flag: boost libtorrent -lo"
 	else
 		custom_flags_set
 		download_folder "${app_name}" "${!app_github_url}"
 		#
 		apply_patches "${app_name}"
 		#
-		BOOST_ROOT="${qb_install_dir}/boost"
-		BOOST_INCLUDEDIR="${qb_install_dir}/boost"
-		BOOST_BUILD_PATH="${qb_install_dir}/boost"
+		./bootstrap.sh 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+		./configure --prefix="${qb_install_dir}" "${local_boost}" "${local_boost_lib}" "${qb_debug}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
-		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" "${lt_debug}" cxxstd=14 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+		make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+		make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+		#
+		[[ -f "${qb_install_dir}/bin/qbittorrent-nox" ]] && cp -f "${qb_install_dir}/bin/qbittorrent-nox" "${qb_install_dir}/completed/qbittorrent-nox"
 		#
 		delete_function boost
-		delete_function "${app_name}"
+		delete_function "${app_name}" last
 	fi
-else
-	application_skip
-fi
-#####################################################################################################################################################
-# qBittorrent installation
-#####################################################################################################################################################
-application_name qbittorrent
-#
-if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
-	custom_flags_set
-	download_folder "${app_name}" "${!app_github_url}"
-	#
-	apply_patches "${app_name}"
-	#
-	./bootstrap.sh 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
-	./configure --prefix="${qb_install_dir}" "${local_boost}" "${qb_debug}" --disable-gui CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
-	#
-	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
-	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
-	#
-	[[ -f "${qb_install_dir}/bin/qbittorrent-nox" ]] && cp -f "${qb_install_dir}/bin/qbittorrent-nox" "${qb_install_dir}/completed/qbittorrent-nox"
-	#
-	delete_function "${app_name}" last
 else
 	application_skip last
 fi
