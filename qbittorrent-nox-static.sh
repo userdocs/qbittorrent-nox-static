@@ -350,13 +350,13 @@ set_build_directory() {
 # This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the installation_modules function
 #####################################################################################################################################################
 custom_flags_set() {
-	CXXFLAGS="${optimize/*/$optimize }-std=c++14"
+	CXXFLAGS="${optimize/*/$optimize }-std=c++17"
 	CPPFLAGS="${optimize/*/$optimize }--static -static -I${include_dir}"
 	LDFLAGS="${optimize/*/$optimize }--static -static -Wl,--no-as-needed -L${lib_dir} -lpthread -pthread"
 }
 #
 custom_flags_reset() {
-	CXXFLAGS="${optimize/*/$optimize }-std=c++14"
+	CXXFLAGS="${optimize/*/$optimize }-std=c++17"
 	CPPFLAGS=""
 	LDFLAGS=""
 }
@@ -457,7 +457,7 @@ installation_modules() {
 		python_short_version="${python_major}.${python_minor}"
 		python_link_version="${python_major}${python_minor}"
 		#
-		echo -e "using gcc : : : <cflags>${optimize/*/$optimize }-std=c++14 <cxxflags>${optimize/*/$optimize }-std=c++14 ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" > "$HOME/user-config.jam"
+		echo -e "using gcc : : : <cflags>${optimize/*/$optimize }-std=c++17 <cxxflags>${optimize/*/$optimize }-std=c++17 ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" > "$HOME/user-config.jam"
 		#
 		## Echo the build directory.
 		echo -e "${tn}${tb}Install Prefix${cend} : ${clc}${qb_install_dir_short}${cend}"
@@ -1154,7 +1154,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		BOOST_INCLUDEDIR="${qb_install_dir}/boost"
 		BOOST_BUILD_PATH="${qb_install_dir}/boost"
 		#
-		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" "${lt_debug}" cxxstd=14 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" "${lt_debug}" cxxstd=17 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		delete_function "${app_name}"
 	fi
@@ -1171,7 +1171,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	download_folder "${app_name}" "${!app_github_url}"
 	#
 	[[ "${qb_skip_icu}" = 'no' ]] && icu='-icu' || icu='-no-icu'
-	./configure -prefix "${qb_install_dir}" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++14 -no-feature-c++17 -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "${include_dir}" -L "${lib_dir}" QMAKE_LFLAGS="${LDFLAGS}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	./configure -prefix "${qb_install_dir}" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std c++17 -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "${include_dir}" -L "${lib_dir}" QMAKE_LFLAGS="${LDFLAGS}" 2>&1 | tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	make install 2>&1 | tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
