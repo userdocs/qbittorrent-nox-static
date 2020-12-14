@@ -20,4 +20,4 @@ jobs:
       - uses: actions/checkout@v2
       - run: |
           chmod +x "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh"
-          "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh all -i -lm"
+          "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh" all -i -lm
