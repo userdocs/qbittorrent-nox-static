@@ -4,12 +4,6 @@ name: CI
 
 # Controls when the action will run. 
 on:
-  # Triggers the workflow on push or pull request events but only for the master branch
-  push:
-    branches: [ master ]
-  pull_request:
-    branches: [ master ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -24,6 +18,9 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
+      - run: |
+          # make file runnable, might not be necessary
+          chmod +x "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh"
 
-      # Runs a single command using the runners shell
-      - name: ./qbittorrent-nox-static.sh
+          # run script
+          "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh"
