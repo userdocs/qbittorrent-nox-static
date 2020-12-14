@@ -12,15 +12,12 @@ jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
-    runs-on: ubuntu-latest
+    runs-on: alpine-latest
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
       - run: |
-          # make file runnable, might not be necessary
           chmod +x "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh"
-
-          # run script
-          "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh"
+          "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh all -i -lm"
