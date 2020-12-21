@@ -25,7 +25,7 @@ set -a
 #####################################################################################################################################################
 # Unset some variables to set defaults.
 #####################################################################################################################################################
-unset qb_skip_delete qb_skip_icu qb_git_proxy qb_curl_proxy qb_install_dir qb_build_dir qb_working_dir qb_modules_test qb_python_version patches_url
+unset qb_skip_delete qb_skip_icu qb_git_proxy qb_curl_proxy qb_install_dir qb_build_dir qb_working_dir qb_modules_test qb_python_version qb_patches_url
 #####################################################################################################################################################
 # Color me up Scotty - define some color values to use as variables in the scripts.
 #####################################################################################################################################################
@@ -74,7 +74,7 @@ fi
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
-	patches_url="" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and you patch file will be automatically fetched and loadded for those matching tags.
+	qb_patches_url="" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and you patch file will be automatically fetched and loadded for those matching tags.
 	#
 	libtorrent_version='1.2' # Set this here so it is easy to see and change
 	#
@@ -126,11 +126,11 @@ check_dependencies() {
 		fi
 		#
 		if pkgman > /dev/null 2>&1; then
-			echo -e "Dependency - ${cg}OK${cend} - ${pkg}"
+			echo -e " Dependency - ${cg}OK${cend} - ${pkg}"
 		else
 			if [[ -n "${pkg}" ]]; then
 				deps_installed='no'
-				echo -e "Dependency - ${cr}NO${cend} - ${pkg}"
+				echo -e " Dependency - ${cr}NO${cend} - ${pkg}"
 				qb_checked_required_pkgs+=("$pkg")
 			fi
 		fi
@@ -465,9 +465,9 @@ installation_modules() {
 		## Some basic help
 		echo -e "${tn}${tb}Script help${cend} : ${clc}${qb_working_dir_short}/$(basename -- "$0")${cend} ${clb}-h${cend}"
 	else
-		echo -e "${cr}${tn}One or more of the provided modules are not supported${cend}"
-		echo -e "${tb}${tn}This is a list of supported modules${cend}"
-		echo -e "${clm}${tn}${qb_modules[*]}${tn}${cend}"
+		echo -e "${tn} ${cr}One or more of the provided modules are not supported${cend}"
+		echo -e "${tn}${tb}This is a list of supported modules${cend}"
+		echo -e "${tn} ${clm}${qb_modules[*]}${tn}${cend}"
 		exit
 	fi
 }
@@ -495,9 +495,9 @@ apply_patches() {
 		patch_tag="${patch_app_name}_patch_tag"
 		patch_dir="${qb_install_dir}/patches/${patch_app_name}/${!patch_tag}"
 		patch_file="${patch_dir}/patch"
-		patch_file_url="https://raw.githubusercontent.com/${patches_url}/master/patches/${patch_app_name}/${!patch_tag}/patch"
+		patch_file_url="https://raw.githubusercontent.com/${qb_patches_url}/master/patches/${patch_app_name}/${!patch_tag}/patch"
 		patch_jamfile="${qb_install_dir}/libtorrent/Jamfile"
-		patch_jamfile_url="https://raw.githubusercontent.com/${patches_url}/master/patches/${patch_app_name}/${!patch_tag}/Jamfile"
+		patch_jamfile_url="https://raw.githubusercontent.com/${qb_patches_url}/master/patches/${patch_app_name}/${!patch_tag}/Jamfile"
 		#
 		[[ ! -d "${patch_dir}" ]] && mkdir -p "${patch_dir}"
 		#
@@ -532,34 +532,6 @@ apply_patches() {
 		fi
 		#
 		[[ -f "${patch_file}" ]] && patch -p1 < "${patch_file}"
-	fi
-}
-#####################################################################################################################################################
-# This function installs qt
-#####################################################################################################################################################
-install_qbittorrent() {
-	if [[ -f "${qb_install_dir}/completed/qbittorrent-nox" ]]; then
-		#
-		if [[ "$(id -un)" = 'root' ]]; then
-			mkdir -p "/usr/local/bin"
-			cp -rf "${qb_install_dir}/completed/qbittorrent-nox" "/usr/local/bin"
-		else
-			mkdir -p "${HOME}/bin"
-			cp -rf "${qb_install_dir}/completed/qbittorrent-nox" "${HOME}/bin"
-		fi
-		#
-		echo -e " ${tn}${tu}qbittorrent-nox has been installed!${cend}${tn}"
-		echo -e " Run it using this command:${tn}"
-		#
-		[[ "$(id -un)" = 'root' ]] && echo -e " ${cg}qbittorrent-nox${cend}${tn}" || echo -e " ${cg}~/bin/qbittorrent-nox${cend}${tn}"
-		#
-		exit
-	else
-		echo -e "${tn}qbittorrent-nox has not been built to the defined install directory:${tn}"
-		echo -e "${cg}${qb_install_dir_short}/completed${cend}${tn}"
-		echo -e "Please build it using the script first then install${tn}"
-		#
-		exit
 	fi
 }
 #####################################################################################################################################################
@@ -674,6 +646,34 @@ application_skip() {
 	fi
 }
 #####################################################################################################################################################
+# This function installs qt
+#####################################################################################################################################################
+install_qbittorrent() {
+	if [[ -f "${qb_install_dir}/completed/qbittorrent-nox" ]]; then
+		#
+		if [[ "$(id -un)" = 'root' ]]; then
+			mkdir -p "/usr/local/bin"
+			cp -rf "${qb_install_dir}/completed/qbittorrent-nox" "/usr/local/bin"
+		else
+			mkdir -p "${HOME}/bin"
+			cp -rf "${qb_install_dir}/completed/qbittorrent-nox" "${HOME}/bin"
+		fi
+		#
+		echo -e " ${tn}${tu}qbittorrent-nox has been installed!${cend}${tn}"
+		echo -e " Run it using this command:${tn}"
+		#
+		[[ "$(id -un)" = 'root' ]] && echo -e " ${cg}qbittorrent-nox${cend}${tn}" || echo -e " ${cg}~/bin/qbittorrent-nox${cend}${tn}"
+		#
+		exit
+	else
+		echo -e "${tn}qbittorrent-nox has not been built to the defined install directory:${tn}"
+		echo -e "${cg}${qb_install_dir_short}/completed${cend}${tn}"
+		echo -e "Please build it using the script first then install${tn}"
+		#
+		exit
+	fi
+}
+#####################################################################################################################################################
 # Functions part 1: Use some of our functions
 #####################################################################################################################################################
 set_default_values "${@}" # see functions
@@ -735,7 +735,7 @@ while (("${#}")); do
 			;;
 		-pr | --patch-repo)
 			if [[ "$(curl "https://github.com/${2}")" != 'error_url' ]]; then
-				patches_url="${2}"
+				qb_patches_url="${2}"
 			else
 				echo
 				echo -e " ${cy}This repo does not exist:${cend}"
