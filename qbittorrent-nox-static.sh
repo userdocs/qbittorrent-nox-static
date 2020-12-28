@@ -944,7 +944,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${td}This flag is provided with no arguments.${cend}"
 			echo
-			echo -e " ${clb}-lm${cend}"
+			echo -e " ${clb}-qm${cend}"
 			echo
 			exit
 			;;
@@ -952,7 +952,7 @@ while (("${#}")); do
 			echo
 			echo -e "${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
-			echo -e " Use a provided libtorrent tag when cloning from github."
+			echo -e " Use a provided qBittorrent tag when cloning from github."
 			echo
 			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option.${cend}"
 			echo
@@ -965,7 +965,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${td}This flag must be provided with arguments.${cend}"
 			echo
-			echo -e " ${clb}-lt${cend} ${clc}release-4.3.0.1${cend}"
+			echo -e " ${clb}-qt${cend} ${clc}release-4.3.0.1${cend}"
 			echo
 			exit
 			;;
