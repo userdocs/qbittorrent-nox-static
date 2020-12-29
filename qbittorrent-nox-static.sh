@@ -386,8 +386,10 @@ set_module_urls() {
 	boost_github_url="https://github.com/boostorg/boost.git"
 	#
 	qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qtbase/releases"))"
+	while [[ -z "${qtbase_github_tag}" && "${qtbase_page}" -le 3 ]]; do ((qtbase_page++)); qtbase_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://api.github.com/repos/qt/qtbase/tags?per_page=100&page=${qtbase_page}"))"; done
 	qtbase_github_url="https://github.com/qt/qtbase.git"
 	qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://github.com/qt/qttools/releases"))"
+	while [[ -z "${qttools_github_tag}" && "${qttools_page}" -le 3 ]]; do ((qttools_page++)); qttools_github_tag="$(grep -Eom1 "v${qt_version}.([0-9]{1,2})" <(curl "https://api.github.com/repos/qt/qttools/tags?per_page=100&page=${qttools_page}"))"; done
 	qttools_github_url="https://github.com/qt/qttools.git"
 	#
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
