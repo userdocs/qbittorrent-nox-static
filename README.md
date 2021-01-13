@@ -12,11 +12,11 @@ There is one bash script for 3 platforms. This script will do these three main t
 Here is an example build profile:
 
 ```none
-qBittorrent 4.3.1 was built with the following libraries:
+qBittorrent 4.3.2 was built with the following libraries:
 
-Qt: 5.15.1
-Libtorrent: 1.2.11.0
-Boost: 1.74.0
+Qt: 5.15.2
+Libtorrent: 1.2.12.0
+Boost: 1.75.0
 OpenSSL: 1.1.1i
 zlib: 1.2.11
 ```
@@ -287,7 +287,7 @@ amd64
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.1_v1.2.11/amd64-glibc-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.2_v1.2.12/amd64-glibc-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -303,7 +303,7 @@ amd64:
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/4.3.0.1.2.10/amd64-musl-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.2_v1.2.12/amd64-musl-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
