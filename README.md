@@ -73,7 +73,7 @@ and also tested on:
 
 Follow these instructions to install and use this build tool.
 
-**Note:** Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all`  or a specific module name is passed as an argument to the script.
+**Note:** Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all` or a specific module name is passed as an argument to the script.
 
 Use these commands via `ssh` on your Linux platform.
 
@@ -271,7 +271,7 @@ Edit the file
 nano ~/.config/qBittorrent/qBittorrent.conf
 ```
 
-Add this. Make sure to change your web ui port. 
+Add this. Make sure to change your web ui port.
 
 ```ini
 [LegalNotice]
@@ -421,7 +421,7 @@ Type=exec
 # change user as needed
 User=qbtuser
 # The -d flag should not be used in this setup
-ExecStart=/usr/bin/qbittorrent-nox
+ExecStart=/usr/local/bin/qbittorrent-nox
 # uncomment this for versions of qBittorrent &lt; 4.2.0 to set the maximum number of open files to unlimited
 #LimitNOFILE=infinity
 [Install]
