@@ -32,7 +32,7 @@ The script creates a fully static `qbittorrent-nox` binary using [libc](https://
 The final result will show this when using `ldd`
 
 ```bash
-ldd ~/qbittorrent-build/bin/qbittorrent-nox
+ldd ~/qb-build/bin/qbittorrent-nox
 ```
 
 Gives this result:
@@ -48,7 +48,7 @@ The script creates a fully static `qbittorrent-nox` binary using [musl](https://
 The final result will show this when using `ldd`
 
 ```bash
-ldd ~/qbittorrent-build/bin/qbittorrent-nox
+ldd ~/qb-build/bin/qbittorrent-nox
 ```
 
 Gives this result:
@@ -73,7 +73,7 @@ and also tested on:
 
 Follow these instructions to install and use this build tool.
 
-**Note:** Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all`  or a specific module name is passed as an argument to the script.
+**Note:** Executing the scripts will configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox` but will not start the build process until `all` or a specific module name is passed as an argument to the script.
 
 Use these commands via `ssh` on your Linux platform.
 
@@ -271,7 +271,7 @@ Edit the file
 nano ~/.config/qBittorrent/qBittorrent.conf
 ```
 
-Add this. Make sure to change your web ui port. 
+Add this. Make sure to change your web ui port.
 
 ```ini
 [LegalNotice]
