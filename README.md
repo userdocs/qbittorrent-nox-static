@@ -421,7 +421,7 @@ Type=exec
 # change user as needed
 User=qbtuser
 # The -d flag should not be used in this setup
-ExecStart=/usr/bin/qbittorrent-nox
+ExecStart=/usr/local/bin/qbittorrent-nox
 # uncomment this for versions of qBittorrent &lt; 4.2.0 to set the maximum number of open files to unlimited
 #LimitNOFILE=infinity
 [Install]
