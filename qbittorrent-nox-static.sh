@@ -481,10 +481,9 @@ apply_patches() {
 	[[ "${libtorrent_github_tag}" =~ ^RC_ ]] && libtorrent_patch_tag="${libtorrent_github_tag}"
 	[[ "${libtorrent_github_tag}" =~ ^libtorrent- ]] && libtorrent_patch_tag="${libtorrent_github_tag#libtorrent-}" && libtorrent_patch_tag="${libtorrent_patch_tag//_/\.}"
 	[[ "${libtorrent_github_tag}" =~ ^v[0-9] ]] && libtorrent_patch_tag="${libtorrent_github_tag#v}"
-	# Start to define the default master branch we will use. The result is dynamic and can be: RC_1_0, RC_1_1, RC_1_2, RC_2_0 and so on.
+	# Start to define the default master branch we will use by transforming the libtorrent_patch_tag variable to underscores. The result is dynamic and can be: RC_1_0, RC_1_1, RC_1_2, RC_2_0 and so on.
 	default_jamfile="${libtorrent_patch_tag//./\_}"
-	# Transform the libtorrent_patch_tag variable to underscores and remove everything after second underscore. Occasionally the tag will be short, like v2.0 so we need to make sure not remove the underscore is there is only one present.
-	if [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -le 1 ]]; then
+	# Remove everything after second underscore. Occasionally the tag will be short, like v2.0 so we need to make sure not remove the underscore if there is only one present.
 	if [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -le 1 ]]; then
 		default_jamfile="RC_${default_jamfile}"
 	elif [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -ge 2 ]]; then
