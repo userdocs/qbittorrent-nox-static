@@ -481,6 +481,15 @@ apply_patches() {
 	[[ "${libtorrent_github_tag}" =~ ^RC_ ]] && libtorrent_patch_tag="${libtorrent_github_tag}"
 	[[ "${libtorrent_github_tag}" =~ ^libtorrent- ]] && libtorrent_patch_tag="${libtorrent_github_tag#libtorrent-}" && libtorrent_patch_tag="${libtorrent_patch_tag//_/\.}"
 	[[ "${libtorrent_github_tag}" =~ ^v[0-9] ]] && libtorrent_patch_tag="${libtorrent_github_tag#v}"
+	# Start to define the default master branch we will use. The result is dynamic and can be: RC_1_0, RC_1_1, RC_1_2, RC_2_0 and so on.
+	default_jamfile="${libtorrent_patch_tag//./\_}"
+	# Transform the libtorrent_patch_tag variable to underscores and remove everything after second underscore. Occasionally the tag will be short, like v2.0 so we need to make sure not remove the underscore is there is only one present.
+	if [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -le 1 ]]; then
+	if [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -le 1 ]]; then
+		default_jamfile="RC_${default_jamfile}"
+	elif [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -ge 2 ]]; then
+		default_jamfile="RC_${default_jamfile%_*}"
+	fi
 	#
 	# qbittorrent has a consistent tag format of release-4.3.1.
 	qbittorrent_patch_tag="${qbittorrent_github_tag#release-}"
@@ -525,7 +534,7 @@ apply_patches() {
 				echo -e "${cr} Using downloaded custom Jamfile file${cend}"
 				echo
 			else
-				curl_curl "https://raw.githubusercontent.com/arvidn/libtorrent/${libtorrent_patch_tag}/Jamfile" -o "${patch_jamfile}"
+				curl_curl "https://raw.githubusercontent.com/arvidn/libtorrent/${default_jamfile}/Jamfile" -o "${patch_jamfile}"
 				echo
 				echo -e "${cr} Using libtorrent branch master Jamfile file${cend}"
 				echo
