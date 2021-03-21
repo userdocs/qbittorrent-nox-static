@@ -1232,8 +1232,14 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		#
 		apply_patches "${app_name}"
 		#
+		if [[ "${libtorrent_github_tag}" =~ ^(RC_2|v2) ]]; then
+			libtorrent_libs="-L${lib_dir} -l:libtorrent-rasterbar.a -l:libtry_signal.a"
+		else
+			libtorrent_libs="-L${lib_dir} -l:libtorrent-rasterbar.a"
+		fi
+		#
 		./bootstrap.sh |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
-		./configure --prefix="${qb_install_dir}" "${qb_debug}" --with-boost="${qb_install_dir}/boost" --with-boost-libdir="${lib_dir}" openssl_CFLAGS="${include_dir}" openssl_LIBS="${lib_dir}" --disable-gui CXXFLAGS="${CXXFLAGS} -I${qb_install_dir}/boost" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="-L${lib_dir} -l:libtorrent-rasterbar.a" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+		./configure --prefix="${qb_install_dir}" "${qb_debug}" --with-boost="${qb_install_dir}/boost" --with-boost-libdir="${lib_dir}" openssl_CFLAGS="${include_dir}" openssl_LIBS="${lib_dir}" --disable-gui CXXFLAGS="${CXXFLAGS} -I${qb_install_dir}/boost" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="${libtorrent_libs}" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 		make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
