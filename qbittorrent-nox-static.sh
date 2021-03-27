@@ -1121,7 +1121,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
 	#
-	./config --prefix="${qb_install_dir}" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	./config --prefix="${qb_install_dir}" --openssldir="/etc/ssl" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	make install_sw install_ssldirs |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
