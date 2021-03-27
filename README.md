@@ -416,16 +416,12 @@ Wants=network-online.target
 After=network-online.target nss-lookup.target
 
 [Service]
-Environment="SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
-Environment="SSL_CERT_DIR=/etc/ssl/certs"
-# if you have systemd &lt; 240 (Ubuntu 18.10 and earlier, for example), you probably want to use Type=simple instead
 Type=exec
-# change user as needed
 User=qbtuser
-# The -d flag should not be used in this setup
 ExecStart=/usr/local/bin/qbittorrent-nox
-# uncomment this for versions of qBittorrent &lt; 4.2.0 to set the maximum number of open files to unlimited
-#LimitNOFILE=infinity
+Restart=on-failure
+SyslogIdentifier=qbittorrent-nox
+
 [Install]
 WantedBy=multi-user.target
 ```
@@ -467,9 +463,6 @@ Wants=network-online.target
 After=network-online.target nss-lookup.target
 
 [Service]
-Environment="SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
-Environment="SSL_CERT_DIR=/etc/ssl/certs"
-
 Type=exec
 ExecStart=%h/bin/qbittorrent-nox
 Restart=on-failure
