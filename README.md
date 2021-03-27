@@ -12,12 +12,12 @@ There is one bash script for 3 platforms. This script will do these three main t
 Here is an example build profile:
 
 ```none
-qBittorrent 4.3.2 was built with the following libraries:
+qBittorrent 4.3.4.1 was built with the following libraries:
 
 Qt: 5.15.2
 Libtorrent: 1.2.12.0
 Boost: 1.75.0
-OpenSSL: 1.1.1i
+OpenSSL: 1.1.1k
 zlib: 1.2.11
 ```
 
@@ -416,6 +416,8 @@ Wants=network-online.target
 After=network-online.target nss-lookup.target
 
 [Service]
+Environment="SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
+Environment="SSL_CERT_DIR=/etc/ssl/certs"
 # if you have systemd &lt; 240 (Ubuntu 18.10 and earlier, for example), you probably want to use Type=simple instead
 Type=exec
 # change user as needed
@@ -465,6 +467,9 @@ Wants=network-online.target
 After=network-online.target nss-lookup.target
 
 [Service]
+Environment="SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt"
+Environment="SSL_CERT_DIR=/etc/ssl/certs"
+
 Type=exec
 ExecStart=%h/bin/qbittorrent-nox
 Restart=on-failure
