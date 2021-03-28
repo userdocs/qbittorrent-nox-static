@@ -199,8 +199,7 @@ qb-build/patches/qbittorrent/master
 qb-build/patches/libtorrent/RC_2_0
 ```
 
-Place you patch file named `patch` inside the relevant directories.  So it would look something like this:
-
+Place your patch file named `patch` inside the relevant directories.  So it would look something like this:
 
 ```bash
 qb-build/patches/qbittorrent/4.3.4.1/patch
