@@ -240,13 +240,13 @@ git clone --no-tags --single-branch --branch release-4.3.4.1 --shallow-submodule
 Copy the file that we need to edit to our home directory.
 
 ```bash
-cp qbittorrent/src/base/bittorrent/session.cpp ~/session.cpp
+cp qBittorrent/src/base/bittorrent/session.cpp ~/session.cpp
 ```
 
 Now edit the `~/session.cpp`. Once you have finished making your changes you can create a patch file using this command
 
 ```bash
-diff -Naru qbittorrent/src/base/bittorrent/session.cpp ~/session.cpp > ~/patch
+diff -Naru qBittorrent/src/base/bittorrent/session.cpp ~/session.cpp > ~/patch
 ```
 
 Then you place that patch file in the matching tag directory.
