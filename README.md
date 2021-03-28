@@ -175,6 +175,88 @@ Module specific help - flags are used with the modules listed here.
  qbittorrent - required Build qbitorrent locally
 ```
 
+### Patching
+
+The script supports the automatic patching of libtorrent and qbittorrent when building, providing certain conditions are met. You can do it in two ways.
+
+#### Local patching via boot strapping
+
+Using this command: `~/qbittorrent-nox-static.sh -bs` the script will create the required directory structure using the current defaults.
+
+```bash
+qb-build/patches/qbittorrent/4.3.4.1
+qb-build/patches/libtorrent/v1.2.12
+```
+
+You can change the defaults by using the `qt` and `lt` switches to specify a tag. So for example if you used this command:
+
+`~/qbittorrent-nox-static.sh -qt master -lt RC_2_0 -bs`
+
+The boot strapped directory structure will look like this instead:
+
+```bash
+qb-build/patches/qbittorrent/master
+qb-build/patches/libtorrent/RC_2_0
+```
+
+Place you patch file named `patch` inside the relevant directories.  So it would look something like this:
+
+
+```bash
+qb-build/patches/qbittorrent/4.3.4.1/patch
+qb-build/patches/libtorrent/v1.2.12/patch
+```
+
+Then the patch file will be automatically matched to the tag used by the script and loaded.
+
+#### Git based patching
+
+Instead of a local patch you can use github hosted patch files. Your patches need to be hosted in the root of the repo like this:
+
+```bash
+patches/qbittorrent/master/patch
+patches/qbittorrent/4.3.4.1/patch
+patches/qbittorrent/4.3.3/patch
+patches/libtorrent/RC_2_0/patch
+patches/libtorrent/RC_1_2/patch
+patches/libtorrent/v1.2.12/patch
+```
+
+The all you do is use the `pr` switch when using the script. The repo URL is abbreviated to your username and repo:
+
+`~/qbittorrent-nox-static.sh all -pr username/repo`
+
+Then the patch file will be automatically matched to the tag used by the script and loaded.
+
+#### How to make a patch
+
+Using qbittorrent as an example we will edit the `src/base/bittorrent/session.cpp` to apply some session defaults.
+
+Download the relevant git repo:
+
+```bash
+git clone --no-tags --single-branch --branch release-4.3.4.1 --shallow-submodules --recurse-submodules --depth 1 https://github.com/qbittorrent/qBittorrent.git
+```
+
+Copy the file that we need to edit to our home directory.
+
+```bash
+cp qbittorrent/src/base/bittorrent/session.cpp ~/session.cpp
+```
+
+Now edit the `~/session.cpp`. Once you have finished making your changes you can create a patch file using this command
+
+```bash
+diff -Naru qbittorrent/src/base/bittorrent/session.cpp ~/session.cpp > ~/patch
+```
+
+Then you place that patch file in the matching tag directory.
+
+```bash
+patches/qbittorrent/4.3.4.1/patch
+```
+
+
 ### Build - default profile
 
 Install all default modules and build `qbittorrent-nox` to the default build directory.
@@ -359,7 +441,7 @@ Command line parameters take precedence over environment variables
 
 ### Second instance
 
-When you simply call the binary it will look for it's configuration in `~/.config/qbittorrent`.
+When you simply call the binary using `~/qbittorrent-nox ` it will look for it's configuration in `~/.config/qbittorrent`.
 
 If you would like to run a second instance using another configuration you can do so like this
 
@@ -372,6 +454,8 @@ This will create a new configuration directory using this suffix.
 ```bash
 ~/.config/qbittorrent_NAME
 ```
+
+You will also need a custom nginx proxypass and systemd service.
 
 And you can now configure this instance separately.
 
