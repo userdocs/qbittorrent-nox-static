@@ -918,7 +918,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option.${cend}"
 			echo
-			echo -e " ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend}${clb} -lt ${clc}RC_2_0${cend} ${clb}-h-lt${cend}"
+			echo -e " ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend}${clb} -lt ${clc}${libtorrent_github_tag}${cend} ${clb}-h-lt${cend}"
 			if [[ ! "${libtorrent_github_tag}" =~ (error_tag|error_22) ]]; then
 				echo
 				echo -e " ${td}This is tag that will be used is: ${cg}${libtorrent_github_tag}${cend}"
