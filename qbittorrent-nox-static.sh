@@ -921,12 +921,12 @@ while (("${#}")); do
 			echo -e " ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend}${clb} -lt ${clc}RC_2_0${cend} ${clb}-h-lt${cend}"
 			if [[ ! "${libtorrent_github_tag}" =~ (error_tag|error_22) ]]; then
 				echo
-				echo -e " ${td}This is tag that will be used is: ${cg}$libtorrent_github_tag${cend}"
+				echo -e " ${td}This is tag that will be used is: ${cg}${libtorrent_github_tag}${cend}"
 			fi
 			echo
 			echo -e " ${td}This flag must be provided with arguments.${cend}"
 			echo
-			echo -e " ${clb}-lt${cend} ${clc}libtorrent-1_2_11${cend}"
+			echo -e " ${clb}-lt${cend} ${clc}${libtorrent_github_tag}${cend}"
 			echo
 			exit
 			;;
@@ -974,16 +974,16 @@ while (("${#}")); do
 			echo
 			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option.${cend}"
 			echo
-			echo -e " ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend}${clb} -qt ${clc}release-4.3.0.1${cend} ${clb}-h-qt${cend}"
+			echo -e " ${cg}${qb_working_dir_short}/$(basename -- "$0")${cend}${clb} -qt ${clc}${qbittorrent_github_tag}${cend} ${clb}-h-qt${cend}"
 			#
 			if [[ ! "${qbittorrent_github_tag}" =~ (error_tag|error_22) ]]; then
 				echo
-				echo -e " ${td}This tag that will be used is: ${cg}$qbittorrent_github_tag${cend}"
+				echo -e " ${td}This tag that will be used is: ${cg}${qbittorrent_github_tag}${cend}"
 			fi
 			echo
 			echo -e " ${td}This flag must be provided with arguments.${cend}"
 			echo
-			echo -e " ${clb}-qt${cend} ${clc}release-4.3.0.1${cend}"
+			echo -e " ${clb}-qt${cend} ${clc}${qbittorrent_github_tag}${cend}"
 			echo
 			exit
 			;;
