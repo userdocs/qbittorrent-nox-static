@@ -368,7 +368,7 @@ amd64
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.2_v1.2.12/amd64-glibc-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.4.1_v1.2.13/amd64-glibc-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -384,7 +384,7 @@ amd64:
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.2_v1.2.12/amd64-musl-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/download/release-4.3.4.1_v1.2.13/amd64-musl-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
