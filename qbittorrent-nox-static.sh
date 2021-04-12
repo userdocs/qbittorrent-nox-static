@@ -379,8 +379,8 @@ set_module_urls() {
 	#
 	boost_version="$(git_git ls-remote -t --refs https://github.com/boostorg/boost.git | awk '{sub("refs/tags/boost-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
 	boost_github_tag="boost-${boost_version}"
-	boost_url="https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz"
-	boost_url_status="$(curl_curl -so /dev/null --head --write-out '%{http_code}' "https://dl.bintray.com/boostorg/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
+	boost_url="https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz"
+	boost_url_status="$(curl_curl -so /dev/null --head --write-out '%{http_code}' "https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
 	boost_github_url="https://github.com/boostorg/boost.git"
 	#
 	qtbase_tags="$(git_git ls-remote -t --refs https://github.com/qt/qtbase.git | awk '{sub("refs/tags/", "");sub("(.*)(v6|rc|alpha|beta|-)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
