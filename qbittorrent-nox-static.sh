@@ -1150,6 +1150,10 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	fi
 	#
 	"${qb_install_dir}/boost/bootstrap.sh" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	if [[ "${boost_url_status}" =~ (403|404) ]]; then
+		"${qb_install_dir}/boost/b2" headers |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
+	fi
 else
 	application_skip
 fi
