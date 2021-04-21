@@ -21,4 +21,4 @@ jobs:
       - run: |
           sudo apt-get install python3-numpy
           chmod +x "${GITHUB_WORKSPACE}/qbittorrent-nox-static.sh"
-          bash qbittorrent-nox-static.sh all -i -lm -n
+          bash qbittorrent-nox-static.sh all -i -n
