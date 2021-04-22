@@ -1,0 +1,24 @@
+name: qb-amd64
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: alpine:latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: apk add bash
+      - run: bash qbittorrent-nox-static.sh
+      - run: bash qbittorrent-nox-static.sh zlib
+      - run: bash qbittorrent-nox-static.sh openssl
+      - run: bash qbittorrent-nox-static.sh boost
+      - run: bash qbittorrent-nox-static.sh libtorrent
+      - run: bash qbittorrent-nox-static.sh qtbase
+      - run: bash qbittorrent-nox-static.sh qttools
+      - run: bash qbittorrent-nox-static.sh qbittorrent
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2
+        with:
+          name: qbittorrent-nox
+          path: qb-build/completed/qbittorrent-nox
