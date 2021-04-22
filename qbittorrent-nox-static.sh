@@ -101,7 +101,9 @@ set_default_values() {
 		delete+=("install")
 	fi
 	#
-	if [[ "${qb_skip_icu}" != 'no' ]]; then # skip icu by default unless the -i flag is used
+	[[ "${1}" = 'icu' ]] && qb_skip_icu='no'
+	#
+	if [[ "${qb_skip_icu}" != 'no' ]]; then # skip icu by default unless the -i flag or module icu is used
 		delete+=("icu")
 	fi
 	#
@@ -201,6 +203,11 @@ while (("${#}")); do
 		-b | --build-directory)
 			qb_build_dir="${2}"
 			shift 2
+			;;
+		-i | --icu)
+			qb_skip_icu='no'
+			[[ "${qb_skip_icu}" = 'no' ]] && delete=("${delete[@]/icu/}")
+			shift
 			;;
 		-p | --proxy)
 			qb_git_proxy="${2}"
@@ -726,11 +733,6 @@ while (("${#}")); do
 			;;
 		-n | --no-delete)
 			qb_skip_delete='yes'
-			shift
-			;;
-		-i | --icu)
-			qb_skip_icu='no'
-			[[ "${qb_skip_icu}" = 'no' ]] && delete=("${delete[@]/icu/}")
 			shift
 			;;
 		-m | --master)
