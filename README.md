@@ -3,10 +3,10 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9817ad80d35c480aa9842b53001d55b0)](https://app.codacy.com/gh/userdocs/qbittorrent-nox-static?utm_source=github.com&utm_medium=referral&utm_content=userdocs/qbittorrent-nox-static&utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static/badge)](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static)
 
-There is one bash script for 3 platforms. This script will do these three main things on Debian Stable, Ubuntu 18.04/20.04 or Alpine 3.10+:
+There is one bash script for 3 platforms. This script will do these three things on Debian Stable, Ubuntu 18.04/20.04 or Alpine 3.10+ (can be used with docker images):
 
--   Update the system and install the core build dependencies - Requires root privileges if dependencies are not present.
--   Install and build the `qbittorrent-nox` specific dependencies locally with no special privileges required.
+-   Update the system and install the core build dependencies - Requires root privileges if dependencies are missing.
+-   Install and build the `qbittorrent-nox` dependencies locally with no special privileges required.
 -   Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
 
 Here is an example build profile:
@@ -15,15 +15,13 @@ Here is an example build profile:
 qBittorrent 4.3.4.1 was built with the following libraries:
 
 Qt: 5.15.2
-Libtorrent: 1.2.12.0
-Boost: 1.75.0
+Libtorrent: 1.2.13.0
+Boost: 1.76.0
 OpenSSL: 1.1.1k
 zlib: 1.2.11
 ```
 
-Typically the script is intended to be deployed and built using a docker or VPS but long as your system meets the core dependency requirements tested for by the script, the script can be run as a local user.
-
-See here for binaries I have built and how to install them - [Downloads](https://github.com/userdocs/qbittorrent-nox-static#download-and-install-static-builds)
+This script can be used on any supported system directly or via a docker deployment. As long your system meets the core dependency requirements tested for by the script, the script can be run on that system as a local user.
 
 ## Debian or Ubuntu platforms
 
@@ -61,13 +59,11 @@ statically linked
 
 Fully static builds were built on:
 
-**Debian 10 (buster)** amd64
+**Debian 10 (buster)** amd64 / arm64 using [qemu static + multiarch docker](https://github.com/multiarch/qemu-user-static)
 
-**Alpine Linux 3.12** amd64
+**Alpine Linux 3.12** amd64 / arm64 using [qemu static + multiarch docker](https://github.com/multiarch/qemu-user-static)
 
-and also tested on:
-
-**Ubuntu 20.04 (focal)** amd64
+**Note:** Github actions use Alpine containers but this could be skipped at the expense of a longer build time (glibc)
 
 ## Script usage
 
@@ -101,19 +97,19 @@ To execute the script use this command:
 docker Debian
 
 ```bash
-docker run -it -v $HOME/qb-build:/root debian:latest /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/qbstatic | bash -s all -i -lm'
+docker run -it -v $HOME:/root debian:latest /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 docker Ubuntu
 
 ```bash
-docker run -it -v $HOME/qb-build:/root ubuntu:latest /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/qbstatic | bash -s all -i -lm'
+docker run -it -v $HOME:/root ubuntu:latest /bin/bash -c 'apt-get update && apt-get install -y curl && cd && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 docker Alpine
 
 ```bash
-docker run -it -v $HOME/qb-build:/root alpine:latest /bin/ash -c 'apk update && apk add bash curl && cd && curl -sL git.io/qbstatic | bash -s all -i -lm'
+docker run -it -v $HOME:/root alpine:latest /bin/ash -c 'apk update && apk add bash curl && cd && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 **Note:** Please see the flag summary section below to see what options you can pass and how to use them
@@ -124,10 +120,10 @@ You can modify the installation command by editing this part of the docker comma
 bash -s all
 ```
 
-For example, as in our docker commands:
+For example, to use `ICU` using `-i` and optimise for the system CPU using `-o`:
 
 ```bash
-bash -s all -i -lm
+bash -s all -i -o
 ```
 
 ## Build help
@@ -173,6 +169,52 @@ Module specific help - flags are used with the modules listed here.
  qttools     - required Build qttools locally
  libtorrent  - required Build libtorrent locally with b2
  qbittorrent - required Build qbitorrent locally
+```
+
+### Build - default profile
+
+Install all default modules and build `qbittorrent-nox` to the default build directory.
+
+```bash
+~/qbittorrent-nox-static.sh all
+```
+
+### Build - modules (optional and mostly for debugging and testing)
+
+```bash
+~/qbittorrent-nox-static.sh module
+```
+
+Supported modules
+
+```bash
+bison (Debian/Ubuntu only)
+gawk (Debian/Ubuntu only)
+glibc (Debian/Ubuntu only)
+zlib (default)
+icu (optional on either platform)
+openssl (default)
+boost (default)
+qtbase (default)
+qttools (default)
+libtorrent (default)
+qbittorrent (default)
+```
+
+### Build - paths
+
+By default the script will built to a hard coded path defined by the scripts `$install_dir` variable as to avoid installing files to a server and causing conflicts.
+
+**Note:** This path is relative to the scripts location by default.
+
+```bash
+qbittorrent-build
+```
+
+You can modify this dynamically with the `-b` argument
+
+```bash
+./qbittorrent-nox-static.sh all -b "/usr/local"
 ```
 
 ### Patching
@@ -255,51 +297,30 @@ Then you place that patch file in the matching tag directory.
 patches/qbittorrent/4.3.4.1/patch
 ```
 
+### Github Actions
 
-### Build - default profile
+There are some actions created that will build the binary and create and artifact. They can be viewed here
 
-Install all default modules and build `qbittorrent-nox` to the default build directory.
+<https://github.com/userdocs/qbittorrent-nox-static/actions>
 
-```bash
-~/qbittorrent-nox-static.sh all
-```
+All these action are triggered manually by clicking on the action running the workflow.
 
-### Build - modules (optional and mostly for debugging and testing)
+You can fork the repo and build it yourself.
 
-```bash
-~/qbittorrent-nox-static.sh module
-```
+Patching will work with actions as long as you configure it correctly.
 
-Supported modules
+These the currently available actions.
 
 ```bash
-bison (Debian/Ubuntu only)
-gawk (Debian/Ubuntu only)
-glibc (Debian/Ubuntu only)
-zlib (default)
-icu (optional on either platform)
-openssl (default)
-boost (default)
-qtbase (default)
-qttools (default)
-libtorrent (default)
-qbittorrent (default)
-```
-
-### Build - paths
-
-By default the script will built to a hard coded path defined by the scripts `$install_dir` variable as to avoid installing files to a server and causing conflicts.
-
-**Note:** This path is relative to the scripts location by default.
-
-```bash
-qbittorrent-build
-```
-
-You can modify this dynamically with the `-b` argument
-
-```bash
-./qbittorrent-nox-static.sh all -b "/usr/local"
+qb-amd64
+qb-amd64-patch
+qb-amd64-icu
+qb-amd64-icu-patch
+qb-arm64
+qb-arm64-patch
+qb-arm64-icu
+qb-arm64-icu-patch
+sh-checker
 ```
 
 ### Installation
