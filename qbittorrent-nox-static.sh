@@ -1166,7 +1166,7 @@ application_name libtorrent
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	if [[ ! -d "${qb_install_dir}/boost" ]]; then
-		echo -e "${tn}${clr}Warning${cend} - You must install the boost module before you can use the libtorrent module"
+		echo -e "${tn}${clr}Warning${cend} - This module depends on the boost module. Use them together: boost libtorrent"
 		echo
 	else
 		custom_flags_set
@@ -1230,7 +1230,7 @@ application_name qbittorrent
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	if [[ ! -d "${qb_install_dir}/boost" ]]; then
-		echo -e "${tn}${clr}Warning${cend} - You must install the boost libtorrent qbtbase qttools modules before you can use the qbittorrent module"
+		echo -e "${tn}${clr}Warning${cend} - This module depends on the boost module. Use them together: boost qbittorrent"
 		echo
 	else
 		custom_flags_set
