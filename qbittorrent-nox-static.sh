@@ -1166,8 +1166,7 @@ application_name libtorrent
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	if [[ ! -d "${qb_install_dir}/boost" ]]; then
-		echo -e "${tn}${clr}Warning${cend} - This module depends on the boost module. Use them together: boost libtorrent"
-		echo
+		echo -e "${tn}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost libtorrent${cend}"
 	else
 		custom_flags_set
 		download_folder "${app_name}" "${!app_github_url}"
@@ -1230,7 +1229,7 @@ application_name qbittorrent
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	if [[ ! -d "${qb_install_dir}/boost" ]]; then
-		echo -e "${tn}${clr}Warning${cend} - This module depends on the boost module. Use them together: boost qbittorrent"
+		echo -e "${tn}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost qbittorrent${cend}"
 		echo
 	else
 		custom_flags_set
