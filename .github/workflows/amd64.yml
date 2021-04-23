@@ -1,4 +1,4 @@
-name: qb-amd64-patch
+name: qb-amd64
 on:
     workflow_dispatch:
 jobs:
