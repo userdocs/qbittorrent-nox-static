@@ -1,4 +1,4 @@
-name: qb-arm64-icu
+name: qb-arm64-patch
 on:
     workflow_dispatch:
 jobs:
@@ -10,8 +10,8 @@ jobs:
             - name: arm64v8 image
               uses: docker://arm64v8/alpine
               with:
-                  args: /bin/ash -c "apk update && apk add bash && bash qbittorrent-nox-static.sh all -i"
-                  # args: /bin/ash -c "apk update && apk add bash && bash qbittorrent-nox-static.sh all -i -pr userdocs/qbittorrent-nox-static"
+                  # args: /bin/ash -c "apk update && apk add bash && bash qbittorrent-nox-static.sh all"
+                  args: /bin/ash -c "apk update && apk add bash && bash qbittorrent-nox-static.sh all -pr userdocs/qbittorrent-nox-static"
             - name: Archive code coverage results
               uses: actions/upload-artifact@v2
               with:
