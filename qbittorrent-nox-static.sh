@@ -101,9 +101,9 @@ set_default_values() {
 		delete+=("install")
 	fi
 	#
-	[[ "${1}" = 'icu' ]] && qb_skip_icu='no'
-	#
-	if [[ "${qb_skip_icu}" != 'no' ]]; then # skip icu by default unless the -i flag or module icu is used
+	if [[ "${*}" =~ ([[:space:]]|^)"icu"([[:space:]]|$) ]]; then
+		qb_skip_icu='no'
+	elif [[ "${qb_skip_icu}" != 'no' ]]; then # skip icu by default unless the -i flag or module icu is used
 		delete+=("icu")
 	fi
 	#
