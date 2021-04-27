@@ -699,6 +699,16 @@ _cmd() {
 	fi
 }
 #####################################################################################################################################################
+# build command test
+#####################################################################################################################################################
+post_build() {
+	outcome="${PIPESTATUS[0]}"
+	if [[ ${outcome} -gt '0' ]]; then
+		echo -e "${tn}${clr} Error: build command produced an exit code greater than 0 - Check the logs${cend}${tn}"
+		exit "${outcome}"
+	fi
+}
+#####################################################################################################################################################
 # Functions part 1: Use some of our functions
 #####################################################################################################################################################
 set_default_values "${@}" # see functions
@@ -1038,6 +1048,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	#
 	./configure --prefix="${qb_install_dir}" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	post_build
+	#
 	make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1055,6 +1068,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "$1" = "${app_name}" ]]; then
 	#
 	./configure --prefix="$qb_install_dir" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	post_build
+	#
 	make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1074,6 +1090,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	_cd "${app_dir}/build"
 	"${app_dir}/configure" --prefix="${qb_install_dir}" --enable-static-nss |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/$app_name.log.txt"
+	#
+	post_build
+	#
 	make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1091,6 +1110,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	#
 	./configure --prefix="${qb_install_dir}" --static |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	post_build
+	#
 	make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1108,6 +1130,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	#
 	./configure --prefix="${qb_install_dir}" --disable-shared --enable-static CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	post_build
+	#
 	make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1125,6 +1150,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	#
 	./config --prefix="${qb_install_dir}" --openssldir="/etc/ssl" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	post_build
+	#
 	make install_sw install_ssldirs |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1179,6 +1207,8 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		#
 		"${qb_install_dir}/boost/b2" -j"$(nproc)" address-model="$(getconf LONG_BIT)" "${lt_debug}" optimization=speed cxxstd=17 dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qb_install_dir}" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
+		post_build
+		#
 		delete_function "${app_name}"
 	fi
 else
@@ -1197,6 +1227,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	#
 	./configure -prefix "${qb_install_dir}" "${icu}" -opensource -confirm-license -release -openssl-linked -static -c++std ${standard} -qt-pcre -no-iconv -no-feature-glib -no-feature-opengl -no-feature-dbus -no-feature-gui -no-feature-widgets -no-feature-testlib -no-compile-examples -I "${include_dir}" -L "${lib_dir}" QMAKE_LFLAGS="${LDFLAGS}" |& tee "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	post_build
+	#
 	make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1216,6 +1249,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	#
 	"${qb_install_dir}/bin/qmake" QMAKE_CXXFLAGS="-static" QMAKE_LFLAGS="-static" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+	#
+	post_build
+	#
 	make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 	#
 	delete_function "${app_name}"
@@ -1247,6 +1283,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		./configure --prefix="${qb_install_dir}" "${qb_debug}" --with-boost="${qb_install_dir}/boost" --with-boost-libdir="${lib_dir}" openssl_CFLAGS="${include_dir}" openssl_LIBS="${lib_dir}" --disable-gui CXXFLAGS="${CXXFLAGS} -I${qb_install_dir}/boost" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS} -l:libboost_system.a" openssl_CFLAGS="-I${include_dir}" openssl_LIBS="-L${lib_dir} -l:libcrypto.a -l:libssl.a" libtorrent_CFLAGS="-I${include_dir}" libtorrent_LIBS="${libtorrent_libs}" zlib_CFLAGS="-I${include_dir}" zlib_LIBS="-L${lib_dir} -l:libz.a" QT_QMAKE="${qb_install_dir}/bin" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		make -j"$(nproc)" |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
+		#
+		post_build
+		#
 		make install |& tee -a "${qb_install_dir}/logs/${app_name}.log.txt"
 		#
 		[[ -f "${qb_install_dir}/bin/qbittorrent-nox" ]] && cp -f "${qb_install_dir}/bin/qbittorrent-nox" "${qb_install_dir}/completed/qbittorrent-nox"
