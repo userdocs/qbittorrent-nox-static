@@ -15,12 +15,12 @@ jobs:
             - run: bash qbittorrent-nox-static.sh icu
             - run: bash qbittorrent-nox-static.sh boost
             # - run: bash qbittorrent-nox-static.sh libtorrent
-            - run: bash qbittorrent-nox-static.sh libtorrent -pr userdocs/qbittorrent-nox-static
+            - run: bash qbittorrent-nox-static.sh libtorrent -pr jerry048/Patch
             # - run: bash qbittorrent-nox-static.sh qtbase
             - run: bash qbittorrent-nox-static.sh qtbase -i
             - run: bash qbittorrent-nox-static.sh qttools
             # - run: bash qbittorrent-nox-static.sh qbittorrent
-            - run: bash qbittorrent-nox-static.sh qbittorrent -pr userdocs/qbittorrent-nox-static
+            - run: bash qbittorrent-nox-static.sh qbittorrent -pr jerry048/Patch
             - name: Archive code coverage results
               uses: actions/upload-artifact@v2
               with:
