@@ -63,7 +63,7 @@ Fully static builds were built on:
 
 **Alpine Linux 3.12** amd64 / arm64 using [qemu static + multiarch docker](https://github.com/multiarch/qemu-user-static)
 
-**Note:** Github actions use Alpine containers but this could be skipped at the expense of a longer build time (glibc)
+**Note:** GitHub actions use Alpine containers but this could be skipped at the expense of a longer build time (glibc)
 
 ## Script usage
 
