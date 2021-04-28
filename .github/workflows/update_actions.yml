@@ -28,4 +28,4 @@ jobs:
           # Do not update these actions (Optional)
           # You need to add JSON array inside a string
           # because GitHub Actions does not yet allow `Lists` as input
-          ignore: '["actions/checkout@v2", "actions/cache@v2"]'
+          ignore: '["docker://arm64v8/alpine"]'
