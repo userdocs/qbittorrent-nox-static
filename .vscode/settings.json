@@ -20,7 +20,7 @@
 	"files.defaultLanguage": "shellscript",
 	"[shellscript]": {
 		"files.eol": "\n",
-		"editor.tabSize": 4,
+		"editor.tabSize": 4
 	},
 	"[markdown]": {
 		"files.eol": "\n",
