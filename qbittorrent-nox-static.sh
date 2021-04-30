@@ -6,7 +6,7 @@
 #
 # @author - userdocs
 #
-# @contributors IceCodeNew
+# @contributors IceCodeNew Stanislas boredazfcuk AdvenT. guillaumedsde
 #
 # @credits - https://gist.github.com/notsure2
 #
@@ -38,13 +38,13 @@ cc="\e[36m" && clc="\e[96m" # [c]olor[c]yan    && [c]olor[l]ight[c]yan
 #
 tb="\e[1m" && td="\e[2m" && tu="\e[4m" && tn="\n" # [t]ext[b]old && [t]ext[d]im && [t]ext[u]nderlined && [t]ext[n]ewline
 #
-cdef="\e[39m" # [c]olor[default]
+cdef="\e[39m" # [c]olor[def]ault
 cend="\e[0m"  # [c]olor[end]
 #####################################################################################################################################################
 # CHeck we are on a supported OS and release.
 #####################################################################################################################################################
 what_id="$(source /etc/os-release && printf "%s" "${ID}")"                             # Get the main platform name, for example: debian, ubuntu or alpine
-what_version_codename="$(source /etc/os-release && printf "%s" "${VERSION_CODENAME}")" # Get the codename for this this OS. Note, ALpine does not have a unique codename.
+what_version_codename="$(source /etc/os-release && printf "%s" "${VERSION_CODENAME}")" # Get the codename for this this OS. Note, Alpine does not have a unique codename.
 what_version_id="$(source /etc/os-release && printf "%s" "${VERSION_ID}")"             # Get the version number for this codename, for example: 10, 20.04, 3.12.4
 #
 if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpine. We check for min v3.10 later with codenames.
@@ -86,14 +86,14 @@ set_default_values() {
 	#
 	qb_modules=("all" "install" "bison" "gawk" "glibc" "zlib" "icu" "openssl" "boost" "libtorrent" "qtbase" "qttools" "qbittorrent") # Define our list of available modules in an array.
 	#
-	delete=() # modules listed in this array will be removed from teh default list of modules, changing the behaviour of all or install
+	delete=() # Create this array empty. Modules listed in or added to this array will be removed from the default list of modules, changing the behaviour of all or install
 	#
-	if [[ "${what_id}" =~ ^(alpine)$ ]]; then # if alpines delete modules we don't use and set the required packages array
+	if [[ "${what_id}" =~ ^(alpine)$ ]]; then # if Alpine then delete modules we don't use and set the required packages array
 		delete+=("bison" "gawk" "glibc")
 		qb_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "py${qb_python_version}-numpy" "py${qb_python_version}-numpy-dev" "linux-headers")
 	fi
 	#
-	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based set the required packages array
+	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based then set the required packages array
 		qb_required_pkgs=("build-essential" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qb_python_version}" "python${qb_python_version}-dev" "python${qb_python_version}-numpy")
 	fi
 	#
@@ -101,17 +101,17 @@ set_default_values() {
 		delete+=("install")
 	fi
 	#
-	if [[ "${*}" =~ ([[:space:]]|^)"icu"([[:space:]]|$) ]]; then
+	if [[ "${*}" =~ ([[:space:]]|^)"icu"([[:space:]]|$) ]]; then # Don't remove the icu module if it was provided as a positional parameter.
 		qb_skip_icu='no'
-	elif [[ "${qb_skip_icu}" != 'no' ]]; then # skip icu by default unless the -i flag or module icu is used
+	elif [[ "${qb_skip_icu}" != 'no' ]]; then # else skip icu by default unless the -i flag is provided.
 		delete+=("icu")
 	fi
 	#
 	qb_working_dir="$(printf "%s" "$(pwd <(dirname "${0}"))")" # Get the full path to the scripts location to use with setting some path related variables.
-	qb_working_dir_short="${qb_working_dir/$HOME/\~}"          # echo the working dir but replace the $HOME path with ~
+	qb_working_dir_short="${qb_working_dir/$HOME/\~}"          # Used with echos. Use the qb_working_dir variable but the $HOME path is replaced with a literal ~
 	#
 	qb_install_dir="${qb_working_dir}/qb-build"       # install relative to the script location.
-	qb_install_dir_short="${qb_install_dir/$HOME/\~}" # echo the install dir but replace the $HOME path with ~
+	qb_install_dir_short="${qb_install_dir/$HOME/\~}" # Used with echos. Use the qb_install_dir variable but the $HOME path is replaced with a literal ~
 }
 #####################################################################################################################################################
 # This function will check for a list of defined dependencies from the qb_required_pkgs array. Apps like python3 and python2 are dynamically set
@@ -270,7 +270,7 @@ curl_curl() {
 	fi
 
 }
-
+#
 curl() {
 	if ! curl_curl "${@}"; then
 		echo 'error_url'
@@ -497,10 +497,9 @@ apply_patches() {
 		default_jamfile="RC_${default_jamfile%_*}"
 	fi
 	#
-	# qbittorrent has a consistent tag format of release-4.3.1.
-	qbittorrent_patch_tag="${qbittorrent_github_tag#release-}"
+	qbittorrent_patch_tag="${qbittorrent_github_tag#release-}" # qbittorrent has a consistent tag format of release-4.3.1.
 	#
-	if [[ "${patch_app_name}" == 'bootstrap-help' ]]; then
+	if [[ "${patch_app_name}" == 'bootstrap-help' ]]; then # All the core variables we need for the help command are set so we can exit this function now.
 		return
 	fi
 	#
