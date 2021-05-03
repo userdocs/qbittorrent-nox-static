@@ -1,0 +1,9 @@
+:root {
+    --content-max-width                 : 100%;
+    /* Tab blocks */
+    --docsifytabs-border-color          : #ededed;
+
+    /* Code */
+    --code-inline-background            : #d3d3d3;
+    --code-inline-color                 : #1a001a;
+}
