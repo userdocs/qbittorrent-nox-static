@@ -553,9 +553,7 @@ apply_patches() {
 # This function is to test a directory exists before attemtping to cd and fail with and exit code if it doesn't.
 #######################################################################################################################################################
 _cd() {
-	if cd "${1}" > /dev/null 2>&1; then
-		cd "${1}" || exit
-	else
+	if ! cd "${1}" > /dev/null 2>&1; then
 		echo -e "This directory does not exist. There is a problem"
 		echo
 		echo -e "${clr}${1}${cend}"
@@ -577,7 +575,7 @@ download_file() {
 		_cmd tar xf "${file_name}" -C "${qb_install_dir}"
 		app_dir="${qb_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
 		mkdir -p "${app_dir}"
-		_cd "${app_dir}"
+		[[ "${1}" != 'boost' ]] && _cd "${app_dir}"
 	else
 		echo
 		echo "You must provide a filename name for the function - download_file"
