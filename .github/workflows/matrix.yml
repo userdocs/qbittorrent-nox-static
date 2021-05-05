@@ -1,4 +1,4 @@
-# @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition/blob/v4_3_x/.github/workflows/cross_build.sh
+# @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition/blob/v4_3_x/.github/workflows/build_and_release.yml
 name: qbittorrent-nox multi build
 on:
   workflow_dispatch:
