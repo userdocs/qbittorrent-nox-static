@@ -163,10 +163,10 @@ Please use this feature to get help with a script option. Here is what you will 
 
  Module specific help - flags are used with the modules listed here.
 
- Use: all or module-name          Usage: ~/docker/qbittorrent-nox-static.sh all -i
+ Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
  all         - Install all modules
- install     - optional Install the ~/docker/qb-build/completed/qbittorrent-nox binary
+ install     - optional Install the ~/qb-build/completed/qbittorrent-nox binary
  bison       - required Build bison
  gawk        - required Build gawk
  glibc       - required Build libc locally to statically link nss
