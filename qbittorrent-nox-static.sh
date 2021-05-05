@@ -1,4 +1,4 @@
-#! /usr/bin/env bash
+#!/usr/bin/env bash
 #
 # Copyright 2020 by userdocs and contributors
 #
@@ -8,7 +8,7 @@
 #
 # @contributors IceCodeNew Stanislas boredazfcuk AdvenT. guillaumedsde
 #
-# @credits - https://gist.github.com/notsure2
+# @credits - https://gist.github.com/notsure2 https://github.com/c0re100/qBittorrent-Enhanced-Edition
 #
 # shellcheck disable=SC2034,SC1091 # Why are these checks excluded?
 #
@@ -74,15 +74,15 @@ fi
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
-	qb_patches_url="" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and you patch file will be automatically fetched and loadded for those matching tags.
+	qb_patches_url="" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
 	#
 	libtorrent_version='1.2' # Set this here so it is easy to see and change
 	#
 	qt_version='5.15' # Set this here so it is easy to see and change
 	#
-	qb_python_version="3" # we are only using python3 but it's easier to just change this if we need to.
+	qb_python_version="3" # We are only using python3 but it's easier to just change this if we need to.
 	#
-	standard="c++17" # Set the cxx standard. You need to set c++14 for older version sof some apps, like qt 5.12
+	standard="c++17" # Set the CXX standard. You need to set c++14 for older version of some apps, like qt 5.12
 	#
 	qb_modules=("all" "install" "bison" "gawk" "glibc" "zlib" "icu" "openssl" "boost" "libtorrent" "qtbase" "qttools" "qbittorrent") # Define our list of available modules in an array.
 	#
@@ -114,7 +114,7 @@ set_default_values() {
 	qb_install_dir_short="${qb_install_dir/$HOME/\~}" # Used with echos. Use the qb_install_dir variable but the $HOME path is replaced with a literal ~
 }
 #######################################################################################################################################################
-# This function will check for a list of defined dependencies from the qb_required_pkgs array. Apps like python3 and python2 are dynamically set
+# This function will check for a list of defined dependencies from the qb_required_pkgs array. Apps like python3-dev are dynamically set
 #######################################################################################################################################################
 check_dependencies() {
 	echo -e "${tn}${tb}Checking if required core dependencies are installed${cend}${tn}"
@@ -964,7 +964,7 @@ while (("${#}")); do
 			echo
 			echo -e " Creates dirs in this structure: ${cc}${qb_install_dir_short}/patches/APPNAME/TAG/patch${cend}"
 			echo
-			echo -e " Add you patches there, for example."
+			echo -e " Add your patches there, for example."
 			echo
 			echo -e " ${cc}${qb_install_dir_short}/patches/libtorrent/${libtorrent_patch_tag}/patch${cend}"
 			echo
