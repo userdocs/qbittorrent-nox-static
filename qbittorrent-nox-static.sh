@@ -220,7 +220,7 @@ while (("${#}")); do
 			;;
 		-h-o | --help-optimize)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " ${cly}Warning, using this flag will mean your static build is limited to a matching CPU${cend}"
 			echo
@@ -232,7 +232,7 @@ while (("${#}")); do
 			;;
 		-h-p | --help-proxy)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Specify a proxy URL and PORT to use with curl and git"
 			echo
@@ -897,7 +897,7 @@ while (("${#}")); do
 			;;
 		-h | --help)
 			echo
-			echo -e "${tb} ${tu}Here are a list of available options${cend}"
+			echo -e " ${tb}${tu}Here are a list of available options${cend}"
 			echo
 			echo -e " ${cg}Use:${cend} ${clb}-b${cend}     ${td}or${cend} ${clb}--build-directory${cend}       ${cy}Help:${cend} ${clb}-h-b${cend}     ${td}or${cend} ${clb}--help-build-directory${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-d${cend}     ${td}or${cend} ${clb}--debug${cend}                 ${cy}Help:${cend} ${clb}-h-d${cend}     ${td}or${cend} ${clb}--help-debug${cend}"
@@ -916,7 +916,7 @@ while (("${#}")); do
 			echo -e " ${cg}Use:${cend} ${clb}-qm${cend}    ${td}or${cend} ${clb}--qbittorrent-master${cend}    ${cy}Help:${cend} ${clb}-h-qm${cend}    ${td}or${cend} ${clb}--help-qbittorrent-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-qt${cend}    ${td}or${cend} ${clb}--qbittorrent-tag${cend}       ${cy}Help:${cend} ${clb}-h-qt${cend}    ${td}or${cend} ${clb}--help-qbittorrent-tag${cend}"
 			echo
-			echo -e "${tb}${tu}Module specific help - flags are used with the modules listed here.${cend}"
+			echo -e " ${tb}${tu}Module specific help - flags are used with the modules listed here.${cend}"
 			echo
 			echo -e " ${cg}Use:${cend} ${clm}all${cend} ${td}or${cend} ${clm}module-name${cend}          ${cg}Usage:${cend} ${clc}${qb_working_dir_short}/$(basename -- "$0")${cend} ${clm}all${cend} ${clb}-i${cend}"
 			echo
@@ -938,7 +938,7 @@ while (("${#}")); do
 			;;
 		-h-b | --help-build-directory)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Default build location: ${cc}${qb_install_dir_short}${cend}"
 			echo
@@ -960,7 +960,7 @@ while (("${#}")); do
 		-h-bs | --help-boot-strap)
 			apply_patches bootstrap-help
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Creates dirs in this structure: ${cc}${qb_install_dir_short}/patches/APPNAME/TAG/patch${cend}"
 			echo
@@ -974,7 +974,7 @@ while (("${#}")); do
 			;;
 		-h-bs-r | --help-boot-strap-release)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e "${clr} Github action specific. You probably dont need it${cend}"
 			echo
@@ -988,7 +988,7 @@ while (("${#}")); do
 			;;
 		-h-bs-ma | --help-boot-strap-multi-arch)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e "${clr} Github action specific. You probably dont need it${cend}"
 			echo
@@ -1002,7 +1002,7 @@ while (("${#}")); do
 			;;
 		-h-bs-a | --help-boot-strap-all)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e "${clr} Github action specific. You probably dont need it${cend}"
 			echo
@@ -1020,7 +1020,7 @@ while (("${#}")); do
 			;;
 		-h-d | --help-debug)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Enables debug symbols for libtorrent and qbitorrent when building"
 			echo
@@ -1028,7 +1028,7 @@ while (("${#}")); do
 			;;
 		-h-n | --help-no-delete)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Skip all delete functions for selected modules to leave source code directories behind."
 			echo
@@ -1040,7 +1040,7 @@ while (("${#}")); do
 			;;
 		-h-i | --help-icu)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Use ICU libraries when building qBittorrent. Final binary size will be around ~50Mb"
 			echo
@@ -1052,7 +1052,7 @@ while (("${#}")); do
 			;;
 		-h-m | --help-master)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Always use the master branch for ${cg}libtorrent RC_${libtorrent_version//./_}${cend}"
 			echo
@@ -1066,7 +1066,7 @@ while (("${#}")); do
 			;;
 		-h-lm | --help-libtorrent-master)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Always use the master branch for ${cg}libtorrent-$libtorrent_version${cend}"
 			echo
@@ -1080,7 +1080,7 @@ while (("${#}")); do
 			;;
 		-h-lt | --help-libtorrent-tag)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Use a provided libtorrent tag when cloning from github."
 			echo
@@ -1101,7 +1101,7 @@ while (("${#}")); do
 		-h-pr | --help-patch-repo)
 			apply_patches bootstrap-help
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Specify a username and repo to use patches hosted on github${cend}"
 			echo
@@ -1122,7 +1122,7 @@ while (("${#}")); do
 			;;
 		-h-qm | --help-qbittorrent-master)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Always use the master branch for ${cg}qBittorrent${cend}"
 			echo
@@ -1136,7 +1136,7 @@ while (("${#}")); do
 			;;
 		-h-qt | --help-qbittorrent-tag)
 			echo
-			echo -e "${tb} ${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
 			echo -e " Use a provided qBittorrent tag when cloning from github."
 			echo

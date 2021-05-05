@@ -2,6 +2,7 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9817ad80d35c480aa9842b53001d55b0)](https://app.codacy.com/gh/userdocs/qbittorrent-nox-static?utm_source=github.com&utm_medium=referral&utm_content=userdocs/qbittorrent-nox-static&utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static/badge)](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static)
+[![qbittorrent-nox multi build](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix.yml)
 
 There is one bash script for 3 platforms. This script will do these three things on Debian Stable, Ubuntu 18.04/20.04 or Alpine 3.10+ (can be used with docker images):
 
@@ -12,7 +13,7 @@ There is one bash script for 3 platforms. This script will do these three things
 Here is an example build profile:
 
 ```none
-qBittorrent 4.3.4.1 was built with the following libraries:
+qBittorrent 4.3.5 was built with the following libraries:
 
 Qt: 5.15.2
 Libtorrent: 1.2.13.0
@@ -138,29 +139,37 @@ Once the script has successfully configured the platform you can execute the hel
 
 Please use this feature to get help with a script option. Here is what you will see.
 
+**Note:** The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64` builds on your local system.
+
 ```bash
-Here are a list of available options
+ Here are a list of available options
 
- Use: -b  or --build-directory    Help: -h-b  or --help-build-directory
- Use: -d  or --debug              Help: -h-d  or --help-debug
- Use: -bs or --boot-strap         Help: -h-bs or --help-boot-strap
- Use: -i  or --icu                Help: -h-i  or --help-icu
- Use: -lm or --libtorrent-master  Help: -h-lm or --help-libtorrent-master
- Use: -lt or --libtorrent-tag     Help: -h-lt or --help-libtorrent-tag
- Use: -m  or --master             Help: -h-m  or --help-master
- Use: -n  or --no-delete          Help: -h-n  or --help-no-delete
- Use: -o  or --optimize           Help: -h-o  or --help-optimize
- Use: -p  or --proxy              Help: -h-p  or --help-proxy
- Use: -pr or --patch-repo         Help: -h-pr or --help-patch-repo
- Use: -qm or --qbittorrent-master Help: -h-qm or --help-qbittorrent-master
- Use: -qt or --qbittorrent-tag    Help: -h-qt or --help-qbittorrent-tag
+ Use: -b     or --build-directory       Help: -h-b     or --help-build-directory
+ Use: -d     or --debug                 Help: -h-d     or --help-debug
+ Use: -bs    or --boot-strap            Help: -h-bs    or --help-boot-strap
+ Use: -bs-r  or --boot-strap-release    Help: -h-bs-r  or --help-boot-strap-release
+ Use: -bs-ma or --boot-strap-multi-arch Help: -h-bs-ma or --help-boot-strap-multi-arch
+ Use: -bs-a  or --boot-strap-all        Help: -h-bs-a  or --help-boot-strap-all
+ Use: -i     or --icu                   Help: -h-i     or --help-icu
+ Use: -lm    or --libtorrent-master     Help: -h-lm    or --help-libtorrent-master
+ Use: -lt    or --libtorrent-tag        Help: -h-lt    or --help-libtorrent-tag
+ Use: -m     or --master                Help: -h-m     or --help-master
+ Use: -n     or --no-delete             Help: -h-n     or --help-no-delete
+ Use: -o     or --optimize              Help: -h-o     or --help-optimize
+ Use: -p     or --proxy                 Help: -h-p     or --help-proxy
+ Use: -pr    or --patch-repo            Help: -h-pr    or --help-patch-repo
+ Use: -qm    or --qbittorrent-master    Help: -h-qm    or --help-qbittorrent-master
+ Use: -qt    or --qbittorrent-tag       Help: -h-qt    or --help-qbittorrent-tag
 
-Module specific help - flags are used with the modules listed here.
+ Module specific help - flags are used with the modules listed here.
 
- Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
+ Use: all or module-name          Usage: ~/docker/qbittorrent-nox-static.sh all -i
 
  all         - Install all modules
- install     - optional Install the ~/qb-build/completed/qbittorrent-nox binary
+ install     - optional Install the ~/docker/qb-build/completed/qbittorrent-nox binary
+ bison       - required Build bison
+ gawk        - required Build gawk
+ glibc       - required Build libc locally to statically link nss
  zlib        - required Build zlib locally
  icu         - optional Build ICU locally
  openssl     - required Build openssl locally
@@ -173,7 +182,7 @@ Module specific help - flags are used with the modules listed here.
 
 ### Build - default profile
 
-Install all default modules and build `qbittorrent-nox` to the default build directory.
+Install all default modules (no ICU) and build `qbittorrent-nox` to the default build directory.
 
 ```bash
 ~/qbittorrent-nox-static.sh all
@@ -311,16 +320,20 @@ Patching will work with actions as long as you configure it correctly.
 
 These the currently available actions.
 
+**Note:** `qbittorrent-nox multi build` also generates a release based on the qbittorrent and libtorrent tags used. The release is created when the first matric build completes and the other builds update this release as they compelte.
+
 ```bash
-qb-amd64
-qb-amd64-patch
-qb-amd64-icu
-qb-amd64-icu-patch
-qb-arm64
-qb-arm64-patch
-qb-arm64-icu
-qb-arm64-icu-patch
-sh-checker
+qb-amd64 (on alpine - fast)
+qb-amd64-patch (on alpine - fast)
+qb-amd64-icu (on alpine - fast)
+qb-amd64-icu-patch (on alpine - fast)
+
+qb-arm64 (on alpine + qemu static emulation - slow)
+qb-arm64-patch (on qemu static emulation - slow)
+qb-arm64-icu (on qemu static emulation - slow)
+qb-arm64-icu-patch (on qemu static emulation - slow)
+
+qbittorrent-nox multi build (x86_64 and aarch64 + release with aarch64 cross built via musl prebuilt toolchains - fast)
 ```
 
 ### Installation
