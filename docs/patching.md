@@ -2,7 +2,7 @@
 
 The script supports the automatic patching of libtorrent and qbittorrent when building, providing certain conditions are met. You can do it in two ways, local or via a GitHub repo.
 
-> [!tip] Use the help command to get more infomation
+> [!tip|iconVisibility:hidden|labelVisibility:hidden] Use the help command to get more infomation
 
 ```bash
 bash ~/qbittorrent-nox-static.sh -h-pr
@@ -26,7 +26,7 @@ qb-build/patches/libtorrent/v1.2.12/patch
 
 Then the patch file will be automatically matched to the tag used by the script and loaded.
 
-> [!tip] Using custom qbittorren and libtorrent tags
+> [!tip|iconVisibility:hidden|labelVisibility:hidden] Using custom qbittorren and libtorrent tags
 
 You can change the defaults by using the `qt` and `lt` switches to specify a tag. So for example if you used this command:
 
@@ -39,7 +39,7 @@ qb-build/patches/qbittorrent/master
 qb-build/patches/libtorrent/RC_2_0
 ```
 
-> [!warning] Remember to provide the same tags when using the build command or the patches won't match the defaults.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] Remember to provide the same tags when using the build command or the patches won't match the defaults.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh -qt master -lt RC_2_0 all

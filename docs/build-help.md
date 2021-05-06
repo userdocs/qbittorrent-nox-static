@@ -8,7 +8,7 @@ bash ~/qbittorrent-nox-static.sh -h
 
 All switches and flags have a supporting help option that will provide dynamic content where applicable.
 
->[!NOTE] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64` builds on your local system.
+>[!note|iconVisibility:hidden|labelVisibility:hidden] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64` builds on your local system.
 
 ```none
  Here are a list of available options
@@ -109,7 +109,7 @@ bash ~/qbittorrent-nox-static.sh all
 
 You can build modules indivually, subject to this warning.
 
-> [!warning] It's best to consider all indivual modules listed below as being dependent on the previous modules being built for that module to build successfully.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] It's best to consider all indivual modules listed below as being dependent on the previous modules being built for that module to build successfully.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh module
@@ -135,7 +135,7 @@ qbittorrent (default
 
 By default the script will built to a hard coded path defined by the scripts `$install_dir` variable as to avoid installing files to a server and causing conflicts.
 
->[!NOTE] This path is relative to the scripts location.
+>[!note|iconVisibility:hidden|labelVisibility:hidden] This path is relative to the scripts location.
 
 ```bash
 qb-build
@@ -143,9 +143,9 @@ qb-build
 
 You can modify this dynamically with the `-b` argument
 
-> [!warning] The `-b` must be used in all commands provided to the script or default `qb-build` will be used instead.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] The `-b` must be used in all commands provided to the script or default `qb-build` will be used instead.
 
-> [!tip] The `-b` flag accepts both full `/opt` and relative `opt` paths.
+> [!tip|iconVisibility:hidden|labelVisibility:hidden] The `-b` flag accepts both full `/opt` and relative `opt` paths.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh all -b "/opt"

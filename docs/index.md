@@ -1,4 +1,6 @@
-In summary, `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can runs a `x86_64` Alpine musl build on `x86_64` `CentOS`|`Fedora`|`OpenSuse`|`Debian Stretch`|`Ubuntu Xenial` and more. The preferred and recommended build paltform is Alpine linux.
+In summary, [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a  Alpine musl `x86_64` build on CentOS - Fedora - OpenSuse - Debian Stretch - Ubuntu Xenial and more. 
+
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build paltform is Alpine linux.
 
 The build process is complex as there many independantly complex dependencies involved. These are the main dependencies we need to work with in order to build a fully functional and portable static binary for `qbittorrent-nox`.
 
@@ -11,12 +13,12 @@ The build process is complex as there many independantly complex dependencies in
 -  `qttools`
 -  `qbittorrent`
 
-> [!TIP]
+> [!tip|iconVisibility:hidden|labelVisibility:hidden]
 > `ICU` is an optional depencency and `libtorrent` and `qtbase` default to `iconv` if it is absent. If ICU is present `libtorrent` and `qtbase` default to `ICU`
 
 On supported platforms the `qbittorrent-nox-static.sh` will perform these three main tasks:
 
-> [!WARNING]
+> [!warning|iconVisibility:hidden|labelVisibility:hidden]
 > Supported platforms are: `Debian Buster` - `Ubuntu Bionic|Focal` - `Alpine 3.10 +` - including `docker` images of these platforms
 
 -  Update the system and install the core build dependencies - Requires root privileges if any dependencies are missing.
