@@ -1,25 +1,25 @@
 In summary, [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a  Alpine musl `x86_64` build on CentOS - Fedora - OpenSuse - Debian Stretch - Ubuntu Xenial and more. 
 
+> [!warning|iconVisibility:hidden|labelVisibility:hidden]
+> Supported platforms are: `Debian Buster` - `Ubuntu Bionic|Focal` - `Alpine 3.10 +` - including `docker` images of these platforms
+
 > [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build paltform is Alpine linux.
 
 The build process is complex as there many independantly complex dependencies involved. These are the main dependencies we need to work with in order to build a fully functional and portable static binary for `qbittorrent-nox`.
 
 -  `zlib`
 -  `openssl`
--  `ICU`
+-  `icu`
 -  `boost`
 -  `libtorrent`
 -  `qtbase`
 -  `qttools`
 -  `qbittorrent`
 
-> [!tip|iconVisibility:hidden|labelVisibility:hidden]
+> [!note|iconVisibility:hidden|labelVisibility:hidden]
 > `ICU` is an optional depencency and `libtorrent` and `qtbase` default to `iconv` if it is absent. If ICU is present `libtorrent` and `qtbase` default to `ICU`
 
 On supported platforms the `qbittorrent-nox-static.sh` will perform these three main tasks:
-
-> [!warning|iconVisibility:hidden|labelVisibility:hidden]
-> Supported platforms are: `Debian Buster` - `Ubuntu Bionic|Focal` - `Alpine 3.10 +` - including `docker` images of these platforms
 
 -  Update the system and install the core build dependencies - Requires root privileges if any dependencies are missing.
 -  Install and build the `qbittorrent-nox` dependencies locally with no special privileges required.

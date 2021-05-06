@@ -1,4 +1,6 @@
-> [!NOTE|iconVisibility:hidden|labelVisibility:hidden] Executing just the script will only configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox`
+## Pre installation
+
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] Executing just the script will only configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox`
 >
 > The build process will not start until `all` or a specific module name is provided to the script as a positional parameter.
 

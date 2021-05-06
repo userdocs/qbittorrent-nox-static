@@ -84,7 +84,7 @@ For example, taking the `-h-bs` switch as an example, it will show different res
  <!-- tab: -qt release-4.2.5 -lt v2.0.3 -h-bs -->
 
  ```bash
-Here is the help description for this flag:
+ Here is the help description for this flag:
 
  Creates dirs in this structure: ~/qb-build/patches/APPNAME/TAG/patch
 
