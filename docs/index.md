@@ -1,6 +1,3 @@
-> [!attention|iconVisibility:hidden|labelVisibility:hidden]
-> Supported platforms are: `Debian Buster` - `Ubuntu Bionic|Focal` - `Alpine 3.10 +` - including `docker` images of these platforms
-
 > [!warning|iconVisibility:hidden|labelVisibility:hidden]
 > Supported platforms are: `Debian Buster` - `Ubuntu Bionic|Focal` - `Alpine 3.10 +` - including `docker` images of these platforms
 
