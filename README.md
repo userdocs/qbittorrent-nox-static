@@ -4,6 +4,9 @@
 [![CodeFactor](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static/badge)](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static)
 [![qbittorrent-nox multi build](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix.yml)
 
+## Summary
+
+[qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a  Alpine musl `x86_64` build on CentOS - Fedora - OpenSuse - Debian Stretch - Ubuntu Xenial and more. 
 ## Documentation
 
 https://userdocs.github.io/qbittorrent-nox-static
@@ -27,3 +30,9 @@ mkdir -p ~/bin && source ~/.profile
 wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent-nox-aarch64-icu
 chmod 700 ~/bin/qbittorrent-nox
 ```
+
+## Libtorrent v2 builds
+
+These are released as pre releases. You can find there here.
+
+https://github.com/userdocs/qbittorrent-nox-static/releases
