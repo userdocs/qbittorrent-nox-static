@@ -4,6 +4,32 @@
     --docsifytabs-border-color          : #ededed;
 
     /* Code */
-    --code-inline-background            : #d3d3d3;
+    --code-inline-background            : #e9e9e9fb;
     --code-inline-color                 : #1a001a;
+    --code-block-padding                : 0.5em 0.5em 0.5em 0.5em;
+
+    --link-color                        : rgb(44, 44, 172);
+    --link-color--hover                 : rgb(83, 156, 83);
+
+}
+
+.alert.flat.note {
+    padding: 0.5em 0.5em 0.5em 0.5em;
+    background-color: #62c5dd54;
+}
+
+.alert.flat.tip {
+    background-color: #68dba554;
+}
+
+.alert.flat.warning {
+    background-color: #e29d3554;
+}
+
+.alert.flat.attention {
+    background-color: #e9707054;
+}
+
+.alert {
+    padding: .5rem 0.5rem!important;
 }
