@@ -1,0 +1,20 @@
+.alert.flat.note {
+    padding: 0.5em 0.5em 0.5em 0.5em;
+    background-color: #62c5dd54;
+}
+
+.alert.flat.tip {
+    background-color: #68dba554;
+}
+
+.alert.flat.warning {
+    background-color: #e29d3554;
+}
+
+.alert.flat.attention {
+    background-color: #e9707054;
+}
+
+.alert {
+    padding: .5rem 0.5rem!important;
+}
