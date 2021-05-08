@@ -23,23 +23,25 @@
 </head>
 
 <body>
-  <div id="app">Please wait...</div>
+  <div id="docsify">Please wait...</div>
   <script>
     window.$docsify = {
-      // GENERAL
-      // -----------------------------------------------------------------
+      // CORE
+      el: '#docsify',
+      nameLink: '/#/README',
+      notFoundPage: true,
+      homepage: 'README.md',
       name: 'qbittorrent-nox static',
       repo: '//github.com/userdocs/qbittorrent-nox-static',
-      homepage: 'index.md',
+      notFoundPage: true,
       loadSidebar: true,
-      loadSidebar: 'sidebar.md',
+      logo: 'assets/img/logo.png',
+      loadSidebar: '_sidebar.md',
       auto2top: true,
-      executeScript: true,
       mergeNavbar: true,
       maxLevel: 3,
-      subMaxLevel: 1,
+      subMaxLevel: 3,
       // PLUGINS
-      // -----------------------------------------------------------------
       plugins: [
         EditOnGithubPlugin.create('//github.com/userdocs/qbittorrent-nox-static/tree/master/docs/'),
       ],
@@ -78,7 +80,6 @@
   <script src="//cdn.jsdelivr.net/npm/docsify-copy-code"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-themeable"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-plugin-flexible-alerts"></script>
-  <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/external-script.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify-prism"></script>
   <script src="//cdn.jsdelivr.net/npm/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>

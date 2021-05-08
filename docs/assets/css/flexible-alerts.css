@@ -18,3 +18,30 @@
 .alert {
     padding: .5rem 0.5rem!important;
 }
+
+
+.pagination-item {
+    margin-top: 0px;
+}
+
+.pagination-item.pagination-item--previous {
+    background-color: #f7ebeb; /* Green */
+    border: none;
+    color: rgb(0, 0, 0);
+    padding: 10px 20px 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
+
+.pagination-item.pagination-item--next {
+    background-color: #e3f1fa; /* Green */
+    border: none;
+    color: rgb(0, 0, 0);
+    padding: 10px 20px 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+}
