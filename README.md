@@ -6,10 +6,10 @@
 
 ## Summary
 
-[qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more. 
+The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more. 
 ## Documentation
 
-https://userdocs.github.io/qbittorrent-nox-static
+[Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README)
 
 ## Install latest release
 
