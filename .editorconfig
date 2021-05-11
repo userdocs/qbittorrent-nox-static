@@ -8,7 +8,7 @@ insert_final_newline = true
 indent_style = tab
 indent_size = 4
 
-[*.json]
+[.vscode/settings.json]
 indent_style = tab
 indent_size = 4
 
