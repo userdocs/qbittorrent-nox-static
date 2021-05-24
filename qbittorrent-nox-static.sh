@@ -973,8 +973,8 @@ while (("${#}")); do
 		-bs-a | --boot-strap-all)
 			apply_patches bootstrap
 			_release_info
-			qbt_build_tool="cmake" && _cmake
-			qbt_cross_name="aarch64" && _multi_arch
+			_cmake
+			_multi_arch
 			shift
 			;;
 		-d | --debug)
