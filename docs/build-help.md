@@ -14,8 +14,10 @@ All switches and flags have a supporting help option that will provide dynamic c
  Here are a list of available options
 
  Use: -b     or --build-directory       Help: -h-b     or --help-build-directory
+ Use: -c     or --cmake                 Help: -h-c     or --help-cmake
  Use: -d     or --debug                 Help: -h-d     or --help-debug
  Use: -bs    or --boot-strap            Help: -h-bs    or --help-boot-strap
+ Use: -bs-c  or --boot-strap-cmake      Help: -h-bs-c  or --help-boot-strap-cmake
  Use: -bs-r  or --boot-strap-release    Help: -h-bs-r  or --help-boot-strap-release
  Use: -bs-ma or --boot-strap-multi-arch Help: -h-bs-ma or --help-boot-strap-multi-arch
  Use: -bs-a  or --boot-strap-all        Help: -h-bs-a  or --help-boot-strap-all
@@ -23,6 +25,7 @@ All switches and flags have a supporting help option that will provide dynamic c
  Use: -lm    or --libtorrent-master     Help: -h-lm    or --help-libtorrent-master
  Use: -lt    or --libtorrent-tag        Help: -h-lt    or --help-libtorrent-tag
  Use: -m     or --master                Help: -h-m     or --help-master
+ Use: -ma    or --multi-arch            Help: -h-ma    or --help-multi-arch
  Use: -n     or --no-delete             Help: -h-n     or --help-no-delete
  Use: -o     or --optimize              Help: -h-o     or --help-optimize
  Use: -p     or --proxy                 Help: -h-p     or --help-proxy
