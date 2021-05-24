@@ -1,5 +1,5 @@
 # @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition/blob/v4_3_x/.github/workflows/build_and_release.yml
-name: qbittorrent-nox multi build
+name: qbittorrent-nox cmake multi build
 on:
   workflow_dispatch:
 jobs:
@@ -88,7 +88,7 @@ jobs:
     name: "${{ matrix.name }}"
     env:
       build_dir: "qbt-build"
-      qbt_build_tool: ""
+      qbt_build_tool: "cmake"
       qbt_cross_name: "${{ matrix.arch_type }}"
       qbt_cross_host: "${{ matrix.cross_host }}"
       qbt_cross_openssl: "${{ matrix.cross_openssl }}"
@@ -127,6 +127,8 @@ jobs:
       #
       - name: "Set release asset name"
         run: mv -f "${{ env.build_dir }}/completed/qbittorrent-nox" "${{ env.build_dir }}/completed/qbittorrent-nox-${{ matrix.release_name }}"
+      - name: "Set artifact asset name"
+        run: mv -f "${{ env.build_dir }}/completed/qbittorrent_graph.png" "${{ env.build_dir }}/completed/qbittorrent_${{ matrix.name }}_graph.png"
       #
       - name: "Create release - tag - assets"
         uses: ncipollo/release-action@v1
@@ -139,3 +141,8 @@ jobs:
           bodyFile: "${{ env.build_dir }}/release_info/release.md"
           allowUpdates: true
           token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: qbittorrent_${{ matrix.name }}_graph.png
+          path: ${{ env.build_dir }}/completed/qbittorrent_${{ matrix.name }}_graph.png
