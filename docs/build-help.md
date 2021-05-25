@@ -47,9 +47,9 @@ All switches and flags have a supporting help option that will provide dynamic c
  icu         - optional Build ICU locally
  openssl     - required Build openssl locally
  boost       - required Download, extract and build the boost library files
+ libtorrent  - required Build libtorrent locally
  qtbase      - required Build qtbase locally
  qttools     - required Build qttools locally
- libtorrent  - required Build libtorrent locally with b2
  qbittorrent - required Build qbitorrent locally
 ```
 
