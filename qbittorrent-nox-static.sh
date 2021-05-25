@@ -793,7 +793,7 @@ _multi_arch() {
 		qbt_cross_host="${qbt_cross_host:-aarch64-linux-musl}"
 		qbt_cross_openssl="${qbt_cross_openssl:-linux-aarch64}"
 		qbt_cross_boost="${qbt_cross_boost:-arm}"
-		qbt_cross_qtbase="${qbt_cross_qt_xplatform-linux-aarch64-gnu-g++}"
+		qbt_cross_qtbase="${qbt_cross_qt_xplatform:-linux-aarch64-gnu-g++}"
 		#
 		CHOST="${qbt_cross_host}"
 		CC="${qbt_cross_host}-gcc"
@@ -1138,13 +1138,13 @@ while (("${#}")); do
 			echo
 			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
-			echo -e "${clr} Github action specific. You probably dont need it${cend}"
+			echo -e " ${urc}${clr} Github action specific. You probably dont need it${cend}"
 			echo
-			echo -e " This switch bootstraps the musl cross build files needed for aarch64"
+			echo -e " This switch bootstraps the musl cross build files needed for ${clb}aarch64${cend}"
 			echo
 			echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-ma${cend}"
 			echo
-			echo -e " Set this variable to trigger builing using aarch64-musl: ${clb}export qbt_cross_name=aarch64${cend}"
+			echo -e " ${uyc} Set this variable to trigger builing using aarch64-musl: ${clb}export qbt_cross_name=aarch64${cend}"
 			echo
 			exit
 			;;
