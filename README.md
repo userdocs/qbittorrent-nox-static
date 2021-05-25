@@ -8,13 +8,12 @@
 
 The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
 
-## WSL2
-
-These static build can be used on WSL2 and accessed via `localhost:8080`
-
 ## Documentation
 
 [Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README)
+## WSL2
+
+These static builds can be used on WSL2 and accessed via `localhost:8080` using the download instructions
 
 ## Install latest release
 
@@ -41,3 +40,7 @@ chmod 700 ~/bin/qbittorrent-nox
 These are released as pre releases. You can find there here.
 
 https://github.com/userdocs/qbittorrent-nox-static/releases
+
+## Libtorrent v2 + QT6 + Qbittorrent using cmake
+
+The script is ready to build using cmake and is QT6 ready. As soon as qbittorrrent has official support this script can build it.
