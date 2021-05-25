@@ -395,6 +395,7 @@ set_build_directory() {
 	lib_dir="${qbt_install_dir}/lib"
 	#
 	## Define some build specific variables
+	LOCAL_USER_HOME="${HOME}" # Get the local user's home dir path before we contain HOME to the build dir.
 	HOME="${qbt_install_dir}"
 	PATH="${qbt_install_dir}/bin${PATH:+:${qbt_local_paths}}"
 	LD_LIBRARY_PATH="-L${lib_dir}"
@@ -405,7 +406,7 @@ set_build_directory() {
 #######################################################################################################################################################
 custom_flags_set() {
 	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w -I${include_dir}"
-	CPPFLAGS="${optimize/*/$optimize } -static -w -I${include_dir}"
+	CPPFLAGS="${optimize/*/$optimize }-static -w -I${include_dir}"
 	LDFLAGS="${optimize/*/$optimize }-static -Wl,--no-as-needed -L${lib_dir} -lpthread -pthread"
 }
 #
@@ -746,7 +747,7 @@ install_qbittorrent() {
 			cp -rf "${qbt_install_dir}/completed/qbittorrent-nox" "/usr/local/bin"
 		else
 			mkdir -p "${HOME}/bin"
-			cp -rf "${qbt_install_dir}/completed/qbittorrent-nox" "${HOME}/bin"
+			cp -rf "${qbt_install_dir}/completed/qbittorrent-nox" "${LOCAL_USER_HOME}/bin"
 		fi
 		#
 		echo -e " ${tn}${tu}qbittorrent-nox has been installed!${cend}${tn}"
