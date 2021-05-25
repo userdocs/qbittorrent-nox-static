@@ -1062,7 +1062,7 @@ while (("${#}")); do
 			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
 			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
 			echo -e " ${td}${clm}zlib${cend}        ${td}-${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
-			echo -e " ${td}${clm}iconv${cend}       ${td}-${cend} ${td}${cly}optional${cend} ${td}Build iconv locally${cend}"
+			echo -e " ${td}${clm}iconv${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Build iconv locally${cend}"
 			echo -e " ${td}${clm}icu${cend}         ${td}-${cend} ${td}${cly}optional${cend} ${td}Build ICU locally${cend}"
 			echo -e " ${td}${clm}openssl${cend}     ${td}-${cend} ${td}${clr}required${cend} ${td}Build openssl locally${cend}"
 			echo -e " ${td}${clm}boost${cend}       ${td}-${cend} ${td}${clr}required${cend} ${td}Download, extract and build the boost library files${cend}"
@@ -1160,10 +1160,12 @@ while (("${#}")); do
 			echo
 			echo -e " ${uyc} ${cly}Patches${cend}"
 			echo -e " ${uyc} ${cly}Release info${cend}"
-			echo -e " ${uyc} ${cly}Cmake and ninja build${cend}"
-			echo -e " ${uyc} ${cly}Multi arch${cend}"
+			echo -e " ${uyc} ${cly}Cmake and ninja build${cend} if the ${clb}-c${cend} flag is passed"
+			echo -e " ${uyc} ${cly}Multi arch${cend} if the ${clb}-ma${cend} flag is passed"
 			echo
-			echo -e " Equivalent of doing: ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs -bs-r -bs-ma${cend}"
+			echo -e " Equivalent of doing: ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs -bs-r${cend}"
+			echo
+			echo -e " And with ${clb}-c${cend} and ${clb}-ma${cend} : ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs -bs-c -bs-ma -bs-r ${cend}"
 			echo
 			exit
 			;;
@@ -1173,7 +1175,6 @@ while (("${#}")); do
 			echo
 			echo -e " This flag can change the build process in a few ways."
 			echo
-			echo -e " ${uyc} Set iconv as the default option over ICU"
 			echo -e " ${uyc} Use cmake to build libtorrent."
 			echo -e " ${uyc} Use cmake to build qbittorrent."
 			echo
