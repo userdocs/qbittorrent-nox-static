@@ -1605,7 +1605,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			#
 		else
 			if [[ "${libtorrent_github_tag}" =~ ^(RC_2|v2\.0\..*) ]]; then
-				lt_version_options=("lto=off")
+				lt_version_options=()
 				libtorrent_libs="-l:libboost_system.a -l:libtorrent-rasterbar.a -l:libtry_signal.a"
 				lt_cmake_flags="-DBOOST_ASIO_ENABLE_CANCELIO -DBOOST_ASIO_NO_DEPRECATED -DTORRENT_USE_OPENSSL -DTORRENT_USE_LIBCRYPTO -DTORRENT_SSL_PEERS -DOPENSSL_NO_SSL2"
 			else
