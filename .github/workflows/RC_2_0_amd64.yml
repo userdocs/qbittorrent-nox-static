@@ -1,4 +1,4 @@
-name: amd64
+name: RC_2_0_amd64
 on:
   workflow_dispatch:
 jobs:

@@ -1,4 +1,4 @@
-name: aarch64
+name: RC_2_0_aarch64
 on:
   workflow_dispatch:
 jobs:
