@@ -25,7 +25,7 @@ The script creates a fully static `qbittorrent-nox` binary using [libc](https://
 The final result will show this when using `ldd`
 
 ```bash
-ldd ~/qb-build/bin/qbittorrent-nox
+ldd ~/qbt-build/bin/qbittorrent-nox
 ```
 
 Gives this result:
@@ -41,7 +41,7 @@ The script creates a fully static `qbittorrent-nox` binary using [musl](https://
 The final result will show this when using `ldd`
 
 ```bash
-ldd ~/qb-build/bin/qbittorrent-nox
+ldd ~/qbt-build/bin/qbittorrent-nox
 ```
 
 Gives this result:

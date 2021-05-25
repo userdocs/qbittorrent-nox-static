@@ -16,13 +16,13 @@ The default installation path is determined by type of user executing the script
 
 <!-- tab: root -->
 
-Built to - `qb-build`
+Built to - `qbt-build`
 
 Optionally installed to `/usr/local/bin/qbittorrent-nox`
 
 <!-- tab: user -->
 
-Built to - `qb-build`
+Built to - `qbt-build`
 
 Optionally installed to `$HOME/bin/qbittorrent-nox`
 

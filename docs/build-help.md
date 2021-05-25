@@ -38,7 +38,7 @@ All switches and flags have a supporting help option that will provide dynamic c
  Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
  all         - Install all modules
- install     - optional Install the ~/qb-build/completed/qbittorrent-nox binary
+ install     - optional Install the ~/qbt-build/completed/qbittorrent-nox binary
  bison       - required Build bison
  gawk        - required Build gawk
  glibc       - required Build libc locally to statically link nss
@@ -61,13 +61,13 @@ For example, taking the `-h-bs` switch as an example, it will show different res
 ```bash
  Here is the help description for this flag:
 
- Creates dirs in this structure: ~/qb-build/patches/APPNAME/TAG/patch
+ Creates dirs in this structure: ~/qbt-build/patches/APPNAME/TAG/patch
 
  Add your patches there, for example.
 
- ~/qb-build/patches/libtorrent/1.2.13/patch
+ ~/qbt-build/patches/libtorrent/1.2.13/patch
 
- ~/qb-build/patches/qbittorrent/4.3.5/patch
+ ~/qbt-build/patches/qbittorrent/4.3.5/patch
 ```
 
 <!-- tab: -qm -lm -h-bs -->
@@ -75,13 +75,13 @@ For example, taking the `-h-bs` switch as an example, it will show different res
 ```bash
  Here is the help description for this flag:
 
- Creates dirs in this structure: ~/qb-build/patches/APPNAME/TAG/patch
+ Creates dirs in this structure: ~/qbt-build/patches/APPNAME/TAG/patch
 
  Add your patches there, for example.
 
- ~/qb-build/patches/libtorrent/RC_1_2/patch
+ ~/qbt-build/patches/libtorrent/RC_1_2/patch
 
- ~/qb-build/patches/qbittorrent/master/patch
+ ~/qbt-build/patches/qbittorrent/master/patch
  ```
 
  <!-- tab: -qt release-4.2.5 -lt v2.0.3 -h-bs -->
@@ -89,20 +89,20 @@ For example, taking the `-h-bs` switch as an example, it will show different res
  ```bash
  Here is the help description for this flag:
 
- Creates dirs in this structure: ~/qb-build/patches/APPNAME/TAG/patch
+ Creates dirs in this structure: ~/qbt-build/patches/APPNAME/TAG/patch
 
  Add your patches there, for example.
 
- ~/qb-build/patches/libtorrent/2.0.3/patch
+ ~/qbt-build/patches/libtorrent/2.0.3/patch
 
- ~/qb-build/patches/qbittorrent/4.2.5/patch
+ ~/qbt-build/patches/qbittorrent/4.2.5/patch
 ```
 
 <!-- tabs:end -->
 
 ### Build - default profile
 
-Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the default build directory `qb-build/compelted`.
+Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the default build directory `qbt-build/compelted`.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh all
@@ -141,12 +141,12 @@ By default the script will built to a hard coded path defined by the scripts `$i
 >[!note|iconVisibility:hidden|labelVisibility:hidden] This path is relative to the scripts location.
 
 ```bash
-qb-build
+qbt-build
 ```
 
 You can modify this dynamically with the `-b` argument
 
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] The `-b` must be used in all commands provided to the script or default `qb-build` will be used instead.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] The `-b` must be used in all commands provided to the script or default `qbt-build` will be used instead.
 
 > [!tip|iconVisibility:hidden|labelVisibility:hidden] The `-b` flag accepts both full `/opt` and relative `opt` paths.
 

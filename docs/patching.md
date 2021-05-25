@@ -13,15 +13,15 @@ bash ~/qbittorrent-nox-static.sh -h-pr
 Using this command: `bash ~/qbittorrent-nox-static.sh -bs` the script will create the required directory structure using the current defaults.
 
 ```bash
-qb-build/patches/qbittorrent/4.3.4.1
-qb-build/patches/libtorrent/v1.2.12
+qbt-build/patches/qbittorrent/4.3.4.1
+qbt-build/patches/libtorrent/v1.2.12
 ```
 
 Place your patch file named `patch` inside the relevant directories.  So it would look something like this:
 
 ```bash
-qb-build/patches/qbittorrent/4.3.4.1/patch
-qb-build/patches/libtorrent/v1.2.12/patch
+qbt-build/patches/qbittorrent/4.3.4.1/patch
+qbt-build/patches/libtorrent/v1.2.12/patch
 ```
 
 Then the patch file will be automatically matched to the tag used by the script and loaded.
@@ -35,8 +35,8 @@ You can change the defaults by using the `qt` and `lt` switches to specify a tag
 The boot strapped directory structure will look like this instead:
 
 ```bash
-qb-build/patches/qbittorrent/master
-qb-build/patches/libtorrent/RC_2_0
+qbt-build/patches/qbittorrent/master
+qbt-build/patches/libtorrent/RC_2_0
 ```
 
 > [!warning|iconVisibility:hidden|labelVisibility:hidden] Remember to provide the same tags when using the build command or the patches won't match the defaults.
