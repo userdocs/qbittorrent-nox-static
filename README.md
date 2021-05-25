@@ -19,7 +19,7 @@ https://github.com/userdocs/qbittorrent-nox-static/releases/latest
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_x86_64-icu
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_x86_64
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -27,7 +27,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_aarch64_icu
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_aarch64
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
