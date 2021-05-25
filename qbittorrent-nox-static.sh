@@ -1070,7 +1070,7 @@ while (("${#}")); do
 			echo -e " ${td}${clm}libtorrent${cend}  ${td}-${cend} ${td}${clr}required${cend} ${td}Build libtorrent locally${cend}"
 			echo -e " ${td}${clm}qtbase${cend}      ${td}-${cend} ${td}${clr}required${cend} ${td}Build qtbase locally${cend}"
 			echo -e " ${td}${clm}qttools${cend}     ${td}-${cend} ${td}${clr}required${cend} ${td}Build qttools locally${cend}"
-			echo -e " ${td}${clm}qbittorrent${cend} ${td}-${cend} ${td}${clr}required${cend} ${td}Build qbitorrent locally${cend}"
+			echo -e " ${td}${clm}qbittorrent${cend} ${td}-${cend} ${td}${clr}required${cend} ${td}Build qbittorrent locally${cend}"
 			echo
 			exit
 			;;
