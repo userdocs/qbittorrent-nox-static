@@ -44,3 +44,21 @@ https://github.com/userdocs/qbittorrent-nox-static/releases
 ## Libtorrent v2 + QT6 + Qbittorrent using cmake
 
 The script is ready to build using cmake and is QT6 ready. As soon as qbittorrrent has official support this script can build it.
+
+## Build table - Dependencies - arch - OS - build tools
+
+|    Deps     | x86_64 | aarch64 | Debian based | Alpine | make  | cmake |  b2   | qmake |
+| :---------: | :----: | :-----: | :----------: | :----: | :---: | :---: | :---: | :---: |
+| libexecinfo |   ✅    |    ✅    |      ❌       |   ✅    |   ❌   |   ❌   |   ❌   |   ❌   |
+|    bison    |   ✅    |    ❌    |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    gawk     |   ✅    |    ❌    |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    glibc    |   ✅    |    ❌    |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    zlib     |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    iconv    |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|     icu     |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|   openssl   |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    boost    |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
+| libtorrent  |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
+|   qtbase    |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
+|   qtools    |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
+| qbittorrent |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
