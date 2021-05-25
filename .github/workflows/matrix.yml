@@ -126,13 +126,13 @@ jobs:
         run: bash qbittorrent-nox-static.sh "${{ matrix.libtorrent_v2 }}" qbittorrent
       #
       - name: "Set release asset name"
-        run: mv -f "${{ env.build_dir }}/completed/qbittorrent-nox" "${{ env.build_dir }}/completed/qbittorrent-nox-${{ matrix.release_name }}"
+        run: mv -f "${{ env.build_dir }}/completed/qbittorrent-nox" "${{ env.build_dir }}/completed/qbittorrent_nox_${{ matrix.release_name }}"
       #
       - name: "Create release - tag - assets"
         uses: ncipollo/release-action@v1
         with:
           prerelease: ${{ matrix.preview_release }}
-          artifacts: "${{ env.build_dir }}/completed/qbittorrent-nox-${{ matrix.release_name }}"
+          artifacts: "${{ env.build_dir }}/completed/qbittorrent_nox_${{ matrix.release_name }}"
           replacesArtifacts: true
           tag: "${{ env.release_tag }}"
           name: "${{ env.release_title }}"
