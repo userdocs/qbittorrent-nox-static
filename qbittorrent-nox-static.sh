@@ -123,8 +123,6 @@ set_default_values() {
 		qbt_skip_icu='no'
 	elif [[ "${qbt_skip_icu}" != 'no' ]]; then # else skip icu by default unless the -i flag is provided.
 		delete+=("icu")
-	else
-		[[ "${qbt_build_tool}" != 'cmake' ]] && delete+=("iconv")
 	fi
 	#
 	if [[ "${qbt_build_tool}" != 'cmake' ]]; then
@@ -1606,19 +1604,21 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			dot -Tpng -o "${qbt_install_dir}/completed/${app_name}_graph.png" "${qbt_install_dir}/graphs/${libtorrent_github_tag}/dep_graph.dot"
 			#
 		else
-			"${qbt_install_dir}/boost/b2" "${multi_libtorrent[@]}" -j"$(nproc)" address-model="$(getconf LONG_BIT)" "${lt_debug}" optimization=speed cxxstd="${standard}" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qbt_install_dir}" |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
+			if [[ "${libtorrent_github_tag}" =~ ^(RC_2|v2\.0\..*) ]]; then
+				lt_version_options=("lto=off")
+				libtorrent_libs="-l:libboost_system.a -l:libtorrent-rasterbar.a -l:libtry_signal.a"
+				lt_cmake_flags="-DBOOST_ASIO_ENABLE_CANCELIO -DBOOST_ASIO_NO_DEPRECATED -DTORRENT_USE_OPENSSL -DTORRENT_USE_LIBCRYPTO -DTORRENT_SSL_PEERS -DOPENSSL_NO_SSL2"
+			else
+				lt_version_options=("iconv=on")
+				libtorrent_libs="-l:libboost_system.a -l:libtorrent-rasterbar.a -l:libiconv.a"
+				lt_cmake_flags="-DBOOST_ASIO_ENABLE_CANCELIO -DTORRENT_USE_ICONV -DTORRENT_USE_OPENSSL -DTORRENT_USE_LIBCRYPTO"
+			fi
+			#
+			"${qbt_install_dir}/boost/b2" "${multi_libtorrent[@]}" -j"$(nproc)" "${lt_version_options[@]}" address-model="$(getconf LONG_BIT)" "${lt_debug}" optimization=speed cxxstd="${standard}" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qbt_install_dir}" |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 			#
 			post_command build
 			#
 			libtorrent_strings_version="$(strings -d "${lib_dir}/libtorrent-rasterbar.a" | grep -Eo "^libtorrent/[0-9]\.(.*)")" # ${libtorrent_strings_version#*/}
-			#
-			if [[ "${libtorrent_github_tag}" =~ ^(RC_2|v2) ]]; then
-				libtorrent_libs="-l:libiconv.a -l:libboost_system.a -l:libtorrent-rasterbar.a -l:libtry_signal.a"
-				lt_cmake_flags="-DBOOST_ASIO_ENABLE_CANCELIO -DBOOST_ASIO_NO_DEPRECATED -DTORRENT_USE_OPENSSL -DTORRENT_USE_LIBCRYPTO -DTORRENT_SSL_PEERS -DOPENSSL_NO_SSL2"
-			else
-				libtorrent_libs="-l:libiconv.a -l:libboost_system.a -l:libtorrent-rasterbar.a"
-				lt_cmake_flags="-DBOOST_ASIO_ENABLE_CANCELIO -DTORRENT_USE_ICONV -DTORRENT_USE_OPENSSL -DTORRENT_USE_LIBCRYPTO"
-			fi
 			#
 			cat > "${PKG_CONFIG_PATH}/libtorrent-rasterbar.pc" <<- LIBTORRENT_PKG_CONFIG
 				prefix=${qbt_install_dir}
