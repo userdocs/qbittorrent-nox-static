@@ -1,34 +1,42 @@
-name: amd64
+name: qt6_RC_2_0_icu_aarch64
 on:
   workflow_dispatch:
 jobs:
   build:
-    name: amd64
+    name: qt6_RC_2_0_icu_aarch64
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     container:
       image: alpine:latest
+    env:
+      qbt_build_tool: "cmake"
+      qt_version: "6.1"
+      qbt_cross_name: aarch64
+      qbt_cross_host: aarch64-linux-musl
+      qbt_cross_openssl: linux-aarch64
+      qbt_cross_boost: arm
+      qbt_cross_qt_xplatform: linux-aarch64-gnu-g++
     steps:
       - uses: actions/checkout@v2.3.4
       - run: apk add bash
         shell: ash {0}
-      - run: bash qbittorrent-nox-static.sh
+      - run: bash qbittorrent-nox-static.sh -bs-c -bs-ma
       - run: bash qbittorrent-nox-static.sh libexecinfo
       - run: bash qbittorrent-nox-static.sh iconv
       - run: bash qbittorrent-nox-static.sh zlib
       - run: bash qbittorrent-nox-static.sh iconv
       - run: bash qbittorrent-nox-static.sh openssl
-      # - run: bash qbittorrent-nox-static.sh icu
+      - run: bash qbittorrent-nox-static.sh icu
       - run: bash qbittorrent-nox-static.sh boost
-      - run: bash qbittorrent-nox-static.sh libtorrent
+      - run: bash qbittorrent-nox-static.sh libtorrent -lt RC_2_0
       # - run: bash qbittorrent-nox-static.sh libtorrent -pr userdocs/qbittorrent-nox-static
-      - run: bash qbittorrent-nox-static.sh qtbase
-      # - run: bash qbittorrent-nox-static.sh qtbase -i
+      # - run: bash qbittorrent-nox-static.sh qtbase
+      - run: bash qbittorrent-nox-static.sh qtbase -i
       - run: bash qbittorrent-nox-static.sh qttools
-      - run: bash qbittorrent-nox-static.sh qbittorrent
-      # - run: bash qbittorrent-nox-static.sh qbittorrent -pr userdocs/qbittorrent-nox-static
+      - run: bash qbittorrent-nox-static.sh qbittorrent -qm
+      # - run: bash qbittorrent-nox-static.sh qbittorrent -qm -pr userdocs/qbittorrent-nox-static
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2.2.3
         with:

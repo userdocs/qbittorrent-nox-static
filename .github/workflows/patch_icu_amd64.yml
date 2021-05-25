@@ -1,9 +1,9 @@
-name: amd64
+name: qbt_icu_patch_amd64
 on:
   workflow_dispatch:
 jobs:
   build:
-    name: amd64
+    name: qbt_icu_patch_amd64
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -20,15 +20,15 @@ jobs:
       - run: bash qbittorrent-nox-static.sh zlib
       - run: bash qbittorrent-nox-static.sh iconv
       - run: bash qbittorrent-nox-static.sh openssl
-      # - run: bash qbittorrent-nox-static.sh icu
+      - run: bash qbittorrent-nox-static.sh icu
       - run: bash qbittorrent-nox-static.sh boost
-      - run: bash qbittorrent-nox-static.sh libtorrent
-      # - run: bash qbittorrent-nox-static.sh libtorrent -pr userdocs/qbittorrent-nox-static
-      - run: bash qbittorrent-nox-static.sh qtbase
-      # - run: bash qbittorrent-nox-static.sh qtbase -i
+      # - run: bash qbittorrent-nox-static.sh libtorrent
+      - run: bash qbittorrent-nox-static.sh libtorrent -pr jerry048/Patch
+      # - run: bash qbittorrent-nox-static.sh qtbase
+      - run: bash qbittorrent-nox-static.sh qtbase -i
       - run: bash qbittorrent-nox-static.sh qttools
-      - run: bash qbittorrent-nox-static.sh qbittorrent
-      # - run: bash qbittorrent-nox-static.sh qbittorrent -pr userdocs/qbittorrent-nox-static
+      # - run: bash qbittorrent-nox-static.sh qbittorrent
+      - run: bash qbittorrent-nox-static.sh qbittorrent -pr jerry048/Patch
       - name: Archive code coverage results
         uses: actions/upload-artifact@v2.2.3
         with:
