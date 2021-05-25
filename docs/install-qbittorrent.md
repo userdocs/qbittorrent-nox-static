@@ -38,7 +38,7 @@ Optionally you can just the existing prebuilt binaries released using GitHub Act
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent-nox-x86_64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_x86_64
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -46,7 +46,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent-nox-x86_64-icu
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_x86_64
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -54,7 +54,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent-nox-aarch64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_aarch64
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -62,7 +62,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent-nox-aarch64-icu
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_aarch64
 chmod 700 ~/bin/qbittorrent-nox
 ```
 

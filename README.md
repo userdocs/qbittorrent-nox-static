@@ -6,7 +6,7 @@
 
 ## Summary
 
-The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more. 
+The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
 ## Documentation
 
 [Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README)
@@ -19,7 +19,7 @@ https://github.com/userdocs/qbittorrent-nox-static/releases/latest
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent-nox-x86_64-icu
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_x86_64-icu
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -27,7 +27,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent-nox-aarch64-icu
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_aarch64_icu
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
