@@ -1601,7 +1601,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			#
 			post_command build
 			#
-			cmake --install build --prefix "${qbt_install_dir}"
+			cmake --install build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 			#
 			dot -Tpng -o "${qbt_install_dir}/completed/${app_name}_graph.png" "${qbt_install_dir}/graphs/${libtorrent_github_tag}/dep_graph.dot"
 			#
@@ -1675,7 +1675,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		#
 		post_command build
 		#
-		cmake --install build --prefix "${qbt_install_dir}"
+		cmake --install build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 		#
 		dot -Tpng -o "${qbt_install_dir}/completed/${app_name}_graph.png" "${qbt_install_dir}/graphs/${qtbase_github_tag}/dep_graph.dot"
 	elif [[ "${qt_version}" =~ ^(5\.[0-9]{1,2})$ ]]; then
@@ -1734,7 +1734,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		#
 		post_command build
 		#
-		cmake --install build --prefix "${qbt_install_dir}"
+		cmake --install build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 		#
 		dot -Tpng -o "${qbt_install_dir}/completed/${app_name}_graph.png" "${qbt_install_dir}/graphs/${qtbase_github_tag}/dep_graph.dot"
 	elif [[ "${qt_version}" =~ ^(5\.[0-9]{1,2})$ ]]; then
@@ -1792,7 +1792,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			#
 			post_command build
 			#
-			cmake --install build --prefix "${qbt_install_dir}"
+			cmake --install build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 			#
 			dot -Tpng -o "${qbt_install_dir}/completed/${app_name}_graph.png" "${qbt_install_dir}/graphs/${qbittorrent_github_tag}/dep_graph.dot"
 		else
