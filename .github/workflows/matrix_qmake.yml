@@ -129,7 +129,7 @@ jobs:
         run: mv -f "${{ env.build_dir }}/completed/qbittorrent-nox" "${{ env.build_dir }}/completed/qbittorrent_nox_${{ matrix.release_name }}"
       #
       - name: "Create release - tag - assets"
-        uses: ncipollo/release-action@v1
+        uses: ncipollo/release-action@v1.8.6
         with:
           prerelease: ${{ matrix.preview_release }}
           artifacts: "${{ env.build_dir }}/completed/qbittorrent_nox_${{ matrix.release_name }}"
