@@ -38,19 +38,19 @@ sudo bash ~/qbittorrent-nox-static.sh
 <!-- tab: Debian -->
 
 ```bash
-docker run -it -e "LANG=en_US.UTF-8" -v $HOME:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && cd && curl -sL git.io/qbstatic | bash -s all'
+docker run -it -w /root -e "LANG=en_US.UTF-8" -v $HOME:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && cd && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 <!-- tab: Ubuntu -->
 
 ```bash
-docker run -it -e "LANG=en_US.UTF-8" -v $HOME:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && cd && curl -sL git.io/qbstatic | bash -s all'
+docker run -it -w /root -e "LANG=en_US.UTF-8" -v $HOME:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && cd && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 <!-- tab: Alpine -->
 
 ```bash
-docker run -it -v $HOME:/root alpine:latest /bin/ash -c 'apk update && apk add bash curl && cd && curl -sL git.io/qbstatic | bash -s all'
+docker run -it -w /root -v $HOME:/root alpine:latest /bin/ash -c 'apk update && apk add bash curl && cd && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 <!-- tabs:end -->
