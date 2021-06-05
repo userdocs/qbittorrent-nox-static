@@ -23,7 +23,6 @@ jobs:
         shell: ash {0}
       - run: bash qbittorrent-nox-static.sh -bs-ma
       - run: bash qbittorrent-nox-static.sh libexecinfo
-      - run: bash qbittorrent-nox-static.sh iconv
       - run: bash qbittorrent-nox-static.sh zlib
       - run: bash qbittorrent-nox-static.sh iconv
       - run: bash qbittorrent-nox-static.sh openssl
