@@ -1,0 +1,68 @@
+name: Debian Based CI
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    strategy:
+      fail-fast: false
+      matrix:
+        container_id: [debian, ubuntu]
+        container_codename: [buster, sid, focal, hirsute]
+        build_tool_flag: ["", -c]
+        libtorrent_tag: [-lt RC_1_2, -lt RC_2_0]
+        exclude:
+          - container_id: debian
+            container_codename: focal
+          - container_id: debian
+            container_codename: hirsute
+          - container_id: ubuntu
+            container_codename: buster
+          - container_id: ubuntu
+            container_codename: sid
+        include:
+          - build_tool_flag: ""
+            build_tool_name: qmake
+          - build_tool_flag: -c
+            build_tool_name: cmake
+          - libtorrent_tag: -lt RC_1_2
+            libtorrent_version: RC-1-2
+          - libtorrent_tag: -lt RC_2_0
+            libtorrent_version: RC-2-0
+    name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.libtorrent_version }}-${{ matrix.build_tool_name }}"
+    env:
+      build_dir: "qbt-build"
+      artifact_name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.libtorrent_version }}-${{ matrix.build_tool_name }}-nox"
+    container:
+      image: ${{ matrix.container_id }}:${{ matrix.container_codename }}
+      env:
+        LANG: en_GB.UTF-8
+        DEBIAN_FRONTEND: noninteractive
+        TZ: Europe/London
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - run: bash qbittorrent-nox-static.sh -bs-a ${{ matrix.build_tool_flag }}
+      - run: bash qbittorrent-nox-static.sh bison
+      - run: bash qbittorrent-nox-static.sh gawk
+      - run: bash qbittorrent-nox-static.sh glibc
+      - run: bash qbittorrent-nox-static.sh zlib
+      - run: bash qbittorrent-nox-static.sh iconv
+      - run: bash qbittorrent-nox-static.sh icu
+      - run: bash qbittorrent-nox-static.sh openssl
+      - run: bash qbittorrent-nox-static.sh boost ${{ matrix.build_tool_flag }}
+      - run: bash qbittorrent-nox-static.sh libtorrent ${{ matrix.libtorrent_tag }} ${{ matrix.build_tool_flag }}
+      - run: bash qbittorrent-nox-static.sh qtbase -i
+      - run: bash qbittorrent-nox-static.sh qttools
+      - run: bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.build_tool_flag }}
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: ${{ env.artifact_name }}
+          path: ${{ env.build_dir }}/completed/qbittorrent-nox
