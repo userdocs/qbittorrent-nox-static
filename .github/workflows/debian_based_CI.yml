@@ -1,6 +1,8 @@
 name: Debian Based CI
 on:
   push:
+    paths:
+      - "qbittorrent-nox-static.sh"
   pull_request:
   workflow_dispatch:
 jobs:
