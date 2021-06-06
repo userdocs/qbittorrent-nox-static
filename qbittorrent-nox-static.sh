@@ -62,7 +62,7 @@ if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpin
 fi
 #
 ## Check against allowed codenames or if the codename is alpine version greater thab 3.10
-if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bionic|focal)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
+if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|hirsute)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
 	echo
 	echo -e " ${cly}This is not a supported OS. There is no reason to continue.${cend}"
 	echo
@@ -76,7 +76,7 @@ if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bionic|focal)$ ]] || [[ "$
 	echo
 	echo -e " ${clm}Alpine${cend} - ${clb}3.10.0${cend} or greater"
 	echo
-	exit
+	exit 1
 fi
 #######################################################################################################################################################
 # This function sets some default values we use but whose values can be overridden by certain flags
@@ -435,9 +435,12 @@ set_module_urls() {
 	gawk_version="$(git_git ls-remote -q -t --refs https://git.savannah.gnu.org/git/gawk.git | awk '/\/tags\/gawk/{sub("refs/tags/gawk-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	gawk_url="http://ftpmirror.gnu.org/gnu/gawk/gawk-${gawk_version}.tar.gz"
 	#
-	# glibc_version="$(git_git ls-remote -q -t --refs https://sourceware.org/git/glibc.git | awk '/\/tags\/glibc-[0-9]\.[0-9]{2}$/{sub("refs/tags/glibc-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-	# glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-${glibc_version}.tar.gz"
-	glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-2.31.tar.gz"
+	if [[ "${what_version_codename}" =~ ^(hirsute)$ ]]; then
+		glibc_version="$(git_git ls-remote -q -t --refs https://sourceware.org/git/glibc.git | awk '/\/tags\/glibc-[0-9]\.[0-9]{2}$/{sub("refs/tags/glibc-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+		glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-${glibc_version}.tar.gz"
+	else
+		glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-2.31.tar.gz" # pin to the same version for this OS otherwise we get build errors
+	fi
 	#
 	zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/madler/zlib.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	zlib_url="https://github.com/madler/zlib/archive/${zlib_github_tag}.tar.gz"
@@ -1425,7 +1428,8 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	#
 	mkdir -p build
 	_cd "${app_dir}/build"
-	"${app_dir}/configure" --prefix="${qbt_install_dir}" --enable-static-nss |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
+	#
+	"${app_dir}/configure" --prefix="${qbt_install_dir}" --enable-static-nss --disable-nscd |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/$app_name.log.txt"
 	#
 	post_command build
