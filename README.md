@@ -60,6 +60,8 @@ The script is ready to build using cmake and is QT6 ready. As soon as qbittorrre
 |   openssl   |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
 |    boost    |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
 | libtorrent  |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
-|   qtbase    |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
-|   qtools    |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
+|   qt5base   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+|   qt5ools   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+|   qt6base   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|   qt6ools   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
 | qbittorrent |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
