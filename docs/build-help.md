@@ -35,10 +35,10 @@ All switches and flags have a supporting help option that will provide dynamic c
 
  Module specific help - flags are used with the modules listed here.
 
- Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
+ Use: all or module-name          Usage: ~/docker/qbittorrent-nox-static.sh all -i
 
  all         - optional Recommended method to install all modules
- install     - optional Install the ~/qbt-build/completed/qbittorrent-nox binary
+ install     - optional Install the ~/docker/qbt-build/completed/qbittorrent-nox binary
  bison       - required Build bison
  gawk        - required Build gawk
  glibc       - required Build libc locally to statically link nss
@@ -50,7 +50,7 @@ All switches and flags have a supporting help option that will provide dynamic c
  libtorrent  - required Build libtorrent locally
  qtbase      - required Build qtbase locally
  qttools     - required Build qttools locally
- qbittorrent - required Build qbitorrent locally
+ qbittorrent - required Build qbittorrent locally
 ```
 
 For example, taking the `-h-bs` switch as an example, it will show different results based on the preceding switches provided:
@@ -126,6 +126,7 @@ bison (Debian based only)
 gawk (Debian based only)
 glibc (Debian based only)
 zlib (default)
+iconv (default)
 icu (optional on either platform)
 openssl (default)
 boost (default)
