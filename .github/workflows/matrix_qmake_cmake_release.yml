@@ -1,0 +1,111 @@
+# @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition/blob/v4_3_x/.github/workflows/build_and_release.yml
+name: qbittorrent-nox cmake and qmake multi build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3000
+    defaults:
+      run:
+        shell: bash
+    container: alpine:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch_type: [x86_64, armhf, armv7, aarch64]
+        libtorrent_version: ["1.2", "2.0"]
+        icu_step_name: [icu skipped, icu]
+        build_tool: ["", cmake]
+        include:
+          - build_tool: "cmake"
+            build_tool_name: "cmake-"
+
+          - libtorrent_version: "2.0"
+            preview_release: true
+
+          - libtorrent_version: "1.2"
+            preview_release: false
+
+          - icu_step_name: icu
+            icu_matrix_name: icu-
+            qt_with_icu: -i
+            with_icu: bash qbittorrent-nox-static.sh icu
+
+    name: "${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}libtorrent-v${{ matrix.libtorrent_version }}"
+
+    env:
+      build_dir: "qbt-build"
+      qbt_build_tool: "${{ matrix.build_tool }}"
+      qbt_cross_name: "${{ matrix.arch_type }}"
+      libtorrent_version: "${{ matrix.libtorrent_version }}"
+      name: "${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}libtorrent-v${{ matrix.libtorrent_version }}"
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - run: apk add bash git
+        shell: ash {0}
+
+      - name: Bootstrap
+        run: bash qbittorrent-nox-static.sh -bs-a
+
+      - name: Bootstrap release tag
+        run: echo "release_tag=$(cat ${{ env.build_dir }}/release_info/tag.md)" >> $GITHUB_ENV
+
+      - name: Bootstrap release title
+        run: echo "release_title=$(cat ${{ env.build_dir }}/release_info/title.md)" >> $GITHUB_ENV
+
+      - name: libexecinfo
+        run: bash qbittorrent-nox-static.sh libexecinfo
+
+      - name: zlib
+        run: bash qbittorrent-nox-static.sh zlib
+
+      - name: iconv
+        run: bash qbittorrent-nox-static.sh iconv
+
+      - name: ${{ matrix.icu_step_name }}
+        run: "${{ matrix.with_icu }}"
+
+      - name: openssl
+        run: bash qbittorrent-nox-static.sh openssl
+
+      - name: boost
+        run: bash qbittorrent-nox-static.sh boost
+
+      - name: libtorrent
+        run: bash qbittorrent-nox-static.sh libtorrent
+
+      - name: qtbase ${{ matrix.qt_with_icu }}
+        run: bash qbittorrent-nox-static.sh ${{ matrix.qt_with_icu }} qtbase
+
+      - name: qttools
+        run: bash qbittorrent-nox-static.sh qttools
+
+      - name: qbittorrent
+        run: bash qbittorrent-nox-static.sh qbittorrent
+
+      - name: "Set release asset name"
+        run: mv -f "${{ env.build_dir }}/completed/qbittorrent-nox" "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox"
+
+      - name: "Create release - tag - assets"
+        uses: ncipollo/release-action@v1.8.6
+        with:
+          prerelease: ${{ matrix.preview_release }}
+          artifacts: "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox"
+          replacesArtifacts: true
+          tag: "${{ env.release_tag }}"
+          name: "${{ env.release_title }}"
+          bodyFile: "${{ env.build_dir }}/release_info/release.md"
+          allowUpdates: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Archive code coverage results
+        if: env.qbt_build_tool == 'cmake'
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: ${{ env.name }}-graphs
+          path: ${{ env.build_dir }}/completed/*.png
