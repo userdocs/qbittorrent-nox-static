@@ -15,11 +15,13 @@ These the currently available actions.
 ```bash
 aarch64.yml # build to this arch using the lasted release of supported versions
 amd64.yml # build to this arch using the lasted release of supported versions
+
+debian_based_CI.yml # CI on x86_64 Debian buster/sid Ubuntu Focal/hirsute to amke sure it all works.
+
 icu_aarch64.yml # build to this arch with ICU using the lasted release of supported versions
 icu_amd64.yml # build to this arch with ICU using the lasted release of supported versions
 
-matrix_cmake.yml # qbittorrent-nox cmake multi build (x86_64 and aarch64 + release with aarch64 cross built via musl prebuilt toolchains - fast)
-matrix_qmake.yml # qbittorrent-nox qmake multi build (x86_64 and aarch64 + release with aarch64 cross built via musl prebuilt toolchains - fast)
+matrix_qmake_cmake_release.yml # qbittorrent-nox qmake, cmake, lintorrent v1 and v2 multi build (x86_64 armhf armv7 aarch64 + release cross built via musl prebuilt toolchains - fast)
 
 patch_amd64.yml # patch testing action
 patch_icu_amd64.yml # patch testing action with ICU
