@@ -1,5 +1,5 @@
 # @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition/blob/v4_3_x/.github/workflows/build_and_release.yml
-name: qbittorrent-nox cmake and qmake multi build
+name: matrix multi build and release
 
 on:
   workflow_dispatch:
