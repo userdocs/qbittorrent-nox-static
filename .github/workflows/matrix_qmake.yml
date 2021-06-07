@@ -108,12 +108,12 @@ jobs:
         run: bash qbittorrent-nox-static.sh libexecinfo
       - name: zlib
         run: bash qbittorrent-nox-static.sh zlib
-      - name: openssl
-        run: bash qbittorrent-nox-static.sh openssl
       - name: iconv
         run: bash qbittorrent-nox-static.sh iconv
       - name: ${{ matrix.icu_step_name }}
         run: "${{ matrix.with_icu }}"
+      - name: openssl
+        run: bash qbittorrent-nox-static.sh openssl
       - name: boost
         run: bash qbittorrent-nox-static.sh boost
       - name: libtorrent
