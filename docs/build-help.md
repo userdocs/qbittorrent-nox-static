@@ -35,10 +35,10 @@ All switches and flags have a supporting help option that will provide dynamic c
 
  Module specific help - flags are used with the modules listed here.
 
- Use: all or module-name          Usage: ~/docker/qbittorrent-nox-static.sh all -i
+ Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
  all         - optional Recommended method to install all modules
- install     - optional Install the ~/docker/qbt-build/completed/qbittorrent-nox binary
+ install     - optional Install the ~/qbt-build/completed/qbittorrent-nox binary
  bison       - required Build bison
  gawk        - required Build gawk
  glibc       - required Build libc locally to statically link nss
