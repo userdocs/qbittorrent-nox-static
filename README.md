@@ -24,7 +24,23 @@ https://github.com/userdocs/qbittorrent-nox-static/releases/latest
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_x86_64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-icu-qbittorrent-nox
+chmod 700 ~/bin/qbittorrent-nox
+```
+
+### armhf (armv6)
+
+```bash
+mkdir -p ~/bin && source ~/.profile
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armhf-icu-qbittorrent-nox
+chmod 700 ~/bin/qbittorrent-nox
+```
+
+### armv7
+
+```bash
+mkdir -p ~/bin && source ~/.profile
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armv7-icu-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -32,10 +48,15 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_aarch64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/aarch64-icu-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
+## Cmake builds
+
+Cmake builds where libtorrent and qbittorrent are compiled using cmake and ninja are available
+
+⚠️ Cmake builds do not get stripped (debug symbols). Use cmake builds for stacktrace / debugging features built into qbittorrent.
 ## Libtorrent v2 builds
 
 These are released as pre releases. You can find there here.
