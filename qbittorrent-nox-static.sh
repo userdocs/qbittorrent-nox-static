@@ -82,12 +82,12 @@ fi
 # This function sets some default values we use but whose values can be overridden by certain flags
 #######################################################################################################################################################
 set_default_values() {
-	DEBIAN_FRONTEND="noninteractive" TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
+	DEBIAN_FRONTEND="noninteractive" && TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 	#
 	qbt_build_tool="${qbt_build_tool:-}"
 	qbt_cross_name="${qbt_cross_name:-}"
 	#
-	qbt_patches_url="" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
+	qbt_patches_url="${qbt_patches_url:-}" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
 	#
 	libtorrent_version="${libtorrent_version:-1.2}" # Set this here so it is easy to see and change
 	#
