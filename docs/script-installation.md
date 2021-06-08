@@ -33,24 +33,60 @@ sudo bash ~/qbittorrent-nox-static.sh
 
 ## Docker via SSH
 
+Some notes on the dockers method:
+
+- We will use a subdirectory and not your `$HOME` directory as to avoid `.bashrc` and `.profile` conflicts.
+- The subdirectory will be automatically created and named `qbt` by the use of `-v $HOME/qbt:/root`
+- The finale default path will be `HOME/qbt` outside the docker container and `/root/qbt` inside it.
+
 <!-- tabs:start -->
 
 <!-- tab: Debian -->
 
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `debian:buster` `debian:sid`  `debian:latest`
+
+To bootstrap the container:
+
 ```bash
-docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 <!-- tab: Ubuntu -->
 
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `ubuntu:bionic` `ubuntu:focal` `ubuntu:hirsute` `ubuntu:latest`
+
+To bootstrap the container:
+
 ```bash
-docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 <!-- tab: Alpine -->
 
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `ubuntu:bionic` `ubuntu:focal` `ubuntu:hirsute` `ubuntu:latest`
+
+To bootstrap the container:
+
 ```bash
-docker run -it -w /root -v $HOME:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && curl -sL git.io/qbstatic | bash -s all'
+docker run -it -w /root -v $HOME/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -v $HOME/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && curl -sL git.io/qbstatic | bash -s all'
 ```
 
 <!-- tabs:end -->

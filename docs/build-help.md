@@ -4,11 +4,27 @@ Once the script has successfully configured the platform you can execute the hel
 bash ~/qbittorrent-nox-static.sh -h
 ```
 
+### ENV settings
+
+The script has some `env` settings that can trigger certain behaviours.
+
+`libtorrent_version="1.2"` can be set to `1.2` or `2.0` to change the default version used.
+
+`qt_version="5.12"` can be set to any major and minor version like `5.15` or `6.1` and the latest patch version will be used.
+
+`qbt_build_tool=""` can be set to `cmake` to trigger using cmake where available. Empty or unset will default to `qmake`
+
+> [!note|iconVisibility:hidden|labelVisibility:hidden] if you set `qbt_build_tool=cmake`,  `qt_version=6.1` and `libtorrent_version=2.0` you can build against QT6/ The build will fail untold qBittorrent officially supports QT6.
+
+`qbt_cross_name=""`  can be set to `aarch64` - `armv7` - `armhf` to cross build for these supported architectures. Empty or unset will default to native `x86_64`
+
+`qbt_patches_url=""` can be set to `username/repo` to trigger patching.
+
 ### Switches and flags summarised
 
 All switches and flags have a supporting help option that will provide dynamic content where applicable.
 
->[!note|iconVisibility:hidden|labelVisibility:hidden] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64` builds on your local system.
+>[!note|iconVisibility:hidden|labelVisibility:hidden] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armhf|armv7` builds on your local system using Alpine via docker.
 
 ```none
  Here are a list of available options
@@ -83,7 +99,7 @@ For example, taking the `-h-bs` switch as an example, it will show different res
  ~/qbt-build/patches/libtorrent/RC_1_2/patch
 
  ~/qbt-build/patches/qbittorrent/master/patch
- ```
+```
 
  <!-- tab: -qt release-4.2.5 -lt v2.0.3 -h-bs -->
 
@@ -97,7 +113,7 @@ For example, taking the `-h-bs` switch as an example, it will show different res
  ~/qbt-build/patches/libtorrent/2.0.3/patch
 
  ~/qbt-build/patches/qbittorrent/4.2.5/patch
-```
+ ```
 
 <!-- tabs:end -->
 

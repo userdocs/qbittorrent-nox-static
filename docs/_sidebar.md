@@ -2,6 +2,7 @@
 -  [Introduction](introduction.md)
 -  [Script installation](script-installation.md)
 -  [Build help](build-help.md)
+-  [Build help](build-multiarch.md)
 -  [Patching](patching.md)
 -  [Github actions](github-actions.md)
 -  [Install qbittorrent](install-qbittorrent.md)

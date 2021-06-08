@@ -7,7 +7,7 @@
 
 ## Summary
 
-The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
+The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on Linux based of like CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
 
 ## Documentation
 
@@ -16,10 +16,15 @@ The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static)
 
 These static builds can be used on WSL2 and accessed via `localhost:8080` using the download instructions
 
-## Install latest release
+## Install the latest release
 
 https://github.com/userdocs/qbittorrent-nox-static/releases/latest
 
+## Libtorrent v2 builds
+
+These are released as pre releases until qBittorrent officially adopts libtorrent v2 as the default version. You can the preview release and tags here.
+
+https://github.com/userdocs/qbittorrent-nox-static/releases
 ### x86_64
 
 ```bash
@@ -57,11 +62,6 @@ chmod 700 ~/bin/qbittorrent-nox
 Cmake builds where libtorrent and qbittorrent are compiled using cmake and ninja are available
 
 ⚠️ Cmake builds do not get stripped (debug symbols). Use cmake builds for stacktrace / debugging features built into qbittorrent.
-## Libtorrent v2 builds
-
-These are released as pre releases. You can find there here.
-
-https://github.com/userdocs/qbittorrent-nox-static/releases
 
 ## Libtorrent v2 + QT6 + Qbittorrent using cmake
 
