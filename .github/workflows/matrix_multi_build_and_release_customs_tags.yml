@@ -25,11 +25,11 @@ jobs:
             build_tool_name: "cmake-"
 
           - libtorrent_version: "2.0"
-            libtorrent_tag: -lt v2.0.3
+            libtorrent_tag: -lt v2.0.4
             preview_release: true
 
           - libtorrent_version: "1.2"
-            libtorrent_tag: -lt v1.2.13
+            libtorrent_tag: -lt v1.2.14
             preview_release: false
 
           - icu_step_name: icu
