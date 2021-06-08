@@ -30,39 +30,79 @@ Optionally installed to `$HOME/bin/qbittorrent-nox`
 
 ## GitHub Releases
 
-Optionally you can just the existing prebuilt binaries released using GitHub Actions.
+Optionally you can just download the existing prebuilt binaries released using GitHub Actions.
 
 <!-- tabs:start -->
 
 <!-- tab: x86_64 -->
 
+Without ICU
+
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_x86_64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-<!-- tab: x86_64-icu -->
+With ICU
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_x86_64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-icu-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
 <!-- tab: aarch64 -->
 
+Without ICU
+
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_aarch64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/aarch64-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-<!-- tab: aarch64-icu -->
+With ICU
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/qbittorrent_nox_icu_aarch64
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/aarch64-icu-qbittorrent-nox
+chmod 700 ~/bin/qbittorrent-nox
+```
+
+<!-- tab: armv7 -->
+
+Without ICU
+
+```bash
+mkdir -p ~/bin && source ~/.profile
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armv7-qbittorrent-nox
+chmod 700 ~/bin/qbittorrent-nox
+```
+
+With ICU
+
+```bash
+mkdir -p ~/bin && source ~/.profile
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armv7-icu-qbittorrent-nox
+chmod 700 ~/bin/qbittorrent-nox
+```
+
+<!-- tab: armhf -->
+
+Without ICU
+
+```bash
+mkdir -p ~/bin && source ~/.profile
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armhf-qbittorrent-nox
+chmod 700 ~/bin/qbittorrent-nox
+```
+
+With ICU
+
+```bash
+mkdir -p ~/bin && source ~/.profile
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armhf-icu-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
