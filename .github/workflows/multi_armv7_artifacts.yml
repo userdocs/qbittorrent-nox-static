@@ -1,0 +1,76 @@
+name: multi armv7 artifacts
+on:
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    container:
+      image: alpine:latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch_type: [armv7]
+        libtorrent_version: ["1.2", "2.0"]
+        with_icu: ["", -i]
+        build_tool: ["", cmake]
+        libtorrent_patch: [""]
+        qbittorrent_patch: [""]
+        # libtorrent_patch: ["-pr userdocs/qbittorrent-nox-static"]
+        # qbittorrent_patch: ["-pr userdocs/qbittorrent-nox-static"]
+
+        include:
+          - build_tool: cmake
+            build_tool_name: cmake-
+
+          - with_icu: "-i"
+            with_icu_name: icu-
+            with_icu_command: bash qbittorrent-nox-static.sh icu
+
+    name: ${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.with_icu_name }}lt-v${{ matrix.libtorrent_version }}
+
+    env:
+      qbt_build_tool: ${{ matrix.build_tool }}
+      qbt_cross_name: ${{ matrix.arch_type }}
+
+    steps:
+      - uses: actions/checkout@v2.3.4
+
+      - run: apk add bash
+        shell: ash {0}
+
+      - if: ${{ matrix.arch_type == 'x86_64' }}
+        run: bash qbittorrent-nox-static.sh
+
+      - if: ${{ ! matrix.arch_type == 'x86_64' }}
+        run: bash qbittorrent-nox-static.sh -bs-ma ${{ matrix.arch_type }}
+
+      - run: bash qbittorrent-nox-static.sh libexecinfo
+
+      - run: bash qbittorrent-nox-static.sh iconv
+
+      - run: bash qbittorrent-nox-static.sh zlib
+
+      - run: bash qbittorrent-nox-static.sh iconv
+
+      - run: bash qbittorrent-nox-static.sh openssl
+
+      - run: "${{ matrix.with_icu_command }}"
+
+      - run: bash qbittorrent-nox-static.sh boost
+
+      - run: bash qbittorrent-nox-static.sh ${{ matrix.libtorrent_patch }} libtorrent
+
+      - run: bash qbittorrent-nox-static.sh ${{ matrix.with_icu }} qtbase
+
+      - run: bash qbittorrent-nox-static.sh qttools
+
+      - run: bash qbittorrent-nox-static.sh ${{ matrix.qbittorrent_patch }} qbittorrent
+
+      - name: Archive code coverage results
+        uses: actions/upload-artifact@v2.2.3
+        with:
+          name: ${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.with_icu_name }}lt-v${{ matrix.libtorrent_version }}-qbittorrent-nox
+          path: qbt-build/completed/qbittorrent-nox
