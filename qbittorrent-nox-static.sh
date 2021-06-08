@@ -25,7 +25,7 @@ set -a
 #######################################################################################################################################################
 # Unset some variables to set defaults.
 #######################################################################################################################################################
-unset qbt_skip_delete qbt_skip_icu qbt_git_proxy qbt_curl_proxy qbt_install_dir qbt_build_dir qbt_working_dir qbt_modules_test qbt_python_version qbt_patches_url
+unset qbt_skip_delete qbt_skip_icu qbt_git_proxy qbt_curl_proxy qbt_install_dir qbt_build_dir qbt_working_dir qbt_modules_test qbt_python_version
 #######################################################################################################################################################
 # Color me up Scotty - define some color values to use as variables in the scripts.
 #######################################################################################################################################################
@@ -621,12 +621,12 @@ apply_patches() {
 		[[ ! -d "${patch_dir}" ]] && mkdir -p "${patch_dir}"
 		#
 		if [[ -f "${patch_file}" ]]; then
-			[[ "${patch_app_name}" == 'libtorrent' ]] && echo # purely comsetic
+			echo
 			echo -e " ${utick} ${cr}Using ${!patch_tag} existing patch file${cend}"
 			[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 		else
 			if curl_curl "${patch_file_url}" -o "${patch_file}"; then
-				[[ "${patch_app_name}" == 'libtorrent' ]] && echo # purely comsetic
+				echo
 				echo -e " ${utick} ${cr}Using ${!patch_tag} downloaded patch file${cend}"
 				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
