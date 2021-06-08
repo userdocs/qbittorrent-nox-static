@@ -6,19 +6,21 @@ bash ~/qbittorrent-nox-static.sh -h
 
 ### ENV settings
 
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] `export` the variables listed below when you use them in your local env.
+
 The script has some `env` settings that can trigger certain behaviours.
 
-`libtorrent_version="1.2"` can be set to `1.2` or `2.0` to change the default version used.
+`export libtorrent_version="1.2"` can be set to `1.2` or `2.0` to change the default version used.
 
-`qt_version="5.12"` can be set to any major and minor version like `5.15` or `6.1` and the latest patch version will be used.
+`export qt_version="5.12"` can be set to any major and minor version like `5.15` or `6.1` and the latest patch version will be used.
 
-`qbt_build_tool=""` can be set to `cmake` to trigger using cmake where available. Empty or unset will default to `qmake`
+`export qbt_build_tool=""` can be set to `cmake` to trigger using cmake where available. Empty or unset will default to `qmake`
 
 > [!note|iconVisibility:hidden|labelVisibility:hidden] If you set `qbt_build_tool=cmake`,  `qt_version=6.1` and `libtorrent_version=2.0` you can build against QT6. The build will fail until qBittorrent officially supports QT6.
 
-`qbt_cross_name=""`  can be set to `aarch64` - `armv7` - `armhf` to cross build for these supported architectures. Empty or unset will default to native `x86_64`
+`export qbt_cross_name=""`  can be set to `aarch64` - `armv7` - `armhf` to cross build for these supported architectures. Empty or unset will default to native `x86_64`
 
-`qbt_patches_url=""` can be set to `username/repo` to trigger patching.
+`export qbt_patches_url=""` can be set to `username/repo` to trigger patching.
 
 ### Switches and flags summarised
 
