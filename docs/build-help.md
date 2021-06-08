@@ -14,7 +14,7 @@ The script has some `env` settings that can trigger certain behaviours.
 
 `qbt_build_tool=""` can be set to `cmake` to trigger using cmake where available. Empty or unset will default to `qmake`
 
-> [!note|iconVisibility:hidden|labelVisibility:hidden] if you set `qbt_build_tool=cmake`,  `qt_version=6.1` and `libtorrent_version=2.0` you can build against QT6/ The build will fail untold qBittorrent officially supports QT6.
+> [!note|iconVisibility:hidden|labelVisibility:hidden] If you set `qbt_build_tool=cmake`,  `qt_version=6.1` and `libtorrent_version=2.0` you can build against QT6. The build will fail until qBittorrent officially supports QT6.
 
 `qbt_cross_name=""`  can be set to `aarch64` - `armv7` - `armhf` to cross build for these supported architectures. Empty or unset will default to native `x86_64`
 
