@@ -7,7 +7,7 @@
 
 ## Summary
 
-The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine 3.13 build on Linux based of like CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
+The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
 
 ## Documentation
 
@@ -20,16 +20,25 @@ These static builds can be used on WSL2 and accessed via `localhost:8080` using 
 
 https://github.com/userdocs/qbittorrent-nox-static/releases/latest
 
-## Libtorrent v2 builds
+## ICU builds 
 
-These are released as pre releases until qBittorrent officially adopts libtorrent v2 as the default version. You can the preview release and tags here.
+Each build has two versions due to how `qtbase` builds when it detects `ICU`
 
-https://github.com/userdocs/qbittorrent-nox-static/releases
+🔵 When not using `ICU` everything is built against `iconv`
+
+Typically the non `ICU` build can be considered the default build. ICU replaces `iconv` if detected when `qtbase` is built and doubles the static build size due to the ICU libraries being linked in.
+
+🔴 `ICU` builds have nothing to do with performance.
+
+The reason I do two builds is that `ICU` is an automated build flag preference for `QT` (and boost when I was building that) and I considered that it may one day be a default or only option and `ICU` seems to be the preferred choice for this kind of library. So it's really not a critical option but more of a choice.
+
+You can pick either version you want, if it works then just enjoy it. The only difference you may experience is how the WebUi displays Unicode characters.
+
 ### x86_64
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-icu-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/x86_64-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -37,7 +46,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armhf-icu-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armhf-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -45,7 +54,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armv7-icu-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/armv7-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
@@ -53,9 +62,17 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
-wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/aarch64-icu-qbittorrent-nox
+wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/aarch64-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
+
+## Libtorrent v2 builds
+
+These are released as pre releases until qBittorrent officially adopts libtorrent v2 as the default version. Once v2 is the default i will switch them around on future releases.
+
+You can the preview release and tags here.
+
+https://github.com/userdocs/qbittorrent-nox-static/releases
 
 ## Cmake builds
 
