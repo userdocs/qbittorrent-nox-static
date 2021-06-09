@@ -20,19 +20,7 @@ These static builds can be used on WSL2 and accessed via `localhost:8080` using 
 
 https://github.com/userdocs/qbittorrent-nox-static/releases/latest
 
-## ICU builds 
-
-Each build has two versions due to how `qtbase` builds when it detects `ICU`
-
-🔵 When not using `ICU` everything is built against `iconv`
-
-Typically the non `ICU` build can be considered the default build. ICU replaces `iconv` if detected when `qtbase` is built and doubles the static build size due to the ICU libraries being linked in.
-
-🔴 `ICU` builds have nothing to do with performance.
-
-The reason I do two builds is that `ICU` is an automated build flag preference for `QT` (and boost when I was building that) and I considered that it may one day be a default or only option and `ICU` seems to be the preferred choice for this kind of library. So it's really not a critical option but more of a choice.
-
-You can pick either version you want, if it works then just enjoy it. The only difference you may experience is how the WebUi displays Unicode characters.
+Or uses these commands for your arch:
 
 ### x86_64
 
@@ -65,6 +53,20 @@ mkdir -p ~/bin && source ~/.profile
 wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/aarch64-qbittorrent-nox
 chmod 700 ~/bin/qbittorrent-nox
 ```
+
+## ICU builds 
+
+Each build has two versions due to how `qtbase` builds when it detects `ICU`
+
+🔵 When not using `ICU` everything is built against `iconv`
+
+Typically the non `ICU` build can be considered the default build. ICU replaces `iconv` if detected when `qtbase` is built and doubles the static build size due to the ICU libraries being linked in.
+
+🔴 `ICU` builds have nothing to do with performance.
+
+The reason I do two builds is that `ICU` is an automated build flag preference for `QT` (and boost when I was building that) and I considered that it may one day be a default or only option and `ICU` seems to be the preferred choice for this kind of library. So it's really not a critical option but more of a choice.
+
+You can pick either version you want, if it works then just enjoy it. The only difference you may experience is how the WebUi displays Unicode characters.
 
 ## Libtorrent v2 builds
 
