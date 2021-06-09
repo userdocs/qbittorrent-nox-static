@@ -75,7 +75,7 @@ docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root ubuntu:latest /
 
 <!-- tab: Alpine -->
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `ubuntu:bionic` `ubuntu:focal` `ubuntu:hirsute` `ubuntu:latest`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `alpine:edge` `alpine:latest` 
 
 To bootstrap the container:
 
