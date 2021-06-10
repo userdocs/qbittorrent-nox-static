@@ -11,14 +11,15 @@ The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static)
 
 ## Documentation
 
-[Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README)
+🔵 [Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README) for in depth information on using this project.
+
 ## WSL2
 
-These static builds can be used on WSL2 and accessed via `localhost:8080` using the download instructions
+🟢 These static builds can be used on WSL2 and accessed via `localhost:8080` using the download instructions below
 
 ## Install the latest release
 
-https://github.com/userdocs/qbittorrent-nox-static/releases/latest
+🔵 [The latest release page](https://github.com/userdocs/qbittorrent-nox-static/releases/latest) for the most current build
 
 Or uses these commands for your arch:
 
@@ -56,35 +57,41 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ## ICU builds 
 
-Each build has two versions due to how `qtbase` builds when it detects `ICU`
+Each build has two versions due to how `qtbase` builds when it detects `ICU` .
 
-🔵 When not using `ICU` everything is built against `iconv`
+🟢 The `iconv`  / non `ICU` build can be considered the default build.
 
-Typically the non `ICU` build can be considered the default build. ICU replaces `iconv` if detected when `qtbase` is built and doubles the static build size due to the ICU libraries being linked in.
+ICU replaces `iconv` if detected when `qtbase` is built and doubles the static build size due to the ICU libraries being linked into the final static binary.
 
-🔴 `ICU` builds have nothing to do with performance.
+🔵 When not using `ICU` everything is built against `iconv` 
+
+🟠 `ICU` builds have nothing to do with performance.
 
 The reason I do two builds is that `ICU` is an automated build flag preference for `QT` (and boost when I was building that) and I considered that it may one day be a default or only option and `ICU` seems to be the preferred choice for this kind of library. So it's really not a critical option but more of a choice.
+
+🔵 `ICU` is a preferred build path automatically chosen by the programs built if it is present on the system.
 
 You can pick either version you want, if it works then just enjoy it. The only difference you may experience is how the WebUi displays Unicode characters.
 
 ## Libtorrent v2 builds
 
-These are released as pre releases until qBittorrent officially adopts libtorrent v2 as the default version. Once v2 is the default i will switch them around on future releases.
+🟠 Libtorrent v1.2 is currently the main branch supported by qBittorrent
 
-You can the preview release and tags here.
+These are released as pre releases until qBittorrent officially adopts libtorrent v2 as the default version. Once v2 is the default I will switch them around on future releases.
 
-https://github.com/userdocs/qbittorrent-nox-static/releases
+You can view the pre releases and tags here.
+
+🔵 https://github.com/userdocs/qbittorrent-nox-static/releases
 
 ## Cmake builds
 
 Cmake builds where libtorrent and qbittorrent are compiled using cmake and ninja are available
 
-⚠️ Cmake builds do not get stripped (debug symbols). Use cmake builds for stacktrace / debugging features built into qbittorrent.
+🟠 Cmake builds do not get stripped (debug symbols). Use cmake builds for stacktrace / debugging features built into qbittorrent.
 
 ## Libtorrent v2 + QT6 + Qbittorrent using cmake
 
-The script is ready to build using cmake and is QT6 ready. As soon as qbittorrrent has official support this script can build it.
+🟢 The script is ready to build using cmake and is QT6 ready. As soon as qbittorrrent has official support this script can build it.
 
 ## Build table - Dependencies - arch - OS - build tools
 
