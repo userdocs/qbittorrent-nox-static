@@ -1,5 +1,5 @@
 :root {
-    --content-max-width                 : 90%;
+    --content-max-width                 : 94%;
     /* Tab blocks */
     --docsifytabs-border-color          : #ededed;
 
@@ -10,5 +10,7 @@
 
     --link-color                        : rgb(44, 44, 172);
     --link-color--hover                 : rgb(83, 156, 83);
+    
+    --markdown-section-padding: 20px 50px 20px 10px;
 
 }
