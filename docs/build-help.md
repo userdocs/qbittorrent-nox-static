@@ -10,17 +10,15 @@ bash ~/qbittorrent-nox-static.sh -h
 
 The script has some `env` settings that can trigger certain behaviours.
 
-`export libtorrent_version="1.2"` can be set to `1.2` or `2.0` to change the default version used.
-
-`export qt_version="5.12"` can be set to any major and minor version like `5.15` or `6.1` and the latest patch version will be used.
-
-`export qbt_build_tool=""` can be set to `cmake` to trigger using cmake where available. Empty or unset will default to `qmake`
+| Build variable       | Default if unset | Options                             | example usage                             |
+| -------------------- | ---------------- | ----------------------------------- | ----------------------------------------- |
+| `libtorrent_version` | `1.2`            | `1.2` `2.0`                         | `export libtorrent_version=2.0`           |
+| `qbt_qt_version`     | `5.15`           | `5.12 ` `5.13 ` `5.14` `5.15` `6.1` | `export qbt_qt_version=6.1`               |
+| `qbt_build_tool`     | empty = `qmake`  | `cmake`                             | `export qbt_build_tool=cmake`             |
+| `qbt_cross_name`     | empty = `x86_64` | `aarch64`  `armv7` `armhf`          | `export qbt_cross_name=aarch64`           |
+| `qbt_patches_url`    | empty = `unset`  | `username/repo`                     | `export qbt_patches_url=userdocs/patches` |
 
 > [!note|iconVisibility:hidden|labelVisibility:hidden] If you set `qbt_build_tool=cmake`,  `qt_version=6.1` and `libtorrent_version=2.0` you can build against QT6. The build will fail until qBittorrent officially supports QT6.
-
-`export qbt_cross_name=""`  can be set to `aarch64` - `armv7` - `armhf` to cross build for these supported architectures. Empty or unset will default to native `x86_64`
-
-`export qbt_patches_url=""` can be set to `username/repo` to trigger patching.
 
 ### Switches and flags summarised
 
