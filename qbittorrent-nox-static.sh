@@ -207,14 +207,14 @@ check_dependencies() {
 			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 				if ! apk add "${qbt_checked_required_pkgs[@]}" --repository="${CDN_URL}"; then
 					echo
-					exit
+					exit 1
 				fi
 			fi
 			#
 			if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
 				if ! apt-get install -y "${qbt_checked_required_pkgs[@]}"; then
 					echo
-					exit
+					exit 1
 				fi
 			fi
 			#
@@ -224,7 +224,13 @@ check_dependencies() {
 		else
 			echo -e "${tn}${tb} Please request or install the missing core dependencies before using this script${cend}"
 			#
-			echo -e "${tn}apk add ${qbt_checked_required_pkgs[*]}${tn}"
+			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
+				echo -e "${tn} ${clr}apk add${cend} ${qbt_checked_required_pkgs[*]}${tn}"
+			fi
+			#
+			if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
+				echo -e "${tn} ${clr}apt-get install -y${cend} ${qbt_checked_required_pkgs[*]}${tn}"
+			fi
 			#
 			exit
 		fi
