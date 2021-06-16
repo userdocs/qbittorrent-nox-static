@@ -48,6 +48,7 @@ All switches and flags have a supporting help option that will provide dynamic c
  Use: -pr    or --patch-repo            Help: -h-pr    or --help-patch-repo
  Use: -qm    or --qbittorrent-master    Help: -h-qm    or --help-qbittorrent-master
  Use: -qt    or --qbittorrent-tag       Help: -h-qt    or --help-qbittorrent-tag
+ Use: -s     or --strip                 Help: -h-s     or --help-strip
 
  Module specific help - flags are used with the modules listed here.
 
