@@ -44,7 +44,7 @@ jobs:
       name: "${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}libtorrent-v${{ matrix.libtorrent_version }}"
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
 
       - run: apk add bash git
         shell: ash {0}
@@ -92,7 +92,7 @@ jobs:
         run: mv -f "${{ env.build_dir }}/completed/qbittorrent-nox" "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox"
 
       - name: "Create release - tag - assets"
-        uses: ncipollo/release-action@v1.8.6
+        uses: ncipollo/release-action@v1.8.10
         with:
           prerelease: ${{ matrix.preview_release }}
           artifacts: "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox"
@@ -105,7 +105,7 @@ jobs:
 
       - name: Archive code coverage results
         if: env.qbt_build_tool == 'cmake'
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ env.name }}-graphs
           path: ${{ env.build_dir }}/completed/*.png

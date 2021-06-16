@@ -15,10 +15,12 @@ jobs:
       fail-fast: false
       matrix:
         container_id: [debian, ubuntu]
-        container_codename: [buster, sid, focal, hirsute]
+        container_codename: [buster, bullseye, bionic, focal, hirsute]
         build_tool_flag: ["", -c]
         libtorrent_tag: [-lt RC_1_2, -lt RC_2_0]
         exclude:
+          - container_id: debian
+            container_codename: bionic
           - container_id: debian
             container_codename: focal
           - container_id: debian
@@ -26,7 +28,7 @@ jobs:
           - container_id: ubuntu
             container_codename: buster
           - container_id: ubuntu
-            container_codename: sid
+            container_codename: bullseye
         include:
           - build_tool_flag: ""
             build_tool_name: qmake
@@ -47,7 +49,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
         TZ: Europe/London
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
 
       - run: bash qbittorrent-nox-static.sh -bs-a ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh bison
@@ -64,7 +66,7 @@ jobs:
       - run: bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.build_tool_flag }}
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ env.artifact_name }}
           path: ${{ env.build_dir }}/completed/qbittorrent-nox

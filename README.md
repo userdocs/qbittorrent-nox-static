@@ -31,7 +31,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-### armhf (armv6)
+### armhf (armv6) - dropped in future releases
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
@@ -55,7 +55,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-## ICU builds 
+## ICU builds
 
 Each build has two versions due to how `qtbase` builds when it detects `ICU` .
 
@@ -63,7 +63,7 @@ Each build has two versions due to how `qtbase` builds when it detects `ICU` .
 
 ICU replaces `iconv` if detected when `qtbase` is built and doubles the static build size due to the ICU libraries being linked into the final static binary.
 
-🔵 When not using `ICU` everything is built against `iconv` 
+🔵 When not using `ICU` everything is built against `iconv`
 
 🟠 `ICU` builds have nothing to do with performance.
 
@@ -95,20 +95,21 @@ Cmake builds where libtorrent and qbittorrent are compiled using cmake and ninja
 
 ## Build table - Dependencies - arch - OS - build tools
 
-|    Deps     | x86_64 | aarch64 | Debian based | Alpine | make  | cmake |  b2   | qmake |
-| :---------: | :----: | :-----: | :----------: | :----: | :---: | :---: | :---: | :---: |
-| libexecinfo |   ✅    |    ✅    |      ❌       |   ✅    |   ❌   |   ❌   |   ❌   |   ❌   |
-|    bison    |   ✅    |    ❌    |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    gawk     |   ✅    |    ❌    |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    glibc    |   ✅    |    ❌    |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    zlib     |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    iconv    |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|     icu     |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|   openssl   |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    boost    |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
-| libtorrent  |   ✅    |    ✅    |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
-|   qt5base   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-|   qt5ools   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-|   qt6base   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|   qt6ools   |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-| qbittorrent |   ✅    |    ✅    |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
+|    Deps     | x86_64 | aarch64 | armv7 | Debian based | Alpine | make  | cmake |  b2   | qmake |
+| :---------: | :----: | :-----: | :---: | :----------: | :----: | :---: | :---: | :---: | :---: |
+| libexecinfo |   ✅    |    ✅    |   ✅   |      ❌       |   ✅    |   ❌   |   ❌   |   ❌   |   ❌   |
+|    bison    |   ✅    |    ✅    |   ✅   |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    gawk     |   ✅    |    ✅    |   ✅   |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    glibc    |   ✅    |    ✅    |   ✅   |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    zlib     |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    iconv    |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|     icu     |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|   openssl   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|    boost    |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
+| libtorrent  |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
+|   qt5base   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+|   qt5ools   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+|   qt6base   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|   qt6ools   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+| qbittorrent |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
+

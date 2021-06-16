@@ -15,21 +15,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arch_type: [x86_64, armhf, armv7, aarch64]
+        arch_type: [x86_64, armv7, aarch64]
         libtorrent_version: ["1.2", "2.0"]
         icu_step_name: [icu skipped, icu]
         build_tool: ["", cmake]
-        qbittorrent_tag: ["-qt release-4.3.4.1"]
+        qbittorrent_tag: ["-qt release-4.3.5"]
         include:
           - build_tool: "cmake"
             build_tool_name: "cmake-"
 
           - libtorrent_version: "2.0"
-            libtorrent_tag: -lt v2.0.4
+            libtorrent_tag: -lt v2.0.3
             preview_release: true
 
           - libtorrent_version: "1.2"
-            libtorrent_tag: -lt v1.2.14
+            libtorrent_tag: -lt v1.2.13
             preview_release: false
 
           - icu_step_name: icu
@@ -47,7 +47,7 @@ jobs:
       name: "${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}libtorrent-v${{ matrix.libtorrent_version }}"
 
     steps:
-      - uses: actions/checkout@v2.3.4
+      - uses: actions/checkout@v2.3.5
 
       - run: apk add bash git
         shell: ash {0}
@@ -95,7 +95,7 @@ jobs:
         run: mv -f "${{ env.build_dir }}/completed/qbittorrent-nox" "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox"
 
       - name: "Create release - tag - assets"
-        uses: ncipollo/release-action@v1.8.6
+        uses: ncipollo/release-action@v1.8.10
         with:
           prerelease: ${{ matrix.preview_release }}
           artifacts: "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox"
@@ -108,7 +108,7 @@ jobs:
 
       - name: Archive code coverage results
         if: env.qbt_build_tool == 'cmake'
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ env.name }}-graphs
           path: ${{ env.build_dir }}/completed/*.png
