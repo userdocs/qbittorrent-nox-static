@@ -425,8 +425,8 @@ set_build_directory() {
 # This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the installation_modules function
 #######################################################################################################################################################
 custom_flags_set() {
-	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w -I${include_dir}"
-	CPPFLAGS="${optimize/*/$optimize }-static -w -I${include_dir}"
+	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w ${qbt_strip_flags} -I${include_dir}"
+	CPPFLAGS="${optimize/*/$optimize }-static -w ${qbt_strip_flags} -I${include_dir}"
 	LDFLAGS="${optimize/*/$optimize }-static -Wl,--no-as-needed -L${lib_dir} -lpthread -pthread"
 }
 #
@@ -1145,6 +1145,11 @@ while (("${#}")); do
 			test_git_ouput "${qbittorrent_github_tag}" "$2" "qbittorrent"
 			shift 2
 			;;
+		-s | --strip)
+			qbt_strip_qmake='strip'
+			qbt_strip_flags='-s'
+			shift
+			;;
 		-h | --help)
 			echo
 			echo -e " ${tb}${tu}Here are a list of available options${cend}"
@@ -1168,6 +1173,7 @@ while (("${#}")); do
 			echo -e " ${cg}Use:${cend} ${clb}-pr${cend}    ${td}or${cend} ${clb}--patch-repo${cend}            ${cy}Help:${cend} ${clb}-h-pr${cend}    ${td}or${cend} ${clb}--help-patch-repo${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-qm${cend}    ${td}or${cend} ${clb}--qbittorrent-master${cend}    ${cy}Help:${cend} ${clb}-h-qm${cend}    ${td}or${cend} ${clb}--help-qbittorrent-master${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-qt${cend}    ${td}or${cend} ${clb}--qbittorrent-tag${cend}       ${cy}Help:${cend} ${clb}-h-qt${cend}    ${td}or${cend} ${clb}--help-qbittorrent-tag${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-s${cend}     ${td}or${cend} ${clb}--strip${cend}                 ${cy}Help:${cend} ${clb}-h-s${cend}     ${td}or${cend} ${clb}--help-strip${cend}"
 			echo
 			echo -e " ${tb}${tu}Module specific help - flags are used with the modules listed here.${cend}"
 			echo
@@ -1456,6 +1462,20 @@ while (("${#}")); do
 			echo -e " ${td}This flag must be provided with arguments.${cend}"
 			echo
 			echo -e " ${clb}-qt${cend} ${clc}${qbittorrent_github_tag}${cend}"
+			echo
+			exit
+			;;
+		-h-s | --help-strip)
+			echo
+			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " Strip the qbittorrent-nox binary of unneeded symbols to decrease file size"
+			echo
+			echo -e " ${uyc} This will reduce the size of the file by about 15MB but break the built in stacktrace features of qbittorrent"
+			echo
+			echo -e " ${td}This flag is provided with no arguments.${cend}"
+			echo
+			echo -e " ${clb}-s${cend}"
 			echo
 			exit
 			;;
@@ -1834,7 +1854,11 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			icu=("-no-icu" "-iconv" "QMAKE_CXXFLAGS=-w -fpermissive")
 		fi
 		#
+		# If Alpine, add the QMAKE_LIBS_EXECINFO path so we can build qtbase with no errors whilst linking against libexecinfo
 		[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "${qbt_install_dir}/${app_name}/mkspecs/common/linux.conf"
+		#
+		# Don't strip by default by disabling these options. We will set it as off by default and use it with a switch
+		echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "${qbt_install_dir}/qtbase/mkspecs/common/linux.conf"
 		#
 		./configure "${multi_qtbase[@]}" -prefix "${qbt_install_dir}" "${icu[@]}" -opensource -confirm-license -release \
 			-openssl-linked -static -c++std "${cxx_standard}" -qt-pcre \
