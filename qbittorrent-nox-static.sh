@@ -948,7 +948,7 @@ _release_info() {
 		| All supported |   ✅   |   ❌   |   ❌   |   ✅   |                   ✅                    |
 		| All supported |   ✅   |   ✅   |   ❌   |   ✅   |                   ✅                    |
 
-		⚠️ qmake builds are stripped but cmake builds are not. Use cmake builds for stacktrace / debugging.
+		⚠️ Binary builds are not stripped by default to preserve stacktrace / debugging features built into qBittorrent.
 
 	RELEASE_INFO
 	#
