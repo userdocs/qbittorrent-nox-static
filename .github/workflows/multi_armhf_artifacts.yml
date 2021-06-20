@@ -70,7 +70,7 @@ jobs:
       - run: bash qbittorrent-nox-static.sh ${{ matrix.qbittorrent_patch }} qbittorrent
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.with_icu_name }}lt-v${{ matrix.libtorrent_version }}-qbittorrent-nox
           path: qbt-build/completed/qbittorrent-nox

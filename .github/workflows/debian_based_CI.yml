@@ -64,7 +64,7 @@ jobs:
       - run: bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.build_tool_flag }}
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ env.artifact_name }}
           path: ${{ env.build_dir }}/completed/qbittorrent-nox

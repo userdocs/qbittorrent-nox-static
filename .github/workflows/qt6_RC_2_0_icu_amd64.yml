@@ -33,7 +33,7 @@ jobs:
       - run: bash qbittorrent-nox-static.sh qbittorrent -qm
 
       - name: Archive code coverage results
-        uses: actions/upload-artifact@v2.2.3
+        uses: actions/upload-artifact@v2.2.4
         with:
           name: qbittorrent-nox
           path: qbt-build/completed/qbittorrent-nox
