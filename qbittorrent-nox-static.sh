@@ -465,7 +465,8 @@ set_module_urls() {
 		if [[ "${what_version_codename}" =~ ^(hirsute)$ ]]; then
 			#glibc_version="$(git_git ls-remote -q -t --refs https://sourceware.org/git/glibc.git | awk '/\/tags\/glibc-[0-9]\.[0-9]{2}$/{sub("refs/tags/glibc-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 			#glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-${glibc_version}.tar.gz"
-			glibc_url="http://ftpmirror.gnu.org/gnu/glibc/$(grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl http://ftpmirror.gnu.org/gnu/glibc/) | sort -V | tail -1)"
+			#glibc_url="http://ftpmirror.gnu.org/gnu/glibc/$(grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl http://ftpmirror.gnu.org/gnu/glibc/) | sort -V | tail -1)"
+			glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-2.33.tar.gz" # pin to the same version for this OS otherwise we get build errors
 		else
 			glibc_url="http://ftpmirror.gnu.org/gnu/libc/glibc-2.31.tar.gz" # pin to the same version for this OS otherwise we get build errors
 		fi
