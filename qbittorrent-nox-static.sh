@@ -444,9 +444,9 @@ set_module_urls() {
 		libexecinfo_static_url="${CDN_URL}/${alpine_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
 	fi
 	#
-	cmake_github_tag="$(git_git ls-remote -t --sort=-v:refname --refs https://github.com/Kitware/CMake.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
+	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/Kitware/CMake.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	cmake_version="${cmake_github_tag#v}"
-	ninja_github_tag="$(git_git ls-remote -t --sort=-v:refname --refs https://github.com/ninja-build/ninja.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | head -n 1)"
+	ninja_github_tag="$(git_git ls-remote -q -t --refs https://github.com/ninja-build/ninja.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	ninja_version="${ninja_github_tag#v}"
 	#
 	if [[ ! "${what_id}" =~ ^(alpine)$ ]]; then
