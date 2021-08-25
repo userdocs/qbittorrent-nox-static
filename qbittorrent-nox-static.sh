@@ -1754,6 +1754,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 				-D CMAKE_BUILD_TYPE="Release" \
 				-D CMAKE_CXX_STANDARD="${standard}" \
 				-D CMAKE_PREFIX_PATH="${qbt_install_dir};${qbt_install_dir}/boost" \
+				-D Boost_NO_BOOST_CMAKE=TRUE \
 				-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
 				-D BUILD_SHARED_LIBS=OFF \
 				-D Iconv_LIBRARY="${lib_dir}/libiconv.a" \
@@ -1963,6 +1964,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 				-D CMAKE_BUILD_TYPE="release" \
 				-D CMAKE_CXX_STANDARD="${standard}" \
 				-D CMAKE_PREFIX_PATH="${qbt_install_dir};${qbt_install_dir}/boost" \
+				-D Boost_NO_BOOST_CMAKE=TRUE \
 				-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
 				-D Iconv_LIBRARY="${lib_dir}/libiconv.a" \
 				-D CMAKE_CXX_STANDARD_LIBRARIES="${libexecinfo}" \
