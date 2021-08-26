@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         container_id: [debian, ubuntu]
-        container_codename: [buster, sid, focal, hirsute]
+        container_codename: [buster, focal, hirsute]
         build_tool_flag: ["", -c]
         libtorrent_tag: [-lt RC_1_2, -lt RC_2_0]
         exclude:
