@@ -15,18 +15,18 @@ jobs:
       fail-fast: false
       matrix:
         container_id: [debian, ubuntu]
-        container_codename: [buster, focal, hirsute]
+        container_codename: [buster, bionic, focal, hirsute]
         build_tool_flag: ["", -c]
         libtorrent_tag: [-lt RC_1_2, -lt RC_2_0]
         exclude:
+          - container_id: debian
+            container_codename: bionic
           - container_id: debian
             container_codename: focal
           - container_id: debian
             container_codename: hirsute
           - container_id: ubuntu
             container_codename: buster
-          - container_id: ubuntu
-            container_codename: sid
         include:
           - build_tool_flag: ""
             build_tool_name: qmake
