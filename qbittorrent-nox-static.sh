@@ -474,11 +474,12 @@ set_module_urls() {
 		fi
 	fi
 	#
-	zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/madler/zlib.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-	zlib_url="https://github.com/madler/zlib/archive/${zlib_github_tag}.tar.gz"
+	zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/zlib-ng/zlib-ng | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+	zlib_github_url="https://github.com/zlib-ng/zlib-ng.git"
 	#
-	#iconv_github_tag="$(git_git ls-remote -q -t --refs https://git.savannah.gnu.org/git/libiconv.git | awk '/v/{sub("refs/tags/v", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-	#iconv_url="http://ftpmirror.gnu.org/gnu/libiconv/libiconv-${iconv_github_tag}.tar.gz"
+	#zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/madler/zlib.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+	#zlib_url="https://github.com/madler/zlib/archive/${zlib_github_tag}.tar.gz"
+	#
 	iconv_url="http://ftpmirror.gnu.org/gnu/libiconv/$(grep -Eo 'libiconv-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl http://ftpmirror.gnu.org/gnu/libiconv/) | sort -V | tail -1)"
 	#
 	icu_github_tag="$(git_git ls-remote -q -t --refs https://github.com/unicode-org/icu.git | awk '/\/release-/{sub("refs/tags/release-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
@@ -890,11 +891,11 @@ _multi_arch() {
 			#
 			_fix_multiarch_static_links "${qbt_cross_host}"
 			#
-			multi_bison=("--host=${qbt_cross_host}") # ${multi_iconv[@]}
+			multi_bison=("--host=${qbt_cross_host}") # ${multi_bison[@]}
 			#
-			multi_gawk=("--host=${qbt_cross_host}") # ${multi_iconv[@]}
+			multi_gawk=("--host=${qbt_cross_host}") # ${multi_gawk[@]}
 			#
-			multi_glibc=("--host=${qbt_cross_host}") # ${multi_iconv[@]}
+			multi_glibc=("--host=${qbt_cross_host}") # ${multi_glibc[@]}
 			#
 			multi_iconv=("--host=${qbt_cross_host}") # ${multi_iconv[@]}
 			#
@@ -1635,14 +1636,34 @@ application_name zlib
 #
 if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
-	download_file "${app_name}" "${!app_url}"
+	# download_file "${app_name}" "${!app_url}"
+	download_folder "${app_name}" "${!app_github_url}"
 	#
-	./configure --prefix="${qbt_install_dir}" --static |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
-	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-	#
-	post_command build
-	#
-	make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
+	if [[ "${qbt_build_tool}" == 'cmake' ]]; then
+		mkdir -p "${qbt_install_dir}/graphs/${zlib_github_tag}"
+		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${zlib_github_tag}/dep-graph.dot" -G Ninja -B build \
+			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
+			-D CMAKE_CXX_STANDARD="${standard}" \
+			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
+			-D BUILD_SHARED_LIBS=OFF \
+			-D ZLIB_COMPAT=ON \
+			-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
+		cmake --build build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
+		#
+		post_command build
+		#
+		cmake --install build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
+		#
+		dot -Tpng -o "${qbt_install_dir}/completed/${app_name}-graph.png" "${qbt_install_dir}/graphs/${zlib_github_tag}/dep-graph.dot"
+		#
+	else
+		./configure --prefix="${qbt_install_dir}" --static --zlib-compat |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
+		make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
+		#
+		post_command build
+		#
+		make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
+	fi
 	#
 	_fix_static_links "${app_name}"
 	#
