@@ -1,4 +1,4 @@
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] Supported build platforms are: `Debian Buster|testing` - `Ubuntu Bionic|Focal|hirsute` - `Alpine 3.10 +` - native or via `docker` images
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] Supported build platforms are: `Debian Buster|Bullseye` - `Ubuntu Bionic|Focal|hirsute` - `Alpine 3.10 +` - native or via `docker` images
 
 > [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux.
 
