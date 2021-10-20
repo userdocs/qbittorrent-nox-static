@@ -25,7 +25,7 @@ The script has some `env` settings that can trigger certain behaviours.
 
 All switches and flags have a supporting help option that will provide dynamic content where applicable.
 
->[!note|iconVisibility:hidden|labelVisibility:hidden] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armhf|armv7` builds on your local system using Alpine via docker.
+>[!note|iconVisibility:hidden|labelVisibility:hidden] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armv7` builds on your local system using Alpine/Debian/Ubuntu via docker.
 
 ```none
  Here are a list of available options
@@ -129,9 +129,9 @@ bash ~/qbittorrent-nox-static.sh all
 
 ### Build - modules (optional and mostly for debugging and testing)
 
-You can build modules indivually, subject to this warning.
+You can build modules individually, subject to this warning.
 
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] It's best to consider all indivual modules listed below as being dependent on the previous modules being built for that module to build successfully.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] It's best to consider all individual modules listed below as being dependent on the previous modules being built for that module to build successfully.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh module
