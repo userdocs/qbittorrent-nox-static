@@ -420,7 +420,7 @@ set_build_directory() {
 	LOCAL_USER_HOME="${HOME}" # Get the local user's home dir path before we contain HOME to the build dir.
 	HOME="${qbt_install_dir}"
 	PATH="${qbt_install_dir}/bin${PATH:+:${qbt_local_paths}}"
-	LD_LIBRARY_PATH="-L${lib_dir}"
+	LD_LIBRARY_PATH="${lib_dir}"
 	PKG_CONFIG_PATH="${lib_dir}/pkgconfig"
 }
 #######################################################################################################################################################
