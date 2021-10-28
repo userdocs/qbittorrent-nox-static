@@ -31,7 +31,7 @@ If you need to install the dependencies and you have sudo privileges then do thi
 sudo bash ~/qbittorrent-nox-static.sh
 ```
 
->  [!TIP|iconVisibility:hidden|labelVisibility:hidden] using certain switches can add dependencies like `-c` for cmake. So you may need to escalate your privileges again.
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] using certain switches can add dependencies like `-c` for cmake. So you may need to escalate your privileges again.
 
 ## Docker via SSH
 
@@ -41,7 +41,7 @@ Some notes on the dockers method:
 - The subdirectory will be automatically created and named `qbt` by the use of `-v $HOME/qbt:/root`
 - The finale default path will be `HOME/qbt` outside the docker container and `/root/qbt` inside it.
 
->  [!TIP|iconVisibility:hidden|labelVisibility:hidden] build envs can be passed to the docker using `-e` . Such as `-e qbt_cross_name=aarch64`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] build envs can be passed to the docker using `-e` . Such as `-e qbt_cross_name=aarch64`
 
 <!-- tabs:start -->
 
@@ -79,7 +79,7 @@ docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root ubuntu:latest /
 
 <!-- tab: Alpine -->
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `alpine:edge` `alpine:latest` 
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `alpine:edge` `alpine:latest`
 
 To bootstrap the container:
 
