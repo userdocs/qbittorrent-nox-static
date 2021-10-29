@@ -505,8 +505,8 @@ set_module_urls() {
 	#qttools_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
 	#qttools_github_url="https://github.com/qt/qttools.git"
 	#
-	qtbase_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qtbase_github_tag/v/}/submodules/qtbase-everywhere-src-${qtbase_github_tag/v/}.tar.xz"
-	qttools_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qttools_github_tag/v/}/submodules/qttools-everywhere-src-${qttools_github_tag/v/}.tar.xz"
+	# qtbase_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qtbase_github_tag/v/}/submodules/qtbase-everywhere-src-${qtbase_github_tag/v/}.tar.xz"
+	# qttools_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qttools_github_tag/v/}/submodules/qttools-everywhere-src-${qttools_github_tag/v/}.tar.xz"
 	#
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
 	libtorrent_github_tags_list="$(git_git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
@@ -1882,12 +1882,12 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	#
 	case "${qbt_cross_name}" in
 		armv7)
-			#sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase/mkspecs/linux-arm-gnueabi-g++/qmake.conf"
-			sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/linux-arm-gnueabi-g++/qmake.conf"
+			sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase/mkspecs/linux-arm-gnueabi-g++/qmake.conf"
+			# sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/linux-arm-gnueabi-g++/qmake.conf"
 			;;
 		aarch64)
-			# sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase/mkspecs/linux-aarch64-gnu-g++/qmake.conf"
-			sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/linux-aarch64-gnu-g++/qmake.conf"
+			sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase/mkspecs/linux-aarch64-gnu-g++/qmake.conf"
+			# sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/linux-aarch64-gnu-g++/qmake.conf"
 			;;
 	esac
 	#
@@ -1928,12 +1928,12 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		#
 		# If Alpine, add the QMAKE_LIBS_EXECINFO path so we can build qtbase with no errors whilst linking against libexecinfo
 		#
-		#[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "${qbt_install_dir}/${app_name}/mkspecs/common/linux.conf"
-		[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/common/linux.conf"
+		[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "${qbt_install_dir}/${app_name}/mkspecs/common/linux.conf"
+		# [[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/common/linux.conf"
 		#
 		# Don't strip by default by disabling these options. We will set it as off by default and use it with a switch
-		#echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "${qbt_install_dir}/qtbase/mkspecs/common/linux.conf"
-		echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/common/linux.conf"
+		echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "${qbt_install_dir}/qtbase/mkspecs/common/linux.conf"
+		#echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/common/linux.conf"
 		#
 		./configure "${multi_qtbase[@]}" -prefix "${qbt_install_dir}" "${icu[@]}" -opensource -confirm-license -release \
 			-openssl-linked -static -c++std "${cxx_standard}" -qt-pcre \
