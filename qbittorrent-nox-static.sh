@@ -495,11 +495,15 @@ set_module_urls() {
 	#
 	qt_github_tag_list="$(git_git ls-remote -q -t --refs https://github.com/qt/qtbase.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
 	#
-	qtbase_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
-	qtbase_github_url="https://github.com/qt/qtbase.git"
+	qtbase_github_tag="kde/5.15"
+	qtbase_github_url="https://invent.kde.org/qt/qt/qtbase.git"
+	#qtbase_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
+	#qtbase_github_url="https://github.com/qt/qtbase.git"
 	#
-	qttools_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
-	qttools_github_url="https://github.com/qt/qttools.git"
+	qttools_github_tag="kde/5.15"
+	qttools_github_url="https://invent.kde.org/qt/qt/qttools.git"
+	#qttools_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
+	#qttools_github_url="https://github.com/qt/qttools.git"
 	#
 	qtbase_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qtbase_github_tag/v/}/submodules/qtbase-everywhere-src-${qtbase_github_tag/v/}.tar.xz"
 	qttools_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qttools_github_tag/v/}/submodules/qttools-everywhere-src-${qttools_github_tag/v/}.tar.xz"
@@ -1768,6 +1772,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	#
 	if [[ "${qbt_build_tool}" != 'cmake' ]]; then
 		"${qbt_install_dir}/boost/bootstrap.sh" |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
+		ln -s "${qbt_install_dir}/boost/boost" "${qbt_install_dir}/boost/include"
 	else
 		echo -e " ${uyc} Skipping b2 as we are using cmake"
 	fi
@@ -1872,8 +1877,8 @@ application_name qtbase
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	#
-	#download_folder "${app_name}" "${!app_github_url}"
-	download_file "${app_name}" "${!app_url}"
+	download_folder "${app_name}" "${!app_github_url}"
+	# download_file "${app_name}" "${!app_url}"
 	#
 	case "${qbt_cross_name}" in
 		armv7)
@@ -1959,8 +1964,9 @@ application_name qttools
 #
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
-	#download_folder "${app_name}" "${!app_github_url}"
-	download_file "${app_name}" "${!app_url}"
+	#
+	download_folder "${app_name}" "${!app_github_url}"
+	# download_file "${app_name}" "${!app_url}"
 	#
 	if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 		libexecinfo="${lib_dir}/libexecinfo.a"
