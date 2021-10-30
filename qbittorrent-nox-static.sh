@@ -87,6 +87,7 @@ set_default_values() {
 	qbt_build_tool="${qbt_build_tool:-}"
 	qbt_cross_name="${qbt_cross_name:-}"
 	qbt_cross_target="${qbt_cross_target:-${what_id}}"
+	qbt_cmake_debug="${qbt_cmake_debug:-}"
 	#
 	qbt_patches_url="${qbt_patches_url:-}" # Provide a git username and repo in this format - username/repo" - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
 	#
@@ -473,7 +474,8 @@ set_module_urls() {
 		fi
 	fi
 	#
-	zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/zlib-ng/zlib-ng | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+	# zlib_github_version="$(git_git ls-remote -q -t --refs https://github.com/zlib-ng/zlib-ng | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+	zlib_github_tag="develop"
 	zlib_github_url="https://github.com/zlib-ng/zlib-ng.git"
 	#
 	#zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/madler/zlib.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
