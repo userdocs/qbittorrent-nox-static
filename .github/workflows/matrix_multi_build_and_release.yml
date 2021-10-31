@@ -11,7 +11,7 @@ jobs:
     defaults:
       run:
         shell: bash
-    container: alpine:latest
+    container: alpine:edge
     strategy:
       fail-fast: false
       matrix:
