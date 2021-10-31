@@ -474,8 +474,9 @@ set_module_urls() {
 		fi
 	fi
 	#
+	zlib_github_tag="develop" # use this to fix arm cross building with cmake until a new release including these fixes is available (>2.0.5)
 	# zlib_github_version="$(git_git ls-remote -q -t --refs https://github.com/zlib-ng/zlib-ng | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-	zlib_github_tag="develop"
+	zlib_version="$(curl https://raw.githubusercontent.com/zlib-ng/zlib-ng/${zlib_github_tag}/zlib.h.in | sed -rn 's|#define ZLIB_VERSION "(.*)"|\1|p')" # get the version from the headers
 	zlib_github_url="https://github.com/zlib-ng/zlib-ng.git"
 	#
 	#zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/madler/zlib.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
@@ -969,7 +970,7 @@ _release_info() {
 		Libtorrent: ${libtorrent_github_tag#v}
 		Boost: ${boost_version#v}
 		OpenSSL: ${openssl_pretty_version}
-		zlib: ${zlib_github_tag#v}
+		zlib: ${zlib_version#v}
 
 		## Architectures and build info
 
@@ -1641,12 +1642,11 @@ application_name zlib
 #
 if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
-	# download_file "${app_name}" "${!app_url}"
 	download_folder "${app_name}" "${!app_github_url}"
 	#
 	if [[ "${qbt_build_tool}" == 'cmake' ]]; then
-		mkdir -p "${qbt_install_dir}/graphs/${zlib_github_tag}"
-		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${zlib_github_tag}/dep-graph.dot" -G Ninja -B build \
+		mkdir -p "${qbt_install_dir}/graphs/${zlib_version}"
+		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${zlib_version}/dep-graph.dot" -G Ninja -B build \
 			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
 			-D CMAKE_CXX_STANDARD="${standard}" \
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
@@ -1659,7 +1659,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 		#
 		cmake --install build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 		#
-		dot -Tpng -o "${qbt_install_dir}/completed/${app_name}-graph.png" "${qbt_install_dir}/graphs/${zlib_github_tag}/dep-graph.dot"
+		dot -Tpng -o "${qbt_install_dir}/completed/${app_name}-graph.png" "${qbt_install_dir}/graphs/${zlib_version}/dep-graph.dot"
 		#
 	else
 		./configure --prefix="${qbt_install_dir}" --static --zlib-compat |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
