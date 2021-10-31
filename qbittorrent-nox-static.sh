@@ -1887,12 +1887,10 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	#
 	case "${qbt_cross_name}" in
 		armv7)
-			sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase/mkspecs/linux-arm-gnueabi-g++/qmake.conf"
-			# sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/linux-arm-gnueabi-g++/qmake.conf"
+			sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "mkspecs/linux-arm-gnueabi-g++/qmake.conf"
 			;;
 		aarch64)
-			sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase/mkspecs/linux-aarch64-gnu-g++/qmake.conf"
-			# sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/linux-aarch64-gnu-g++/qmake.conf"
+			sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "mkspecs/linux-aarch64-gnu-g++/qmake.conf"
 			;;
 	esac
 	#
@@ -1932,13 +1930,10 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		fi
 		#
 		# If Alpine, add the QMAKE_LIBS_EXECINFO path so we can build qtbase with no errors whilst linking against libexecinfo
-		#
-		[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "${qbt_install_dir}/${app_name}/mkspecs/common/linux.conf"
-		# [[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/common/linux.conf"
+		[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "mkspecs/common/linux.conf"
 		#
 		# Don't strip by default by disabling these options. We will set it as off by default and use it with a switch
-		echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "${qbt_install_dir}/qtbase/mkspecs/common/linux.conf"
-		#echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "${qbt_install_dir}/qtbase-everywhere-src-${qtbase_github_tag/v/}/mkspecs/common/linux.conf"
+		echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "mkspecs/common/linux.conf"
 		#
 		./configure "${multi_qtbase[@]}" -prefix "${qbt_install_dir}" "${icu[@]}" -opensource -confirm-license -release \
 			-openssl-linked -static -c++std "${cxx_standard}" -qt-pcre \
