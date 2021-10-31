@@ -495,20 +495,24 @@ set_module_urls() {
 	boost_url_status="$(curl_curl -so /dev/null --head --write-out '%{http_code}' "https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
 	boost_github_url="https://github.com/boostorg/boost.git"
 	#
-	qt_github_tag_list="$(git_git ls-remote -q -t --refs https://github.com/qt/qtbase.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
-	#
-	qtbase_github_tag="kde/5.15"
-	qtbase_github_url="https://invent.kde.org/qt/qt/qtbase.git"
-	#qtbase_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
-	#qtbase_github_url="https://github.com/qt/qtbase.git"
-	#
-	qttools_github_tag="kde/5.15"
-	qttools_github_url="https://invent.kde.org/qt/qt/qttools.git"
-	#qttools_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
-	#qttools_github_url="https://github.com/qt/qttools.git"
-	#
-	# qtbase_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qtbase_github_tag/v/}/submodules/qtbase-everywhere-src-${qtbase_github_tag/v/}.tar.xz"
-	# qttools_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qttools_github_tag/v/}/submodules/qttools-everywhere-src-${qttools_github_tag/v/}.tar.xz"
+	if [[ "${qbt_qt_version}" =~ ^6\. ]]; then
+		qt_github_tag_list="$(git_git ls-remote -q -t --refs https://github.com/qt/qtbase.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
+		#
+		qtbase_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
+		# qtbase_github_url="https://github.com/qt/qtbase.git"
+		#
+		qttools_github_tag="$(grep -Eom1 "v${qbt_qt_version}.([0-9]{1,2})" <<< "${qt_github_tag_list}")"
+		#qttools_github_url="https://github.com/qt/qttools.git"
+		#
+		qtbase_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qtbase_github_tag/v/}/submodules/qtbase-everywhere-src-${qtbase_github_tag/v/}.tar.xz"
+		qttools_url="https://download.qt.io/official_releases/qt/${qbt_qt_version}/${qttools_github_tag/v/}/submodules/qttools-everywhere-src-${qttools_github_tag/v/}.tar.xz"
+	else
+		qtbase_github_tag="kde/5.15"
+		qtbase_github_url="https://invent.kde.org/qt/qt/qtbase.git"
+		#
+		qttools_github_tag="kde/5.15"
+		qttools_github_url="https://invent.kde.org/qt/qt/qttools.git"
+	fi
 	#
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
 	libtorrent_github_tags_list="$(git_git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
@@ -884,15 +888,11 @@ _multi_arch() {
 			#
 			mkdir -p "${qbt_install_dir}/logs"
 			#
-			if [[ "${qbt_cross_target}" =~ ^(alpine)$ ]]; then
-				[[ ! -f "${qbt_install_dir}/${qbt_cross_host}-cross.tgz" ]] && curl "https://musl.cc/${qbt_cross_host}-cross.tgz" > "${qbt_install_dir}/${qbt_cross_host}-cross.tgz"
-				tar xf "${qbt_install_dir}/${qbt_cross_host}-cross.tgz" --strip-components=1 -C "${qbt_install_dir}"
-			fi
+			[[ "${qbt_cross_target}" =~ ^(alpine)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar" ]] && curl "https://github.com/userdocs/musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" > "${qbt_install_dir}/${qbt_cross_host}.tar"
 			#
-			if [[ "${qbt_cross_target}" =~ ^(debian|ubuntu)$ ]]; then
-				[[ ! -f "${qbt_install_dir}/${qbt_cross_host}-cross.tgz" ]] && curl "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-${qbt_cross_host}.tar.xz" > "${qbt_install_dir}/${qbt_cross_host}-cross.tgz"
-				tar xf "${qbt_install_dir}/${qbt_cross_host}-cross.tgz" --strip-components=1 -C "${qbt_install_dir}"
-			fi
+			[[ "${qbt_cross_target}" =~ ^(debian|ubuntu)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar" ]] && curl "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-${qbt_cross_host}.tar.xz" > "${qbt_install_dir}/${qbt_cross_host}.tar"
+			#
+			tar xf "${qbt_install_dir}/${qbt_cross_host}.tar" --strip-components=1 -C "${qbt_install_dir}"
 			#
 			_fix_multiarch_static_links "${qbt_cross_host}"
 			#
@@ -1879,8 +1879,11 @@ application_name qtbase
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	#
-	download_folder "${app_name}" "${!app_github_url}"
-	# download_file "${app_name}" "${!app_url}"
+	if [[ "${qbt_qt_version}" =~ ^6\. ]]; then
+		download_file "${app_name}" "${!app_url}"
+	else
+		download_folder "${app_name}" "${!app_github_url}"
+	fi
 	#
 	case "${qbt_cross_name}" in
 		armv7)
@@ -1967,8 +1970,11 @@ application_name qttools
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	#
-	download_folder "${app_name}" "${!app_github_url}"
-	# download_file "${app_name}" "${!app_url}"
+	if [[ "${qbt_qt_version}" =~ ^6\. ]]; then
+		download_file "${app_name}" "${!app_url}"
+	else
+		download_folder "${app_name}" "${!app_github_url}"
+	fi
 	#
 	if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 		libexecinfo="${lib_dir}/libexecinfo.a"
