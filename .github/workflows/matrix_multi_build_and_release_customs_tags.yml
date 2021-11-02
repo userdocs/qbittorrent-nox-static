@@ -126,7 +126,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Archive code coverage results
-        if: env.qbt_build_tool == 'cmake'
+        if: matrix.build_tool == 'cmake'
         uses: actions/upload-artifact@v2.2.4
         with:
           name: ${{ env.name }}-graphs
