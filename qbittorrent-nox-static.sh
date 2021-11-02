@@ -487,7 +487,8 @@ set_module_urls() {
 	icu_github_tag="$(git_git ls-remote -q -t --refs https://github.com/unicode-org/icu.git | awk '/\/release-/{sub("refs/tags/release-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	icu_url="https://github.com/unicode-org/icu/releases/download/release-${icu_github_tag}/icu4c-${icu_github_tag/-/_}-src.tgz"
 	#
-	openssl_github_tag="$(git_git ls-remote -q -t --refs https://github.com/openssl/openssl.git | awk '/OpenSSL_1/{sub("refs/tags/", "");sub("(.*)(v6|rc|alpha|beta|-)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
+	openssl_github_tag="$(git_git ls-remote -q -t --refs https://github.com/openssl/openssl.git | awk '/openssl/{sub("refs/tags/", "");sub("(.*)(v6|rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
+	openssl_version="${openssl_github_tag#openssl-}"
 	openssl_url="https://github.com/openssl/openssl/archive/${openssl_github_tag}.tar.gz"
 	#
 	boost_version="$(git_git ls-remote -q -t --refs https://github.com/boostorg/boost.git | awk '{sub("refs/tags/boost-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
@@ -804,7 +805,7 @@ install_qbittorrent() {
 			cp -rf "${qbt_install_dir}/completed/qbittorrent-nox" "${LOCAL_USER_HOME}/bin"
 		fi
 		#
-		echo -e " ${tn}${tu}qbittorrent-nox has been installed!${cend}${tn}"
+		echo -e "${tn} ${uplus} qbittorrent-nox has been installed!${cend}${tn}"
 		echo -e " Run it using this command:${tn}"
 		#
 		[[ "$(id -un)" = 'root' ]] && echo -e " ${cg}qbittorrent-nox${cend}${tn}" || echo -e " ${cg}~/bin/qbittorrent-nox${cend}${tn}"
@@ -950,8 +951,6 @@ _release_info() {
 	#
 	mkdir -p "${release_info_dir}"
 	#
-	openssl_pretty_version="${openssl_github_tag#OpenSSL_}" && openssl_pretty_version="${openssl_pretty_version//_/.}"
-	#
 	cat > "${release_info_dir}/tag.md" <<- TAG_INFO
 		${qbittorrent_github_tag#v}_${libtorrent_github_tag}
 	TAG_INFO
@@ -960,12 +959,6 @@ _release_info() {
 		qbittorrent ${qbittorrent_github_tag#release-} libtorrent ${libtorrent_github_tag#v}
 	TITLE_INFO
 	#
-	if [[ "${what_id}" == 'alpine' ]]; then
-		build_platform_echo="These builds were created on Alpine linux using [prebuilt musl toolchains](https://musl.cc/#binaries) for:"
-	elif [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
-		build_platform_echo="These builds were created on Debian based linux using [prebuilt glibc toolchains](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-a/downloads) for:"
-	fi
-	#
 	cat > "${release_info_dir}/release.md" <<- RELEASE_INFO
 		## Build info
 
@@ -973,18 +966,18 @@ _release_info() {
 		Qt: ${qbt_qt_full_version#v}
 		Libtorrent: ${libtorrent_github_tag#v}
 		Boost: ${boost_version#v}
-		OpenSSL: ${openssl_pretty_version}
-		zlib: ${zlib_version#v}
+		OpenSSL: ${openssl_version}
+		zlib-ng: ${zlib_version%.*}
 
 		## Architectures and build info
 
-		${build_platform_echo}
+		These builds were created on Alpine linux using [custom prebuilt musl toolchains](https://github.com/userdocs/musl-cross-make) for:
 
-		|       Arch        |   Alpine Cross build files    | Debian Cross build files |
-		| :---------------: | :---------------------------: | :----------------------: |
-		|  armv7 aka armhf  | armv7r-linux-musleabihf-cross | arm-none-linux-gnueabihf |
-		| aarch64 aka arm64 |   aarch64-linux-musl-cross    |  aarch64-none-linux-gnu  |
-		| x86_64 aka amd64  |      None - native build      |   None - native build    |
+		|       Arch        |   Alpine Cross build files    |
+		| :---------------: | :---------------------------: |
+		|  armv7 aka armhf  | armv7r-linux-musleabihf-cross |
+		| aarch64 aka arm64 |   aarch64-linux-musl-cross    |
+		| x86_64 aka amd64  |      None - native build      |
 
 		## Build matrix for libtorrent ${libtorrent_github_tag}
 
@@ -1743,7 +1736,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
 	#
-	"${multi_openssl[@]}" --prefix="${qbt_install_dir}" --openssldir="/etc/ssl" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
+	"${multi_openssl[@]}" --prefix="${qbt_install_dir}" --libdir="${lib_dir}" --openssldir="/etc/ssl" threads no-shared no-dso no-comp CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 	#
 	post_command build
