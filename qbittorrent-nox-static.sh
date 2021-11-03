@@ -109,6 +109,13 @@ set_default_values() {
 	#
 	delete_pkgs=() # Create this array empty. Packages listed in or added to this array will be removed from the default list of packages, changing the list of installed dependencies
 	#
+	if [[ ${qbt_cross_name} =~ ^(armv7|aarch64)$ ]]; then
+		_multi_arch bootstrap
+	else
+		cross_arch="$(uname -m)"
+		delete_pkgs+=("crossbuild-essential-${cross_arch}")
+	fi
+	#
 	if [[ "${what_id}" =~ ^(alpine)$ ]]; then # if Alpine then delete modules we don't use and set the required packages array
 		delete+=("bison" "gawk" "glibc")
 		qbt_required_pkgs=("bash" "bash-completion" "build-base" "curl" "pkgconf" "autoconf" "automake" "libtool" "git" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "py${qbt_python_version}-numpy" "py${qbt_python_version}-numpy-dev" "linux-headers" "ttf-freefont" "graphviz" "cmake" "re2c")
@@ -116,7 +123,7 @@ set_default_values() {
 	#
 	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based then set the required packages array
 		delete+=("libexecinfo")
-		qbt_required_pkgs=("build-essential" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "python${qbt_python_version}-numpy" "unzip" "graphviz")
+		qbt_required_pkgs=("build-essential" "crossbuild-essential-${cross_arch}" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "python${qbt_python_version}-numpy" "unzip" "graphviz")
 	fi
 	#
 	if [[ "${1}" != 'install' ]]; then # remove this module by default unless provided as a first argument to the script.
@@ -130,15 +137,9 @@ set_default_values() {
 	fi
 	#
 	if [[ "${qbt_build_tool}" != 'cmake' ]]; then
-		delete_pkgs=("unzip" "ttf-freefont" "graphviz" "cmake" "re2c")
+		delete_pkgs+=("unzip" "ttf-freefont" "graphviz" "cmake" "re2c")
 	else
 		[[ "${qbt_skip_icu}" != 'no' ]] && delete+=("icu")
-	fi
-	#
-	if [[ ${qbt_cross_name} =~ ^(armv7|aarch64)$ ]]; then
-		alpine_arch="${qbt_cross_name}"
-	else
-		alpine_arch="$(uname -m)"
 	fi
 	#
 	qbt_working_dir="$(printf "%s" "$(pwd <(dirname "${0}"))")" # Get the full path to the scripts location to use with setting some path related variables.
@@ -442,8 +443,8 @@ custom_flags_reset() {
 #######################################################################################################################################################
 set_module_urls() {
 	if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-		libexecinfo_dev_url="${CDN_URL}/${alpine_arch}/$(apk info libexecinfo-dev | awk '{print $1}' | head -n 1).apk"
-		libexecinfo_static_url="${CDN_URL}/${alpine_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
+		libexecinfo_dev_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-dev | awk '{print $1}' | head -n 1).apk"
+		libexecinfo_static_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
 	fi
 	#
 	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/Kitware/CMake.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
@@ -846,21 +847,21 @@ _multi_arch() {
 	if [[ "${qbt_cross_name}" =~ ^(armv7|aarch64)$ ]]; then
 		if [[ "${what_id}" =~ ^(alpine|debian|ubuntu)$ ]]; then
 			#
-			echo -e "${tn} ${ugc}${cly} Using multiarch - arch: ${qbt_cross_name} host: ${what_id} target: ${qbt_cross_target}${cend}"
+			[[ "${1}" != 'bootstrap' ]] && echo -e "${tn} ${ugc}${cly} Using multiarch - arch: ${qbt_cross_name} host: ${what_id} target: ${qbt_cross_target}${cend}"
 			#
 			case "${qbt_cross_name}" in
 				armv7)
 					case "${qbt_cross_target}" in
 						alpine)
-							alpine_arch="armv7"
+							cross_arch="armv7"
 							qbt_cross_host="armv7r-linux-musleabihf"
 							qbt_cross_openssl="linux-armv4"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-arm-gnueabi-g++"
 							;;
 						debian | ubuntu)
-							alpine_arch="armv7"
-							qbt_cross_host="arm-none-linux-gnueabihf"
+							cross_arch="armhf"
+							qbt_cross_host="arm-linux-gnueabihf"
 							qbt_cross_openssl="linux-armv4"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-arm-gnueabi-g++"
@@ -870,15 +871,15 @@ _multi_arch() {
 				aarch64)
 					case "${qbt_cross_target}" in
 						alpine)
-							alpine_arch="aarch64"
+							cross_arch="aarch64"
 							qbt_cross_host="aarch64-linux-musl"
 							qbt_cross_openssl="linux-aarch64"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-aarch64-gnu-g++"
 							;;
 						debian | ubuntu)
-							alpine_arch="aarch64"
-							qbt_cross_host="aarch64-none-linux-gnu"
+							cross_arch="arm64"
+							qbt_cross_host="aarch64-linux-gnu"
 							qbt_cross_openssl="linux-aarch64"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-aarch64-gnu-g++"
@@ -887,6 +888,8 @@ _multi_arch() {
 					;;
 			esac
 			#
+			[[ "${1}" == 'bootstrap' ]] && return
+			#
 			CHOST="${qbt_cross_host}"
 			CC="${qbt_cross_host}-gcc"
 			AR="${qbt_cross_host}-ar"
@@ -894,11 +897,10 @@ _multi_arch() {
 			#
 			mkdir -p "${qbt_install_dir}/logs"
 			#
-			[[ "${qbt_cross_target}" =~ ^(alpine)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar" ]] && curl "https://github.com/userdocs/musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" > "${qbt_install_dir}/${qbt_cross_host}.tar"
-			#
-			[[ "${qbt_cross_target}" =~ ^(debian|ubuntu)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar" ]] && curl "https://developer.arm.com/-/media/Files/downloads/gnu-a/10.3-2021.07/binrel/gcc-arm-10.3-2021.07-x86_64-${qbt_cross_host}.tar.xz" > "${qbt_install_dir}/${qbt_cross_host}.tar"
-			#
-			tar xf "${qbt_install_dir}/${qbt_cross_host}.tar" --strip-components=1 -C "${qbt_install_dir}"
+			if [[ "${qbt_cross_target}" =~ ^(alpine)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar" ]]; then
+				curl "https://github.com/userdocs/musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" > "${qbt_install_dir}/${qbt_cross_host}.tar"
+				tar xf "${qbt_install_dir}/${qbt_cross_host}.tar" --strip-components=1 -C "${qbt_install_dir}"
+			fi
 			#
 			_fix_multiarch_static_links "${qbt_cross_host}"
 			#
@@ -1555,11 +1557,11 @@ application_name libexecinfo
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	echo -e "${tn} ${uplus}${cg} Installing ${app_name}${cend}"
 	#
-	curl "${libexecinfo_dev_url}" -o "${qbt_install_dir}/libexecinfo_dev_${alpine_arch}.apk"
-	curl "${libexecinfo_static_url}" -o "${qbt_install_dir}/libexecinfo_static_${alpine_arch}.apk"
+	curl "${libexecinfo_dev_url}" -o "${qbt_install_dir}/libexecinfo_dev_${cross_arch}.apk"
+	curl "${libexecinfo_static_url}" -o "${qbt_install_dir}/libexecinfo_static_${cross_arch}.apk"
 	#
-	tar xf "${qbt_install_dir}/libexecinfo_dev_${alpine_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
-	tar xf "${qbt_install_dir}/libexecinfo_static_${alpine_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
+	tar xf "${qbt_install_dir}/libexecinfo_dev_${cross_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
+	tar xf "${qbt_install_dir}/libexecinfo_static_${cross_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
 	#
 	_fix_static_links "${app_name}"
 else
