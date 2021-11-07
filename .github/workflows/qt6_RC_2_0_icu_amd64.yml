@@ -15,7 +15,7 @@ jobs:
       qbt_qt_version: "6.1"
       libtorrent_version: "2.0"
     steps:
-      - uses: actions/checkout@v2.3.5
+      - uses: actions/checkout@v2.4.0
       - run: apk add bash
         shell: ash {0}
 
