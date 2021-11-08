@@ -109,7 +109,7 @@ set_default_values() {
 	#
 	delete_pkgs=() # Create this array empty. Packages listed in or added to this array will be removed from the default list of packages, changing the list of installed dependencies
 	#
-	if [[ ${qbt_cross_name} =~ ^(armv7|aarch64)$ ]]; then
+	if [[ ${qbt_cross_name} =~ ^(armhf|armv7|aarch64)$ ]]; then
 		_multi_arch bootstrap
 	else
 		cross_arch="$(uname -m)"
@@ -270,13 +270,14 @@ while (("${#}")); do
 			shift 2
 			;;
 		-ma | --multi-arch)
-			if [[ -n "${2}" && "${2}" =~ ^(armv7|aarch64)$ ]]; then
+			if [[ -n "${2}" && "${2}" =~ ^(armhf|armv7|aarch64)$ ]]; then
 				qbt_cross_name="${2}"
 				shift 2
 			else
 				echo
 				echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-ma${cend}"
 				echo
+				echo -e " ${ulyc} armhf${cend}"
 				echo -e " ${ulyc} armv7${cend}"
 				echo -e " ${ulyc} aarch64${cend}"
 				echo
@@ -844,12 +845,30 @@ post_command() {
 # Multi Arch
 #######################################################################################################################################################
 _multi_arch() {
-	if [[ "${qbt_cross_name}" =~ ^(armv7|aarch64)$ ]]; then
+	if [[ "${qbt_cross_name}" =~ ^(armhf|armv7|aarch64)$ ]]; then
 		if [[ "${what_id}" =~ ^(alpine|debian|ubuntu)$ ]]; then
 			#
 			[[ "${1}" != 'bootstrap' ]] && echo -e "${tn} ${ugc}${cly} Using multiarch - arch: ${qbt_cross_name} host: ${what_id} target: ${qbt_cross_target}${cend}"
 			#
 			case "${qbt_cross_name}" in
+				armhf)
+					case "${qbt_cross_target}" in
+						alpine)
+							cross_arch="armhf"
+							qbt_cross_host="armv6-linux-musleabihf"
+							qbt_cross_openssl="linux-armv4"
+							qbt_cross_boost="arm"
+							qbt_cross_qtbase="linux-arm-gnueabi-g++"
+							;;
+						debian | ubuntu)
+							cross_arch="armel"
+							qbt_cross_host="arm-linux-gnueabi"
+							qbt_cross_openssl="linux-armv4"
+							qbt_cross_boost="arm"
+							qbt_cross_qtbase="linux-arm-gnueabi-g++"
+							;;
+					esac
+					;;
 				armv7)
 					case "${qbt_cross_target}" in
 						alpine)
@@ -1107,13 +1126,14 @@ while (("${#}")); do
 			shift
 			;;
 		-bs-ma | --boot-strap-multi-arch)
-			if [[ -n "${2}" && "${2}" =~ ^(armv7|aarch64)$ ]]; then
+			if [[ -n "${2}" && "${2}" =~ ^(armhf|armv7|aarch64)$ ]]; then
 				qbt_cross_name="${2}"
 				shift 2
 			else
 				echo
 				echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-ma${cend}"
 				echo
+				echo -e " ${ulyc} armhf${cend}"
 				echo -e " ${ulyc} armv7${cend}"
 				echo -e " ${ulyc} aarch64${cend}"
 				echo
@@ -1304,6 +1324,7 @@ while (("${#}")); do
 			echo
 			echo -e " This switch bootstraps the musl cross build files needed for any provided and supported architecture"
 			echo
+			echo -e " ${uyc} armhf"
 			echo -e " ${uyc} armv7"
 			echo -e " ${uyc} aarch64"
 			echo
@@ -1401,6 +1422,7 @@ while (("${#}")); do
 			echo
 			echo -e " This switch will make the script use the cross build configuration for these supported architectures"
 			echo
+			echo -e " ${uyc} armhf"
 			echo -e " ${uyc} armv7"
 			echo -e " ${uyc} aarch64"
 			echo
@@ -1707,7 +1729,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_reset
 	download_file "${app_name}" "${!app_url}" "/source"
 	#
-	if [[ "${qbt_cross_name}" =~ ^(armv7|aarch64)$ ]]; then
+	if [[ "${qbt_cross_name}" =~ ^(armhf|armv7|aarch64)$ ]]; then
 		mkdir -p "${qbt_install_dir}/${app_name}/cross"
 		_cd "${qbt_install_dir}/${app_name}/cross"
 		"${qbt_install_dir}/${app_name}/source/runConfigureICU" Linux/gcc
@@ -1824,7 +1846,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			dot -Tpng -o "${qbt_install_dir}/completed/${app_name}-graph.png" "${qbt_install_dir}/graphs/${libtorrent_github_tag}/dep-graph.dot"
 			#
 		else
-			[[ ${qbt_cross_name} =~ ^(armv7)$ ]] && arm_libatomic="-l:libatomic.a"
+			[[ ${qbt_cross_name} =~ ^(armhf|armv7)$ ]] && arm_libatomic="-l:libatomic.a"
 			#
 			if [[ "${libtorrent_github_tag}" =~ ^(RC_1_1|libtorrent-1_1_.*) ]]; then
 				libtorrent_library_filename="libtorrent.a"
@@ -1885,7 +1907,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	fi
 	#
 	case "${qbt_cross_name}" in
-		armv7)
+		armhf | armv7)
 			sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "mkspecs/linux-arm-gnueabi-g++/qmake.conf"
 			;;
 		aarch64)
