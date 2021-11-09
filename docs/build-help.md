@@ -10,14 +10,14 @@ bash ~/qbittorrent-nox-static.sh -h
 
 The script has some `env` settings that can trigger certain behaviours.
 
-| Build variable       | Default if unset | Options                                   | example usage                             |
-| -------------------- | ---------------- | ----------------------------------------- | ----------------------------------------- |
-| `libtorrent_version` | `1.2`            | `1.2` `2.0`                               | `export libtorrent_version=2.0`           |
-| `qbt_qt_version`     | `5.15`           | `5.12 ` `5.13 ` `5.14` `5.15` `6.1` `6.2` | `export qbt_qt_version=6.2`               |
-| `qbt_cross_target`   | Host platform    | `alpine` `debian` `ubuntu`                | `export qbt_cross_target=alpine`          |
-| `qbt_build_tool`     | `qmake`          | `cmake`                                   | `export qbt_build_tool=cmake`             |
-| `qbt_cross_name`     | `x86_64`         | `aarch64`  `armv7`                        | `export qbt_cross_name=aarch64`           |
-| `qbt_patches_url`    | empty = `unset`  | `username/repo`                           | `export qbt_patches_url=userdocs/patches` |
+| Build variable       | Default if unset | Options                    | example usage                             |
+| -------------------- | ---------------- | -------------------------- | ----------------------------------------- |
+| `libtorrent_version` | `1.2`            | `1.2` `2.0`                | `export libtorrent_version=2.0`           |
+| `qbt_qt_version`     | `5.15`           | `5.12 ` `5.15` `6.2`       | `export qbt_qt_version=6.2`               |
+| `qbt_cross_target`   | Host platform    | `alpine` `debian` `ubuntu` | `export qbt_cross_target=alpine`          |
+| `qbt_build_tool`     | `qmake`          | `cmake`                    | `export qbt_build_tool=cmake`             |
+| `qbt_cross_name`     | `x86_64`         | `aarch64`  `armv7`         | `export qbt_cross_name=aarch64`           |
+| `qbt_patches_url`    | empty = `unset`  | `username/repo`            | `export qbt_patches_url=userdocs/patches` |
 
 > [!note|iconVisibility:hidden|labelVisibility:hidden] If you set `qbt_build_tool=cmake` and `qt_version=6.2`  with the switch `-qm` you can build against QT6.
 
@@ -31,6 +31,7 @@ All switches and flags have a supporting help option that will provide dynamic c
  Here are a list of available options
 
  Use: -b     or --build-directory       Help: -h-b     or --help-build-directory
+ Use: -bv    or --boost-version         Help: -h-bv    or --help-boost-version
  Use: -c     or --cmake                 Help: -h-c     or --help-cmake
  Use: -d     or --debug                 Help: -h-d     or --help-debug
  Use: -bs    or --boot-strap            Help: -h-bs    or --help-boot-strap
