@@ -255,6 +255,18 @@ while (("${#}")); do
 			qbt_build_dir="${2}"
 			shift 2
 			;;
+		-bv | --boost-version)
+			if [[ -n "${2}" ]]; then
+				boost_version="${2}"
+				shift 2
+			else
+				echo
+				echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-bv${cend}"
+				echo
+				exit 1
+			fi
+			shift
+			;;
 		-c | --cmake)
 			qbt_build_tool="cmake"
 			shift
@@ -290,6 +302,16 @@ while (("${#}")); do
 		-o | --optimize)
 			optimize="-march=native"
 			shift
+			;;
+		-h-bv | --help-boost-version)
+			echo
+			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+			echo
+			echo -e " This will let you set a specific version of boost to use with older build combos"
+			echo
+			echo -e " Example: ${clb}-bv 1.76.0${cend}"
+			echo
+			exit
 			;;
 		-h-o | --help-optimize)
 			echo
@@ -331,7 +353,7 @@ while (("${#}")); do
 	esac
 done
 #
-eval set -- "${params1[@]}" # Set positional arguments in their proper place.
+set -- "${params1[@]}" # Set positional arguments in their proper place.
 #######################################################################################################################################################
 # 2:  curl test download functions - default is no proxy - curl is a test function and curl_curl is the command function
 #######################################################################################################################################################
@@ -493,7 +515,7 @@ set_module_urls() {
 	openssl_version="${openssl_github_tag#openssl-}"
 	openssl_url="https://github.com/openssl/openssl/archive/${openssl_github_tag}.tar.gz"
 	#
-	boost_version="$(git_git ls-remote -q -t --refs https://github.com/boostorg/boost.git | awk '{sub("refs/tags/boost-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
+	boost_version="${boost_version:-$(git_git ls-remote -q -t --refs https://github.com/boostorg/boost.git | awk '{sub("refs/tags/boost-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)}"
 	boost_github_tag="boost-${boost_version}"
 	boost_url="https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz"
 	boost_url_status="$(curl_curl -so /dev/null --head --write-out '%{http_code}' "https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
@@ -1552,7 +1574,7 @@ while (("${#}")); do
 	esac
 done
 #
-eval set -- "${params2[@]}" # Set positional arguments in their proper place.
+set -- "${params2[@]}" # Set positional arguments in their proper place.
 #######################################################################################################################################################
 # Functions part 2: Use some of our functions
 #######################################################################################################################################################
