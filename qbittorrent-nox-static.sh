@@ -123,7 +123,7 @@ set_default_values() {
 	#
 	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based then set the required packages array
 		delete+=("libexecinfo")
-		qbt_required_pkgs=("build-essential" "crossbuild-essential-${cross_arch}" "curl" "pkg-config" "automake" "libtool" "git" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "python${qbt_python_version}-numpy" "unzip" "graphviz")
+		qbt_required_pkgs=("build-essential" "crossbuild-essential-${cross_arch}" "curl" "pkg-config" "automake" "libtool" "git" "openssl" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "python${qbt_python_version}-numpy" "unzip" "graphviz" "re2c")
 	fi
 	#
 	if [[ "${1}" != 'install' ]]; then # remove this module by default unless provided as a first argument to the script.
@@ -470,10 +470,12 @@ set_module_urls() {
 		libexecinfo_static_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
 	fi
 	#
-	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/Kitware/CMake.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-	cmake_version="${cmake_github_tag#v}"
-	ninja_github_tag="$(git_git ls-remote -q -t --refs https://github.com/ninja-build/ninja.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-	ninja_version="${ninja_github_tag#v}"
+	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/userdocs/cmake-qbittorrent-nox-static.git | awk '{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+	cmake_debian_version=${cmake_github_tag%_*}
+	ninja_debian_version=${cmake_github_tag#*_}
+	#
+	ninja_github_tag="master"
+	ninja_version="$(curl https://raw.githubusercontent.com/ninja-build/ninja/master/src/version.cc | sed -rn 's|const char\* kNinjaVersion = "(.*)";|\1|p')"
 	#
 	if [[ ! "${what_id}" =~ ^(alpine)$ ]]; then
 		#bison_version="$(git_git ls-remote -q -t --refs https://git.savannah.gnu.org/git/bison.git | awk '/\/v/{sub("refs/tags/v", "");sub("(.*)((-|_)[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
@@ -877,14 +879,13 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							cross_arch="armhf"
-							qbt_cross_host="armv6-linux-musleabihf"
-							qbt_cross_openssl="linux-armv4"
-							qbt_cross_boost="arm"
-							qbt_cross_qtbase="linux-arm-gnueabi-g++"
-							;;
+							qbt_cross_host="arm-linux-musleabihf"
+							;;&
 						debian | ubuntu)
 							cross_arch="armel"
 							qbt_cross_host="arm-linux-gnueabi"
+							;;&
+						*)
 							qbt_cross_openssl="linux-armv4"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-arm-gnueabi-g++"
@@ -896,13 +897,12 @@ _multi_arch() {
 						alpine)
 							cross_arch="armv7"
 							qbt_cross_host="armv7r-linux-musleabihf"
-							qbt_cross_openssl="linux-armv4"
-							qbt_cross_boost="arm"
-							qbt_cross_qtbase="linux-arm-gnueabi-g++"
-							;;
+							;;&
 						debian | ubuntu)
 							cross_arch="armhf"
 							qbt_cross_host="arm-linux-gnueabihf"
+							;;&
+						*)
 							qbt_cross_openssl="linux-armv4"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-arm-gnueabi-g++"
@@ -914,13 +914,12 @@ _multi_arch() {
 						alpine)
 							cross_arch="aarch64"
 							qbt_cross_host="aarch64-linux-musl"
-							qbt_cross_openssl="linux-aarch64"
-							qbt_cross_boost="arm"
-							qbt_cross_qtbase="linux-aarch64-gnu-g++"
-							;;
+							;;&
 						debian | ubuntu)
 							cross_arch="arm64"
 							qbt_cross_host="aarch64-linux-gnu"
+							;;&
+						*)
 							qbt_cross_openssl="linux-aarch64"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-aarch64-gnu-g++"
@@ -1044,27 +1043,33 @@ _cmake() {
 		_cd "${qbt_install_dir}"
 		#
 		if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
-			if [[ "$(cmake --version 2> /dev/null | awk 'NR==1{print $3}')" != "${cmake_github_tag#v}" ]]; then
-				curl "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-linux-x86_64.sh" -o "${qbt_install_dir}/cmake.sh"
-				if ! bash "${qbt_install_dir}/cmake.sh" --skip-license --exclude-subdir &> /dev/null; then
-					post_command "cmake installation"
-				fi
-			fi
-			#
-			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2> /dev/null)" != "${ninja_github_tag#v}" ]]; then
-				curl "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-linux.zip" -o "${qbt_install_dir}/ninja-linux.zip"
-				if unzip -q -o "${qbt_install_dir}/ninja-linux.zip" -d "${qbt_install_dir}/bin" &> /dev/null; then
-					post_command "ninja installation"
-				fi
-				_cd "${qbt_install_dir}" && rm -f "${qbt_install_dir}/cmake.sh" "${qbt_install_dir}/ninja-linux.zip"
+			if [[ "$(cmake --version 2> /dev/null | awk 'NR==1{print $3}')" != "${cmake_debian_version}" ]]; then
+				curl "https://github.com/userdocs/cmake-qbittorrent-nox-static/releases/latest/download/${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" > "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz"
+				post_command "Debian cmake and ninja installation"
+				tar xf "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" --strip-components=1 -C "${qbt_install_dir}"
+				rm -f "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).deb"
+				#
+				echo -e "${tn} ${uyc} Installed cmake: ${cly}${cmake_debian_version}${tn}"
+				echo -e " ${uyc} Installed ninja: ${cly}${ninja_debian_version}"
+			else
+				echo -e "${tn} ${uyc} Using cmake: ${cly}${cmake_debian_version}${tn}"
+				echo -e " ${uyc} Using ninja: ${cly}${ninja_debian_version}"
 			fi
 		fi
 		#
 		if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2> /dev/null)" != "${ninja_github_tag#v}" ]]; then
 				download_folder ninja https://github.com/ninja-build/ninja.git
-				python3 configure.py --bootstrap --host=linux
-				cp -f "${qbt_install_dir}/ninja/ninja" "${qbt_install_dir}/bin/ninja"
+				cmake -Wno-dev -Wno-deprecated -B build \
+					-D CMAKE_BUILD_TYPE="release" \
+					-D CMAKE_CXX_STANDARD="${standard}" \
+					-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
+					-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/ninja.log.txt"
+				cmake --build build -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/ninja.log.txt"
+				#
+				post_command build
+				#
+				cmake --install build |& tee -a "${qbt_install_dir}/logs/ninja.log.txt"
 				_cd "${qbt_install_dir}" && rm -rf "${qbt_install_dir}/ninja"
 			fi
 		fi
@@ -1077,7 +1082,7 @@ _cmake() {
 #######################################################################################################################################################
 _fix_static_links() {
 	log_name="$1"
-	readarray -t library_list < <(find "${lib_dir}" -maxdepth 1 -exec bash -c 'basename "$0" ".${0##*.}"' {} \; | sort | uniq -d)
+	mapfile -t library_list < <(find "${lib_dir}" -maxdepth 1 -exec bash -c 'basename "$0" ".${0##*.}"' {} \; | sort | uniq -d)
 	for file in "${library_list[@]}"; do
 		if [[ "$(readlink "${lib_dir}/${file}.so")" != "${file}.a" ]]; then
 			ln -fsn "${file}.a" "${lib_dir}/${file}.so"
@@ -1090,7 +1095,7 @@ _fix_multiarch_static_links() {
 	if [[ -d "${qbt_install_dir}/${qbt_cross_host}" ]]; then
 		log_name="$1"
 		multiarch_lib_dir="${qbt_install_dir}/${qbt_cross_host}/lib"
-		readarray -t library_list < <(find "${multiarch_lib_dir}" -maxdepth 1 -exec bash -c 'basename "$0" ".${0##*.}"' {} \; | sort | uniq -d)
+		mapfile -t library_list < <(find "${multiarch_lib_dir}" -maxdepth 1 -exec bash -c 'basename "$0" ".${0##*.}"' {} \; | sort | uniq -d)
 		for file in "${library_list[@]}"; do
 			if [[ "$(readlink "${multiarch_lib_dir}/${file}.so")" != "${file}.a" ]]; then
 				ln -fsn "${file}.a" "${multiarch_lib_dir}/${file}.so"
