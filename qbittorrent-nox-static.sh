@@ -1058,7 +1058,7 @@ _cmake() {
 		fi
 		#
 		if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2> /dev/null)" != "${ninja_github_tag#v}" ]]; then
+			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2> /dev/null)" != "${ninja_version}" ]]; then
 				download_folder ninja https://github.com/ninja-build/ninja.git
 				cmake -Wno-dev -Wno-deprecated -B build \
 					-D CMAKE_BUILD_TYPE="release" \
