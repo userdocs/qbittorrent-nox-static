@@ -12,7 +12,7 @@ jobs:
       matrix:
         os_id: [alpine]
         os_version_id: [edge]
-        arch_type: [x86_64, armv7, aarch64]
+        arch_type: [x86_64, armhf, armv7, aarch64]
         libtorrent_version: ["1.2", "2.0"]
         icu_step_name: [icu skipped, icu]
         build_tool: ["", cmake]
