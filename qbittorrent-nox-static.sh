@@ -1698,6 +1698,10 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	#
 	if [[ "${qbt_build_tool}" == 'cmake' ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${zlib_version}"
+		#
+		# force set some ARCH when using zlib-ng, cmake and musl-cross since it does detect the arch correctly.
+		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && echo -e "\narchfound ${qbt_zlib_arch:-x86_64}" >> "${qbt_install_dir}/zlib/cmake/detect-arch.c"
+		#
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${zlib_version}/dep-graph.dot" -G Ninja -B build \
 			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
 			-D CMAKE_CXX_STANDARD="${standard}" \
@@ -1715,7 +1719,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 		#
 	else
 		# force set some ARCH when using zlib-ng, configure and musl-cross since it does detect the arch correctly.
-		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && sed "s|  CFLAGS=\"-O2 \${CFLAGS}\"|  ARCH=${qbt_zlib_arch}\n  CFLAGS=\"-O2 \${CFLAGS}\"|g" -i "${qbt_install_dir}/zlib/configure"
+		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && sed "s|  CFLAGS=\"-O2 \${CFLAGS}\"|  ARCH=${qbt_zlib_arch:-x86_64}\n  CFLAGS=\"-O2 \${CFLAGS}\"|g" -i "${qbt_install_dir}/zlib/configure"
 		#
 		./configure --prefix="${qbt_install_dir}" --static --zlib-compat |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 		make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
