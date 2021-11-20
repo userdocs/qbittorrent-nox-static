@@ -1018,15 +1018,16 @@ _release_info() {
 
 		These builds were created on Alpine linux using [custom prebuilt musl toolchains](https://github.com/userdocs/musl-cross-make) for:
 
-		|       Arch        |   Alpine Cross build files    |
-		| :---------------: | :---------------------------: |
-		|  armv7 aka armhf  | armv7r-linux-musleabihf-cross |
-		| aarch64 aka arm64 |   aarch64-linux-musl-cross    |
-		| x86_64 aka amd64  |      None - native build      |
+		|  Arch   | Alpine Cross build files |
+		| :-----: | :----------------------: |
+		|  armhf  |   arm-linux-musleabihf   |
+		|  armv7  | armv7r-linux-musleabihf  |
+		| aarch64 |    aarch64-linux-musl    |
+		| x86_64  |   None - native build    |
 
 		## Build matrix for libtorrent ${libtorrent_github_tag}
 
-		ℹ️ qt5 is still built with qmake. qt6 will use cmake when qbittorrent adds qt6 support.
+		ℹ️ Qt5 is still built with qmake. Qt6 will use cmake.
 
 		ℹ️ [Check the build table for more info](https://github.com/userdocs/qbittorrent-nox-static#build-table---dependencies---arch---os---build-tools)
 
