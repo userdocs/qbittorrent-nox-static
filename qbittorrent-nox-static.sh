@@ -109,7 +109,7 @@ set_default_values() {
 	#
 	delete_pkgs=() # Create this array empty. Packages listed in or added to this array will be removed from the default list of packages, changing the list of installed dependencies
 	#
-	if [[ ${qbt_cross_name} =~ ^(armhf|armv7|aarch64)$ ]]; then
+	if [[ ${qbt_cross_name} =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
 		_multi_arch bootstrap
 	else
 		cross_arch="$(uname -m)"
@@ -282,7 +282,7 @@ while (("${#}")); do
 			shift 2
 			;;
 		-ma | --multi-arch)
-			if [[ -n "${2}" && "${2}" =~ ^(armhf|armv7|aarch64)$ ]]; then
+			if [[ -n "${2}" && "${2}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
 				qbt_cross_name="${2}"
 				shift 2
 			else
@@ -292,6 +292,7 @@ while (("${#}")); do
 				echo -e " ${ulyc} armhf${cend}"
 				echo -e " ${ulyc} armv7${cend}"
 				echo -e " ${ulyc} aarch64${cend}"
+				echo -e " ${ulyc} x86_64${cend}"
 				echo
 				echo -e " ${ulgc} example usage:${clb} -ma aarch64${cend}"
 				echo
@@ -869,7 +870,7 @@ post_command() {
 # Multi Arch
 #######################################################################################################################################################
 _multi_arch() {
-	if [[ "${qbt_cross_name}" =~ ^(armhf|armv7|aarch64)$ ]]; then
+	if [[ "${qbt_cross_name}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
 		if [[ "${what_id}" =~ ^(alpine|debian|ubuntu)$ ]]; then
 			#
 			[[ "${1}" != 'bootstrap' ]] && echo -e "${tn} ${ugc}${cly} Using multiarch - arch: ${qbt_cross_name} host: ${what_id} target: ${qbt_cross_target}${cend}"
@@ -926,6 +927,24 @@ _multi_arch() {
 							qbt_cross_openssl="linux-aarch64"
 							qbt_cross_boost="arm"
 							qbt_cross_qtbase="linux-aarch64-gnu-g++"
+							;;
+					esac
+					;;
+				x86_64)
+					case "${qbt_cross_target}" in
+						alpine)
+							cross_arch="x86_64"
+							qbt_cross_host="x86_64-linux-musl"
+							qbt_zlib_arch="x86_64"
+							;;&
+						debian | ubuntu)
+							cross_arch="x86_64"
+							qbt_cross_host="x86_64-linux-gnu"
+							;;&
+						*)
+							qbt_cross_openssl="linux-x86_64"
+							qbt_cross_boost="x86_64"
+							qbt_cross_qtbase="linux-g++-64"
 							;;
 					esac
 					;;
@@ -1157,7 +1176,7 @@ while (("${#}")); do
 			shift
 			;;
 		-bs-ma | --boot-strap-multi-arch)
-			if [[ -n "${2}" && "${2}" =~ ^(armhf|armv7|aarch64)$ ]]; then
+			if [[ -n "${2}" && "${2}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
 				qbt_cross_name="${2}"
 				shift 2
 			else
@@ -1167,6 +1186,7 @@ while (("${#}")); do
 				echo -e " ${ulyc} armhf${cend}"
 				echo -e " ${ulyc} armv7${cend}"
 				echo -e " ${ulyc} aarch64${cend}"
+				echo -e " ${ulyc} x86_64${cend}"
 				echo
 				echo -e " ${ulgc} example usage:${clb} -ma aarch64${cend}"
 				echo
@@ -1768,7 +1788,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_reset
 	download_file "${app_name}" "${!app_url}" "/source"
 	#
-	if [[ "${qbt_cross_name}" =~ ^(armhf|armv7|aarch64)$ ]]; then
+	if [[ "${qbt_cross_name}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
 		mkdir -p "${qbt_install_dir}/${app_name}/cross"
 		_cd "${qbt_install_dir}/${app_name}/cross"
 		"${qbt_install_dir}/${app_name}/source/runConfigureICU" Linux/gcc
