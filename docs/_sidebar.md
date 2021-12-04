@@ -1,4 +1,4 @@
--  [Home](/)
+-  [Home](README.md)
 -  [Introduction](introduction.md)
 -  [Script installation](script-installation.md)
 -  [Build help](build-help.md)
