@@ -1042,7 +1042,7 @@ _release_info() {
 		|  armhf  |   arm-linux-musleabihf   |
 		|  armv7  | armv7r-linux-musleabihf  |
 		| aarch64 |    aarch64-linux-musl    |
-		| x86_64  |   None - native build    |
+		| x86_64  |    x86_64-linux-musl     |
 
 		## Build matrix for libtorrent ${libtorrent_github_tag}
 
