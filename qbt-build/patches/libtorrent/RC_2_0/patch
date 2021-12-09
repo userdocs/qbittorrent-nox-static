@@ -1,0 +1,22 @@
+--- libtorrent/include/libtorrent/aux_/allocating_handler.hpp	2021-12-09 17:18:22.134608261 +0100
++++ allocating_handler.hpp	2021-12-09 17:45:21.986256105 +0100
+@@ -122,14 +122,14 @@
+ 	constexpr std::size_t fuzzer_write_cost = 0;
+ 	constexpr std::size_t fuzzer_read_cost = 0;
+ #endif
+-	constexpr std::size_t write_handler_max_size = tracking + debug_write_iter + openssl_write_cost + fuzzer_write_cost + 168;
+-	constexpr std::size_t read_handler_max_size = tracking + debug_read_iter + openssl_read_cost + fuzzer_read_cost + 168;
+-	constexpr std::size_t udp_handler_max_size = tracking + 160;
+-	constexpr std::size_t utp_handler_max_size = tracking + 184;
++	constexpr std::size_t write_handler_max_size = tracking + debug_write_iter + openssl_write_cost + fuzzer_write_cost + 240;
++	constexpr std::size_t read_handler_max_size = tracking + debug_read_iter + openssl_read_cost + fuzzer_read_cost + 240;
++	constexpr std::size_t udp_handler_max_size = tracking + 200;
++	constexpr std::size_t utp_handler_max_size = tracking + 200;
+ 	constexpr std::size_t abort_handler_max_size = tracking + 72;
+ 	constexpr std::size_t submit_handler_max_size = tracking + 72;
+ 	constexpr std::size_t deferred_handler_max_size = tracking + 80;
+-	constexpr std::size_t tick_handler_max_size = tracking + 128;
++	constexpr std::size_t tick_handler_max_size = tracking + 200;
+ #endif
+ 
+ 	enum HandlerName
