@@ -13,7 +13,7 @@ These are the main dependencies we need to work with in order to build a fully f
 |    bison     |         http://ftp.gnu.org/gnu/bison         |   Debian only   |   required   |
 |     gawk     |         http://ftp.gnu.org/gnu/gawk          |   Debian only   |   required   |
 |    glibc     |         http://ftp.gnu.org/gnu/libc          |   Debian only   |   required   |
-|     zlib     |       <https://github.com/madler/zlib>       | Debian + Alpine |   required   |
+|     zlib     |     <https://github.com/zlib-ng/zlib-ng>     | Debian + Alpine |   required   |
 |   openssl    |     <https://github.com/openssl/openssl>     | Debian + Alpine |   required   |
 |    iconv     |       http://ftp.gnu.org/gnu/libiconv        | Debian + Alpine |   required   |
 |     icu      |      https://github.com/unicode-org/icu      | Debian + Alpine |   optional   |

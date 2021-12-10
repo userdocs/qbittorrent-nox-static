@@ -10,10 +10,10 @@ Here is an example successful build profile:
 qBittorrent 4.3.9 was built with the following libraries:
 
 Qt: 5.15.3
-Libtorrent: 1.2.14.0
-Boost: 1.77.0
+Libtorrent: 1.2.15.0
+Boost: 1.78.0
 OpenSSL: 3.0.0
-zlib: 	1.2.11.zlib-ng
+zlib: 1.2.11.zlib-ng
 ```
 
 <!-- tabs:start -->
