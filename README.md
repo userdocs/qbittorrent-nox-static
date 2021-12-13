@@ -31,7 +31,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-### armhf (armv6) - dropped in future releases
+### armhf (armv6)
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
