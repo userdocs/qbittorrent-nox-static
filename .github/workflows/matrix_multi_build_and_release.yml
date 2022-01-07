@@ -15,17 +15,20 @@ jobs:
         arch_type: [x86_64, armhf, armv7, aarch64]
         libtorrent_version: ["1.2", "2.0"]
         icu_step_name: [icu skipped, icu]
-        build_tool: [cmake]
-        qt_version: ["6.2"]
+        build_tool: ["", cmake]
         include:
+          - build_tool: ""
+            qbt_qt_version: ""
+
           - build_tool: "cmake"
             build_tool_name: "cmake-"
+            qbt_qt_version: "6.2"
 
           - libtorrent_version: "2.0"
-            preview_release: true
+            preview_release: false
 
           - libtorrent_version: "1.2"
-            preview_release: false
+            preview_release: true
 
           - icu_step_name: icu
             icu_matrix_name: icu-
