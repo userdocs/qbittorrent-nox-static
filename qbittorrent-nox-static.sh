@@ -1027,7 +1027,7 @@ _release_info() {
 		## Build info
 
 		Qbittorrent: ${qbittorrent_github_tag#release-}
-		Qt: ${qbt_qt_full_version#v}
+		Qt: ${qbt_qt_full_version#v} - see notes
 		Libtorrent: ${libtorrent_github_tag#v}
 		Boost: ${boost_version#v}
 		OpenSSL: ${openssl_version}
@@ -1046,7 +1046,7 @@ _release_info() {
 
 		## Build matrix for libtorrent ${libtorrent_github_tag}
 
-		ℹ️ Qt5 is still built with qmake. Qt6 will use cmake.
+		ℹ️ With Qbittorrent 4.4.0 onwards all cmake build use Qt6 and qmake builds use Qt5 until phased out.
 
 		ℹ️ [Check the build table for more info](https://github.com/userdocs/qbittorrent-nox-static#build-table---dependencies---arch---os---build-tools)
 
