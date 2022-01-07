@@ -16,6 +16,7 @@ jobs:
         libtorrent_version: ["1.2", "2.0"]
         icu_step_name: [icu skipped, icu]
         build_tool: ["", cmake]
+        qt_version: ["6.2"]
         include:
           - build_tool: "cmake"
             build_tool_name: "cmake-"
@@ -57,6 +58,7 @@ jobs:
           echo "qbt_build_tool=${{ matrix.build_tool }}" > env.custom
           echo "qbt_cross_name=${{ matrix.arch_type  }}" >> env.custom
           echo "libtorrent_version=${{ matrix.libtorrent_version }}" >> env.custom
+          echo "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
 
       - name: Host - Create docker multiarch container
         run: docker run --name multiarch -it -d --env-file env.custom -w /root -v ${{ github.workspace }}:/root ${{ matrix.os_id }}:${{ matrix.os_version_id }}
