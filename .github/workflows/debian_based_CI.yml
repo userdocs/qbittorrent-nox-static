@@ -49,7 +49,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
         TZ: Europe/London
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
 
       - run: bash qbittorrent-nox-static.sh -bs-a ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh bison

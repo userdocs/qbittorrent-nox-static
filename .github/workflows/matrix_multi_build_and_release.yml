@@ -42,7 +42,7 @@ jobs:
       name: "${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}libtorrent-v${{ matrix.libtorrent_version }}"
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3
 
       - name: Host - update
         run: sudo apt-get update
