@@ -62,7 +62,7 @@ if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpin
 fi
 #
 ## Check against allowed codenames or if the codename is alpine version greater thab 3.10
-if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|hirsute)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
+if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jammy) ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
 	echo
 	echo -e " ${cly}This is not a supported OS. There is no reason to continue.${cend}"
 	echo
@@ -491,11 +491,11 @@ set_module_urls() {
 	fi
 	#
 	if [[ ! "${what_id}" =~ ^(alpine)$ ]]; then
-		if [[ "${what_version_codename}" =~ ^(hirsute)$ ]]; then
+		if [[ "${what_version_codename}" =~ ^(jammy)$ ]]; then
 			#glibc_version="$(git_git ls-remote -q -t --refs https://sourceware.org/git/glibc.git | awk '/\/tags\/glibc-[0-9]\.[0-9]{2}$/{sub("refs/tags/glibc-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 			#glibc_url="https://ftp.gnu.org/gnu/libc/glibc-${glibc_version}.tar.gz"
 			#glibc_url="https://ftp.gnu.org/gnu/glibc/$(grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl https://ftp.gnu.org/gnu/glibc/) | sort -V | tail -1)"
-			glibc_url="https://ftp.gnu.org/gnu/libc/glibc-2.33.tar.gz" # pin to the same version for this OS otherwise we get build errors
+			glibc_url="https://ftp.gnu.org/gnu/libc/glibc-2.35.tar.gz" # pin to the same version for this OS otherwise we get build errors
 		else
 			glibc_url="https://ftp.gnu.org/gnu/libc/glibc-2.31.tar.gz" # pin to the same version for this OS otherwise we get build errors
 		fi
