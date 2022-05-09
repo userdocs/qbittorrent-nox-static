@@ -538,10 +538,10 @@ set_module_urls() {
 		#
 		qbt_qt_full_version="${qtbase_github_tag}"
 	else
-		qtbase_github_tag="5.15"
+		qtbase_github_tag="kde/5.15"
 		qtbase_github_url="https://invent.kde.org/qt/qt/qtbase.git"
 		#
-		qttools_github_tag="5.15"
+		qttools_github_tag="kde/5.15"
 		qttools_github_url="https://invent.kde.org/qt/qt/qttools.git"
 		#
 		qbt_qt_full_version="$(curl "https://invent.kde.org/qt/qt/qtbase/-/raw/${qtbase_github_tag}/.qmake.conf" | sed -rn 's|MODULE_VERSION = (.*)|\1|p')" # get the version from the headers
