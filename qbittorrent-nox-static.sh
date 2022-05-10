@@ -538,10 +538,10 @@ set_module_urls() {
 		#
 		qbt_qt_full_version="${qtbase_github_tag}"
 	else
-		qtbase_github_tag="kde/5.15"
+		qtbase_github_tag="5.15"
 		qtbase_github_url="https://invent.kde.org/qt/qt/qtbase.git"
 		#
-		qttools_github_tag="kde/5.15"
+		qttools_github_tag="5.15"
 		qttools_github_url="https://invent.kde.org/qt/qt/qttools.git"
 		#
 		qbt_qt_full_version="$(curl "https://invent.kde.org/qt/qt/qtbase/-/raw/${qtbase_github_tag}/.qmake.conf" | sed -rn 's|MODULE_VERSION = (.*)|\1|p')" # get the version from the headers
@@ -2008,6 +2008,9 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 		else
 			icu=("-no-icu" "-iconv" "QMAKE_CXXFLAGS=-w -fpermissive")
 		fi
+		#
+		# Fix 5.15.4 to build on gcc 11
+		sed '/^#  include <utility>/a #  include <limits>' -i "${qbt_install_dir}/qtbase/src/corelib/global/qglobal.h"
 		#
 		# If Alpine, add the QMAKE_LIBS_EXECINFO path so we can build qtbase with no errors whilst linking against libexecinfo
 		[[ "${what_id}" =~ ^(alpine)$ ]] && echo "QMAKE_LIBS_EXECINFO     = ${lib_dir}/libexecinfo.a" >> "mkspecs/common/linux.conf"
