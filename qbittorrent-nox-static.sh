@@ -62,7 +62,7 @@ if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpin
 fi
 #
 ## Check against allowed codenames or if the codename is alpine version greater thab 3.10
-if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jammy) ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
+if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jammy)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "3100" ]]; then
 	echo
 	echo -e " ${cly}This is not a supported OS. There is no reason to continue.${cend}"
 	echo
