@@ -882,7 +882,6 @@ _multi_arch() {
 							cross_arch="armhf"
 							qbt_cross_host="arm-linux-musleabihf"
 							qbt_zlib_arch="armv5"
-							qbt_optimise_arch="-march=armv6zk -mfpu=vfp -mfloat-abi=hard"
 							;;&
 						debian | ubuntu)
 							cross_arch="armel"
@@ -899,9 +898,8 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							cross_arch="armv7"
-							qbt_cross_host="armv7r-linux-musleabihf"
+							qbt_cross_host="armv7l-linux-musleabihf"
 							qbt_zlib_arch="armv7"
-							qbt_optimise_arch="-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=hard"
 							;;&
 						debian | ubuntu)
 							cross_arch="armhf"
@@ -920,7 +918,6 @@ _multi_arch() {
 							cross_arch="aarch64"
 							qbt_cross_host="aarch64-linux-musl"
 							qbt_zlib_arch="aarch64"
-							qbt_optimise_arch=""
 							;;&
 						debian | ubuntu)
 							cross_arch="arm64"
@@ -963,7 +960,7 @@ _multi_arch() {
 			mkdir -p "${qbt_install_dir}/logs"
 			#
 			if [[ "${qbt_cross_target}" =~ ^(alpine)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar.gz" ]]; then
-				curl "https://github.com/userdocs/musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" > "${qbt_install_dir}/${qbt_cross_host}.tar.gz"
+				curl "https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" > "${qbt_install_dir}/${qbt_cross_host}.tar.gz"
 				tar xf "${qbt_install_dir}/${qbt_cross_host}.tar.gz" --strip-components=1 -C "${qbt_install_dir}"
 			fi
 			#
