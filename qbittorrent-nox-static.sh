@@ -882,6 +882,7 @@ _multi_arch() {
 							cross_arch="armhf"
 							qbt_cross_host="arm-linux-musleabihf"
 							qbt_zlib_arch="armv5"
+							qbt_optimise_arch="-march=armv6zk -mfpu=vfp -mfloat-abi=hard"
 							;;&
 						debian | ubuntu)
 							cross_arch="armel"
@@ -900,6 +901,7 @@ _multi_arch() {
 							cross_arch="armv7"
 							qbt_cross_host="armv7r-linux-musleabihf"
 							qbt_zlib_arch="armv7"
+							qbt_optimise_arch="-march=armv7-a -mfpu=vfpv3-d16 -mfloat-abi=hard"
 							;;&
 						debian | ubuntu)
 							cross_arch="armhf"
@@ -918,6 +920,7 @@ _multi_arch() {
 							cross_arch="aarch64"
 							qbt_cross_host="aarch64-linux-musl"
 							qbt_zlib_arch="aarch64"
+							qbt_optimise_arch=""
 							;;&
 						debian | ubuntu)
 							cross_arch="arm64"
@@ -1990,7 +1993,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			-D QT_FEATURE_testlib=off -D QT_BUILD_EXAMPLES=off -D QT_BUILD_TESTS=off \
 			-D CMAKE_CXX_STANDARD="${standard}" \
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
-			-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
+			-D CMAKE_CXX_FLAGS="${CXXFLAGS} ${qbt_optimise_arch}" \
 			-D BUILD_SHARED_LIBS=OFF \
 			-D CMAKE_CXX_STANDARD_LIBRARIES="${libexecinfo}" \
 			-D CMAKE_SKIP_RPATH=on -D CMAKE_SKIP_INSTALL_RPATH=on \
@@ -2066,7 +2069,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 			-D CMAKE_BUILD_TYPE="release" \
 			-D CMAKE_CXX_STANDARD="${standard}" \
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
-			-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
+			-D CMAKE_CXX_FLAGS="${CXXFLAGS} ${qbt_optimise_arch}" \
 			-D BUILD_SHARED_LIBS=OFF \
 			-D CMAKE_CXX_STANDARD_LIBRARIES="${libexecinfo}" \
 			-D CMAKE_SKIP_RPATH=on -D CMAKE_SKIP_INSTALL_RPATH=on \
@@ -2128,7 +2131,7 @@ if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 				-D CMAKE_CXX_STANDARD="${standard}" \
 				-D CMAKE_PREFIX_PATH="${qbt_install_dir};${qbt_install_dir}/boost" \
 				-D Boost_NO_BOOST_CMAKE=TRUE \
-				-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
+				-D CMAKE_CXX_FLAGS="${CXXFLAGS} ${qbt_optimise_arch}" \
 				-D Iconv_LIBRARY="${lib_dir}/libiconv.a" \
 				-D CMAKE_CXX_STANDARD_LIBRARIES="${libexecinfo}" \
 				-D GUI=OFF \
