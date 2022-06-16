@@ -1040,7 +1040,7 @@ _release_info() {
 		|  Arch   | Alpine Cross build files |
 		| :-----: | :----------------------: |
 		|  armhf  |   arm-linux-musleabihf   |
-		|  armv7  | armv7r-linux-musleabihf  |
+		|  armv7  | armv7l-linux-musleabihf  |
 		| aarch64 |    aarch64-linux-musl    |
 		| x86_64  |    x86_64-linux-musl     |
 
