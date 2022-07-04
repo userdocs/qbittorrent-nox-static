@@ -61,8 +61,11 @@ jobs:
       - run: bash qbittorrent-nox-static.sh openssl
       - run: bash qbittorrent-nox-static.sh boost ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh libtorrent ${{ matrix.libtorrent_tag }} ${{ matrix.build_tool_flag }}
+
+      - name: double_conversion
         if: matrix.build_tool_flag == '-c'
-      - run: bash qbittorrent-nox-static.sh double_conversion
+        run: bash qbittorrent-nox-static.sh double_conversion ${{ matrix.build_tool_flag }}
+
       - run: bash qbittorrent-nox-static.sh qtbase -i
       - run: bash qbittorrent-nox-static.sh qttools
       - run: bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.build_tool_flag }}
