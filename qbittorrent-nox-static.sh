@@ -137,6 +137,7 @@ set_default_values() {
 	fi
 
 	if [[ "${qbt_build_tool}" != 'cmake' ]]; then
+		delete+=("double_conversion")
 		delete_pkgs+=("unzip" "ttf-freefont" "graphviz" "cmake" "re2c")
 	else
 		[[ "${qbt_skip_icu}" != 'no' ]] && delete+=("icu")
