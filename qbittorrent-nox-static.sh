@@ -353,7 +353,7 @@ while (("${#}")); do
 			;;
 	esac
 done
-#
+
 set -- "${params1[@]}" # Set positional arguments in their proper place.
 #######################################################################################################################################################
 # 2:  curl test download functions - default is no proxy - curl is a test function and curl_curl is the command function
@@ -366,7 +366,7 @@ curl_curl() {
 	fi
 
 }
-#
+
 curl() {
 	if ! curl_curl "${@}"; then
 		echo 'error_url'
@@ -382,7 +382,7 @@ git_git() {
 		"$(type -P git)" -c http.sslVerify=false -c http.https://github.com.proxy="${qbt_git_proxy}" "${@}"
 	fi
 }
-#
+
 git() {
 	if [[ "${2}" = '-t' ]]; then
 		url_test="${1}"
@@ -391,19 +391,19 @@ git() {
 	else
 		url_test="${11}" # 11th place in our download folder function
 	fi
-	#
+
 	if ! curl -I "${url_test%\.git}" &> /dev/null; then
 		echo
 		echo -e " ${cy}There is an issue with your proxy settings or network connection${cend}"
 		echo
 		exit
 	fi
-	#
+
 	status="$(
 		git_git ls-remote --exit-code "${url_test}" "${tag_flag}" "${tag_test}" &> /dev/null
 		echo "${?}"
 	)"
-	#
+
 	if [[ "${tag_flag}" = '-t' && "${status}" = '0' ]]; then
 		echo "${tag_test}"
 	elif [[ "${tag_flag}" = '-t' && "${status}" -ge '1' ]]; then
@@ -417,7 +417,7 @@ git() {
 		fi
 	fi
 }
-#
+
 test_git_ouput() {
 	if [[ "${1}" = 'error_tag' ]]; then
 		echo -e "${tn} ${cy}Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
@@ -437,11 +437,11 @@ set_build_directory() {
 			qbt_install_dir_short="${qbt_working_dir_short}/${qbt_build_dir}"
 		fi
 	fi
-	#
+
 	## Set lib and include directory paths based on install path.
 	include_dir="${qbt_install_dir}/include"
 	lib_dir="${qbt_install_dir}/lib"
-	#
+
 	## Define some build specific variables
 	LOCAL_USER_HOME="${HOME}" # Get the local user's home dir path before we contain HOME to the build dir.
 	HOME="${qbt_install_dir}"
@@ -456,7 +456,7 @@ custom_flags_set() {
 	CPPFLAGS="${optimize/*/$optimize }-static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
 	LDFLAGS="${optimize/*/$optimize }-static -L${lib_dir}"
 }
-#
+
 custom_flags_reset() {
 	CXXFLAGS="${optimize/*/$optimize } -w -std=${cxx_standard}"
 	CPPFLAGS="${optimize/*/$optimize } -w"
@@ -470,26 +470,26 @@ set_module_urls() {
 		libexecinfo_dev_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-dev | awk '{print $1}' | head -n 1).apk"
 		libexecinfo_static_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
 	fi
-	#
+
 	cmake_github_tag="$(git_git ls-remote -q -t --refs https://github.com/userdocs/cmake-qbittorrent-nox-static.git | awk '{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	cmake_debian_version=${cmake_github_tag%_*}
 	ninja_debian_version=${cmake_github_tag#*_}
-	#
+
 	ninja_github_tag="master"
 	ninja_version="$(curl https://raw.githubusercontent.com/ninja-build/ninja/master/src/version.cc | sed -rn 's|const char\* kNinjaVersion = "(.*)";|\1|p')"
-	#
+
 	if [[ ! "${what_id}" =~ ^(alpine)$ ]]; then
 		#bison_version="$(git_git ls-remote -q -t --refs https://git.savannah.gnu.org/git/bison.git | awk '/\/v/{sub("refs/tags/v", "");sub("(.*)((-|_)[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 		#bison_url="https://ftp.gnu.org/gnu/bison/bison-${bison_version}.tar.gz"
 		bison_url="https://ftp.gnu.org/gnu/bison/$(grep -Eo 'bison-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl https://ftp.gnu.org/gnu/bison/) | sort -V | tail -1)"
 	fi
-	#
+
 	if [[ ! "${what_id}" =~ ^(alpine)$ ]]; then
 		#gawk_version="$(git_git ls-remote -q -t --refs https://git.savannah.gnu.org/git/gawk.git | awk '/\/tags\/gawk/{sub("refs/tags/gawk-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 		#gawk_url="https://ftp.gnu.org/gnu/gawk/gawk-${gawk_version}.tar.gz"
 		gawk_url="https://ftp.gnu.org/gnu/gawk/$(grep -Eo 'gawk-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl https://ftp.gnu.org/gnu/gawk/) | sort -V | tail -1)"
 	fi
-	#
+
 	if [[ ! "${what_id}" =~ ^(alpine)$ ]]; then
 		if [[ "${what_version_codename}" =~ ^(jammy)$ ]]; then
 			#glibc_version="$(git_git ls-remote -q -t --refs https://sourceware.org/git/glibc.git | awk '/\/tags\/glibc-[0-9]\.[0-9]{2}$/{sub("refs/tags/glibc-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
@@ -500,17 +500,17 @@ set_module_urls() {
 			glibc_url="https://ftp.gnu.org/gnu/libc/glibc-2.31.tar.gz" # pin to the same version for this OS otherwise we get build errors
 		fi
 	fi
-	#
+
 	zlib_github_tag="develop" # use this to fix arm cross building with cmake until a new release including these fixes is available (>2.0.5)
 	# zlib_github_version="$(git_git ls-remote -q -t --refs https://github.com/zlib-ng/zlib-ng | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	zlib_version="$(curl https://raw.githubusercontent.com/zlib-ng/zlib-ng/${zlib_github_tag}/zlib.h.in | sed -rn 's|#define ZLIB_VERSION "(.*)"|\1|p')" # get the version from the headers
 	zlib_github_url="https://github.com/zlib-ng/zlib-ng.git"
-	#
+
 	# zlib_github_tag="$(git_git ls-remote -q -t --refs https://github.com/madler/zlib.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	# zlib_url="https://github.com/madler/zlib/archive/${zlib_github_tag}.tar.gz"
-	#
+
 	iconv_url="https://ftp.gnu.org/gnu/libiconv/$(grep -Eo 'libiconv-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl https://ftp.gnu.org/gnu/libiconv/) | sort -V | tail -1)"
-	#
+
 	icu_github_tag="$(git_git ls-remote -q -t --refs https://github.com/unicode-org/icu.git | awk '/\/release-/{sub("refs/tags/release-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	icu_url="https://github.com/unicode-org/icu/releases/download/release-${icu_github_tag}/icu4c-${icu_github_tag/-/_}-src.tgz"
 
@@ -521,13 +521,13 @@ set_module_urls() {
 	openssl_github_tag="$(git_git ls-remote -q -t --refs https://github.com/openssl/openssl.git | awk '/openssl/{sub("refs/tags/", "");sub("(.*)(v6|rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
 	openssl_version="${openssl_github_tag#openssl-}"
 	openssl_url="https://github.com/openssl/openssl/archive/${openssl_github_tag}.tar.gz"
-	#
+
 	boost_version="${boost_version:-$(git_git ls-remote -q -t --refs https://github.com/boostorg/boost.git | awk '{sub("refs/tags/boost-", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)}"
 	boost_github_tag="boost-${boost_version}"
 	boost_url="https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz"
 	boost_url_status="$(curl_curl -so /dev/null --head --write-out '%{http_code}' "https://boostorg.jfrog.io/artifactory/main/release/${boost_version}/source/boost_${boost_version//./_}.tar.gz")"
 	boost_github_url="https://github.com/boostorg/boost.git"
-	#
+
 	if [[ "${qbt_qt_version}" =~ ^6\. ]]; then
 		qt_github_tag_list="$(git_git ls-remote -q -t --refs https://github.com/qt/qtbase.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
 
@@ -553,16 +553,16 @@ set_module_urls() {
 		#
 		qbt_qt_full_version="$(curl "https://invent.kde.org/qt/qt/qtbase/-/raw/${qtbase_github_tag}/.qmake.conf" | sed -rn 's|MODULE_VERSION = (.*)|\1|p')" # get the version from the headers
 	fi
-	#
+
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
 	libtorrent_github_tags_list="$(git_git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
 	libtorrent_github_tag_default="$(grep -Eom1 "v${libtorrent_version}.([0-9]{1,2})" <<< "${libtorrent_github_tags_list}")"
 	libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
-	#
+
 	qbittorrent_github_url="https://github.com/qbittorrent/qBittorrent.git"
 	qbittorrent_github_tag_default="$(git_git ls-remote -q -t --refs https://github.com/qbittorrent/qBittorrent.git | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*|rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
 	qbittorrent_github_tag="${qbitorrent_github_tag:-$qbittorrent_github_tag_default}"
-	#
+
 	url_test="$(curl -so /dev/null "https://www.google.com")"
 }
 #######################################################################################################################################################
@@ -571,7 +571,7 @@ set_module_urls() {
 installation_modules() {
 	params_count="${#}"
 	params_test=1
-	#
+
 	## remove modules from the delete array from the qbt_modules array
 	for target in "${delete[@]}"; do
 		for i in "${!qbt_modules[@]}"; do
@@ -580,7 +580,7 @@ installation_modules() {
 			fi
 		done
 	done
-	#
+
 	while [[ "${params_test}" -le "${params_count}" && "${params_count}" -gt '1' ]]; do
 		if [[ "${qbt_modules[*]}" =~ ${*:$params_test:1} ]]; then
 			:
@@ -589,7 +589,7 @@ installation_modules() {
 		fi
 		params_test="$((params_test + 1))"
 	done
-	#
+
 	if [[ "${params_count}" -le '1' ]]; then
 		if [[ "${qbt_modules[*]}" =~ ${*:$params_test:1} && -n "${*:$params_test:1}" ]]; then
 			:
@@ -597,7 +597,7 @@ installation_modules() {
 			qbt_modules_test="fail"
 		fi
 	fi
-	#
+
 	## Activate all validated modules for installation and define some core variables.
 	if [[ "${qbt_modules_test}" != 'fail' ]]; then
 		if [[ "${*}" =~ ([[:space:]]|^)"all"([[:space:]]|$) ]]; then
@@ -609,25 +609,25 @@ installation_modules() {
 				eval "skip_${module}=no"
 			done
 		fi
-		#
+
 		## Create the directories we need.
 		mkdir -p "${qbt_install_dir}/logs"
 		mkdir -p "${PKG_CONFIG_PATH}"
 		mkdir -p "${qbt_install_dir}/completed"
-		#
+
 		## Set some python variables we need.
 		python_major="$(python"${qbt_python_version}" -c "import sys; print(sys.version_info[0])")"
 		python_minor="$(python"${qbt_python_version}" -c "import sys; print(sys.version_info[1])")"
 		python_micro="$(python"${qbt_python_version}" -c "import sys; print(sys.version_info[2])")"
-		#
+
 		python_short_version="${python_major}.${python_minor}"
 		python_link_version="${python_major}${python_minor}"
-		#
+
 		echo -e "using gcc : : : <cflags>${optimize/*/$optimize }-std=${cxx_standard} <cxxflags>${optimize/*/$optimize }-std=${cxx_standard} ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" > "$HOME/user-config.jam"
-		#
+
 		## Echo the build directory.
 		echo -e "${tn} ${uyc} ${tb}Install Prefix${cend} : ${clc}${qbt_install_dir_short}${cend}"
-		#
+
 		## Some basic help
 		echo -e "${tn} ${uyc} ${tb}Script help${cend} : ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-h${cend}"
 	else
@@ -646,21 +646,23 @@ apply_patches() {
 	[[ "${libtorrent_github_tag}" =~ ^RC_ ]] && libtorrent_patch_tag="${libtorrent_github_tag}"
 	[[ "${libtorrent_github_tag}" =~ ^libtorrent- ]] && libtorrent_patch_tag="${libtorrent_github_tag#libtorrent-}" && libtorrent_patch_tag="${libtorrent_patch_tag//_/\.}"
 	[[ "${libtorrent_github_tag}" =~ ^v[0-9] ]] && libtorrent_patch_tag="${libtorrent_github_tag#v}"
+
 	# Start to define the default master branch we will use by transforming the libtorrent_patch_tag variable to underscores. The result is dynamic and can be: RC_1_0, RC_1_1, RC_1_2, RC_2_0 and so on.
 	default_jamfile="${libtorrent_patch_tag//./\_}"
+
 	# Remove everything after second underscore. Occasionally the tag will be short, like v2.0 so we need to make sure not remove the underscore if there is only one present.
 	if [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -le 1 ]]; then
 		default_jamfile="RC_${default_jamfile}"
 	elif [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -ge 2 ]]; then
 		default_jamfile="RC_${default_jamfile%_*}"
 	fi
-	#
+
 	qbittorrent_patch_tag="${qbittorrent_github_tag#release-}" # qbittorrent has a consistent tag format of release-4.3.1.
-	#
+
 	if [[ "${patch_app_name}" == 'bootstrap-help' ]]; then # All the core variables we need for the help command are set so we can exit this function now.
 		return
 	fi
-	#
+
 	if [[ "${patch_app_name}" == 'bootstrap' ]]; then
 		mkdir -p "${qbt_install_dir}/patches/libtorrent/${libtorrent_patch_tag}"
 		mkdir -p "${qbt_install_dir}/patches/qbittorrent/${qbittorrent_patch_tag}"
@@ -679,9 +681,9 @@ apply_patches() {
 		patch_file_url="https://raw.githubusercontent.com/${qbt_patches_url}/master/patches/${patch_app_name}/${!patch_tag}/patch"
 		patch_jamfile="${qbt_install_dir}/libtorrent/Jamfile"
 		patch_jamfile_url="https://raw.githubusercontent.com/${qbt_patches_url}/master/patches/${patch_app_name}/${!patch_tag}/Jamfile"
-		#
+
 		[[ ! -d "${patch_dir}" ]] && mkdir -p "${patch_dir}"
-		#
+
 		if [[ -f "${patch_file}" ]]; then
 			echo
 			echo -e " ${utick} ${cr}Using ${!patch_tag} existing patch file${cend}"
@@ -693,7 +695,7 @@ apply_patches() {
 				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
 		fi
-		#
+
 		if [[ "${patch_app_name}" == 'libtorrent' ]]; then
 			if [[ -f "${patch_dir}/Jamfile" ]]; then
 				cp -f "${patch_dir}/Jamfile" "${patch_jamfile}"
@@ -711,7 +713,7 @@ apply_patches() {
 				echo
 			fi
 		fi
-		#
+
 		[[ -f "${patch_file}" ]] && patch -p1 < "${patch_file}"
 	fi
 }
@@ -830,7 +832,6 @@ application_skip() {
 #######################################################################################################################################################
 install_qbittorrent() {
 	if [[ -f "${qbt_install_dir}/completed/qbittorrent-nox" ]]; then
-		#
 		if [[ "$(id -un)" = 'root' ]]; then
 			mkdir -p "/usr/local/bin"
 			cp -rf "${qbt_install_dir}/completed/qbittorrent-nox" "/usr/local/bin"
@@ -838,18 +839,15 @@ install_qbittorrent() {
 			mkdir -p "${HOME}/bin"
 			cp -rf "${qbt_install_dir}/completed/qbittorrent-nox" "${LOCAL_USER_HOME}/bin"
 		fi
-		#
+
 		echo -e "${tn} ${uplus} qbittorrent-nox has been installed!${cend}${tn}"
 		echo -e " Run it using this command:${tn}"
-		#
 		[[ "$(id -un)" = 'root' ]] && echo -e " ${cg}qbittorrent-nox${cend}${tn}" || echo -e " ${cg}~/bin/qbittorrent-nox${cend}${tn}"
-		#
 		exit
 	else
 		echo -e "${tn}qbittorrent-nox has not been built to the defined install directory:${tn}"
 		echo -e "${cg}${qbt_install_dir_short}/completed${cend}${tn}"
 		echo -e "Please build it using the script first then install${tn}"
-		#
 		exit
 	fi
 }
@@ -879,9 +877,9 @@ post_command() {
 _multi_arch() {
 	if [[ "${qbt_cross_name}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
 		if [[ "${what_id}" =~ ^(alpine|debian|ubuntu)$ ]]; then
-			#
+
 			[[ "${1}" != 'bootstrap' ]] && echo -e "${tn} ${ugc}${cly} Using multiarch - arch: ${qbt_cross_name} host: ${what_id} target: ${qbt_cross_target}${cend}"
-			#
+
 			case "${qbt_cross_name}" in
 				armhf)
 					case "${qbt_cross_target}" in
@@ -956,37 +954,37 @@ _multi_arch() {
 					esac
 					;;
 			esac
-			#
+
 			[[ "${1}" == 'bootstrap' ]] && return
-			#
+
 			CHOST="${qbt_cross_host}"
 			CC="${qbt_cross_host}-gcc"
 			AR="${qbt_cross_host}-ar"
 			CXX="${qbt_cross_host}-g++"
-			#
+
 			mkdir -p "${qbt_install_dir}/logs"
-			#
+
 			if [[ "${qbt_cross_target}" =~ ^(alpine)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar.gz" ]]; then
 				curl "https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" > "${qbt_install_dir}/${qbt_cross_host}.tar.gz"
 				tar xf "${qbt_install_dir}/${qbt_cross_host}.tar.gz" --strip-components=1 -C "${qbt_install_dir}"
 			fi
-			#
+
 			_fix_multiarch_static_links "${qbt_cross_host}"
-			#
+
 			multi_bison=("--host=${qbt_cross_host}") # ${multi_bison[@]}
-			#
+
 			multi_gawk=("--host=${qbt_cross_host}") # ${multi_gawk[@]}
-			#
+
 			multi_glibc=("--host=${qbt_cross_host}") # ${multi_glibc[@]}
-			#
+
 			multi_iconv=("--host=${qbt_cross_host}") # ${multi_iconv[@]}
-			#
+
 			multi_icu=("--host=${qbt_cross_host}" "-with-cross-build=${qbt_install_dir}/icu/cross") # ${multi_icu[@]}
-			#
+
 			multi_openssl=("./Configure" "${qbt_cross_openssl}") # ${multi_openssl[@]}
-			#
+
 			multi_qtbase=("-xplatform" "${qbt_cross_qtbase}") # ${multi_qtbase[@]}
-			#
+
 			if [[ "${qbt_build_tool}" = 'cmake' ]]; then
 				multi_libtorrent=("-D CMAKE_CXX_COMPILER=${qbt_cross_host}-g++")        # ${multi_libtorrent[@]}
 				multi_double_conversion=("-D CMAKE_CXX_COMPILER=${qbt_cross_host}-g++") # ${multi_double_conversion[@]}
@@ -1016,21 +1014,21 @@ _multi_arch() {
 #######################################################################################################################################################
 _release_info() {
 	_error_tag
-	#
+
 	echo -e "${tn} ${ugc} ${cly}Release boot-strapped${cend}"
-	#
+
 	release_info_dir="${qbt_install_dir}/release_info"
-	#
+
 	mkdir -p "${release_info_dir}"
-	#
+
 	cat > "${release_info_dir}/tag.md" <<- TAG_INFO
 		${qbittorrent_github_tag#v}_${libtorrent_github_tag}
 	TAG_INFO
-	#
+
 	cat > "${release_info_dir}/title.md" <<- TITLE_INFO
 		qbittorrent ${qbittorrent_github_tag#release-} libtorrent ${libtorrent_github_tag#v}
 	TITLE_INFO
-	#
+
 	cat > "${release_info_dir}/release.md" <<- RELEASE_INFO
 		## Build info
 
@@ -1061,7 +1059,7 @@ _release_info() {
 		⚠️ Binary builds are not stripped by default to preserve stacktrace / debugging features built into qBittorrent.
 
 	RELEASE_INFO
-	#
+
 	return
 }
 #######################################################################################################################################################
@@ -1072,14 +1070,14 @@ _cmake() {
 		echo -e "${tn} ${ulbc}${clr} Checking if cmake and ninja need to be installed${cend}"
 		mkdir -p "${qbt_install_dir}/bin"
 		_cd "${qbt_install_dir}"
-		#
+
 		if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
 			if [[ "$(cmake --version 2> /dev/null | awk 'NR==1{print $3}')" != "${cmake_debian_version}" ]]; then
 				curl "https://github.com/userdocs/cmake-qbittorrent-nox-static/releases/latest/download/${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" > "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz"
 				post_command "Debian cmake and ninja installation"
 				tar xf "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" --strip-components=1 -C "${qbt_install_dir}"
 				rm -f "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).deb"
-				#
+
 				echo -e "${tn} ${uyc} Installed cmake: ${cly}${cmake_debian_version}${tn}"
 				echo -e " ${uyc} Installed ninja: ${cly}${ninja_debian_version}"
 			else
@@ -1087,7 +1085,7 @@ _cmake() {
 				echo -e " ${uyc} Using ninja: ${cly}${ninja_debian_version}"
 			fi
 		fi
-		#
+
 		if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2> /dev/null)" != "${ninja_version}" ]]; then
 				download_folder ninja https://github.com/ninja-build/ninja.git
@@ -1097,14 +1095,14 @@ _cmake() {
 					-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
 					-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/ninja.log.txt"
 				cmake --build build -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/ninja.log.txt"
-				#
+
 				post_command build
-				#
+
 				cmake --install build |& tee -a "${qbt_install_dir}/logs/ninja.log.txt"
 				_cd "${qbt_install_dir}" && rm -rf "${qbt_install_dir}/ninja"
 			fi
 		fi
-		#
+
 		echo -e "${tn} ${ugc}${clr} cmake and ninja are installed and ready to use${cend}"
 	fi
 }
@@ -1159,11 +1157,11 @@ _error_tag() {
 # Functions part 1: Use some of our functions
 #######################################################################################################################################################
 set_default_values "${@}" # see functions
-#
+
 check_dependencies # see functions
-#
+
 set_build_directory # see functions
-#
+
 set_module_urls # see functions
 #######################################################################################################################################################
 # This section controls our flags that we can pass to the script to modify some variables and behavior.
@@ -1611,7 +1609,7 @@ while (("${#}")); do
 			;;
 	esac
 done
-#
+
 set -- "${params2[@]}" # Set positional arguments in their proper place.
 #######################################################################################################################################################
 # Functions part 2: Use some of our functions
@@ -1621,30 +1619,30 @@ set -- "${params2[@]}" # Set positional arguments in their proper place.
 # Lets dip out now if we find that any github tags failed validation or the urls are invalid
 #######################################################################################################################################################
 _error_url
-#
+
 _error_tag
 #######################################################################################################################################################
 # Functions part 3: Use some of our functions
 #######################################################################################################################################################
 installation_modules "${@}" # see functions
-#
+
 _cmake
-#
+
 _multi_arch
 #######################################################################################################################################################
 # libexecinfo installation
 #######################################################################################################################################################
 application_name libexecinfo
-#
+
 if [[ "${!app_name_skip:-yes}" = 'no' ]] || [[ "${1}" = "${app_name}" ]]; then
 	echo -e "${tn} ${uplus}${cg} Installing ${app_name}${cend}"
-	#
+
 	curl "${libexecinfo_dev_url}" -o "${qbt_install_dir}/libexecinfo_dev_${cross_arch}.apk"
 	curl "${libexecinfo_static_url}" -o "${qbt_install_dir}/libexecinfo_static_${cross_arch}.apk"
-	#
+
 	tar xf "${qbt_install_dir}/libexecinfo_dev_${cross_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
 	tar xf "${qbt_install_dir}/libexecinfo_static_${cross_arch}.apk" --strip-components=1 -C "${qbt_install_dir}"
-	#
+
 	_fix_static_links "${app_name}"
 else
 	application_skip
@@ -1653,18 +1651,18 @@ fi
 # bison installation
 #######################################################################################################################################################
 application_name bison
-#
+
 if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
-	#
+
 	./configure "${multi_bison[@]}" --prefix="${qbt_install_dir}" |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-	#
+
 	post_command build
-	#
+
 	make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-	#
+
 	delete_function "${app_name}"
 else
 	application_skip
@@ -1673,20 +1671,20 @@ fi
 # gawk installation
 #######################################################################################################################################################
 application_name gawk
-#
+
 if [[ "${!app_name_skip:-yes}" = 'no' || "$1" = "${app_name}" ]]; then
 	custom_flags_set
 	download_file "${app_name}" "${!app_url}"
-	#
+
 	./configure "${multi_gawk[@]}" --prefix="$qbt_install_dir" |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-	#
+
 	post_command build
-	#
+
 	make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-	#
+
 	_fix_static_links "${app_name}"
-	#
+
 	delete_function "${app_name}"
 else
 	application_skip
@@ -1695,23 +1693,23 @@ fi
 # glibc installation
 #######################################################################################################################################################
 application_name glibc
-#
+
 if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_reset
 	download_file "${app_name}" "${!app_url}"
-	#
+
 	mkdir -p build
 	_cd "${app_dir}/build"
-	#
+
 	"${app_dir}/configure" "${multi_glibc[@]}" --prefix="${qbt_install_dir}" --enable-static-nss --disable-nscd |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 	make -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/$app_name.log.txt"
-	#
+
 	post_command build
-	#
+
 	make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-	#
+
 	_fix_static_links "${app_name}"
-	#
+
 	delete_function "${app_name}"
 else
 	application_skip
@@ -1720,17 +1718,17 @@ fi
 # zlib installation
 #######################################################################################################################################################
 application_name zlib
-#
+
 if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 	custom_flags_set
 	download_folder "${app_name}" "${!app_github_url}"
-	#
+
 	if [[ "${qbt_build_tool}" == 'cmake' ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${zlib_version}"
-		#
+
 		# force set some ARCH when using zlib-ng, cmake and musl-cross since it does detect the arch correctly.
 		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && echo -e "\narchfound ${qbt_zlib_arch:-x86_64}" >> "${qbt_install_dir}/zlib/cmake/detect-arch.c"
-		#
+
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${zlib_version}/dep-graph.dot" -G Ninja -B build \
 			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
 			-D CMAKE_CXX_STANDARD="${standard}" \
@@ -1739,27 +1737,26 @@ if [[ "${!app_name_skip:-yes}" = 'no' || "${1}" = "${app_name}" ]]; then
 			-D ZLIB_COMPAT=ON \
 			-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 		cmake --build build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-		#
+
 		post_command build
-		#
+
 		cmake --install build |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-		#
+
 		dot -Tpng -o "${qbt_install_dir}/completed/${app_name}-graph.png" "${qbt_install_dir}/graphs/${zlib_version}/dep-graph.dot"
-		#
 	else
 		# force set some ARCH when using zlib-ng, configure and musl-cross since it does detect the arch correctly.
 		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && sed "s|  CFLAGS=\"-O2 \${CFLAGS}\"|  ARCH=${qbt_zlib_arch:-x86_64}\n  CFLAGS=\"-O2 \${CFLAGS}\"|g" -i "${qbt_install_dir}/zlib/configure"
-		#
+
 		./configure --prefix="${qbt_install_dir}" --static --zlib-compat |& tee "${qbt_install_dir}/logs/${app_name}.log.txt"
 		make -j"$(nproc)" CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
-		#
+
 		post_command build
-		#
+
 		make install |& tee -a "${qbt_install_dir}/logs/${app_name}.log.txt"
 	fi
-	#
+
 	_fix_static_links "${app_name}"
-	#
+
 	delete_function "${app_name}"
 else
 	application_skip
