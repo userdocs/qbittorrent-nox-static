@@ -53,7 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - run: bash export qbt_qt_version="${{ matrix.qbt_qt_version }}"
+      - run: export qbt_qt_version="${{ matrix.qbt_qt_version }}"
       - run: bash qbittorrent-nox-static.sh -bs-a ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh bison
       - run: bash qbittorrent-nox-static.sh gawk
