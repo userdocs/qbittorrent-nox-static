@@ -52,8 +52,6 @@ jobs:
         TZ: Europe/London
     steps:
       - uses: actions/checkout@v3
-
-      - run: export qbt_qt_version="${{ matrix.qbt_qt_version }}"
       - run: bash qbittorrent-nox-static.sh -bs-a ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh bison
       - run: bash qbittorrent-nox-static.sh gawk
@@ -66,6 +64,8 @@ jobs:
       - run: bash qbittorrent-nox-static.sh libtorrent ${{ matrix.libtorrent_tag }} ${{ matrix.build_tool_flag }}
         if: matrix.build_tool_flag == '-c'
       - run: bash qbittorrent-nox-static.sh double_conversion ${{ matrix.build_tool_flag }}
+
+      - run: export qbt_qt_version="${{ matrix.qbt_qt_version }}"
       - run: bash qbittorrent-nox-static.sh qtbase -i ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh qttools ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.build_tool_flag }}
