@@ -104,6 +104,7 @@ jobs:
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent
 
       - name: Docker - double_conversion
+        if: matrix.build_tool == 'cmake'
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh double_conversion
 
       - name: Docker - qtbase ${{ matrix.qt_with_icu }}
