@@ -103,6 +103,9 @@ jobs:
       - name: Docker - libtorrent
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent
 
+      - name: Docker - double_conversion
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh double_conversion
+
       - name: Docker - qtbase ${{ matrix.qt_with_icu }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qtbase ${{ matrix.qt_with_icu }}
 
