@@ -55,19 +55,16 @@ jobs:
       - run: bash qbittorrent-nox-static.sh bison
       - run: bash qbittorrent-nox-static.sh gawk
       - run: bash qbittorrent-nox-static.sh glibc
-      - run: bash qbittorrent-nox-static.sh zlib
+      - run: bash qbittorrent-nox-static.sh zlib ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh iconv
       - run: bash qbittorrent-nox-static.sh icu
       - run: bash qbittorrent-nox-static.sh openssl
       - run: bash qbittorrent-nox-static.sh boost ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh libtorrent ${{ matrix.libtorrent_tag }} ${{ matrix.build_tool_flag }}
-
-      - name: double_conversion
-        if: matrix.build_tool_flag == '-c'
-        run: bash qbittorrent-nox-static.sh double_conversion ${{ matrix.build_tool_flag }}
-
-      - run: bash qbittorrent-nox-static.sh qtbase -i
-      - run: bash qbittorrent-nox-static.sh qttools
+        if: matrix.build_tool_flag == "-c"
+      - run: bash qbittorrent-nox-static.sh double_conversion ${{ matrix.build_tool_flag }}
+      - run: bash qbittorrent-nox-static.sh qtbase -i ${{ matrix.build_tool_flag }}
+      - run: bash qbittorrent-nox-static.sh qttools ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.build_tool_flag }}
 
       - name: Archive code coverage results
