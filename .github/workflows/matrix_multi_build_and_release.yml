@@ -18,7 +18,7 @@ jobs:
         build_tool: ["", cmake]
         include:
           - build_tool: ""
-            qbt_qt_version: ""
+            qbt_qt_version: "5.15"
 
           - build_tool: "cmake"
             build_tool_name: "cmake-"
