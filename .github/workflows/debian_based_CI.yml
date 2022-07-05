@@ -32,8 +32,10 @@ jobs:
         include:
           - build_tool_flag: ""
             build_tool_name: qmake
+            qbt_qt_version: "5.15"
           - build_tool_flag: -c
             build_tool_name: cmake
+            qbt_qt_version: "6.3"
           - libtorrent_tag: -lt RC_1_2
             libtorrent_version: RC-1-2
           - libtorrent_tag: -lt RC_2_0
@@ -51,6 +53,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - run: bash export qbt_qt_version="${{ matrix.qbt_qt_version }}"
       - run: bash qbittorrent-nox-static.sh -bs-a ${{ matrix.build_tool_flag }}
       - run: bash qbittorrent-nox-static.sh bison
       - run: bash qbittorrent-nox-static.sh gawk
