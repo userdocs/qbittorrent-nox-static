@@ -52,10 +52,10 @@ jobs:
         LANG: en_GB.UTF-8
         DEBIAN_FRONTEND: noninteractive
         TZ: Europe/London
+        qbt_qt_version: ${{ matrix.qbt_qt_version }}
     steps:
       - uses: actions/checkout@v3
       - run: bash qbittorrent-nox-static.sh -bs-a ${{ matrix.build_tool_flag }}
-      - run: export qbt_qt_version="${{ matrix.qbt_qt_version }}"
       - run: bash qbittorrent-nox-static.sh bison
       - run: bash qbittorrent-nox-static.sh gawk
       - run: bash qbittorrent-nox-static.sh glibc
