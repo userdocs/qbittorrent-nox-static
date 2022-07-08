@@ -1,8 +1,8 @@
 # @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition
-name: matrix multi build and release customs tags
+name: matrix multi build and release - customs tags
 
 on:
-  - workflow_dispatch
+  workflow_dispatch:
 
 jobs:
   build:
@@ -14,31 +14,30 @@ jobs:
         os_version_id: [edge]
         arch_type: [x86_64, armhf, armv7, aarch64]
         libtorrent_version: ["1.2", "2.0"]
-        icu_step_name: [icu skipped, icu]
         build_tool: ["", cmake]
-        qbittorrent_tag: ["-qt release-4.3.9"]
+        qbittorrent_tag: ["-qt release-4.4.3.1"]
         include:
+          - build_tool: ""
+            qbt_qt_version_name: "qt5-"
+            qbt_qt_version: "5"
+
           - build_tool: "cmake"
-            build_tool_name: "cmake-"
+            qbt_qt_version_name: ""
+            qbt_qt_version: "6"
 
           - libtorrent_version: "2.0"
-            libtorrent_tag: -lt v2.0.4
-            preview_release: true
-
-          - libtorrent_version: "1.2"
-            libtorrent_tag: -lt v1.2.14
+            libtorrent_tag: -lt v2.0.6
             preview_release: false
 
-          - icu_step_name: icu
-            icu_matrix_name: icu-
-            qt_with_icu: -i
-            with_icu: bash qbittorrent-nox-static.sh icu
+          - libtorrent_version: "1.2"
+            libtorrent_tag: -lt v1.2.16
+            preview_release: true
 
-    name: "${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}libtorrent-v${{ matrix.libtorrent_version }}"
+    name: "${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.libtorrent_version }}"
 
     env:
       build_dir: "qbt-build"
-      name: "${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}libtorrent-v${{ matrix.libtorrent_version }}"
+      name: "${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.libtorrent_version }}"
 
     steps:
       - uses: actions/checkout@v3
@@ -59,7 +58,9 @@ jobs:
         run: |
           echo "qbt_build_tool=${{ matrix.build_tool }}" > env.custom
           echo "qbt_cross_name=${{ matrix.arch_type  }}" >> env.custom
-          echo "libtorrent_version=${{ matrix.libtorrent_version }}" >> env.custom
+          echo "qbt_libtorrent_version=${{ matrix.libtorrent_version }}" >> env.custom
+          echo "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
+          echo "qbt_workflow_files=yes" >> env.custom
 
       - name: Host - Create docker multiarch container
         run: docker run --name multiarch -it -d --env-file env.custom -w /root -v ${{ github.workspace }}:/root ${{ matrix.os_id }}:${{ matrix.os_version_id }}
@@ -88,9 +89,8 @@ jobs:
       - name: Docker - iconv
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh iconv
 
-      - name: Docker - ${{ matrix.icu_step_name }}
-        if: matrix.icu_step_name == 'icu'
-        run: docker exec -w /root multiarch ${{ matrix.with_icu }}
+      - name: Docker - icu
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh icu
 
       - name: Docker - openssl
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh openssl
@@ -101,8 +101,12 @@ jobs:
       - name: Docker - libtorrent
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent ${{ matrix.libtorrent_tag }}
 
-      - name: Docker - qtbase ${{ matrix.qt_with_icu }}
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qtbase ${{ matrix.qt_with_icu }}
+      - name: Docker - double_conversion
+        if: matrix.build_tool == 'cmake'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh double_conversion
+
+      - name: Docker - qtbase -i
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qtbase -i
 
       - name: Docker - qttools
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qttools
@@ -111,23 +115,23 @@ jobs:
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.qbittorrent_tag }}
 
       - name: Docker - "Set release asset name"
-        run: docker exec -w /root/${{ env.build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox
+        run: docker exec -w /root/${{ env.build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
 
       - name: Host- Create release - tag - assets
         uses: ncipollo/release-action@v1.10.0
         with:
-          prerelease: ${{ matrix.preview_release }}
-          artifacts: ${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.build_tool_name }}${{ matrix.icu_matrix_name }}qbittorrent-nox
+          prerelease: "${{ matrix.preview_release }}"
+          artifacts: "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox,${{ env.build_dir }}/release_info/dependency-version.json"
           replacesArtifacts: true
-          tag: ${{ env.release_tag }}
-          name: ${{ env.release_title }}
-          bodyFile: ${{ env.build_dir }}/release_info/release.md
+          tag: "${{ env.release_tag }}"
+          name: "${{ env.release_title }}"
+          bodyFile: "${{ env.build_dir }}/release_info/release.md"
           allowUpdates: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: Archive code coverage results
         if: matrix.build_tool == 'cmake'
         uses: actions/upload-artifact@v3
         with:
-          name: ${{ env.name }}-graphs
-          path: ${{ env.build_dir }}/completed/*.png
+          name: "${{ env.name }}-graphs"
+          path: "${{ env.build_dir }}/completed/*.png"

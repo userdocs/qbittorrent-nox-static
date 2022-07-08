@@ -10,14 +10,14 @@ bash ~/qbittorrent-nox-static.sh -h
 
 The script has some `env` settings that can trigger certain behaviours.
 
-| Build variable       | Default if unset | Options                    | example usage                             |
-| -------------------- | ---------------- | -------------------------- | ----------------------------------------- |
-| `libtorrent_version` | `1.2`            | `1.2` `2.0`                | `export libtorrent_version=2.0`           |
-| `qbt_qt_version`     | `5.15`           | `5.12 ` `5.15` `6.2`       | `export qbt_qt_version=6.2`               |
-| `qbt_cross_target`   | Host platform    | `alpine` `debian` `ubuntu` | `export qbt_cross_target=alpine`          |
-| `qbt_build_tool`     | `qmake`          | `cmake`                    | `export qbt_build_tool=cmake`             |
-| `qbt_cross_name`     | `x86_64`         | `aarch64`  `armv7`         | `export qbt_cross_name=aarch64`           |
-| `qbt_patches_url`    | empty = `unset`  | `username/repo`            | `export qbt_patches_url=userdocs/patches` |
+| Build variable       | Default if unset | Options             | example usage                             |
+| -------------------- | ---------------- | ------------------- | ----------------------------------------- |
+| `libtorrent_version` | `2.0`            | `1.2` `2.0`         | `export libtorrent_version=2.0`           |
+| `qbt_qt_version`     | `6.3`            | `5.12` `5.15` `6.3` | `export qbt_qt_version=6.3`               |
+| `qbt_build_tool`     | `qmake`          | `cmake`             | `export qbt_build_tool=cmake`             |
+| `qbt_cross_name`     | `x86_64`         | `aarch64`  `armv7`  | `export qbt_cross_name=aarch64`           |
+| `qbt_patches_url`    | empty = `unset`  | `username/repo`     | `export qbt_patches_url=userdocs/patches` |
+| `qbt_workflow_files` | empty = `unset`  | `yes` `no`          | `export qbt_workflow_files=yes`           |
 
 > [!note|iconVisibility:hidden|labelVisibility:hidden] If you set `qbt_build_tool=cmake` and `qt_version=6.2`  with the switch `-qm` you can build against QT6.
 
@@ -56,20 +56,30 @@ All switches and flags have a supporting help option that will provide dynamic c
 
  Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
- all         - optional Recommended method to install all modules
- install     - optional Install the ~/qbt-build/completed/qbittorrent-nox binary
- bison       - required Build bison
- gawk        - required Build gawk
- glibc       - required Build libc locally to statically link nss
- zlib        - required Build zlib locally
- iconv       - required Build iconv locally
- icu         - optional Build ICU locally
- openssl     - required Build openssl locally
- boost       - required Download, extract and build the boost library files
- libtorrent  - required Build libtorrent locally
- qtbase      - required Build qtbase locally
- qttools     - required Build qttools locally
- qbittorrent - required Build qbittorrent locally
+ all ---------------- optional Recommended method to install all modules
+ install ------------ optional Install the ~/qbt-build/completed/qbittorrent-nox binary
+ bison -------------- required Build bison
+ gawk --------------- required Build gawk
+ glibc -------------- required Build libc locally to statically link nss
+ zlib --------------- required Build zlib locally
+ iconv -------------- required Build iconv locally
+ icu ---------------- optional Build ICU locally
+ openssl ------------ required Build openssl locally
+ boost -------------- required Download, extract and build the boost library files
+ libtorrent --------- required Build libtorrent locally
+ double_conversion -- required A cmakke + Qt6 build compenent on modern OS only.
+ qtbase ------------- required Build qtbase locally
+ qttools ------------ required Build qttools locally
+ qbittorrent -------- required Build qbittorrent locally
+
+ env help - supported exportable evironment variables
+
+ export qbt_libtorrent_version="" - options 1.2 2.0
+ export qbt_qt_version="" --------- options 5.15 6.3, 6.3 and so on
+ export qbt_build_tool="" --------- options qmake cmake
+ export qbt_cross_name="" --------- options aarch64 armv7 armhf
+ export qbt_patches_url="" -------- options userdocs/qbittorrent-nox-static or usee your full/shorthand github repo
+ export qbt_workflow_files="" ----- options yes no - qbt-workflow-files repo - custom tags will override
 ```
 
 For example, taking the `-h-bs` switch as an example, it will show different results based on the preceding switches provided:
@@ -149,10 +159,11 @@ iconv (default)
 icu (optional on either platform)
 openssl (default)
 boost (default)
+double_conversion (default for Qt6 on modern OS Bullseye / Jammy)
 qtbase (default)
 qttools (default)
 libtorrent (default)
-qbittorrent (default
+qbittorrent (default)
 ```
 
 ### Build - paths

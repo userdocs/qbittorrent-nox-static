@@ -1,11 +1,33 @@
 # @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition
-name: matrix multi build and release - remote files
+name: matrix multi build and release - artifacts
 
 on:
   workflow_dispatch:
 
 jobs:
+  bootstrap:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install jq
+        run: |
+          sudo apt-get update
+          sudo apt-get install jq -y
+
+      - name: Download Assessts
+        run: |
+          mapfile -t assets < <(curl -sL "https://api.github.com/repos/userdocs/qbt-workflow-files/releases/latest" | jq -r ".assets | .[].browser_download_url")
+          for urls in "${assets[@]}"; do
+              curl -sLO "${urls}"
+          done
+
+      - uses: actions/upload-artifact@v3
+        with:
+          path: "*.tar.xz"
+
   build:
+    needs: bootstrap
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -39,6 +61,48 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Host - create build dir
+        run: mkdir -p ${{ env.build_dir }}
+
+      - name: Host - Download all artifact
+        uses: actions/download-artifact@v3
+
+      - name: Host - organise libtorrent files
+        run: |
+
+          libtorrent_1_2_github_tag="$(git ls-remote -q -t --refs "https://github.com/arvidn/libtorrent.git" | awk '/\/v1/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
+          libtorrent_2_0_github_tag="$(git ls-remote -q -t --refs "https://github.com/arvidn/libtorrent.git" | awk '/\/v2/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
+
+          if [[ "${{ matrix.libtorrent_version }}" =~ ^1\.2 ]]; then
+              mv -f artifact/libtorrent.${libtorrent_1_2_github_tag/v/}.tar.xz artifact/libtorrent.tar.xz
+              rm -f artifact/libtorrent.${libtorrent_2_0_github_tag/v/}.tar.xz
+          fi
+
+          if [[ "${{ matrix.libtorrent_version }}" =~ ^2\.0 ]]; then
+              mv -f artifact/libtorrent.${libtorrent_2_0_github_tag/v/}.tar.xz artifact/libtorrent.tar.xz
+              rm -f artifact/libtorrent.${libtorrent_1_2_github_tag/v/}.tar.xz
+          fi
+
+      - name: Host - organise qt files
+        run: |
+          if [[ "${{ matrix.qbt_qt_version }}" =~ ^5 ]]; then
+              mv -f artifact/qt5base.tar.xz artifact/qtbase.tar.xz
+              mv -f artifact/qt5tools.tar.xz artifact/qttools.tar.xz
+              rm -f artifact/qt6base.tar.xz artifact/qt6tools.tar.xz
+          fi
+
+          if [[ "${{ matrix.qbt_qt_version }}" =~ ^6 ]]; then
+              mv -f artifact/qt6base.tar.xz artifact/qtbase.tar.xz
+              mv -f artifact/qt6tools.tar.xz artifact/qttools.tar.xz
+              rm -f artifact/qt5base.tar.xz artifact/qt5tools.tar.xz
+          fi
+
+      - name: Host - Move organised artifacts to ${{ env.build_dir }}
+        run: mv -f artifact/* ${{ env.build_dir }}
+
+      - name: Host - Display structure of downloaded artifcats workspace
+        run: ls -R
+
       - name: Host - update
         run: sudo apt-get update
 
@@ -57,6 +121,7 @@ jobs:
           echo "qbt_cross_name=${{ matrix.arch_type  }}" >> env.custom
           echo "qbt_libtorrent_version=${{ matrix.libtorrent_version }}" >> env.custom
           echo "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
+          echo "qbt_workflow_artifacts=yes" >> env.custom
 
       - name: Host - Create docker multiarch container
         run: docker run --name multiarch -it -d --env-file env.custom -w /root -v ${{ github.workspace }}:/root ${{ matrix.os_id }}:${{ matrix.os_version_id }}

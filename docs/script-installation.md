@@ -4,6 +4,8 @@
 >
 > The build process will not start until `all` or a specific module name is provided to the script as a positional parameter.
 
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
+
 ## Using SSH
 As a local user
 
@@ -103,9 +105,9 @@ You can modify the installation command by editing this part of the docker comma
 bash -s all
 ```
 
-For example, to use `ICU` using `-i` and optimise for the system CPU using `-o`:
+For example, to use `ICU` using `-i`, `-c` to trigger cmake and in turn activate Qt6 and optimise for the system CPU using `-o`:
 
 ```bash
-bash -s all -i -o
+bash -s all -i -c -o
 ```
 

@@ -1,19 +1,21 @@
 On supported platforms the `qbittorrent-nox-static.sh` will perform these three main tasks:
 
--  Update the system and install the core build dependencies - Requires root privileges if any dependencies are missing.
--  Install and build the `qbittorrent-nox` dependencies locally with no special privileges required.
--  Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
+- Update the system and install the core build dependencies - Requires root privileges if any dependencies are missing.
+- Install and build the `qbittorrent-nox` dependencies locally with no special privileges required.
+- Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
+
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
 
 Here is an example successful build profile:
 
 ```none
-qBittorrent 4.3.9 was built with the following libraries:
+qBittorrent 4.4.3.1 was built with the following libraries:
 
-Qt: 5.15.3
-Libtorrent: 1.2.15.0
-Boost: 1.78.0
-OpenSSL: 3.0.0
-zlib: 1.2.11.zlib-ng
+Qt: 6.3.1
+Libtorrent: 2.0.6
+Boost: 1.79.0
+OpenSSL: 3.0.5
+zlib: 1.2.12.zlib-ng
 ```
 
 <!-- tabs:start -->

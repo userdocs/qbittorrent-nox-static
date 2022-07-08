@@ -1,8 +1,10 @@
 # @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition
-name: matrix multi build and release - remote files
+name: matrix multi build and release - qbt-workflow-files
 
 on:
   workflow_dispatch:
+    inputs:
+      distinct_id:
 
 jobs:
   build:
@@ -39,81 +41,82 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Host - update
+      - name: Host - update ${{ github.event.inputs.distinct_id }}
         run: sudo apt-get update
 
-      - name: Host - upgrade
+      - name: Host - upgrade ${{ github.event.inputs.distinct_id }}
         run: sudo apt-get -y upgrade
 
-      - name: Host - Install host qemu-static
+      - name: Host - Install host qemu-static ${{ github.event.inputs.distinct_id }}
         run: sudo apt-get install -y qemu binfmt-support qemu-user-static
 
-      - name: Host - Docker multiarch bootstrap
+      - name: Host - Docker multiarch bootstrap ${{ github.event.inputs.distinct_id }}
         run: sudo docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
 
-      - name: Host - Create Docker template env file
+      - name: Host - Create Docker template env file ${{ github.event.inputs.distinct_id }}
         run: |
           echo "qbt_build_tool=${{ matrix.build_tool }}" > env.custom
           echo "qbt_cross_name=${{ matrix.arch_type  }}" >> env.custom
           echo "qbt_libtorrent_version=${{ matrix.libtorrent_version }}" >> env.custom
           echo "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
+          echo "qbt_workflow_files=yes" >> env.custom
 
-      - name: Host - Create docker multiarch container
+      - name: Host - Create docker multiarch container ${{ github.event.inputs.distinct_id }}
         run: docker run --name multiarch -it -d --env-file env.custom -w /root -v ${{ github.workspace }}:/root ${{ matrix.os_id }}:${{ matrix.os_version_id }}
 
-      - name: Docker - apk update
+      - name: Docker - apk update ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch apk update
 
-      - name: Docker - apk install bash
+      - name: Docker - apk install bash ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch apk add bash
 
-      - name: Docker - Bootstrap
+      - name: Docker - Bootstrap ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh -bs-a
 
-      - name: Host - Bootstrap release tag
+      - name: Host - Bootstrap release tag ${{ github.event.inputs.distinct_id }}
         run: echo "release_tag=$(cat ${{ env.build_dir }}/release_info/tag.md)" >> $GITHUB_ENV
 
-      - name: Host - Bootstrap release title
+      - name: Host - Bootstrap release title ${{ github.event.inputs.distinct_id }}
         run: echo "release_title=$(cat ${{ env.build_dir }}/release_info/title.md)" >> $GITHUB_ENV
 
-      - name: Docker - libexecinfo
+      - name: Docker - libexecinfo ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libexecinfo
 
-      - name: Docker - zlib-ng
+      - name: Docker - zlib-ng ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh zlib
 
-      - name: Docker - iconv
+      - name: Docker - iconv ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh iconv
 
-      - name: Docker - icu
+      - name: Docker - icu ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh icu
 
-      - name: Docker - openssl
+      - name: Docker - openssl ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh openssl
 
-      - name: Docker - boost
+      - name: Docker - boost ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh boost
 
-      - name: Docker - libtorrent
+      - name: Docker - libtorrent ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent
 
-      - name: Docker - double_conversion
+      - name: Docker - double_conversion ${{ github.event.inputs.distinct_id }}
         if: matrix.build_tool == 'cmake'
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh double_conversion
 
-      - name: Docker - qtbase -i
+      - name: Docker - qtbase -i ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qtbase -i
 
-      - name: Docker - qttools
+      - name: Docker - qttools ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qttools
 
-      - name: Docker - qbittorrent
+      - name: Docker - qbittorrent ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qbittorrent
 
-      - name: Docker - "Set release asset name"
+      - name: Docker - "Set release asset name" ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root/${{ env.build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
 
-      - name: Host- Create release - tag - assets
+      - name: Host- Create release - tag - assets ${{ github.event.inputs.distinct_id }}
         uses: ncipollo/release-action@v1.10.0
         with:
           prerelease: "${{ matrix.preview_release }}"
@@ -125,7 +128,7 @@ jobs:
           allowUpdates: true
           token: "${{ secrets.GITHUB_TOKEN }}"
 
-      - name: Archive code coverage results
+      - name: Archive code coverage results ${{ github.event.inputs.distinct_id }}
         if: matrix.build_tool == 'cmake'
         uses: actions/upload-artifact@v3
         with:

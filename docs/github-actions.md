@@ -14,17 +14,14 @@ debian_based_CI.yml
 
  # qbittorrent-nox qmake, cmake, libtorrent v1 and v2 multi build and release across these architectures - x86_64 armhf armv7 aarch64 cross built via musl prebuilt toolchains. 32 builds are created. 16 per release.
 matrix_multi_build_and_release.yml
+
 # Same as above but with options to specificy tags so that I can update previous releases.
 matrix_multi_build_and_release_customs_tags.yml
 
+# Uses https://github.com/userdocs/qbt-workflow-file to create artifacts of dependencies for the worklows.
+matrix_multi_build_and_release_artifacts.yml
 
-# All these multi arch specific actions will build to the specificed arch using qmake and cmake using the latest releases of qbittorrent and libtorrent, with and without icu for libtorrent v1 an v2. 8 articafts per action are created.
-multi_x86_64_artifacts.yml
-multi_aarch64_artifacts.yml
-multi_armv7_artifacts.yml
-multi_armhf_artifacts.yml
 
-# A tesrt action. This will fail at building qbittorrent until qt6 compatible fixes are pushed to master
-qt6_RC_2_0_icu_amd64.yml
-
+# Uses https://github.com/userdocs/qbt-workflow-file as a source for dependencies for the worklows.
+matrix_multi_build_and_release_qbt_workflow_files.yml
 ```

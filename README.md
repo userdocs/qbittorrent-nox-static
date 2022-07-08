@@ -2,12 +2,12 @@
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9817ad80d35c480aa9842b53001d55b0)](https://app.codacy.com/gh/userdocs/qbittorrent-nox-static?utm_source=github.com&utm_medium=referral&utm_content=userdocs/qbittorrent-nox-static&utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static/badge)](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static)
-[![matrix multi build and release](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release.yml)
+[![matrix multi build and release](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release.yml)
 [![Debian Based CI](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/debian_based_CI.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/debian_based_CI.yml)
 
 ## Summary
 
-The [qbittorrent-nox-static](https://github.com/userdocs/qbittorrent-nox-static) project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
+The `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
 
 ## Documentation
 
@@ -73,43 +73,31 @@ The reason I do two builds is that `ICU` is an automated build flag preference f
 
 You can pick either version you want, if it works then just enjoy it. The only difference you may experience is how the WebUi displays Unicode characters.
 
-## Libtorrent v2 builds
+## Libtorrent v1.2 builds
 
-🟠 Libtorrent v1.2 is currently the main branch supported by qBittorrent
+🟠 Libtorrent v2.0 is currently the main branch supported by qBittorrent
 
-These are released as pre releases until qBittorrent officially adopts libtorrent v2 as the default version. Once v2 is the default I will switch them around on future releases.
-
-You can view the pre releases and tags here.
+Libtorrent v1.2 builds are released as pre releases. You can view the pre releases and tags here.
 
 🔵 https://github.com/userdocs/qbittorrent-nox-static/releases
 
-## Cmake builds
-
-Cmake builds where libtorrent and qbittorrent are compiled using cmake and ninja are available
-
-🟠 Cmake builds do not get stripped (debug symbols). Use cmake builds for stacktrace / debugging features built into qbittorrent.
-
-## Libtorrent v2 + QT6 + Qbittorrent using cmake
-
-🟢 The script is ready to build using cmake and is QT6 ready. As soon as qbittorrrent has official support this script can build it.
-
 ## Build table - Dependencies - arch - OS - build tools
 
-|    Deps     | x86_64 | aarch64 | armv7 | Debian based | Alpine | make  | cmake |  b2   | qmake |
-| :---------: | :----: | :-----: | :---: | :----------: | :----: | :---: | :---: | :---: | :---: |
-| libexecinfo |   ✅    |    ✅    |   ✅   |      ❌       |   ✅    |   ❌   |   ❌   |   ❌   |   ❌   |
-|    bison    |   ✅    |    ✅    |   ✅   |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    gawk     |   ✅    |    ✅    |   ✅   |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    glibc    |   ✅    |    ✅    |   ✅   |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    zlib     |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    iconv    |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|     icu     |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|   openssl   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|    boost    |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
-| libtorrent  |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
-|   qt5base   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-|   qt5ools   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-|   qt6base   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|   qt6ools   |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-| qbittorrent |   ✅    |    ✅    |   ✅   |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
-
+|       Deps        | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make  | cmake |  b2   | qmake |
+| :---------------: | :----: | :-----: | :---: | :--------: | :----------: | :----: | :---: | :---: | :---: | :---: |
+|    libexecinfo    |   ✅    |    ✅    |   ✅   |     ✅      |      ❌       |   ✅    |   ❌   |   ❌   |   ❌   |   ❌   |
+|       bison       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       gawk        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       glibc       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       zlib        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       iconv       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|        icu        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|      openssl      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       boost       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
+|    libtorrent     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
+|      qt5base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+|      qt5ools      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+| double conversion |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|      qt6base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|      qt6ools      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|    qbittorrent    |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
