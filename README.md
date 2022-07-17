@@ -5,6 +5,22 @@
 [![matrix multi build and release](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release.yml)
 [![Debian Based CI](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/debian_based_CI.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/debian_based_CI.yml)
 
+## Linked Github repositories
+
+This build script uses and depends on two repositories
+
+[repositories](https://github.com/userdocs/qbt-musl-cross-make)
+
+qbt-musl-cross-make builds the customised musl cross make toolchains this build script uses for Alpine based builds. Based on this project
+
+https://git.zv.io/toolchains/musl-cross-make
+
+https://musl.cc
+
+[qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files]
+
+This is a dependency tracker that checks for and releases all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
+
 ## Summary
 
 The `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
@@ -55,7 +71,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-## ICU builds
+## ICU builds ( depreciated - all builds include ICU from tag release-4.4.3.1_v2.0.6 onwards )
 
 Each build has two versions due to how `qtbase` builds when it detects `ICU` .
 
