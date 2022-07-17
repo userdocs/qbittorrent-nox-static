@@ -71,7 +71,9 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-## ICU builds ( depreciated - all builds include ICU from tag release-4.4.3.1_v2.0.6 onwards )
+## ICU builds - depreciated
+
+*All builds include ICU from tag release-4.4.3.1_v2.0.6 onwards*
 
 Each build has two versions due to how `qtbase` builds when it detects `ICU` .
 
