@@ -11,15 +11,15 @@ This build script uses and depends on some related repositories
 
 - [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make)
 
-    `qbt-musl-cross-make` builds the customised [musl cross make toolchains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds. Based on this project
+      `qbt-musl-cross-make` builds the customised [musl cross make toolchains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds. Based on this project
 
 - [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files)
 
-    This is a dependency tracker that checks for and releases all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
+      This is a dependency tracker that checks for and releases all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
 
 - [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds)
 
-    This is a packaged release of cmake and ninja build for crossbuilds on debian based systems.
+      This is a packaged release of cmake and ninja build for crossbuilds on debian based systems.
 
 ## Summary
 
@@ -73,7 +73,7 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ## ICU builds - depreciated
 
-*All builds include ICU from tag release-4.4.3.1_v2.0.6 onwards*
+_All builds include ICU from tag release-4.4.3.1_v2.0.6 onwards_
 
 Each build has two versions due to how `qtbase` builds when it detects `ICU` .
 
@@ -97,7 +97,7 @@ You can pick either version you want, if it works then just enjoy it. The only d
 
 Libtorrent v1.2 builds are released as pre releases. You can view the pre releases and tags here.
 
-🔵 https://github.com/userdocs/qbittorrent-nox-static/releases
+🔵 <https://github.com/userdocs/qbittorrent-nox-static/releases>
 
 ## Build table - Dependencies - arch - OS - build tools
 
