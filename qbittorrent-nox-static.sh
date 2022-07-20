@@ -19,6 +19,10 @@
 # Script Formatting - https://marketplace.visualstudio.com/items?itemName=foxundermoon.shell-format
 #
 #################################################################################################################################################
+# Script version = Major minor patch
+#################################################################################################################################################
+script_version="1.0.0"
+#################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
 set -a
@@ -51,19 +55,6 @@ ugrc="\e[37m\U25cf\e[0m" ulgrcc="\e[97m\U25cf\e[0m" # [u]nicode[gr]ey[c]ircle   
 cdef="\e[39m" # [c]olor[def]ault
 bkend="\e[0m"
 cend="\e[0m" # [c]olor[end]
-#################################################################################################################################################
-# Script version = Major minor patch
-#################################################################################################################################################
-script_version="1.0.0"
-script_url="https://raw.githubusercontent.com/userdocs/qbt_static_test/main/qbittorrent-nox-static.sh"
-script_version_remote="$(curl -sL "${script_url}" | sed -rn 's|^script_version="(.*)"$|\1|p')"
-
-if [[ ${script_version//\./} -lt "${script_version_remote//\./}" ]]; then
-	echo -e "${tn} ${tbk}${urc}${bkend} Script update available! ${clc}${script_version}${cend} > ${clc}${script_version_remote}${cend}"
-	echo -e "${tn} ${ugc} curl -sLo ~/qbittorrent-nox-static.sh https://git.io/qbstatic${cend}"
-else
-	echo -e "${tn} ${ugc} Script version: ${script_version}"
-fi
 #######################################################################################################################################################
 # Check we are on a supported OS and release.
 #######################################################################################################################################################
@@ -484,7 +475,7 @@ set_build_directory() {
 	PKG_CONFIG_PATH="${lib_dir}/pkgconfig"
 }
 #######################################################################################################################################################
-# This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the installation_modules function
+# This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the _installation_modules function
 #######################################################################################################################################################
 custom_flags_set() {
 	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
@@ -501,6 +492,9 @@ custom_flags_reset() {
 # This function is where we set your URL that we use with other functions.
 #######################################################################################################################################################
 set_module_urls() {
+	# Update check url
+	script_url="https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/master/qbittorrent-nox-static.sh"
+
 	if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 		libexecinfo_dev_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-dev | awk '{print $1}' | head -n 1).apk"
 		libexecinfo_static_url="${CDN_URL}/${cross_arch}/$(apk info libexecinfo-static | awk '{print $1}' | head -n 1).apk"
@@ -637,7 +631,7 @@ set_module_urls() {
 #######################################################################################################################################################
 # This function verifies the module names from the array qbt_modules in the default values function.
 #######################################################################################################################################################
-installation_modules() {
+_installation_modules() {
 	params_count="${#}"
 	params_test=1
 
@@ -1274,6 +1268,19 @@ _error_tag() {
 	}
 }
 #######################################################################################################################################################
+# Script Version check
+#######################################################################################################################################################
+_script_version() {
+	script_version_remote="$(curl -sL "${script_url}" | sed -rn 's|^script_version="(.*)"$|\1|p')"
+
+	if [[ ${script_version//\./} -lt "${script_version_remote//\./}" ]]; then
+		echo -e "${tn} ${tbk}${urc}${bkend} Script update available! Versions - ${cly}local:${clr}${script_version}${cend}  ${cly}remote:${clg}${script_version_remote}${cend}"
+		echo -e "${tn} ${ugc} curl -sLo ~/qbittorrent-nox-static.sh https://git.io/qbstatic${cend}"
+	else
+		echo -e "${tn} ${ugc} Script version: ${script_version}"
+	fi
+}
+#######################################################################################################################################################
 # Functions part 1: Use some of our functions
 #######################################################################################################################################################
 set_default_values "${@}" # see functions
@@ -1769,7 +1776,9 @@ _error_tag
 #######################################################################################################################################################
 # Functions part 3: Use some of our functions
 #######################################################################################################################################################
-installation_modules "${@}" # see functions
+_script_version
+
+_installation_modules "${@}" # see functions
 
 _cmake
 
