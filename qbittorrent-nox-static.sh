@@ -1273,11 +1273,14 @@ _error_tag() {
 _script_version() {
 	script_version_remote="$(curl -sL "${script_url}" | sed -rn 's|^script_version="(.*)"$|\1|p')"
 
-	if [[ ${script_version//\./} -lt "${script_version_remote//\./}" ]]; then
+	script_version_test="${script_version#0\.}" script_version_test="${script_version_test//\./}"
+	script_version_test_remote="${script_version_remote#0\.}" script_version_test_remote="${script_version_test_remote//\./}"
+
+	if [[ ${script_version_test} -lt "${script_version_test_remote}" ]]; then
 		echo -e "${tn} ${tbk}${urc}${bkend} Script update available! Versions - ${cly}local:${clr}${script_version}${cend}  ${cly}remote:${clg}${script_version_remote}${cend}"
 		echo -e "${tn} ${ugc} curl -sLo ~/qbittorrent-nox-static.sh https://git.io/qbstatic${cend}"
 	else
-		echo -e "${tn} ${ugc} Script version: ${script_version}"
+		echo -e "${tn} ${ugc} Script version: ${clg}${script_version}${cend}"
 	fi
 }
 #######################################################################################################################################################
