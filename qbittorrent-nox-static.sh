@@ -762,7 +762,7 @@ apply_patches() {
 		else
 			if curl_curl "${patch_file_url}" -o "${patch_file}"; then
 				echo
-				echo -e " ${utick} ${cr}Using ${!patch_tag} downloaded patch file${cend} - ${patch_file_url}"
+				echo -e " ${utick}${cr} Using ${!patch_tag} downloaded patch file${cend} - ${patch_file_url}"
 				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
 		fi
