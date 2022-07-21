@@ -214,7 +214,7 @@ check_dependencies() {
 
 	if [[ "${deps_installed}" == 'no' ]]; then # Check if user is able to install the dependencies, if yes then do so, if no then exit.
 		if [[ "$(id -un)" == 'root' ]]; then
-			echo -e "${tn} ${uplus} ${cg}Updating${cend}${tn}"
+			echo -e "${tn} ${uplus}${cg} Updating${cend}${tn}"
 
 			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 				apk update --repository="${CDN_URL}"
@@ -233,7 +233,7 @@ check_dependencies() {
 				exit
 			}
 
-			echo -e "${tn} ${uplus} ${cg}Installing required dependencies${cend}${tn}"
+			echo -e "${tn} ${uplus}${cg} Installing required dependencies${cend}${tn}"
 
 			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
 				if ! apk add "${qbt_checked_required_pkgs[@]}" --repository="${CDN_URL}"; then
@@ -256,11 +256,11 @@ check_dependencies() {
 			echo -e "${tn}${tb} Please request or install the missing core dependencies before using this script${cend}"
 
 			if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-				echo -e "${tn} ${clr}apk add${cend} ${qbt_checked_required_pkgs[*]}${tn}"
+				echo -e "${tn}${clr} apk add${cend} ${qbt_checked_required_pkgs[*]}${tn}"
 			fi
 
 			if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
-				echo -e "${tn} ${clr}apt-get install -y${cend} ${qbt_checked_required_pkgs[*]}${tn}"
+				echo -e "${tn}${clr} apt-get install -y${cend} ${qbt_checked_required_pkgs[*]}${tn}"
 			fi
 
 			exit
@@ -446,7 +446,7 @@ git() {
 
 test_git_ouput() {
 	if [[ "${1}" == 'error_tag' ]]; then
-		echo -e "${tn} ${cy}Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
+		echo -e "${tn}${cy} Sorry, the provided ${3} tag ${cr}$2${cend}${cy} is not valid${cend}"
 	fi
 }
 #######################################################################################################################################################
@@ -934,7 +934,7 @@ install_qbittorrent() {
 		[[ "$(id -un)" == 'root' ]] && echo -e " ${cg}qbittorrent-nox${cend}${tn}" || echo -e " ${cg}~/bin/qbittorrent-nox${cend}${tn}"
 		exit
 	else
-		echo -e "${tn}qbittorrent-nox has not been built to the defined install directory:${tn}"
+		echo -e "${tn} ${ucross} qbittorrent-nox has not been built to the defined install directory:${tn}"
 		echo -e "${cg}${qbt_install_dir_short}/completed${cend}${tn}"
 		echo -e "Please build it using the script first then install${tn}"
 		exit
@@ -956,7 +956,7 @@ post_command() {
 	outcome="${PIPESTATUS[0]}"
 	[[ -n "${1}" ]] && command_type="${1}"
 	if [[ ${outcome} -gt '0' ]]; then
-		echo -e "${tn} ${urc} ${clr}Error: The ${command_type} command produced an exit code greater than 0 - Check the logs${cend}${tn}"
+		echo -e "${tn} ${urc}${clr} Error: The ${command_type} command produced an exit code greater than 0 - Check the logs${cend}${tn}"
 		exit "${outcome}"
 	fi
 }
@@ -1755,7 +1755,7 @@ while (("${#}")); do
 			break
 			;;
 		-*) # unsupported flags
-			echo -e "${tn}Error: Unsupported flag ${cr}$1${cend} - use ${cg}-h${cend} or ${cg}--help${cend} to see the valid options${tn}" >&2
+			echo -e "${tn} Error: Unsupported flag ${cr}$1${cend} - use ${cg}-h${cend} or ${cg}--help${cend} to see the valid options${tn}" >&2
 			exit 1
 			;;
 		*) # preserve positional arguments
@@ -2039,7 +2039,7 @@ application_name libtorrent
 #
 if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	if [[ ! -d "${qbt_install_dir}/boost" ]]; then
-		echo -e "${tn} ${urc} ${clr}Warning${cend} This module depends on the boost module. Use them together: ${clm}boost libtorrent${cend}"
+		echo -e "${tn} ${urc}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost libtorrent${cend}"
 	else
 		custom_flags_set
 
@@ -2302,7 +2302,7 @@ application_name qbittorrent
 
 if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	if [[ ! -d "${qbt_install_dir}/boost" ]]; then
-		echo -e "${tn} ${urc} ${clr}Warning${cend} This module depends on the boost module. Use them together: ${clm}boost qbittorrent${cend}"
+		echo -e "${tn} ${urc}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost qbittorrent${cend}"
 		echo
 	else
 		custom_flags_set
