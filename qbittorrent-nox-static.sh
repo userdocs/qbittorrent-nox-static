@@ -202,11 +202,11 @@ check_dependencies() {
 		fi
 
 		if pkgman > /dev/null 2>&1; then
-			echo -e " Dependency ${utick} ${pkg}"
+			echo -e "   Dependency ${utick} ${pkg}"
 		else
 			if [[ -n "${pkg}" ]]; then
 				deps_installed='no'
-				echo -e " Dependency ${ucross} ${pkg}"
+				echo -e "   Dependency ${ucross} ${pkg}"
 				qbt_checked_required_pkgs+=("$pkg")
 			fi
 		fi
@@ -698,13 +698,13 @@ _installation_modules() {
 		echo -e "${tn} ${uyc}${tb} Below is a list of supported modules${cend}"
 		echo -e "${tn} ${umc}${clm} ${qbt_modules[*]}${cend}${tn}"
 		echo -e " ${uyc} Default env settings${cend}${tn}"
-		echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
-		echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
-		echo -e " ${cly}qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
-		echo -e " ${cly}qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
-		echo -e " ${cly}qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
-		echo -e " ${cly}qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
-		echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}${tn}"
+		echo -e " ${cly}  qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}${tn}"
 		exit
 	fi
 }
@@ -738,13 +738,13 @@ apply_patches() {
 		mkdir -p "${qbt_install_dir}/patches/libtorrent/${libtorrent_patch_tag}"
 		mkdir -p "${qbt_install_dir}/patches/qbittorrent/${qbittorrent_patch_tag}"
 		echo
-		echo -e " ${cly}Using the defaults, these directories have been created:${cend}"
+		echo -e " ${uyc} Using the defaults, these directories have been created:${cend}"
 		echo
-		echo -e " ${clc}$qbt_install_dir_short/patches/libtorrent/${libtorrent_patch_tag}${cend}"
+		echo -e " ${clc}  $qbt_install_dir_short/patches/libtorrent/${libtorrent_patch_tag}${cend}"
 		echo
-		echo -e " ${clc}$qbt_install_dir_short/patches/qbittorrent/${qbittorrent_patch_tag}${cend}"
+		echo -e " ${clc}  $qbt_install_dir_short/patches/qbittorrent/${qbittorrent_patch_tag}${cend}"
 		echo
-		echo -e " If a patch file, named ${cg}patch${cend} is found in these directories it will be applied to the relevant module with a matching tag."
+		echo -e " ${ucc} If a patch file, named ${clc}patch${cend} is found in these directories it will be applied to the relevant module with a matching tag."
 	else
 		patch_tag="${patch_app_name}_patch_tag"
 		patch_dir="${qbt_install_dir}/patches/${patch_app_name}/${!patch_tag}"
