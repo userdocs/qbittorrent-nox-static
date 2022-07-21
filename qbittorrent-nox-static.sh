@@ -180,7 +180,7 @@ set_default_values() {
 # This function will check for a list of defined dependencies from the qbt_required_pkgs array. Apps like python3-dev are dynamically set
 #######################################################################################################################################################
 check_dependencies() {
-	echo -e "${tn} ${ulbc} ${tb}Checking if required core dependencies are installed${cend}${tn}"
+	echo -e "${tn} ${ulbc}${tb} Checking if required core dependencies are installed${cend}${tn}"
 
 	## remove packages in the delete_pkgs from the qbt_required_pkgs array
 	for target in "${delete_pkgs[@]}"; do
@@ -249,7 +249,7 @@ check_dependencies() {
 				fi
 			fi
 
-			echo -e "${tn} ${utick} ${cg}Dependencies installed!${cend}"
+			echo -e "${tn} ${utick}${cg} Dependencies installed!${cend}"
 
 			deps_installed='yes'
 		else
@@ -694,9 +694,9 @@ _installation_modules() {
 		## Some basic help
 		echo -e "${tn} ${uyc}${tb} Script help${cend} : ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-h${cend}"
 	else
-		echo -e "${tn} ${tbk}${urc}${bkend} ${tb}One or more of the provided modules are not supported${cend}"
-		echo -e "${tn} ${uyc} ${tb}Below is a list of supported modules${cend}"
-		echo -e "${tn} ${umc} ${clm}${qbt_modules[*]}${cend}${tn}"
+		echo -e "${tn} ${tbk}${urc}${bkend}${tb} One or more of the provided modules are not supported${cend}"
+		echo -e "${tn} ${uyc}${tb} Below is a list of supported modules${cend}"
+		echo -e "${tn} ${umc}${clm} ${qbt_modules[*]}${cend}${tn}"
 		echo -e " ${uyc} Default env settings${cend}${tn}"
 		echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
 		echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
@@ -771,20 +771,20 @@ apply_patches() {
 			if [[ -f "${patch_dir}/Jamfile" ]]; then
 				cp -f "${patch_dir}/Jamfile" "${patch_jamfile}"
 				echo
-				echo -e " ${utick} ${cr}Using existing custom Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using existing custom Jamfile file${cend}"
 				echo
 			elif curl_curl "${patch_jamfile_url}" -o "${patch_jamfile}"; then
 				echo
-				echo -e " ${utick} ${cr}Using downloaded custom Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using downloaded custom Jamfile file${cend}"
 				echo
 			elif [[ "${qbt_libtorrent_master_jamfile}" == 'yes' ]]; then
 				curl_curl "https://raw.githubusercontent.com/arvidn/libtorrent/${default_jamfile}/Jamfile" -o "${patch_jamfile}"
 				echo
-				echo -e " ${utick} ${cr}Using libtorrent branch master Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using libtorrent branch master Jamfile file${cend}"
 				echo
 			else
 				echo
-				echo -e " ${utick} ${cr}Using libtorrent ${libtorrent_github_tag} Jamfile file${cend}"
+				echo -e " ${utick}${cr} Using libtorrent ${libtorrent_github_tag} Jamfile file${cend}"
 				echo
 			fi
 		fi
@@ -1104,7 +1104,7 @@ _multi_arch() {
 _release_info() {
 	_error_tag
 
-	echo -e "${tn} ${ugc} ${cly}Release boot-strapped${cend}"
+	echo -e "${tn} ${ugc}${cly} Release boot-strapped${cend}"
 
 	release_info_dir="${qbt_install_dir}/release_info"
 
