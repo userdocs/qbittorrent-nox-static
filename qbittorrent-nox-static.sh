@@ -168,8 +168,8 @@ set_default_values() {
 		[[ "${qbt_skip_icu}" != 'no' ]] && delete+=("icu")
 	fi
 
-	qbt_working_dir="$(printf "%s" "$(pwd <(dirname "${0}"))")" # Get the full path to the scripts location to use with setting some path related variables.
-	qbt_working_dir_short="${qbt_working_dir/$HOME/\~}"         # Used with echos. Use the qbt_working_dir variable but the $HOME path is replaced with a literal ~
+	qbt_working_dir="$(pwd)"                            # Set the working dir to our current location and all things well be relative to this location.
+	qbt_working_dir_short="${qbt_working_dir/$HOME/\~}" # Used with echos. Use the qbt_working_dir variable but the $HOME path is replaced with a literal ~
 
 	qbt_install_dir="${qbt_working_dir}/qbt-build"      # Install relative to the script location.
 	qbt_install_dir_short="${qbt_install_dir/$HOME/\~}" # Used with echos. Use the qbt_install_dir variable but the $HOME path is replaced with a literal ~
@@ -1166,7 +1166,7 @@ _release_info() {
 		<!--
 		declare -A current_build_version
 		current_build_version[qbittorrent]="${qbittorrent_github_tag#release-}"
-		current_build_version[qt5]="${qt5_version#v}:${qt6_version#v}"
+		current_build_version[qt5]="${qt5_version#v}"
 		current_build_version[qt6]="${qt6_version#v}"
 		current_build_version[libtorrent_${qbt_libtorrent_version//\./_}]="${libtorrent_github_tag#v}"
 		current_build_version[boost]="${boost_version#v}"
