@@ -118,6 +118,7 @@ set_default_values() {
 			[[ ! "${qbt_qt_version}" =~ ^(5|6)$ ]] && qbt_workflow_files=no
 			[[ "${qbt_build_tool}" == 'qmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_build_tool="cmake"
 			[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^5 ]] && qbt_build_tool="cmake" qbt_qt_version="6"
+			[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_use_qt6="ON"
 			;;
 
 	esac
