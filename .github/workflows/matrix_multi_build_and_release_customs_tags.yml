@@ -14,10 +14,10 @@ jobs:
         os_version_id: [edge]
         arch_type: [x86_64, armhf, armv7, aarch64]
         libtorrent_version: ["1.2", "2.0"]
-        build_tool: ["", cmake]
-        qbittorrent_tag: ["-qt release-4.4.3.1"]
+        build_tool: ["qmake", cmake]
+        qbittorrent_tag: ["-qt master"]
         include:
-          - build_tool: ""
+          - build_tool: "qmake"
             qbt_qt_version_name: "qt5-"
             qbt_qt_version: "5"
 
@@ -26,11 +26,11 @@ jobs:
             qbt_qt_version: "6"
 
           - libtorrent_version: "2.0"
-            libtorrent_tag: -lt v2.0.6
+            libtorrent_tag: -lt RC_2_0
             preview_release: false
 
           - libtorrent_version: "1.2"
-            libtorrent_tag: -lt v1.2.16
+            libtorrent_tag: -lt RC_1_2
             preview_release: true
 
     name: "${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.libtorrent_version }}"
@@ -72,7 +72,7 @@ jobs:
         run: docker exec -w /root multiarch apk add bash
 
       - name: Docker - Bootstrap
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh -bs-a
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh ${{ matrix.qbittorrent_tag }} ${{ matrix.libtorrent_tag }}  -bs-a
 
       - name: Host - Bootstrap release tag
         run: echo "release_tag=$(cat ${{ env.build_dir }}/release_info/tag.md)" >> $GITHUB_ENV
@@ -99,7 +99,7 @@ jobs:
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh boost
 
       - name: Docker - libtorrent
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent ${{ matrix.libtorrent_tag }}
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh ${{ matrix.libtorrent_tag }} libtorrent
 
       - name: Docker - double_conversion
         if: matrix.build_tool == 'cmake'
@@ -112,7 +112,7 @@ jobs:
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qttools
 
       - name: Docker - qbittorrent
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qbittorrent ${{ matrix.qbittorrent_tag }}
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh ${{ matrix.qbittorrent_tag }} qbittorrent
 
       - name: Docker - "Set release asset name"
         run: docker exec -w /root/${{ env.build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
