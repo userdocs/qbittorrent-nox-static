@@ -1,42 +1,47 @@
-From e8256becc4ca9a6f489c4cd2d5122fdb4d3fd3ec Mon Sep 17 00:00:00 2001
-From: brvphoenix <30111323+brvphoenix@users.noreply.github.com>
-Date: Mon, 30 May 2022 13:10:29 +0800
-Subject: [PATCH] Don't decompress the reply data for Qt 6.3
-
----
- src/base/net/downloadhandlerimpl.cpp | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
-
-diff --git a/src/base/net/downloadhandlerimpl.cpp b/src/base/net/downloadhandlerimpl.cpp
-index 75a0318bd97..b49585bc553 100644
---- a/src/base/net/downloadhandlerimpl.cpp
-+++ b/src/base/net/downloadhandlerimpl.cpp
+--- qBittorrent/src/base/net/downloadhandlerimpl.cpp
++++ /home/username/downloadhandlerimpl.cpp
 @@ -34,10 +34,13 @@
-
+ 
  #include "base/3rdparty/expected.hpp"
  #include "base/utils/fs.h"
 -#include "base/utils/gzip.h"
  #include "base/utils/io.h"
  #include "base/utils/misc.h"
-
-+#if (QT_VERSION < QT_VERSION_CHECK(6, 3, 0))
+ 
++#ifdef QT_NO_COMPRESS
 +#include "base/utils/gzip.h"
 +#endif
 +
  const int MAX_REDIRECTIONS = 20;  // the common value for web browsers
-
+ 
  namespace
-@@ -121,9 +124,13 @@ void DownloadHandlerImpl::processFinishedDownload()
+@@ -121,9 +124,13 @@
      }
-
+ 
      // Success
-+#if (QT_VERSION >= QT_VERSION_CHECK(6, 3, 0))
-+    m_result.data = m_reply->readAll();
-+#else
++#ifdef QT_NO_COMPRESS
      m_result.data = (m_reply->rawHeader("Content-Encoding") == "gzip")
                      ? Utils::Gzip::decompress(m_reply->readAll())
                      : m_reply->readAll();
++#else
++    m_result.data = m_reply->readAll();
 +#endif
-
+ 
      if (m_downloadRequest.saveToFile())
      {
+--- qBittorrent/src/base/net/downloadmanager.cpp
++++ /home/username/downloadmanager.cpp
+@@ -123,8 +123,12 @@
+ 
+         // Spoof HTTP Referer to allow adding torrent link from Torcache/KickAssTorrents
+         request.setRawHeader("Referer", request.url().toEncoded().data());
+-        // Accept gzip
++#ifdef QT_NO_COMPRESS
++        // The macro "QT_NO_COMPRESS" defined in QT will disable the zlib releated features
++        // and reply data auto-decompression in QT will also be disabled. But we can support
++        // gzip encoding and manually decompress the reply data.
+         request.setRawHeader("Accept-Encoding", "gzip");
++#endif
+         // Qt doesn't support Magnet protocol so we need to handle redirections manually
+         request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
+ 
