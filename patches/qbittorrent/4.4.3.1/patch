@@ -1,38 +1,60 @@
---- qBittorrent/src/base/net/downloadhandlerimpl.cpp
-+++ /home/username/downloadhandlerimpl.cpp
-@@ -34,10 +34,13 @@
- 
- #include "base/3rdparty/expected.hpp"
- #include "base/utils/fs.h"
--#include "base/utils/gzip.h"
+From 2550504e5c820ef7bc61fd8fd271816190d862d8 Mon Sep 17 00:00:00 2001
+From: brvphoenix <30111323+brvphoenix@users.noreply.github.com>
+Date: Fri, 29 Jul 2022 11:03:21 +0800
+Subject: [PATCH] Fix reply data can't be decompressed correctly
+
+If the "Accept-Encoding" is not manually specified, it will be
+automatically set to the supported encodings by QT and the reply data
+will also be automatically decompressed in this case. Setting
+"Accept-Encoding" manually will disable the "autodecompress" feature
+before QT 6.3.0. Although QT 6.3.x has different behaviors, let QT
+specify the "Accept-Encoding" and we will always obtain the decompressed
+data.
+
+The macro "QT_NO_COMPRESS" defined when QT is compiled will disable
+the zlib support. We can manually address this exceptions.
+
+Original PR #17438.
+---
+ src/base/net/downloadhandlerimpl.cpp | 8 ++++----
+ src/base/net/downloadmanager.cpp     | 6 +++++-
+ 2 files changed, 9 insertions(+), 5 deletions(-)
+
+diff --git a/src/base/net/downloadhandlerimpl.cpp b/src/base/net/downloadhandlerimpl.cpp
+index b49585bc553..7528fc1c4ea 100644
+--- a/src/base/net/downloadhandlerimpl.cpp
++++ b/src/base/net/downloadhandlerimpl.cpp
+@@ -37,7 +37,7 @@
  #include "base/utils/io.h"
  #include "base/utils/misc.h"
- 
+
+-#if (QT_VERSION < QT_VERSION_CHECK(6, 3, 0))
 +#ifdef QT_NO_COMPRESS
-+#include "base/utils/gzip.h"
-+#endif
-+
- const int MAX_REDIRECTIONS = 20;  // the common value for web browsers
- 
- namespace
-@@ -121,9 +124,13 @@
+ #include "base/utils/gzip.h"
+ #endif
+
+@@ -124,12 +124,12 @@ void DownloadHandlerImpl::processFinishedDownload()
      }
- 
+
      // Success
+-#if (QT_VERSION >= QT_VERSION_CHECK(6, 3, 0))
+-    m_result.data = m_reply->readAll();
+-#else
 +#ifdef QT_NO_COMPRESS
      m_result.data = (m_reply->rawHeader("Content-Encoding") == "gzip")
                      ? Utils::Gzip::decompress(m_reply->readAll())
                      : m_reply->readAll();
 +#else
 +    m_result.data = m_reply->readAll();
-+#endif
- 
+ #endif
+
      if (m_downloadRequest.saveToFile())
-     {
---- qBittorrent/src/base/net/downloadmanager.cpp
-+++ /home/username/downloadmanager.cpp
-@@ -123,8 +123,12 @@
- 
+diff --git a/src/base/net/downloadmanager.cpp b/src/base/net/downloadmanager.cpp
+index aaf8089f95a..37f56988ad6 100644
+--- a/src/base/net/downloadmanager.cpp
++++ b/src/base/net/downloadmanager.cpp
+@@ -123,8 +123,12 @@ namespace
+
          // Spoof HTTP Referer to allow adding torrent link from Torcache/KickAssTorrents
          request.setRawHeader("Referer", request.url().toEncoded().data());
 -        // Accept gzip
@@ -44,4 +66,3 @@
 +#endif
          // Qt doesn't support Magnet protocol so we need to handle redirections manually
          request.setAttribute(QNetworkRequest::RedirectPolicyAttribute, QNetworkRequest::ManualRedirectPolicy);
- 
