@@ -76,9 +76,6 @@ jobs:
       - name: Host - Bootstrap release title
         run: echo "release_title=$(cat ${{ env.build_dir }}/release_info/title.md)" >> $GITHUB_ENV
 
-      - name: Docker - libexecinfo
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libexecinfo
-
       - name: Docker - zlib-ng
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh zlib
 

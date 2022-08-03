@@ -79,9 +79,6 @@ jobs:
       - name: Host - Bootstrap release title ${{ github.event.inputs.distinct_id }}
         run: echo "release_title=$(cat ${{ env.build_dir }}/release_info/title.md)" >> $GITHUB_ENV
 
-      - name: Docker - libexecinfo ${{ github.event.inputs.distinct_id }}
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libexecinfo
-
       - name: Docker - zlib-ng ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh zlib
 
