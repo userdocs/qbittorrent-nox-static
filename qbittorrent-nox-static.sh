@@ -800,6 +800,15 @@ _cd() {
 	fi
 }
 #######################################################################################################################################################
+# This function is to test a directory exists before attemtping to cd and fail with and exit code if it doesn't.
+#######################################################################################################################################################
+tee() {
+	[[ "$#" -eq 1 && "${1%/*}" =~ / ]] && mkdir -p "${1%/*}"
+	[[ "$#" -eq 2 && "${2%/*}" =~ / ]] && mkdir -p "${2%/*}"
+	command tee "$@"
+}
+
+#######################################################################################################################################################
 # This function is for downloading source code archives
 #######################################################################################################################################################
 download_file() {
@@ -1206,7 +1215,7 @@ _cmake() {
 					-D CMAKE_BUILD_TYPE="release" \
 					-D CMAKE_CXX_STANDARD="${standard}" \
 					-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
-					-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee -a "${qbt_install_dir}/logs/ninja.log"
+					-D CMAKE_INSTALL_PREFIX="${qbt_install_dir}" |& tee "${qbt_install_dir}/logs/ninja.log"
 				cmake --build build -j"$(nproc)" |& tee -a "${qbt_install_dir}/logs/ninja.log"
 
 				post_command build
