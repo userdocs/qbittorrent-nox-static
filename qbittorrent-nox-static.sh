@@ -21,7 +21,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="1.0.1"
+script_version="1.0.2"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -751,12 +751,12 @@ apply_patches() {
 		[[ ! -d "${patch_dir}" ]] && mkdir -p "${patch_dir}"
 
 		if [[ -f "${patch_file}" ]]; then
-			echo
+			[[ ${qbt_workflow_files} = no ]] && echo
 			echo -e " ${utick}${cr} Using ${!patch_tag} existing patch file${cend} - ${patch_file}"
 			[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 		else
 			if curl_curl "${patch_file_url}" -o "${patch_file}"; then
-				echo
+				[[ ${qbt_workflow_files} = no ]] && echo
 				echo -e " ${utick}${cr} Using ${!patch_tag} downloaded patch file${cend} - ${patch_file_url}"
 				[[ "${patch_app_name}" == 'qbittorrent' ]] && echo # purely comsetic
 			fi
@@ -765,16 +765,16 @@ apply_patches() {
 		if [[ "${patch_app_name}" == 'libtorrent' ]]; then
 			if [[ -f "${patch_dir}/Jamfile" ]]; then
 				cp -f "${patch_dir}/Jamfile" "${patch_jamfile}"
-				echo
+				[[ ${qbt_workflow_files} = no ]] && echo
 				echo -e " ${utick}${cr} Using existing custom Jamfile file${cend}"
 				echo
 			elif curl_curl "${patch_jamfile_url}" -o "${patch_jamfile}"; then
-				echo
+				[[ ${qbt_workflow_files} = no ]] && echo
 				echo -e " ${utick}${cr} Using downloaded custom Jamfile file${cend}"
 				echo
 			elif [[ "${qbt_libtorrent_master_jamfile}" == 'yes' ]]; then
+				[[ ${qbt_workflow_files} = no ]] && echo
 				curl_curl "https://raw.githubusercontent.com/arvidn/libtorrent/${default_jamfile}/Jamfile" -o "${patch_jamfile}"
-				echo
 				echo -e " ${utick}${cr} Using libtorrent branch master Jamfile file${cend}"
 				echo
 			else
@@ -822,7 +822,7 @@ download_file() {
 			file_name="${qbt_install_dir}/${1}.t${2##*.t}"
 			echo -e "${tn} ${uplus}${cg} Installing ${1}${cend} - ${cly}${2}${cend}${tn}"
 			if [[ -f "${file_name}" ]]; then
-				tar tf "${file_name}" | grep -Eqom1 "(.*)[^/]"
+				grep -Eqom1 "(.*)[^/]" <(tar tf "${file_name}")
 				post_command
 				rm -rf {"${qbt_install_dir:?}/$(tar tf "${file_name}" | grep -Eom1 "(.*)[^/]")","${file_name}"}
 			fi
@@ -1040,7 +1040,7 @@ _multi_arch() {
 							qbt_zlib_arch="x86_64"
 							;;&
 						debian | ubuntu)
-							cross_arch="x86_64"
+							cross_arch="amd64"
 							qbt_cross_host="x86_64-linux-gnu"
 							;;&
 						*)
@@ -2025,7 +2025,7 @@ fi
 # libtorrent installation
 #######################################################################################################################################################
 application_name libtorrent
-#
+
 if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	if [[ ! -d "${qbt_install_dir}/boost" ]]; then
 		echo -e "${tn} ${urc}${clr} Warning${cend} This module depends on the boost module. Use them together: ${clm}boost libtorrent${cend}"
