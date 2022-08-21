@@ -13,16 +13,24 @@ jobs:
         os_id: [alpine]
         os_version_id: [edge]
         arch_type: [x86_64, armhf, armv7, aarch64]
-        libtorrent_version: ["1.2"]
-        build_tool: ["qmake"]
-        qbittorrent_tag: ["-qt release-4.3.9"]
+        libtorrent_version: ["1.2", "2.0"]
+        build_tool: ["qmake", cmake]
+        qbittorrent_tag: ["-qt master"]
         include:
           - build_tool: "qmake"
-            qbt_qt_version_name: ""
+            qbt_qt_version_name: "qt5-"
             qbt_qt_version: "5"
 
+          - build_tool: "cmake"
+            qbt_qt_version_name: ""
+            qbt_qt_version: "6"
+
+          - libtorrent_version: "2.0"
+            libtorrent_tag: -lt RC_2_0
+            preview_release: false
+
           - libtorrent_version: "1.2"
-            libtorrent_tag: -lt v1.2.17
+            libtorrent_tag: -lt RC_1_2
             preview_release: true
 
     name: "${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.libtorrent_version }}"
