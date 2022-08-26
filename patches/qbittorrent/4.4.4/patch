@@ -1,0 +1,28 @@
+From 034fc8aca914f073e5478a46ce9025c862902e72 Mon Sep 17 00:00:00 2001
+From: "Vladimir Golovnev (Glassez)" <glassez@yandex.ru>
+Date: Wed, 24 Aug 2022 15:28:30 +0300
+Subject: [PATCH] Fix missing trackers from magnet link
+
+---
+ src/base/bittorrent/session.cpp | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/src/base/bittorrent/session.cpp b/src/base/bittorrent/session.cpp
+index ece6f6ee8c1..c19d68348c9 100644
+--- a/src/base/bittorrent/session.cpp
++++ b/src/base/bittorrent/session.cpp
+@@ -4915,7 +4915,14 @@ void Session::handleMetadataReceivedAlert(const lt::metadata_received_alert *p)
+
+     if (downloadedMetadataIter != m_downloadedMetadata.end())
+     {
++#if LIBTORRENT_VERSION_NUM >= 20007
++        lt::torrent_info nativeInfo = *p->handle.torrent_file();
++        for (const lt::announce_entry &announceEntry : p->handle.trackers())
++            nativeInfo.add_tracker(announceEntry.url, announceEntry.tier);
++        const TorrentInfo metadata {nativeInfo};
++#else
+         const TorrentInfo metadata {*p->handle.torrent_file()};
++#endif
+
+         m_downloadedMetadata.erase(downloadedMetadataIter);
+         --m_extraLimit;
