@@ -120,7 +120,6 @@ set_default_values() {
 			[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^5 ]] && qbt_build_tool="cmake" qbt_qt_version="6"
 			[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_use_qt6="ON"
 			;;
-
 	esac
 
 	qbt_python_version="3" # We are only using python3 but it's easier to just change this if we need to.
@@ -1281,11 +1280,14 @@ _error_tag() {
 _script_version() {
 	script_version_remote="$(curl -sL "${script_url}" | sed -rn 's|^script_version="(.*)"$|\1|p')"
 
-	script_version_test="${script_version#0\.}" script_version_test="${script_version_test//\./}"
-	script_version_test_remote="${script_version_remote#0\.}" script_version_test_remote="${script_version_test_remote//\./}"
+	semantic_version() {
+		local test_array
+		read -ra test_array < <(printf "%s" "${@//./ }")
+		printf "%d%03d%03d%03d" "${test_array[@]}"
+	}
 
-	if [[ ${script_version_test} -lt "${script_version_test_remote}" ]]; then
-		echo -e "${tn} ${tbk}${urc}${bkend} Script update available! Versions - ${cly}local:${clr}${script_version}${cend}  ${cly}remote:${clg}${script_version_remote}${cend}"
+	if [[ "$(semantic_version "${script_version}")" -lt "$(semantic_version "${script_version_remote}")" ]]; then
+		echo -e "${tn} ${tbk}${urc}${bkend} Script update available! Versions - ${cly}local:${clr}${script_version}${cend} ${cly}remote:${clg}${script_version_remote}${cend}"
 		echo -e "${tn} ${ugc} curl -sLo ~/qbittorrent-nox-static.sh https://git.io/qbstatic${cend}"
 	else
 		echo -e "${tn} ${ugc} Script version: ${clg}${script_version}${cend}"
