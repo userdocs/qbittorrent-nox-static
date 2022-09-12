@@ -5,6 +5,7 @@ on:
       - "qbittorrent-nox-static.sh"
   pull_request:
   workflow_dispatch:
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
