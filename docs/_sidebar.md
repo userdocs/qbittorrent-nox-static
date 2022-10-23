@@ -7,4 +7,5 @@
 -  [Install qbittorrent](install-qbittorrent.md)
 -  [Nginx proxypass](nginx-proxypass.md)
 -  [Systemd](systemd.md)
+-  [Debugging](debugging.md)
 -  [Credits](credits.md)
