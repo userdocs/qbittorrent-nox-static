@@ -91,14 +91,32 @@ set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" && TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 
 	qbt_build_tool="${qbt_build_tool:-qmake}"
-	qbt_cross_name="${qbt_cross_name:-}"
-	qbt_cross_target="${qbt_cross_target:-${what_id}}"
-	qbt_cmake_debug="${qbt_cmake_debug:-}"
-	qbt_workflow_files="${qbt_workflow_files:-}"                          # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/tag/rolling instead of direct downloads from various source locations. Provides and alternative source and does not spam download hosts when building matrix builds.
-	qbt_workflow_artifacts="${qbt_workflow_artifacts:-}"                  # github actions workflows - use the workflow files saved as artifacts instead of downloading per matrix
+	qbt_cross_name="${qbt_cross_name:-}"                                  # Default to empty to use host native build tools. This way we can build on native arch on support OS and skip crossbuild toolchains
+	qbt_cross_target="${qbt_cross_target:-${what_id}}"                    # Default to host
+	qbt_build_debug="${qbt_build_debug:-no}"                              # ON to create debug build to use with gdb
+	qbt_workflow_files="${qbt_workflow_files:-no}"                        # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/tag/rolling instead of direct downloads from various source locations. Provides and alternative source and does not spam download hosts when building matrix builds.
+	qbt_workflow_artifacts="${qbt_workflow_artifacts:-no}"                # github actions workflows - use the workflow files saved as artifacts instead of downloading per matrix
 	qbt_patches_url="${qbt_patches_url:-userdocs/qbittorrent-nox-static}" # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
 	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"               # Set this here so it is easy to see and change
 	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"
+	qbt_optimise_strip="${qbt_optimise_strip:-no}"
+
+	if [[ "${qbt_build_debug}" = 'yes' ]]; then
+		qbt_optimise_strip='no'
+		qbt_cmake_debug='ON'
+		qbt_libtorrent_debug='debug-symbols=on'
+		qbt_qbittorrent_debug='--enable-debug'
+	else
+		qbt_cmake_debug='OFF'
+	fi
+
+	if [[ "${qbt_optimise_strip}" = 'yes' && "${qbt_build_debug}" = 'no' ]]; then
+		qbt_strip_qmake='strip'
+		qbt_strip_flags='-s'
+	else
+		qbt_strip_qmake='-nostrip'
+		qbt_strip_flags=''
+	fi
 
 	case "${qbt_qt_version}" in
 		5)
@@ -296,6 +314,10 @@ while (("${#}")); do
 			qbt_build_tool="cmake"
 			shift
 			;;
+		-d | --debug)
+			qbt_build_debug='yes'
+			shift
+			;;
 		-i | --icu)
 			qbt_skip_icu='no'
 			[[ "${qbt_skip_icu}" == 'no' ]] && delete=("${delete[@]/icu/}")
@@ -327,6 +349,10 @@ while (("${#}")); do
 			;;
 		-o | --optimize)
 			optimize="-march=native"
+			shift
+			;;
+		-s | --strip)
+			qbt_optimise_strip='yes'
 			shift
 			;;
 		-h-bv | --help-boost-version)
@@ -703,7 +729,9 @@ _installation_modules() {
 		echo -e " ${cly}  qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
 		echo -e " ${cly}  qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
 		echo -e " ${cly}  qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}${tn}"
+		echo -e " ${cly}  qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
+		echo -e " ${cly}  qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}${tn}"
 		exit
 	fi
 }
@@ -1169,11 +1197,11 @@ _release_info() {
 
 		## Build matrix for libtorrent ${libtorrent_github_tag}
 
-		ℹ️ With Qbittorrent 4.4.0 onwards all cmake builds use Qt6 and all qmake builds use Qt5, until Qt5 is phased out.
+		ℹ️ With Qbittorrent 4.4.0 onwards all cmake builds use Qt6 and all qmake builds use Qt5, as long as Qt5 is supported.
 
 		ℹ️ [Check the build table for more info](https://github.com/userdocs/qbittorrent-nox-static#build-table---dependencies---arch---os---build-tools)
 
-		⚠️ Binary builds are not stripped by default to preserve debugging with gdb.
+		⚠️ Binary builds are stripped - See https://userdocs.github.io/qbittorrent-nox-static/#/debugging
 
 		<!--
 		declare -A current_build_version
@@ -1353,11 +1381,6 @@ while (("${#}")); do
 			_multi_arch
 			shift
 			;;
-		-d | --debug)
-			lt_debug="debug-symbols=on"
-			qbt_debug="--enable-debug"
-			shift
-			;;
 		-n | --no-delete)
 			qbt_skip_delete='yes'
 			shift
@@ -1409,11 +1432,6 @@ while (("${#}")); do
 			test_git_ouput "${qbittorrent_github_tag}" "$2" "qbittorrent"
 			override_workflow="yes"
 			shift 2
-			;;
-		-s | --strip)
-			qbt_strip_qmake='strip'
-			qbt_strip_flags='-s'
-			shift
 			;;
 		-h | --help)
 			echo
@@ -1888,7 +1906,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && echo -e "\narchfound ${qbt_zlib_arch:-x86_64}" >> "${qbt_install_dir}/zlib/cmake/detect-arch.c"
 
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${zlib_version}/dep-graph.dot" -G Ninja -B build \
-			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
+			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
 			-D CMAKE_CXX_STANDARD="${standard}" \
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
 			-D BUILD_SHARED_LIBS=OFF \
@@ -2055,7 +2073,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 			mkdir -p "${qbt_install_dir}/graphs/${libtorrent_github_tag}"
 			cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${libtorrent_github_tag}/dep-graph.dot" -G Ninja -B build \
 				"${multi_libtorrent[@]}" \
-				-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
+				-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
 				-D CMAKE_BUILD_TYPE="Release" \
 				-D CMAKE_CXX_STANDARD="${standard}" \
 				-D CMAKE_PREFIX_PATH="${qbt_install_dir};${qbt_install_dir}/boost" \
@@ -2093,7 +2111,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 				lt_cmake_flags="-DTORRENT_USE_LIBCRYPTO -DTORRENT_USE_OPENSSL -DTORRENT_USE_I2P=1 -DBOOST_ALL_NO_LIB -DBOOST_ASIO_ENABLE_CANCELIO -DBOOST_ASIO_HAS_STD_CHRONO -DBOOST_MULTI_INDEX_DISABLE_SERIALIZATION -DBOOST_SYSTEM_NO_DEPRECATED -DBOOST_SYSTEM_STATIC_LINK=1 -DTORRENT_USE_ICONV=1"
 			fi
 			#
-			"${qbt_install_dir}/boost/b2" "${multi_libtorrent[@]}" -j"$(nproc)" "${lt_version_options[@]}" address-model="$(getconf LONG_BIT)" "${lt_debug}" optimization=speed cxxstd="${standard}" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qbt_install_dir}" |& tee "${qbt_install_dir}/logs/${app_name}.log"
+			"${qbt_install_dir}/boost/b2" "${multi_libtorrent[@]}" -j"$(nproc)" "${lt_version_options[@]}" address-model="$(getconf LONG_BIT)" "${qbt_libtorrent_debug}" optimization=speed cxxstd="${standard}" dht=on encryption=on crypto=openssl i2p=on extensions=on variant=release threading=multi link=static boost-link=static cxxflags="${CXXFLAGS}" cflags="${CPPFLAGS}" linkflags="${LDFLAGS}" install --prefix="${qbt_install_dir}" |& tee "${qbt_install_dir}/logs/${app_name}.log"
 			#
 			post_command build
 			#
@@ -2138,7 +2156,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 	if [[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]]; then
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${double_conversion_version}/dep-graph.dot" -G Ninja -B build \
 			"${multi_libtorrent[@]}" \
-			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
+			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
 			-D CMAKE_CXX_FLAGS="${CXXFLAGS}" \
 			-D CMAKE_INSTALL_LIBDIR=lib \
@@ -2178,7 +2196,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${libtorrent_github_tag}"
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${qt6_version}/dep-graph.dot" -G Ninja -B build \
 			"${multi_libtorrent[@]}" \
-			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
+			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
 			-D CMAKE_BUILD_TYPE="release" \
 			-D QT_FEATURE_optimize_full=on -D QT_FEATURE_static=on -D QT_FEATURE_shared=off \
 			-D QT_FEATURE_gui=off -D QT_FEATURE_openssl_linked=on \
@@ -2208,7 +2226,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 		sed '/^#  include <utility>/a #  include <limits>' -i "src/corelib/global/qglobal.h"
 
 		# Don't strip by default by disabling these options. We will set it as off by default and use it with a switch
-		echo "CONFIG                 += ${qbt_strip_qmake:-nostrip}" >> "mkspecs/common/linux.conf"
+		echo "CONFIG                 += ${qbt_strip_qmake}" >> "mkspecs/common/linux.conf"
 
 		./configure "${multi_qtbase[@]}" -prefix "${qbt_install_dir}" "${icu[@]}" -opensource -confirm-license -release \
 			-openssl-linked -static -c++std "${cxx_standard}" -qt-pcre \
@@ -2246,7 +2264,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${libtorrent_github_tag}"
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${qt6_version}/dep-graph.dot" -G Ninja -B build \
 			"${multi_libtorrent[@]}" \
-			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
+			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
 			-D CMAKE_BUILD_TYPE="release" \
 			-D CMAKE_CXX_STANDARD="${standard}" \
 			-D CMAKE_PREFIX_PATH="${qbt_install_dir}" \
@@ -2307,7 +2325,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 			mkdir -p "${qbt_install_dir}/graphs/${qbittorrent_github_tag}"
 			cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${qbittorrent_github_tag}/dep-graph.dot" -G Ninja -B build \
 				"${multi_qbittorrent[@]}" \
-				-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug:-OFF}" \
+				-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
 				-D CMAKE_BUILD_TYPE="release" \
 				-D QT6="${qbt_use_qt6}" \
 				-D STACKTRACE="${stacktrace:-ON}" \
@@ -2331,7 +2349,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 				QT_QMAKE="${qbt_install_dir}/bin" \
 				--prefix="${qbt_install_dir}" \
 				"${multi_qbittorrent[@]}" \
-				"${qbt_debug}" \
+				"${qbt_qbittorrent_debug}" \
 				--disable-gui \
 				CXXFLAGS="${CXXFLAGS}" CPPFLAGS="${CPPFLAGS}" LDFLAGS="${LDFLAGS}" \
 				--with-boost="${qbt_install_dir}/boost" --with-boost-libdir="${lib_dir}" |& tee -a "${qbt_install_dir}/logs/${app_name}.log"
