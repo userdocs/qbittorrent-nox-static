@@ -72,7 +72,7 @@ jobs:
         run: docker exec -w /root multiarch apk add bash
 
       - name: Docker - Bootstrap
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh ${{ matrix.qbittorrent_tag }} ${{ matrix.libtorrent_tag }}  -bs-a
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh ${{ matrix.qbittorrent_tag }} ${{ matrix.libtorrent_tag }} -bs-a
 
       - name: Host - Bootstrap release tag
         run: echo "release_tag=$(cat ${{ env.build_dir }}/release_info/tag.md)" >> $GITHUB_ENV
