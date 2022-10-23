@@ -558,8 +558,13 @@ set_module_urls() {
 	read -ra qt_version_short_array <<< "${qt_version//\./ }"
 	qt_version_short="${qt_version_short_array[0]/v/}.${qt_version_short_array[1]/v/}"
 
-	qt5_version="$(grep -Em1 "v5" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
-	qt6_version="$(grep -Em1 "v6" <<< "${qt_github_tag_list}")"
+	if [[ "${qbt_qt_version}" =~ ^6 ]]; then
+		qt6_version="$(grep -Em1 "v${qbt_qt_version}" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
+		qt5_version="$(grep -Em1 "v5" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
+	else
+		qt6_version="$(grep -Em1 "v6" <<< "${qt_github_tag_list}")"
+		qt5_version="$(grep -Em1 "v${qbt_qt_version}" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
+	fi
 
 	qtbase_github_tag="${qt_version}"
 	qttools_github_tag="${qt_version}"
