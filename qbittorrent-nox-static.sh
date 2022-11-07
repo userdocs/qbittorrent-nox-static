@@ -100,6 +100,8 @@ set_default_values() {
 	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"               # Set this here so it is easy to see and change
 	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"
 	qbt_optimise_strip="${qbt_optimise_strip:-no}"
+	qbt_revision_url="${qbt_revision_url:-userdocs/qbittorrent-nox-static}" # the workflow will set this dynamically so that the urls are not hardcoded to a single repo
+	qbt_workflow_type="${qbt_workflow_type:-standard}"                      # The standard workflow is the non legacy version where the script will increments the revision version automatically.
 
 	if [[ "${qbt_build_debug}" = 'yes' ]]; then
 		qbt_optimise_strip='no'
@@ -1158,6 +1160,23 @@ _release_info() {
 		qbittorrent ${qbittorrent_github_tag#release-} libtorrent ${libtorrent_github_tag#v}
 	TITLE_INFO
 
+	if git_git ls-remote --exit-code --tags "https://github.com/${qbt_revision_url}.git" "${qbittorrent_github_tag#v}_${libtorrent_github_tag}" &> /dev/null; then
+		if grep -q '"name": "dependency-version.json"' < <(curl "https://api.github.com/repos/${qbt_revision_url}/releases/tags/${qbittorrent_github_tag#v}_${libtorrent_github_tag}"); then
+			until curl_curl "https://github.com/${qbt_revision_url}/releases/download/${qbittorrent_github_tag#v}_${libtorrent_github_tag}/dependency-version.json" > remote-dependency-version.json; do
+				echo "Waiting for dependency-version.json URL."
+				sleep 2
+			done
+
+			remote_revision_version="$(sed -rn 's|(.*)"revision": "(.*)"|\2|p' < remote-dependency-version.json)"
+
+			if [[ "${remote_revision_version}" =~ ^[0-9]+$ && "${qbt_workflow_type}" == 'standard' ]]; then
+				qbt_revision_version="$((remote_revision_version + 1))"
+			elif [[ "${remote_revision_version}" =~ ^[0-9]+$ && "${qbt_workflow_type}" == 'legacy' ]]; then
+				qbt_revision_version="${remote_revision_version}"
+			fi
+		fi
+	fi
+
 	cat > "${release_info_dir}/dependency-version.json" <<- DEPENDENCY_INFO
 		{
 		    "qbittorrent": "${qbittorrent_github_tag#release-}",
@@ -1165,7 +1184,8 @@ _release_info() {
 		    "qt6": "${qt6_version#v}",
 		    "libtorrent_${qbt_libtorrent_version//\./_}": "${libtorrent_github_tag#v}",
 		    "boost": "${boost_version#v}",
-		    "openssl": "${openssl_version}"
+		    "openssl": "${openssl_version}",
+		    "revision": "${qbt_revision_version:-0}"
 		}
 	DEPENDENCY_INFO
 
@@ -1211,6 +1231,7 @@ _release_info() {
 		current_build_version[libtorrent_${qbt_libtorrent_version//\./_}]="${libtorrent_github_tag#v}"
 		current_build_version[boost]="${boost_version#v}"
 		current_build_version[openssl]="${openssl_version}"
+		current_build_version[revision]="${qbt_revision_version:-0}"
 		-->
 	RELEASE_INFO
 
