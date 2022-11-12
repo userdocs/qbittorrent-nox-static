@@ -111,7 +111,7 @@ jobs:
         run: docker exec -w /root/${{ env.build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
 
       - name: Host- Create release - tag - assets
-        uses: ncipollo/release-action@v1.11.1
+        uses: ncipollo/release-action@v1.11.2
         with:
           prerelease: "${{ matrix.preview_release }}"
           artifacts: "${{ env.build_dir }}/completed/${{ matrix.arch_type }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox,${{ env.build_dir }}/release_info/dependency-version.json"

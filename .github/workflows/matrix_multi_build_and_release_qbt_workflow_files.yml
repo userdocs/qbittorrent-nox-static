@@ -177,7 +177,7 @@ jobs:
         run: echo "release_title=$(cat ${{ matrix.libtorrent_version }}/title.md)" >> $GITHUB_ENV
 
       - name: Host- Create release - tag - assets ${{ github.event.inputs.distinct_id }}
-        uses: ncipollo/release-action@v1.11.1
+        uses: ncipollo/release-action@v1.11.2
         with:
           prerelease: "${{ matrix.preview_release }}"
           artifacts: "${{ matrix.libtorrent_version }}/*-qbittorrent-nox,dependency-version.json"
