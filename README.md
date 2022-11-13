@@ -108,17 +108,17 @@ jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_2_0)"' < <(curl -sL https://g
 
 ## Revisions
 
-The build have 5 main dependencies that will trigger a rebuild on an update.
+The build has 5 main dependencies tracked that will trigger a rebuild on an update being available.
 
-- qBittorrent
-- Libtorrent
-- Qt base/tools
-- Boost
-- Openssl
+-  qBittorrent
+-  Libtorrent
+-  Qt
+-  Boost
+-  Openssl
 
-When a new build is triggered for updating qBittorrent or Libtorrent a new release will be generated as the release tags will be updated
+When a new build is triggered for updating `qBittorrent` or `Libtorrent` a new release will be generated as the release tags will be updated.
 
-Since I do not append revision info to tags Qt/Boost/Openssl builds will update the existing release assets.
+Since I do not append revision info to tags `Qt`/`Boost`/`Openssl` builds will only update the existing release assets.
 
 To track these revisions you can use this command. All new releases start at a revision of `0` and increment by `1` per revised build.
 
