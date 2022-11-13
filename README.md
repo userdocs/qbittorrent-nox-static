@@ -89,20 +89,31 @@ The reason I do two builds is that `ICU` is an automated build flag preference f
 
 You can pick either version you want, if it works then just enjoy it. The only difference you may experience is how the WebUi displays Unicode characters.
 
-## Libtorrent v1.2 builds
+## Libtorrent versions
 
-🟠 Libtorrent v1.2 is currently the main branch supported by qBittorrent [since 4.4.5](https://www.qbittorrent.org/news.php)
+🟠 Libtorrent `v1.2` is currently the main branch supported by qBittorrent since a change with the release of [4.4.5](https://www.qbittorrent.org/news.php)
 
-Libtorrent v2.0 builds are still released as latest releases. You can view the pre releases and tags here.
+Libtorrent `v2.0` builds are still released as latest releases as it it does not really matter to this project as it always builds and releases for both `v1.2` and `v2.0`. See the next section for how to get the version you need via the latest release URL.
 
-## Getting the Version you want via the latest release
+You can view the current latest and pre releases and tags here.
+
+🔵 <https://github.com/userdocs/qbittorrent-nox-static/releases>
+
+## Getting the Version you want via the latest release URL
 
 Since this project builds and release both v1.2 and v2.0 builds simultaneously we can use the commands below to always get the latest version of the related pre release via the latest release `dependency-version.json` asset.
 
-Use this method to target the pre release linked to a latest release.
+Using this method it does not matter which version is the latest release or pre release as the commands will provide you the version specific info you need for the twinned latest/pre releases.
+
+For Libtorrent `v1.2`
 
 ```bash
 jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
+```
+
+For Libtorrent `v2.0`
+
+```bash
 jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_2_0)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
 ```
 
@@ -118,15 +129,13 @@ The build has 5 main dependencies tracked that will trigger a rebuild on an upda
 
 When a new build is triggered for updating `qBittorrent` or `Libtorrent` a new release will be generated as the release tags will be updated.
 
-Since I do not append revision info to tags `Qt`/`Boost`/`Openssl` builds will only update the existing release assets.
+Since I do not append revision info to tags `Qt` - `Boost` - `Openssl` builds will only update the existing release assets.
 
 To track these revisions you can use this command. All new releases start at a revision of `0` and increment by `1` per revised build.
 
 ```bash
 jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json")
 ```
-
-🔵 <https://github.com/userdocs/qbittorrent-nox-static/releases>
 
 ## Build table - Dependencies - arch - OS - build tools
 
