@@ -71,9 +71,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-## ICU builds - depreciated
-
-_All builds include ICU from tag release-4.4.3.1_v2.0.6 onwards_
+## Non ICU builds - depreciated from `release-4.4.3.1_v2.0.6`
 
 Each build has two versions due to how `qtbase` builds when it detects `ICU` .
 
@@ -93,9 +91,40 @@ You can pick either version you want, if it works then just enjoy it. The only d
 
 ## Libtorrent v1.2 builds
 
-🟠 Libtorrent v2.0 is currently the main branch supported by qBittorrent
+🟠 Libtorrent v1.2 is currently the main branch supported by qBittorrent [since 4.4.5](https://www.qbittorrent.org/news.php)
 
-Libtorrent v1.2 builds are released as pre releases. You can view the pre releases and tags here.
+Libtorrent v2.0 builds are still released as latest releases. You can view the pre releases and tags here.
+
+## Getting the Version you want via the latest release
+
+Since this project builds and release both v1.2 and v2.0 builds simultaneously we can use the commands below to always get the latest version of the related pre release via the latest release `dependency-version.json` asset.
+
+Use this method to target the pre release linked to a latest release.
+
+```bash
+jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
+jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_2_0)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
+```
+
+## Revisions
+
+The build have 5 main dependencies that will trigger a rebuild on an update.
+
+- qBittorrent
+- Libtorrent
+- Qt base/tools
+- Boost
+- Openssl
+
+When a new build is triggered for updating qBittorrent or Libtorrent a new release will be generated as the release tags will be updated
+
+Since I do not append revision info to tags Qt/Boost/Openssl builds will update the existing release assets.
+
+To track these revisions you can use this command. All new releases start at a revision of `0` and increment by `1` per revised build.
+
+```bash
+jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json")
+```
 
 🔵 <https://github.com/userdocs/qbittorrent-nox-static/releases>
 
@@ -103,7 +132,6 @@ Libtorrent v1.2 builds are released as pre releases. You can view the pre releas
 
 |       Deps        | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make  | cmake |  b2   | qmake |
 | :---------------: | :----: | :-----: | :---: | :--------: | :----------: | :----: | :---: | :---: | :---: | :---: |
-|    libexecinfo    |   ✅    |    ✅    |   ✅   |     ✅      |      ❌       |   ✅    |   ❌   |   ❌   |   ❌   |   ❌   |
 |       bison       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
 |       gawk        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
 |       glibc       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
@@ -114,8 +142,8 @@ Libtorrent v1.2 builds are released as pre releases. You can view the pre releas
 |       boost       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
 |    libtorrent     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
 |      qt5base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-|      qt5ools      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+|      qt5tools     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
 | double conversion |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
 |      qt6base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|      qt6ools      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|      qt6tools     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
 |    qbittorrent    |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
