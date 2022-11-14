@@ -25,7 +25,7 @@ To execute the script use this command:
 bash ~/qbittorrent-nox-static.sh
 ```
 
-If you need to install the dependencies and you have sudo privileges then do this:
+If you need to install the dependencies and you have `sudo` privileges then do this:
 
 > [!WARNING|iconVisibility:hidden|labelVisibility:hidden] You only need to do this once as root to install the dependencies.
 
@@ -33,7 +33,7 @@ If you need to install the dependencies and you have sudo privileges then do thi
 sudo bash ~/qbittorrent-nox-static.sh
 ```
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] using certain switches can add dependencies like `-c` for cmake. So you may need to escalate your privileges again.
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] Using certain switches can add dependencies like `-c` for cmake. So you may need to escalate your privileges again.
 
 ## Docker via SSH
 

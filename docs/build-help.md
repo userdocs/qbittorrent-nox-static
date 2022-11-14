@@ -8,16 +8,21 @@ bash ~/qbittorrent-nox-static.sh -h
 
 > [!warning|iconVisibility:hidden|labelVisibility:hidden] `export` the variables listed below when you use them in your local env.
 
-The script has some `env` settings that can trigger certain behaviours.
+The script has some `env` settings that can trigger certain behaviour.
 
-| Build variable       | Default if unset                    | Options                            | example usage                                            |
-| -------------------- | ----------------------------------- | ---------------------------------- | -------------------------------------------------------- |
-| `libtorrent_version` | `2.0`                               | `1.2` `2.0`                        | `export libtorrent_version=2.0`                          |
-| `qbt_qt_version`     | `6.3`                               | `5.12` `5.15` `6.3` `6.3.1`        | `export qbt_qt_version=6.3`                              |
-| `qbt_build_tool`     | `qmake`                             | `cmake`                            | `export qbt_build_tool=cmake`                            |
-| `qbt_cross_name`     | empty = `unset` (default to OS gcc) | `x86_64` `aarch64` `armv7` `armhf` | `export qbt_cross_name=aarch64`                          |
-| `qbt_patches_url`    | `userdocs/qbittorrent-nox-static`   | `username/repo`                    | `export qbt_patches_url=userdocs/qbittorrent-nox-static` |
-| `qbt_workflow_files` | empty = `unset`                     | `yes` `no`                         | `export qbt_workflow_files=yes`                          |
+| Build variable                  | Default if unset                    | Options                            | example usage                                            |
+| ------------------------------- | ----------------------------------- | ---------------------------------- | -------------------------------------------------------- |
+| `libtorrent_version`            | `2.0`                               | `1.2` `2.0`                        | `export libtorrent_version=2.0`                          |
+| `qbt_qt_version`                | `6.3`                               | `5.12` `5.15` `6.3` `6.3.1`        | `export qbt_qt_version=6.3`                              |
+| `qbt_build_tool`                | `qmake`                             | `cmake`                            | `export qbt_build_tool=cmake`                            |
+| `qbt_cross_name`                | empty = `unset` (default to OS gcc) | `x86_64` `aarch64` `armv7` `armhf` | `export qbt_cross_name=aarch64`                          |
+| `qbt_patches_url`               | `userdocs/qbittorrent-nox-static`   | `username/repo`                    | `export qbt_patches_url=userdocs/qbittorrent-nox-static` |
+| `qbt_workflow_files`            | empty = `unset` (defaults to no)    | `yes` `no`                         | `export qbt_workflow_files=yes`                          |
+| `qbt_libtorrent_master_jamfile` | empty = `unset` (defaults to no)    | `yes` `no`                         | `export qbt_libtorrent_master_jamfile=yes`               |
+| `qbt_optimise_strip`            | empty = `unset` (defaults to no)    | `yes` `no`                         | `export qbt_optimise_strip=yes`                          |
+| `qbt_build_debug`               | empty = `unset` (defaults to no)    | `yes` `no`                         | `export qbt_build_debug=yes`                             |
+
+> [!tip|iconVisibility:hidden|labelVisibility:hidden] If you see more variables in the script but they are not listed here they are Github Action specific configured by workflows.
 
 > [!note|iconVisibility:hidden|labelVisibility:hidden] If you set `qbt_build_tool=cmake` and `qt_version=6.2`  with the switch `-qm` you can build against QT6.
 
@@ -75,11 +80,25 @@ All switches and flags have a supporting help option that will provide dynamic c
  env help - supported exportable evironment variables
 
  export qbt_libtorrent_version="" - options 1.2 2.0
- export qbt_qt_version="" --------- options 5.15 6.3, 6.3 and so on
+ export qbt_qt_version="" --------- options 5,5.15,6,6.2,6.3 and so on
  export qbt_build_tool="" --------- options qmake cmake
- export qbt_cross_name="" --------- options x86_64 aarch64 armv7 armhf
- export qbt_patches_url="" -------- options userdocs/qbittorrent-nox-static or use your full/shorthand github repo
- export qbt_workflow_files="" ----- options yes no - qbt-workflow-files repo - custom tags will override
+ export qbt_cross_name="" --------- options aarch64 armv7 armhf
+ export qbt_patches_url="" -------- options userdocs/qbittorrent-nox-static or usee your full/shorthand github repo
+ export qbt_workflow_files="" ----- options yes no - use qbt-workflow-files repo for dependencies - custom tags will override
+ export qbt_optimise_strip="" ----- options yes no - strip binaries to reduce file size - cannot be used with debug
+ export qbt_build_debug="" -------- options yes no - create a full debug build for use with gdb - cannot be used with strip
+
+ Currrent settings
+
+ qbt_libtorrent_version="2.0"
+ qbt_qt_version="5"
+ qbt_build_tool="qmake"
+ qbt_cross_name=""
+ qbt_patches_url="userdocs/qbittorrent-nox-static"
+ qbt_workflow_files="no"
+ qbt_libtorrent_master_jamfile="no"
+ qbt_optimise_strip="no"
+ qbt_build_debug="no"
 ```
 
 For example, taking the `-h-bs` switch as an example, it will show different results based on the preceding switches provided:

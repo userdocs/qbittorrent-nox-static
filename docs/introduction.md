@@ -9,12 +9,12 @@ On supported platforms the `qbittorrent-nox-static.sh` will perform these three 
 Here is an example successful build profile:
 
 ```none
-qBittorrent 4.4.3.1 was built with the following libraries:
+qBittorrent 4.4.5 was built with the following libraries:
 
-Qt: 6.3.1
-Libtorrent: 2.0.6
-Boost: 1.79.0
-OpenSSL: 3.0.5
+Qt: 6.4.0
+Libtorrent: 2.0.8
+Boost: 1.80.0
+OpenSSL: 3.0.7
 zlib: 1.2.12.zlib-ng
 ```
 

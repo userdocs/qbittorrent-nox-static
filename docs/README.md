@@ -1,10 +1,10 @@
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] Supported build platforms are: `Debian Buster|Bullseye` - `Ubuntu Bionic|Focal|hirsute` - `Alpine 3.10 +` - native or via `docker` images
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] Supported build platforms are: `Debian Buster|Bullseye` - `Ubuntu Bionic|Focal|Jammy` - `Alpine 3.10 +` - native or via `docker` images
 
 > [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
 
-`qbittorrent-nox` is a build of qbittorrent that does not include the desktop components. Instead it is used via the Linux command line and comes with a built in Qt web interface. The web interface is accessed via a browser.
+`qbittorrent-nox` is a build of qBittorrent that does not include the desktop components. Instead it is used via the Linux command line and comes with a built in Qt web interface. The web interface is accessed via a browser.
 
-The build process has many independently complex dependencies involved. This build script helps lower the difficulty and makes building `qbittorrent-nox` statically as easy as it can be whilst also supporting multiple architectures, operating systems, optional optimisations and patching options to tune the build.
+The build process has many independently complex dependencies involved. This build script helps lower the difficulty and makes building `qbittorrent-nox` statically as easy as it can be whilst also supporting multiple architectures, operating systems, dependency variations, optional optimizations and patching options to tune the build.
 
 These are the main dependencies we need to work with in order to build a fully functional and portable static binary for `qbittorrent-nox`.
 
