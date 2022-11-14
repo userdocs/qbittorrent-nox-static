@@ -1502,15 +1502,15 @@ while (("${#}")); do
 			echo
 			echo -e " ${tb}${tu}env help - supported exportable evironment variables${cend}"
 			echo
-			echo -e " ${td}${clm}export qbt_libtorrent_version=\"\"${cend} ${td}-${cend} ${td}${clr}options${cend} ${td}1.2 2.0${cend}"
-			echo -e " ${td}${clm}export qbt_qt_version=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}5,5.15,6,6.2,6.3 and so on${cend}"
-			echo -e " ${td}${clm}export qbt_build_tool=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}qmake cmake${cend}"
-			echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}aarch64 armv7 armhf${cend}"
-			echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static or usee your full/shorthand github repo${cend}"
-			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files repo for dependencies - custom tags will override${cend}"
-			echo -e " ${td}${clm}export qbt_libtorrent_master_jamfile=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files repo for dependencies - custom tags will override${cend}"
-			echo -e " ${td}${clm}export qbt_optimise_strip=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - strip binaries to reduce file size - cannot be used with debug${cend}"
-			echo -e " ${td}${clm}export qbt_build_debug=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}yes no - create a full debug build for use with gdb - cannot be used with strip${cend}"
+			echo -e " ${td}${clm}export qbt_libtorrent_version=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}1.2 - 2.0${cend}"
+			echo -e " ${td}${clm}export qbt_qt_version=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}5 - 5.15 - 6 - 6.2 - 6.3 and so on${cend}"
+			echo -e " ${td}${clm}export qbt_build_tool=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}qmake - cmake${cend}"
+			echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}x86_64 - aarch64 - armv7 - armhf${cend}"
+			echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static.${cend}"
+			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files for dependencies${cend}"
+			echo -e " ${td}${clm}export qbt_libtorrent_master_jamfile=\"\"${cend} ${td}-${cend} ${td}${clr}options${cend} ${td}yes no - use RC branch instead of release jamfile${cend}"
+			echo -e " ${td}${clm}export qbt_optimise_strip=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - strip binaries - cannot be used with debug${cend}"
+			echo -e " ${td}${clm}export qbt_build_debug=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}yes no - debug build - cannot be used with strip${cend}"
 			echo
 			echo -e " ${tb}${tu}Currrent settings${cend}"
 			echo
