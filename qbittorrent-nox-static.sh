@@ -85,22 +85,22 @@ if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jamm
 	exit 1
 fi
 #######################################################################################################################################################
-# This function sets some default values we use but whose values can be overridden by certain flags or exported as variables beforr running the script
+# This function sets some default values we use but whose values can be overridden by certain flags or exported as variables before running the script
 #######################################################################################################################################################
 set_default_values() {
 	DEBIAN_FRONTEND="noninteractive" && TZ="Europe/London" # For docker deploys to not get prompted to set the timezone.
 
 	qbt_build_tool="${qbt_build_tool:-qmake}"
-	qbt_cross_name="${qbt_cross_name:-}"                                  # Default to empty to use host native build tools. This way we can build on native arch on support OS and skip crossbuild toolchains
-	qbt_cross_target="${qbt_cross_target:-${what_id}}"                    # Default to host
-	qbt_build_debug="${qbt_build_debug:-no}"                              # ON to create debug build to use with gdb
-	qbt_workflow_files="${qbt_workflow_files:-no}"                        # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/tag/rolling instead of direct downloads from various source locations. Provides and alternative source and does not spam download hosts when building matrix builds.
-	qbt_workflow_artifacts="${qbt_workflow_artifacts:-no}"                # github actions workflows - use the workflow files saved as artifacts instead of downloading per matrix
-	qbt_patches_url="${qbt_patches_url:-userdocs/qbittorrent-nox-static}" # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
-	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"               # Set this here so it is easy to see and change
-	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"
-	qbt_optimise_strip="${qbt_optimise_strip:-no}"
-	qbt_revision_url="${qbt_revision_url:-userdocs/qbittorrent-nox-static}" # the workflow will set this dynamically so that the urls are not hardcoded to a single repo
+	qbt_cross_name="${qbt_cross_name:-}"                                    # Default to empty to use host native build tools. This way we can build on native arch on support OS and skip crossbuild toolchains
+	qbt_cross_target="${qbt_cross_target:-${what_id}}"                      # Default to host
+	qbt_build_debug="${qbt_build_debug:-no}"                                # ON to create debug build to use with gdb
+	qbt_workflow_files="${qbt_workflow_files:-no}"                          # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/latest instead of direct downloads from various source locations. Provides an alternative source and does not spam download hosts when building matrix builds.
+	qbt_workflow_artifacts="${qbt_workflow_artifacts:-no}"                  # github actions workflows - use the workflow files saved as artifacts instead of downloading from workflow files or host per matrix
+	qbt_patches_url="${qbt_patches_url:-userdocs/qbittorrent-nox-static}"   # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
+	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"                 # Set this here so it is easy to see and change
+	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"    # Use release Jamfile unless we need a specific fix from the relevant RC branch. Using this can also break builds when non backported changes are present.
+	qbt_optimise_strip="${qbt_optimise_strip:-no}"                          # Strip by default as we need full debug builds to be useful gdb to backtrace
+	qbt_revision_url="${qbt_revision_url:-userdocs/qbittorrent-nox-static}" # The workflow will set this dynamically so that the urls are not hardcoded to a single repo
 	qbt_workflow_type="${qbt_workflow_type:-standard}"                      # The standard workflow is the non legacy version where the script will increments the revision version automatically.
 
 	if [[ "${qbt_build_debug}" = 'yes' ]]; then
@@ -1507,7 +1507,10 @@ while (("${#}")); do
 			echo -e " ${td}${clm}export qbt_build_tool=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}qmake cmake${cend}"
 			echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}---------${cend} ${td}${clr}options${cend} ${td}aarch64 armv7 armhf${cend}"
 			echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static or usee your full/shorthand github repo${cend}"
-			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - qbt-workflow-files repo - custom tags will override${cend}"
+			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files repo for dependencies - custom tags will override${cend}"
+			echo -e " ${td}${clm}export qbt_libtorrent_master_jamfile=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files repo for dependencies - custom tags will override${cend}"
+			echo -e " ${td}${clm}export qbt_optimise_strip=\"\"${cend} ${td}-----${cend} ${td}${clr}options${cend} ${td}yes no - strip binaries to reduce file size - cannot be used with debug${cend}"
+			echo -e " ${td}${clm}export qbt_build_debug=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}yes no - create a full debug build for use with gdb - cannot be used with strip${cend}"
 			echo
 			echo -e " ${tb}${tu}Currrent settings${cend}"
 			echo
@@ -1518,6 +1521,9 @@ while (("${#}")); do
 			echo -e " ${cly}qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
 			echo -e " ${cly}qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
 			echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
+			echo -e " ${cly}qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
+			echo -e " ${cly}qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}${tn}"
+			exit
 			echo
 			exit
 			;;
@@ -1638,7 +1644,7 @@ while (("${#}")); do
 			echo
 			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
 			echo
-			echo -e " Enables debug symbols for libtorrent and qbitorrent when building"
+			echo -e " Enables debug symbols for libtorrent and qbitorrent when building - required for gdb backtrace"
 			echo
 			exit
 			;;
@@ -1795,7 +1801,9 @@ while (("${#}")); do
 			echo
 			echo -e " Strip the qbittorrent-nox binary of unneeded symbols to decrease file size"
 			echo
-			echo -e " ${uyc} This will reduce the size of the file by about 15MB but break the built in stacktrace features of qbittorrent"
+			echo -e " ${uyc} Static musl builds don't work with qBittorrents built in stacktrace."
+			echo
+			echo -e " If you need to debug a build with gdb you must build a debug build using the flag ${clb}-d${cend}"
 			echo
 			echo -e " ${td}This flag is provided with no arguments.${cend}"
 			echo
