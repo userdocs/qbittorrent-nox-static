@@ -119,6 +119,33 @@ To track these revisions you can use this command. All new releases start at a r
 jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json")
 ```
 
+## Dependency json
+
+From `release-4.4.5` each release contains a `dependency-version.json` file that provide some key version information for that is shared across the latest release and the twinned pre release. This helps to overcome some limitations of the API for consistently and directly accessing this information.
+
+Downloading the file like this:
+
+```bash
+curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json
+```
+
+Will output a result like this:
+
+```json
+{
+    "qbittorrent": "4.4.5",
+    "qt5": "5.15.7",
+    "qt6": "6.4.0",
+    "libtorrent_1_2": "1.2.18",
+    "libtorrent_2_0": "2.0.8",
+    "boost": "1.80.0",
+    "openssl": "3.0.7",
+    "revision": "1"
+}
+```
+
+As demonstrated above by using the latest release URL we can construct the tag of the twinned pre release and therefore the asset URL with no margin for error.
+
 ## Build table - Dependencies - arch - OS - build tools
 
 |       Deps        | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make  | cmake |  b2   | qmake |
