@@ -11,7 +11,7 @@ This build script uses and depends on some related repositories
 
 - [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make)
 
-  `qbt-musl-cross-make` builds the customised [musl cross make toolchains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds.
+  `qbt-musl-cross-make` builds the customized [musl cross make tool chains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds.
 
 - [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files)
 
@@ -71,24 +71,6 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-## Non ICU builds - depreciated from `release-4.4.3.1_v2.0.6`
-
-Each build has two versions due to how `qtbase` builds when it detects `ICU` .
-
-🟢 The `iconv`  / non `ICU` build can be considered the default build.
-
-ICU replaces `iconv` if detected when `qtbase` is built and doubles the static build size due to the ICU libraries being linked into the final static binary.
-
-🔵 When not using `ICU` everything is built against `iconv`
-
-🟠 `ICU` builds have nothing to do with performance.
-
-The reason I do two builds is that `ICU` is an automated build flag preference for `QT` (and boost when I was building that) and I considered that it may one day be a default or only option and `ICU` seems to be the preferred choice for this kind of library. So it's really not a critical option but more of a choice.
-
-🔵 `ICU` is a preferred build path automatically chosen by the programs built if it is present on the system.
-
-You can pick either version you want, if it works then just enjoy it. The only difference you may experience is how the WebUi displays Unicode characters.
-
 ## Libtorrent versions
 
 🟠 Libtorrent `v1.2` is currently the main branch supported by qBittorrent since a change with the release of [4.4.5](https://www.qbittorrent.org/news.php)
@@ -101,7 +83,7 @@ You can view the current latest and pre releases and tags here.
 
 ## Getting the Version you want via the latest release URL
 
-Since this project builds and release both v1.2 and v2.0 builds simultaneously we can use the commands below to always get the latest version of the related pre release via the latest release `dependency-version.json` asset.
+Since this project builds and releases both v1.2 and v2.0 builds simultaneously we can use the commands below to always get the latest version of the related pre release via the latest release `dependency-version.json` asset.
 
 Using this method it does not matter which version is the latest release or pre release as the commands will provide you the version specific info you need for the twinned latest/pre releases.
 
