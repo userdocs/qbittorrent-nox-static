@@ -146,6 +146,13 @@ set_default_values() {
 
 	standard="17" && cpp_standard="c${standard}" && cxx_standard="c++${standard}" # ${standard} - Set the CXX standard. You may need to set c++14 for older versions of some apps, like qt 5.12
 
+	# https://en.cppreference.com/w/cpp/filesystem - Using this library may require additional compiler/linker options. GNU implementation prior to 9.1 requires linking with -lstdc++fs and LLVM implementation prior to LLVM 9.0 requires linking with -lc++fs.
+	if [[ "${what_version_codename}" =~ ^(buster|bionic)$ ]]; then
+		stdfilesystem='-lstdc++fs'
+	else
+		stdfilesystem=''
+	fi
+
 	CDN_URL="http://dl-cdn.alpinelinux.org/alpine/edge/main" # for alpine
 
 	qbt_modules=("all" "install" "bison" "gawk" "glibc" "zlib" "iconv" "icu" "openssl" "boost" "libtorrent" "double_conversion" "qtbase" "qttools" "qbittorrent") # Define our list of available modules in an array.
@@ -507,7 +514,7 @@ set_build_directory() {
 custom_flags_set() {
 	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
 	CPPFLAGS="${optimize/*/$optimize }-static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
-	LDFLAGS="${optimize/*/$optimize }-static -L${lib_dir} -pthread"
+	LDFLAGS="${optimize/*/$optimize }-static ${stdfilesystem:-} -L${lib_dir} -pthread"
 }
 
 custom_flags_reset() {
@@ -1138,7 +1145,6 @@ _multi_arch() {
 		multi_openssl=("./config") # ${multi_openssl[@]}
 		return
 	fi
-	return
 }
 #######################################################################################################################################################
 # Github Actions release info
@@ -1523,7 +1529,6 @@ while (("${#}")); do
 			echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
 			echo -e " ${cly}qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
 			echo -e " ${cly}qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}${tn}"
-			exit
 			echo
 			exit
 			;;
