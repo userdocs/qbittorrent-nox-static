@@ -20,18 +20,14 @@ jobs:
       fail-fast: false
       matrix:
         container_id: [debian, ubuntu]
-        container_codename: [buster, bullseye, bionic, focal, jammy]
+        container_codename: [bullseye, focal, jammy]
         build_tool: ["qmake", "cmake"]
         libtorrent_version: ["1.2", "2.0"]
         exclude:
           - container_id: debian
-            container_codename: bionic
-          - container_id: debian
             container_codename: focal
           - container_id: debian
             container_codename: jammy
-          - container_id: ubuntu
-            container_codename: buster
           - container_id: ubuntu
             container_codename: bullseye
         include:
