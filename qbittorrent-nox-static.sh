@@ -68,7 +68,7 @@ if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpin
 fi
 
 ## Check against allowed codenames or if the codename is alpine version greater than 3.10
-if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jammy)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "${alpline_min_version:-3100}" ]]; then
+if [[ ! "${what_version_codename}" =~ ^(alpine|bullseye|focal|jammy)$ ]] || [[ "${what_version_codename}" =~ ^(alpine)$ && "${what_version_id//\./}" -lt "${alpline_min_version:-3100}" ]]; then
 	echo
 	echo -e " ${cly}This is not a supported OS. There is no reason to continue.${cend}"
 	echo
@@ -76,9 +76,9 @@ if [[ ! "${what_version_codename}" =~ ^(alpine|buster|bullseye|bionic|focal|jamm
 	echo
 	echo -e " ${td}These are the supported platforms${cend}"
 	echo
-	echo -e " ${clm}Debian${cend} - ${clb}buster${cend}"
+	echo -e " ${clm}Debian${cend} - ${clb}bullseye${cend}"
 	echo
-	echo -e " ${clm}Ubuntu${cend} - ${clb}bionic${cend} - ${clb}focal${cend}"
+	echo -e " ${clm}Ubuntu${cend} - ${clb}focal${cend} - ${clb}jammy${cend}"
 	echo
 	echo -e " ${clm}Alpine${cend} - ${clb}3.10.0${cend} or greater"
 	echo
@@ -145,13 +145,6 @@ set_default_values() {
 	qbt_python_version="3" # We are only using python3 but it's easier to just change this if we need to.
 
 	standard="17" && cpp_standard="c${standard}" && cxx_standard="c++${standard}" # ${standard} - Set the CXX standard. You may need to set c++14 for older versions of some apps, like qt 5.12
-
-	# https://en.cppreference.com/w/cpp/filesystem - Using this library may require additional compiler/linker options. GNU implementation prior to 9.1 requires linking with -lstdc++fs and LLVM implementation prior to LLVM 9.0 requires linking with -lc++fs.
-	if [[ "${what_version_codename}" =~ ^(buster|bionic)$ ]]; then
-		stdfilesystem='-lstdc++fs'
-	else
-		stdfilesystem=''
-	fi
 
 	CDN_URL="http://dl-cdn.alpinelinux.org/alpine/edge/main" # for alpine
 
@@ -514,7 +507,7 @@ set_build_directory() {
 custom_flags_set() {
 	CXXFLAGS="${optimize/*/$optimize }-std=${cxx_standard} -static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
 	CPPFLAGS="${optimize/*/$optimize }-static -w ${qbt_strip_flags} -Wno-psabi -I${include_dir}"
-	LDFLAGS="${optimize/*/$optimize }-static ${stdfilesystem:-} -L${lib_dir} -pthread"
+	LDFLAGS="${optimize/*/$optimize }-static -L${lib_dir} -pthread"
 }
 
 custom_flags_reset() {
