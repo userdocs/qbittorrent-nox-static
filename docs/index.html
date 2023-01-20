@@ -1,85 +1,105 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no, viewport-fit=cover"
+    />
+    <meta name="description" content="qbittorrent-nox static" />
+    <title>qbittorrent-nox static</title>
 
-<head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport"
-    content="width=device-width, initial-scale=1, minimum-scale=1.0, shrink-to-fit=no, viewport-fit=cover">
-  <meta name="description" content="qbittorrent-nox static">
-  <title>qbittorrent-nox static</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="assets/img/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="assets/img/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="assets/img/favicon-16x16.png"
+    />
+    <link rel="manifest" href="assets/img/site.webmanifest" />
 
-  <link rel="apple-touch-icon" sizes="180x180" href="assets/img/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="assets/img/favicon-16x16.png">
-  <link rel="manifest" href="assets/img/site.webmanifest">
+    <!-- Theme: Simple Dark -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.css"
+    />
+    <link rel="stylesheet" href="assets/css/main.css" />
 
-  <!-- Theme -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable/dist/css/theme-simple.css">
-  <link rel="stylesheet" href="assets/css/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
+  </head>
 
-  <script src="https://cdn.jsdelivr.net/npm/docsify-edit-on-github"></script>
-</head>
-
-<body>
-  <div id="docsify">Please wait...</div>
-  <script>
-    window.$docsify = {
-      // CORE
-      el: '#docsify',
-      nameLink: '#/README',
-      notFoundPage: true,
-      homepage: 'README.md',
-      name: 'qbittorrent-nox static',
-      repo: 'userdocs/qbittorrent-nox-static',
-      notFoundPage: true,
-      loadSidebar: true,
-      logo: 'assets/img/logo.png',
-      loadSidebar: '_sidebar.md',
-      auto2top: true,
-      mergeNavbar: true,
-      maxLevel: 3,
-      subMaxLevel: 3,
-      // PLUGINS
-      plugins: [
-        EditOnGithubPlugin.create('https://github.com/userdocs/qbittorrent-nox-static/tree/master/docs/'),
-      ],
-      search: {
-        noData: {
-          '/': 'No results!'
+  <body>
+    <div id="docsify">Please wait...</div>
+    <script>
+      window.$docsify = {
+        // CORE
+        el: "#docsify",
+        nameLink: "#/README",
+        notFoundPage: true,
+        homepage: "README.md",
+        name: "qbittorrent-nox static",
+        repo: "userdocs/qbittorrent-nox-static",
+        notFoundPage: true,
+        loadSidebar: true,
+        logo: "assets/img/logo.png",
+        loadSidebar: "_sidebar.md",
+        auto2top: true,
+        mergeNavbar: true,
+        maxLevel: 3,
+        subMaxLevel: 3,
+        // PLUGINS
+        plugins: [
+          EditOnGithubPlugin.create(
+            "https://github.com/userdocs/qbittorrent-nox-static/tree/master/docs/"
+          ),
+        ],
+        search: {
+          noData: {
+            "/": "No results!",
+          },
+          paths: "auto",
+          placeholder: {
+            "/": "Search",
+          },
         },
-        paths: 'auto',
-        placeholder: {
-          '/': 'Search'
-        }
-      },
-      tabs: {
-        persist: true,      // default
-        sync: true,      // default
-        theme: 'classic', // default
-        tabComments: true,      // default
-        tabHeadings: true       // default
-      },
-      'flexible-alerts': {
-        style: 'flat'
-      },
-      themeable: {
-        readyTransition: true, // default
-        responsiveTables: true // default
-      },
-    };
-  </script>
-  <link rel="stylesheet" href="assets/css/override.css">
-  <script src="https://cdn.jsdelivr.net/npm/docsify"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-tabs"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-themeable"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-plugin-flexible-alerts"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-prism"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@rakutentech/docsify-code-inline/dist/index.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify-pagination@2.8.0/dist/docsify-pagination.min.js"></script>>
-</body>
-
+        tabs: {
+          persist: true, // default
+          sync: true, // default
+          theme: "classic", // default
+          tabComments: true, // default
+          tabHeadings: true, // default
+        },
+        "flexible-alerts": {
+          style: "flat",
+        },
+        themeable: {
+          readyTransition: true, // default
+          responsiveTables: true, // default
+        },
+      };
+    </script>
+    <link rel="stylesheet" href="assets/css/override.css" />
+    <script src="https://cdn.jsdelivr.net/npm/docsify"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-tabs"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-copy-code"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-themeable"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-plugin-flexible-alerts"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-prism"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@rakutentech/docsify-code-inline/dist/index.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/docsify-pagination@2.8.0/dist/docsify-pagination.min.js"></script>
+    >
+  </body>
 </html>
