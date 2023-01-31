@@ -51,6 +51,7 @@ jobs:
         run: |
           echo "qbt_build_tool=${{ matrix.build_tool }}" > env.custom
           echo "qbt_cross_name=${{ matrix.arch_type  }}" >> env.custom
+          echo "qbt_patches_url=${{ github.repository }}" >> env.custom
           echo "qbt_libtorrent_version=${{ matrix.libtorrent_version }}" >> env.custom
           echo "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
           echo "qbt_workflow_files=yes" >> env.custom
