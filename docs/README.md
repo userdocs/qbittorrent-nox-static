@@ -1,6 +1,6 @@
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] Supported build platforms are: `Debian Buster|Bullseye` - `Ubuntu Bionic|Focal|Jammy` - `Alpine 3.10 +` - native or via `docker` images
+> [!warning|iconVisibility:hidden|labelVisibility:hidden] Supported build platforms are: `Debian Bullseye` - `Ubuntu Focal|Jammy` - `Alpine 3.10 +` - native or via `docker` images
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
+> [!tip|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
 
 `qbittorrent-nox` is a build of qBittorrent that does not include the desktop components. Instead it is used via the Linux command line and comes with a built in Qt web interface. The web interface is accessed via a browser.
 

@@ -49,7 +49,7 @@ Some notes on the dockers method:
 
 <!-- tab: Debian -->
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `debian:buster` `debian:bullseye`  `debian:latest`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `debian:bullseye` `debian:latest`
 
 To bootstrap the container:
 
@@ -65,7 +65,7 @@ docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root debian:latest /
 
 <!-- tab: Ubuntu -->
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `ubuntu:bionic` `ubuntu:focal` `ubuntu:hirsute` `ubuntu:latest`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `ubuntu:focal` `ubuntu:jammy` `ubuntu:latest`
 
 To bootstrap the container:
 

@@ -1,32 +1,41 @@
 ## Patching info
 
-The script supports the automatic patching of libtorrent and qbittorrent when building, providing certain conditions are met. You can do it in two ways, local or via a GitHub repo.
+The script supports the automatic patching of libtorrent and qbittorrent when building, providing certain conditions are met. You can do it in two ways, local or via a GitHub repo. Let's take a look at these methods.
 
 > [!tip|iconVisibility:hidden|labelVisibility:hidden] Use the help command to get more infomation
+> ```bash
+> bash ~/qbittorrent-nox-static.sh -h-pr
+> ```
+
+### Local patching via boot strapping
+
+Here we will look bootstrapping the build process to make patching simple
+
+> [!note|iconVisibility:hidden|labelVisibility:hidden]  Using this command: 
+> ```bash
+> bash ~/qbittorrent-nox-static.sh -bs
+> ```
+the script will create the required directory structure using the current defaults.
+
+The directory structure that will be created will look like this:
 
 ```bash
-bash ~/qbittorrent-nox-static.sh -h-pr
-```
-
-## Local patching via boot strapping
-
-Using this command: `bash ~/qbittorrent-nox-static.sh -bs` the script will create the required directory structure using the current defaults.
-
-```bash
-qbt-build/patches/qbittorrent/4.3.4.1
-qbt-build/patches/libtorrent/v1.2.12
+qbt-build/patches/qbittorrent/4.5.0
+qbt-build/patches/libtorrent/v1.2.18
 ```
 
 Place your patch file named `patch` inside the relevant directories.  So it would look something like this:
 
 ```bash
-qbt-build/patches/qbittorrent/4.3.4.1/patch
-qbt-build/patches/libtorrent/v1.2.12/patch
+qbt-build/patches/qbittorrent/4.5.0/patch
+qbt-build/patches/libtorrent/v1.2.18/patch
 ```
 
 Then the patch file will be automatically matched to the tag used by the script and loaded.
 
-> [!tip|iconVisibility:hidden|labelVisibility:hidden] Using custom qbittorren and libtorrent tags
+### Using custom qBittorrent and libtorrent tags
+
+> [!tip|iconVisibility:hidden|labelVisibility:hidden] Using custom qBittorrent and libtorrent tags
 
 You can change the defaults by using the `qt` and `lt` switches to specify a tag. So for example if you used this command:
 
@@ -55,8 +64,7 @@ Instead of a local patch you can use github hosted patch files. Your patches nee
 
 ```bash
 patches/qbittorrent/master/patch
-patches/qbittorrent/4.3.4.1/patch
-patches/qbittorrent/4.3.3/patch
+patches/qbittorrent/4.5.0/patch
 ```
 
 <!-- tab: libtorrent -->
@@ -75,14 +83,14 @@ The all you do is use the `pr` switch when using the script. The repo URL is abb
 
 Then the patch file will be automatically matched to the tag used by the script and loaded.
 
-## How to make a patch
+### How to make a patch
 
 Using qbittorrent as an example we will edit the `src/base/bittorrent/session.cpp` to apply some session defaults.
 
 Download the relevant git repo:
 
 ```bash
-git clone --no-tags --single-branch --branch release-4.3.4.1 --shallow-submodules --recurse-submodules --depth 1 https://github.com/qbittorrent/qBittorrent.git
+git clone --no-tags --single-branch --branch release-4.5.0 --shallow-submodules --recurse-submodules --depth 1 https://github.com/qbittorrent/qBittorrent.git
 ```
 
 Copy the file that we need to edit to our home directory.
@@ -102,3 +110,25 @@ Then you place that patch file in the matching tag directory.
 ```bash
 patches/qbittorrent/4.3.4.1/patch
 ```
+
+### Using a Github pull request or commit
+
+First, it's sensible to make sure the patch that we want to use is from a pull request on the same branch that we are building against. So when using `release-4.5.0` we should use https://github.com/qbittorrent/qBittorrent/tree/v4_5_x
+
+You can see the branches for qBittorrent here - https://github.com/qbittorrent/qBittorrent/branches
+
+When you are on a commit or pull request you simply add `.patch` to the end of the url.
+
+So here we take the pull request or commit URL
+
+https://github.com/qbittorrent/qBittorrent/pull/18271
+
+https://github.com/qbittorrent/qBittorrent/commit/c924904308e806db6e1b321da18c1f91c4e8f8bf
+
+and add `.patch` to it so it becomes this
+
+https://github.com/qbittorrent/qBittorrent/pull/18271.patch
+
+https://github.com/qbittorrent/qBittorrent/commit/c924904308e806db6e1b321da18c1f91c4e8f8bf.patch
+
+You can download these using `curl` or `wget` and use these as patches in custom builds.
