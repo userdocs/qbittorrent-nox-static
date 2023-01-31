@@ -1,23 +1,23 @@
 .alert.flat.attention {
-	background-color: #ff000083;
+	background-color: #ff000043;
 	border-color: #ffffff98;
 	color: #ffffff8e;
 }
 
 .alert.flat.warning {
-	background-color: #ffcc0078;
+	background-color: #ffcc0047;
 	border-color: #ffffff98;
 	color: #ffffff8e;
 }
 
 .alert.flat.tip {
-	background-color: #00ff627f;
+	background-color: #00ff6243;
 	border-color: #ffffff98;
 	color: #ffffff8e;
 }
 
 .alert.flat.note {
-	background-color: #00ffff7d;
+	background-color: #00ffff42;
 	border-color: #ffffff98;
 	color: #ffffff8e;
 }
