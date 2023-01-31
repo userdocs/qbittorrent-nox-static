@@ -1,16 +1,17 @@
 :root {
-    --content-max-width                 : 94%;
+    --content-max-width: 94%;
     /* Tab blocks */
-    --docsifytabs-border-color          : #ededed;
+    --docsifytabs-border-color: #ededed;
 
     /* Code */
-    --code-inline-background            : #e9e9e9fb;
-    --code-inline-color                 : #1a001a;
-    --code-block-padding                : 0.5em 0.5em 0.5em 0.5em;
+    --code-inline-color: #ffffff8e;
+    --code-inline-background: #ffffff2b;
+    --code-block-padding: 0.5em 0.5em 0.5em 0.5em;
 
-    --link-color                        : rgb(44, 44, 172);
-    --link-color--hover                 : rgb(83, 156, 83);
-    
+    --link-color: rgba(65, 143, 74, 0.827);
+    --link-color--hover: rgba(140, 143, 65, 0.832);
+
     --markdown-section-padding: 20px 50px 20px 10px;
+    --base-color: #ffffff8e;
 
 }
