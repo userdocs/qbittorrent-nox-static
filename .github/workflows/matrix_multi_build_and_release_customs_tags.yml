@@ -56,11 +56,15 @@ jobs:
 
       - name: Host - Create Docker template env file
         run: |
-          echo "qbt_build_tool=${{ matrix.build_tool }}" > env.custom
-          echo "qbt_cross_name=${{ matrix.arch_type  }}" >> env.custom
-          echo "qbt_libtorrent_version=${{ matrix.libtorrent_version }}" >> env.custom
+          echo "qbt_libtorrent_version=${{ matrix.libtorrent_version }}" > env.custom
           echo "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
+          echo "qbt_build_tool=${{ matrix.build_tool }}" >> env.custom
+          echo "qbt_cross_name=${{ matrix.arch_type }}" >> env.custom
+          echo "qbt_patches_url=${{ github.repository }}" >> env.custom
           echo "qbt_workflow_files=yes" >> env.custom
+          echo "qbt_libtorrent_master_jamfile=no" >> env.custom
+          echo "qbt_optimise_strip=yes" >> env.custom
+          echo "qbt_build_debug=no" >> env.custom
 
       - name: Host - Create docker multiarch container
         run: docker run --name multiarch -it -d --env-file env.custom -w /root -v ${{ github.workspace }}:/root ${{ matrix.os_id }}:${{ matrix.os_version_id }}
