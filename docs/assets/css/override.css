@@ -70,13 +70,14 @@ body .pagination-item-title a:hover {
 }
 
 body .pagination-item.pagination-item--previous {
-    background-color: #717b727e;
+    background-color: rgba(53, 52, 54, 0.491);
     color: rgba(0, 0, 0, 0.832);
     padding: 10px 20px 10px 20px;
 }
 
 body .pagination-item.pagination-item--next {
-    background-color: #7b717b80;
+    background-color: rgba(53, 52, 54, 0.491);
+    background-color: #717b727e;
     color: rgb(255, 255, 255);
     padding: 10px 20px 10px 20px;
 }
