@@ -6,7 +6,7 @@ bash ~/qbittorrent-nox-static.sh -h
 
 ### ENV settings
 
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] `export` the variables listed below when you use them in your local env.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden|style:callout] `export` the variables listed below when you use them in your local env.
 
 The script has some `env` settings that can trigger certain behaviour.
 
@@ -22,15 +22,15 @@ The script has some `env` settings that can trigger certain behaviour.
 | `qbt_optimise_strip`            | empty = `unset` (defaults to no)    | `yes` `no`                         | `export qbt_optimise_strip=yes`                          |
 | `qbt_build_debug`               | empty = `unset` (defaults to no)    | `yes` `no`                         | `export qbt_build_debug=yes`                             |
 
-> [!tip|iconVisibility:hidden|labelVisibility:hidden] If you see more variables in the script but they are not listed here they are Github Action specific configured by workflows.
+> [!tip|iconVisibility:hidden|labelVisibility:hidden|style:callout] If you see more variables in the script but they are not listed here they are Github Action specific configured by workflows.
 
-> [!note|iconVisibility:hidden|labelVisibility:hidden] If you set `qbt_build_tool=cmake` and `qt_version=6.2`  with the switch `-qm` you can build against QT6.
+> [!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] If you set `qbt_build_tool=cmake` and `qt_version=6.2`  with the switch `-qm` you can build against QT6.
 
 ### Switches and flags summarised
 
 All switches and flags have a supporting help option that will provide dynamic content where applicable.
 
->[!note|iconVisibility:hidden|labelVisibility:hidden] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armv7` builds on your local system using Alpine/Debian/Ubuntu via docker.
+>[!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armv7` builds on your local system using Alpine/Debian/Ubuntu via docker.
 
 ```none
  Here are a list of available options
@@ -161,7 +161,7 @@ bash ~/qbittorrent-nox-static.sh all
 
 You can build modules individually, subject to this warning.
 
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] It's best to consider all individual modules listed below as being dependent on the previous modules being built for that module to build successfully.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden|style:callout] It's best to consider all individual modules listed below as being dependent on the previous modules being built for that module to build successfully.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh module
@@ -189,7 +189,7 @@ qbittorrent (default)
 
 By default the script will built to a hard coded path defined by the scripts `$install_dir` variable as to avoid installing files to a server and causing conflicts.
 
->[!note|iconVisibility:hidden|labelVisibility:hidden] This path is relative to the scripts location.
+>[!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] This path is relative to the scripts location.
 
 ```bash
 qbt-build
@@ -197,9 +197,9 @@ qbt-build
 
 You can modify this dynamically with the `-b` argument
 
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] The `-b` must be used in all commands provided to the script or default `qbt-build` will be used instead.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden|style:callout] The `-b` must be used in all commands provided to the script or default `qbt-build` will be used instead.
 
-> [!tip|iconVisibility:hidden|labelVisibility:hidden] The `-b` flag accepts both full `/opt` and relative `opt` paths.
+> [!tip|iconVisibility:hidden|labelVisibility:hidden|style:callout] The `-b` flag accepts both full `/opt` and relative `opt` paths.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh all -b "/opt"

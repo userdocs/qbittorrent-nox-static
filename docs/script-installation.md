@@ -1,10 +1,10 @@
 ## Pre installation
 
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] Executing just the script will only configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox`
+> [!warning|iconVisibility:hidden|labelVisibility:hidden|style:callout] Executing just the script will only configure your build environment and may require a reboot to make sure you can successfully build `qbittorrent-nox`
 >
 > The build process will not start until `all` or a specific module name is provided to the script as a positional parameter.
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden|style:callout] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
 
 ## Using SSH
 As a local user
@@ -27,13 +27,13 @@ bash ~/qbittorrent-nox-static.sh
 
 If you need to install the dependencies and you have `sudo` privileges then do this:
 
-> [!WARNING|iconVisibility:hidden|labelVisibility:hidden] You only need to do this once as root to install the dependencies.
+> [!WARNING|iconVisibility:hidden|labelVisibility:hidden|style:callout] You only need to do this once as root to install the dependencies.
 
 ```bash
 sudo bash ~/qbittorrent-nox-static.sh
 ```
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] Using certain switches can add dependencies like `-c` for cmake. So you may need to escalate your privileges again.
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden|style:callout] Using certain switches can add dependencies like `-c` for cmake. So you may need to escalate your privileges again.
 
 ## Docker via SSH
 
@@ -43,13 +43,13 @@ Some notes on the dockers method:
 - The subdirectory will be automatically created and named `qbt` by the use of `-v $HOME/qbt:/root`
 - The finale default path will be `HOME/qbt` outside the docker container and `/root/qbt` inside it.
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] build envs can be passed to the docker using `-e` . Such as `-e qbt_cross_name=aarch64`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden|style:callout] build envs can be passed to the docker using `-e` . Such as `-e qbt_cross_name=aarch64`
 
 <!-- tabs:start -->
 
 <!-- tab: Debian -->
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `debian:bullseye` `debian:latest`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden|style:callout] You use `debian:bullseye` `debian:latest`
 
 To bootstrap the container:
 
@@ -65,7 +65,7 @@ docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root debian:latest /
 
 <!-- tab: Ubuntu -->
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `ubuntu:focal` `ubuntu:jammy` `ubuntu:latest`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden|style:callout] You use `ubuntu:focal` `ubuntu:jammy` `ubuntu:latest`
 
 To bootstrap the container:
 
@@ -81,7 +81,7 @@ docker run -it -w /root -e "LANG=en_GB.UTF-8" -v $HOME/qbt:/root ubuntu:latest /
 
 <!-- tab: Alpine -->
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] You use `alpine:edge` `alpine:latest`
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden|style:callout] You use `alpine:edge` `alpine:latest`
 
 To bootstrap the container:
 
@@ -97,7 +97,7 @@ docker run -it -w /root -v $HOME/qbt:/root alpine:edge /bin/ash -c 'apk update &
 
 <!-- tabs:end -->
 
-> [!NOTE|iconVisibility:hidden|labelVisibility:hidden] Please see the [switches and flags summary](/build-help?id=switches-and-flags-summarised) to see what options you can pass and how to use them
+> [!NOTE|iconVisibility:hidden|labelVisibility:hidden|style:callout] Please see the [switches and flags summary](/build-help?id=switches-and-flags-summarised) to see what options you can pass and how to use them
 
 You can modify the installation command by editing this part of the docker command.
 

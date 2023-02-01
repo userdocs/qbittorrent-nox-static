@@ -6,7 +6,7 @@ Most of these actions are triggered manually by clicking on the action and runni
 
 These are the currently available actions.
 
-> [!tip|iconVisibility:hidden|labelVisibility:hidden] `matrix_multi_build_and_release.yml` also generates releases based on the qbittorrent and libtorrent tags used. The release is created when the first matrix build completes and the other builds update this release as they complete.
+> [!tip|iconVisibility:hidden|labelVisibility:hidden|style:callout] `matrix_multi_build_and_release.yml` also generates releases based on the qbittorrent and libtorrent tags used. The release is created when the first matrix build completes and the other builds update this release as they complete.
 
 ```bash
 # CI triggered on pushes to the build script. Tests on x86_64 Debian buster/sid Ubuntu Focal/hirsute to make sure it all works on these platforms.

@@ -4,7 +4,7 @@ Once the script has successfully built `qbittorrent-nox` you can install the bin
 bash ~/qbittorrent-nox-static.sh install
 ```
 
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] If you built to a custom directory you will need to specify this to the install command using the `-b` argument.
+> [!warning|iconVisibility:hidden|labelVisibility:hidden|style:callout] If you built to a custom directory you will need to specify this to the install command using the `-b` argument.
 
 ```bash
 bash ~/qbittorrent-nox-static.sh -b "/path/to/built/binary" install

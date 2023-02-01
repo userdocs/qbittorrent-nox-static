@@ -4,7 +4,7 @@ On supported platforms the `qbittorrent-nox-static.sh` will perform these three 
 - Install and build the `qbittorrent-nox` dependencies locally with no special privileges required.
 - Build a fully static and portable `qbittorrent-nox` binary which automatically uses the latest version of all supported dependencies.
 
-> [!TIP|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
+> [!TIP|iconVisibility:hidden|labelVisibility:hidden|style:callout] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
 
 Here is an example successful build profile:
 

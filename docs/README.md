@@ -1,6 +1,6 @@
-> [!warning|iconVisibility:hidden|labelVisibility:hidden] Supported build platforms are: `Debian Bullseye` - `Ubuntu Focal|Jammy` - `Alpine 3.10 +` - native or via `docker` images
+> [!warning|iconVisibility:hidden|labelVisibility:hidden|style:callout] Supported build platforms are: `Debian Bullseye` - `Ubuntu Focal|Jammy` - `Alpine 3.10 +` - native or via `docker` images
 
-> [!tip|iconVisibility:hidden|labelVisibility:hidden] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
+> [!tip|iconVisibility:hidden|labelVisibility:hidden|style:callout] The preferred and recommended build platform is Alpine Linux and the recommended method is via docker.
 
 `qbittorrent-nox` is a build of qBittorrent that does not include the desktop components. Instead it is used via the Linux command line and comes with a built in Qt web interface. The web interface is accessed via a browser.
 
@@ -24,4 +24,4 @@ These are the main dependencies we need to work with in order to build a fully f
 |      qttools      |       <https://github.com/qt/qttools>        | Debian + Alpine |   required   |
 |    qbittorrent    | <https://github.com/qbittorrent/qBittorrent> | Debian + Alpine |   required   |
 
-> [!note|iconVisibility:hidden|labelVisibility:hidden] `ICU` is an optional dependency and `libtorrent` and `qtbase` default to `iconv` if it is absent. If ICU is present `qtbase` will default to `ICU`
+> [!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] `ICU` is an optional dependency and `libtorrent` and `qtbase` default to `iconv` if it is absent. If ICU is present `qtbase` will default to `ICU`
