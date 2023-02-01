@@ -92,16 +92,16 @@ set_default_values() {
 
 	qbt_build_tool="${qbt_build_tool:-qmake}"
 	qbt_cross_name="${qbt_cross_name:-}"                                    # Default to empty to use host native build tools. This way we can build on native arch on support OS and skip crossbuild toolchains
-	qbt_cross_target="${qbt_cross_target:-${what_id}}"                      # Default to host
-	qbt_build_debug="${qbt_build_debug:-no}"                                # ON to create debug build to use with gdb
+	qbt_cross_target="${qbt_cross_target:-${what_id}}"                      # Default to host - we are not really using this for anything other than what it defaults to so no need to set it.
+	qbt_build_debug="${qbt_build_debug:-no}"                                # yes to create debug build to use with gdb - disables stripping
 	qbt_workflow_files="${qbt_workflow_files:-no}"                          # github actions workflows - use https://github.com/userdocs/qbt-workflow-files/releases/latest instead of direct downloads from various source locations. Provides an alternative source and does not spam download hosts when building matrix builds.
 	qbt_workflow_artifacts="${qbt_workflow_artifacts:-no}"                  # github actions workflows - use the workflow files saved as artifacts instead of downloading from workflow files or host per matrix
 	qbt_patches_url="${qbt_patches_url:-userdocs/qbittorrent-nox-static}"   # Provide a git username and repo in this format - username/repo - In this repo the structure needs to be like this /patches/libtorrent/1.2.11/patch and/or /patches/qbittorrent/4.3.1/patch and your patch file will be automatically fetched and loadded for those matching tags.
-	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"                 # Set this here so it is easy to see and change
-	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"    # Use release Jamfile unless we need a specific fix from the relevant RC branch. Using this can also break builds when non backported changes are present.
+	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"                 # Default to this version of libtorrent is no tag or branch is specificed.
+	qbt_libtorrent_master_jamfile="${qbt_libtorrent_master_jamfile:-no}"    # Use release Jamfile unless we need a specific fix from the relevant RC branch. Using this can also break builds when non backported changes are present whic will require a custom jamfile 
 	qbt_optimise_strip="${qbt_optimise_strip:-no}"                          # Strip by default as we need full debug builds to be useful gdb to backtrace
 	qbt_revision_url="${qbt_revision_url:-userdocs/qbittorrent-nox-static}" # The workflow will set this dynamically so that the urls are not hardcoded to a single repo
-	qbt_workflow_type="${qbt_workflow_type:-standard}"                      # The standard workflow is the non legacy version where the script will increments the revision version automatically.
+	qbt_workflow_type="${qbt_workflow_type:-standard}"                      # Build revisions - standard increments the revision version automatically in the script on build - The legacy workflow disables this and it is incremented by the workflow instead.
 
 	if [[ "${qbt_build_debug}" = 'yes' ]]; then
 		qbt_optimise_strip='no'
