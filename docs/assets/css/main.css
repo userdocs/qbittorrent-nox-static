@@ -14,4 +14,22 @@
     --markdown-section-padding: 20px 50px 20px 10px;
     --base-color: #ffffff8e;
 
+    /* Tab blocks */
+    --docsifytabs-border-color: rgba(90, 69, 110, 0.491);
+    --docsifytabs-border-px: 2px;
+    --docsifytabs-border-radius-px: ;
+    --docsifytabs-margin: 1.5em 0;
+
+    /* Tabs */
+    --docsifytabs-tab-background: rgba(115, 82, 148, 0);
+    --docsifytabs-tab-background--active: var(--docsifytabs-content-background);
+    --docsifytabs-tab-color: rgb(70, 69, 69);
+    --docsifytabs-tab-color--active: inherit;
+    --docsifytabs-tab-highlight-px: 3px;
+    --docsifytabs-tab-highlight-color: rgba(90, 69, 110, 0.491);
+    --docsifytabs-tab-padding: 0.5em 1em;
+
+    /* Tab content */
+    --docsifytabs-content-background: inherit;
+    --docsifytabs-content-padding: 0.5rem;
 }
