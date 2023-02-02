@@ -6,9 +6,11 @@ bash ~/qbittorrent-nox-static.sh -h
 
 ### ENV settings
 
+The script has some `env` settings that can trigger certain behaviour.
+
 > [!warning|iconVisibility:hidden|labelVisibility:hidden|style:callout] `export` the variables listed below when you use them in your local env.
 
-The script has some `env` settings that can trigger certain behaviour.
+You can export these before you run the script to set them. There is not specific benefit to using these over the flags and switches.
 
 | Build variable                  | Default if unset                    | Options                            | example usage                                            |
 | ------------------------------- | ----------------------------------- | ---------------------------------- | -------------------------------------------------------- |
@@ -24,13 +26,13 @@ The script has some `env` settings that can trigger certain behaviour.
 
 > [!tip|iconVisibility:hidden|labelVisibility:hidden|style:callout] If you see more variables in the script but they are not listed here they are Github Action specific configured by workflows.
 
-> [!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] If you set `qbt_build_tool=cmake` and `qt_version=6.2`  with the switch `-qm` you can build against QT6.
+> [!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] If you set `qbt_build_tool=cmake` and `qt_version=6.2` with the switch `-qm` you can build against QT6.
 
 ### Switches and flags summarised
 
 All switches and flags have a supporting help option that will provide dynamic content where applicable.
 
->[!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armv7` builds on your local system using Alpine/Debian/Ubuntu via docker.
+> [!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armv7` builds on your local system using Alpine/Debian/Ubuntu via docker.
 
 ```none
  Here are a list of available options
@@ -114,9 +116,9 @@ For example, taking the `-h-bs` switch as an example, it will show different res
 
  Add your patches there, for example.
 
- ~/qbt-build/patches/libtorrent/1.2.13/patch
+ ~/qbt-build/patches/libtorrent/1.2.18/patch
 
- ~/qbt-build/patches/qbittorrent/4.3.5/patch
+ ~/qbt-build/patches/qbittorrent/4.5.0/patch
 ```
 
 <!-- tab: -qm -lm -h-bs -->
@@ -135,17 +137,17 @@ For example, taking the `-h-bs` switch as an example, it will show different res
 
  <!-- tab: -qt release-4.2.5 -lt v2.0.3 -h-bs -->
 
- ```bash
- Here is the help description for this flag:
+```bash
+Here is the help description for this flag:
 
- Creates dirs in this structure: ~/qbt-build/patches/APPNAME/TAG/patch
+Creates dirs in this structure: ~/qbt-build/patches/APPNAME/TAG/patch
 
- Add your patches there, for example.
+Add your patches there, for example.
 
- ~/qbt-build/patches/libtorrent/2.0.3/patch
+~/qbt-build/patches/libtorrent/2.0.3/patch
 
- ~/qbt-build/patches/qbittorrent/4.2.5/patch
- ```
+~/qbt-build/patches/qbittorrent/4.2.5/patch
+```
 
 <!-- tabs:end -->
 
@@ -175,10 +177,10 @@ gawk (Debian based only)
 glibc (Debian based only)
 zlib (default)
 iconv (default)
-icu (optional on either platform)
+icu (default)
 openssl (default)
 boost (default)
-double_conversion (default for Qt6 on modern OS Bullseye / Jammy)
+double_conversion (default for Qt6 on a modern OS - Bullseye / Jammy)
 qtbase (default)
 qttools (default)
 libtorrent (default)
@@ -189,7 +191,7 @@ qbittorrent (default)
 
 By default the script will built to a hard coded path defined by the scripts `$install_dir` variable as to avoid installing files to a server and causing conflicts.
 
->[!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] This path is relative to the scripts location.
+> [!note|iconVisibility:hidden|labelVisibility:hidden|style:callout] This path is relative to the scripts location.
 
 ```bash
 qbt-build
