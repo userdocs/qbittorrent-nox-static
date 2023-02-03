@@ -1,47 +1,47 @@
 :root {
-	--url-color: #ffffff8e;
-	--url-color-hover: rgba(126, 79, 170, 0.509);
+    --url-color: #ffffff8e;
+    --url-color-hover: rgba(126, 79, 170, 0.509);
 
-	--content-max-width: 100%;
-	/* Tab blocks */
-	--docsifytabs-border-color: #ededed;
+    --content-max-width: 100%;
+    /* Tab blocks */
+    --docsifytabs-border-color: #ededed;
 
-	/* Code */
-	--code-inline-color: #ffffff8e;
-	--code-inline-background: #ffffff2b;
-	--code-block-padding: 0.5em 0.5em 0.5em 0.5em;
+    /* Code */
+    --code-inline-color: #ffffff8e;
+    --code-inline-background: #ffffff2b;
+    --code-block-padding: 0.5em 0.5em 0.5em 0.5em;
 
-	--link-color: var(--url-color);
-	--link-color--hover: var(--url-color-hover);
+    --link-color: var(--url-color);
+    --link-color--hover: var(--url-color-hover);
 
-	--sidebar-nav-link-color: var(--url-color);
-	--sidebar-nav-link-color--active: var(--url-color-hover);
-	--sidebar-nav-link-color--hover: var(--url-color-hover);
+    --sidebar-nav-link-color: var(--url-color);
+    --sidebar-nav-link-color--active: var(--url-color-hover);
+    --sidebar-nav-link-color--hover: var(--url-color-hover);
 
-	--sidebar-nav-link-border-color--active: var(--url-color-hover);
-	--sidebar-nav-link-border-color--hover: var(--url-color-hover);
+    --sidebar-nav-link-border-color--active: var(--url-color-hover);
+    --sidebar-nav-link-border-color--hover: var(--url-color-hover);
 
-	--markdown-section-padding: 20px 50px 20px 10px;
-	--base-color: #ffffff8e;
+    --markdown-section-padding: 20px 50px 20px 10px;
+    --base-color: #ffffff8e;
 
-	/* Tab blocks */
-	--docsifytabs-border-color: rgba(90, 69, 110, 0.491);
-	--docsifytabs-border-px: 2px;
-	--docsifytabs-border-radius-px: ;
-	--docsifytabs-margin: 1.5em 0;
+    /* Tab blocks */
+    --docsifytabs-border-color: rgba(90, 69, 110, 0.491);
+    --docsifytabs-border-px: 2px;
+    --docsifytabs-border-radius-px: ;
+    --docsifytabs-margin: 1.5em 0;
 
-	/* Tabs */
-	--docsifytabs-tab-background: rgba(115, 82, 148, 0);
-	--docsifytabs-tab-background--active: var(--docsifytabs-content-background);
-	--docsifytabs-tab-color: rgb(70, 69, 69);
-	--docsifytabs-tab-color--active: inherit;
-	--docsifytabs-tab-highlight-px: 3px;
-	--docsifytabs-tab-highlight-color: rgba(90, 69, 110, 0.491);
-	--docsifytabs-tab-padding: 0.5em 1em;
+    /* Tabs */
+    --docsifytabs-tab-background: rgba(115, 82, 148, 0);
+    --docsifytabs-tab-background--active: var(--docsifytabs-content-background);
+    --docsifytabs-tab-color: rgb(70, 69, 69);
+    --docsifytabs-tab-color--active: inherit;
+    --docsifytabs-tab-highlight-px: 3px;
+    --docsifytabs-tab-highlight-color: rgba(90, 69, 110, 0.491);
+    --docsifytabs-tab-padding: 0.5em 1em;
 
-	/* Tab content */
-	--docsifytabs-content-background: inherit;
-	--docsifytabs-content-padding: 0.5rem;
+    /* Tab content */
+    --docsifytabs-content-background: inherit;
+    --docsifytabs-content-padding: 0.5rem;
 
-	--code-theme-background: rgba(0, 0, 0, 0.097);
+    --code-theme-background: rgba(0, 0, 0, 0.097);
 }

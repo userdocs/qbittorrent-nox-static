@@ -85,3 +85,9 @@ body .pagination-item.pagination-item--next {
 body .pagination-item.pagination-item a:hover {
     color: rgb(245, 207, 126);
 }
+
+code[class*="language-"],
+pre[class*="language-"] {
+
+    background: #2c3235;
+}
