@@ -9,17 +9,19 @@
 
 This build script uses and depends on some related repositories
 
-- [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make)
+-   [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make)
 
-  `qbt-musl-cross-make` builds the customized [musl cross make tool chains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds.
+    `qbt-musl-cross-make` builds the customized [musl cross make tool chains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds.
 
-- [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files)
+-   [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files)
 
-  This is a dependency tracker that checks for and releases all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
+    This is a dependency tracker that checks for and releases all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
 
-- [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds)
+-   [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds)
 
-  This is a packaged release of cmake and ninja build for crossbuilds on debian based systems.
+    This is a packaged release of cmake and ninja build for crossbuilds on debian based systems.
+
+-   [qbittorrent-nox-static-legacy](https://github.com/userdocs/qbittorrent-nox-static-legacy) for people who want to use qBittorrent v4.3.9 built against current versions of the remaining dependencies. Libtorrent v1.2 branch only.
 
 ## Summary
 
@@ -103,11 +105,11 @@ jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_2_0)"' < <(curl -sL https://g
 
 The build has 5 main dependencies tracked that will trigger a rebuild on an update being available.
 
--  qBittorrent
--  Libtorrent
--  Qt
--  Boost
--  Openssl
+-   qBittorrent
+-   Libtorrent
+-   Qt
+-   Boost
+-   Openssl
 
 When a new build is triggered for updating `qBittorrent` or `Libtorrent` a new release will be generated as the release tags will be updated.
 
@@ -133,14 +135,14 @@ Will output a result like this:
 
 ```json
 {
-    "qbittorrent": "4.4.5",
-    "qt5": "5.15.7",
-    "qt6": "6.4.0",
-    "libtorrent_1_2": "1.2.18",
-    "libtorrent_2_0": "2.0.8",
-    "boost": "1.80.0",
-    "openssl": "3.0.7",
-    "revision": "1"
+	"qbittorrent": "4.4.5",
+	"qt5": "5.15.7",
+	"qt6": "6.4.0",
+	"libtorrent_1_2": "1.2.18",
+	"libtorrent_2_0": "2.0.8",
+	"boost": "1.80.0",
+	"openssl": "3.0.7",
+	"revision": "1"
 }
 ```
 
@@ -148,20 +150,20 @@ As demonstrated above by using the latest release URL we can construct the tag o
 
 ## Build table - Dependencies - arch - OS - build tools
 
-|       Deps        | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make  | cmake |  b2   | qmake |
-| :---------------: | :----: | :-----: | :---: | :--------: | :----------: | :----: | :---: | :---: | :---: | :---: |
-|       bison       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       gawk        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       glibc       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       zlib        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       iconv       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|        icu        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|      openssl      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       boost       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
-|    libtorrent     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
-|      qt5base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-|      qt5tools     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-| double conversion |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|      qt6base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|      qt6tools     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|    qbittorrent    |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
+|       Deps        | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make | cmake | b2  | qmake |
+| :---------------: | :----: | :-----: | :---: | :--------: | :----------: | :----: | :--: | :---: | :-: | :---: |
+|       bison       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ❌   |  ✅  |  ❌   | ❌  |  ❌   |
+|       gawk        |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ❌   |  ✅  |  ❌   | ❌  |  ❌   |
+|       glibc       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ❌   |  ✅  |  ❌   | ❌  |  ❌   |
+|       zlib        |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
+|       iconv       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
+|        icu        |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
+|      openssl      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
+|       boost       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ✅  |  ❌   |
+|    libtorrent     |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ✅   | ✅  |  ❌   |
+|      qt5base      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ❌   | ❌  |  ✅   |
+|     qt5tools      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ❌   | ❌  |  ✅   |
+| double conversion |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ❌   |
+|      qt6base      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ❌   |
+|     qt6tools      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ❌   |
+|    qbittorrent    |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ✅   |
