@@ -1,0 +1,127 @@
+From 3be5273246e9e399041db91892e3dbb281055076 Mon Sep 17 00:00:00 2001
+From: Vladimir Golovnev <glassez@yandex.ru>
+Date: Mon, 27 Feb 2023 09:08:18 +0300
+Subject: [PATCH 1/3] Prevent RSS folder from being moved into itself
+
+PR #18619.
+Closes #18446.
+---
+ src/base/rss/rss_session.cpp   |  5 ++++-
+ src/gui/rss/feedlistwidget.cpp | 10 ++++++----
+ 2 files changed, 10 insertions(+), 5 deletions(-)
+
+diff --git a/src/base/rss/rss_session.cpp b/src/base/rss/rss_session.cpp
+index bbc4d413d12..1d1ed81b1dd 100644
+--- a/src/base/rss/rss_session.cpp
++++ b/src/base/rss/rss_session.cpp
+@@ -185,8 +185,11 @@ nonstd::expected<void, QString> Session::moveItem(Item *item, const QString &des
+     if (!result)
+         return result.get_unexpected();
+ 
+-    auto srcFolder = static_cast<Folder *>(m_itemsByPath.value(Item::parentPath(item->path())));
+     const auto destFolder = result.value();
++    if (static_cast<Item *>(destFolder) == item)
++        return nonstd::make_unexpected(tr("Couldn't move folder into itself."));
++
++    auto srcFolder = static_cast<Folder *>(m_itemsByPath.value(Item::parentPath(item->path())));
+     if (srcFolder != destFolder)
+     {
+         srcFolder->removeItem(item);
+diff --git a/src/gui/rss/feedlistwidget.cpp b/src/gui/rss/feedlistwidget.cpp
+index 8657dcca82e..428fd95463a 100644
+--- a/src/gui/rss/feedlistwidget.cpp
++++ b/src/gui/rss/feedlistwidget.cpp
+@@ -105,7 +105,8 @@ FeedListWidget::FeedListWidget(QWidget *parent)
+     m_rssToTreeItemMapping[RSS::Session::instance()->rootFolder()] = invisibleRootItem();
+ 
+     m_unreadStickyItem = new FeedListItem(this);
+-    m_unreadStickyItem->setData(0, Qt::UserRole, QVariant::fromValue(RSS::Session::instance()->rootFolder()));
++    m_unreadStickyItem->setData(0, Qt::UserRole, QVariant::fromValue(
++            reinterpret_cast<intptr_t>(RSS::Session::instance()->rootFolder())));
+     m_unreadStickyItem->setText(0, tr("Unread  (%1)").arg(RSS::Session::instance()->rootFolder()->unreadCount()));
+     m_unreadStickyItem->setData(0, Qt::DecorationRole, UIThemeManager::instance()->getIcon(u"mail-inbox"_qs));
+     m_unreadStickyItem->setData(0, StickyItemTagRole, true);
+@@ -211,9 +212,10 @@ QList<QTreeWidgetItem *> FeedListWidget::getAllOpenedFolders(QTreeWidgetItem *pa
+ 
+ RSS::Item *FeedListWidget::getRSSItem(QTreeWidgetItem *item) const
+ {
+-    if (!item) return nullptr;
++    if (!item)
++        return nullptr;
+ 
+-    return item->data(0, Qt::UserRole).value<RSS::Item *>();
++    return reinterpret_cast<RSS::Item *>(item->data(0, Qt::UserRole).value<intptr_t>());
+ }
+ 
+ QTreeWidgetItem *FeedListWidget::mapRSSItem(RSS::Item *rssItem) const
+@@ -275,7 +277,7 @@ QTreeWidgetItem *FeedListWidget::createItem(RSS::Item *rssItem, QTreeWidgetItem
+ {
+     auto *item = new FeedListItem;
+     item->setData(0, Qt::DisplayRole, u"%1  (%2)"_qs.arg(rssItem->name(), QString::number(rssItem->unreadCount())));
+-    item->setData(0, Qt::UserRole, QVariant::fromValue(rssItem));
++    item->setData(0, Qt::UserRole, QVariant::fromValue(reinterpret_cast<intptr_t>(rssItem)));
+     m_rssToTreeItemMapping[rssItem] = item;
+ 
+     QIcon icon;
+
+From c21c3d230019431ab8f03faa3471474a66590c9c Mon Sep 17 00:00:00 2001
+From: Vladimir Golovnev <glassez@yandex.ru>
+Date: Mon, 27 Feb 2023 09:09:33 +0300
+Subject: [PATCH 2/3] WebAPI: Allow to set read-only directory as torrent
+ location
+
+PR #18613.
+Closes #18480.
+---
+ src/webui/api/torrentscontroller.cpp | 4 ----
+ 1 file changed, 4 deletions(-)
+
+diff --git a/src/webui/api/torrentscontroller.cpp b/src/webui/api/torrentscontroller.cpp
+index 6ede337e5f0..6080febeae3 100644
+--- a/src/webui/api/torrentscontroller.cpp
++++ b/src/webui/api/torrentscontroller.cpp
+@@ -1099,10 +1099,6 @@ void TorrentsController::setLocationAction()
+     if (!Utils::Fs::mkpath(newLocation))
+         throw APIError(APIErrorType::Conflict, tr("Cannot make save path"));
+ 
+-    // check permissions
+-    if (!Utils::Fs::isWritable(newLocation))
+-        throw APIError(APIErrorType::AccessDenied, tr("Cannot write to directory"));
+-
+     applyToTorrents(hashes, [newLocation](BitTorrent::Torrent *const torrent)
+     {
+         LogMsg(tr("WebUI Set location: moving \"%1\", from \"%2\" to \"%3\"")
+
+From 38c0864bf2119183e67fb7f2a1d5a8421f82b99f Mon Sep 17 00:00:00 2001
+From: Vladimir Golovnev <glassez@yandex.ru>
+Date: Mon, 27 Feb 2023 16:50:50 +0300
+Subject: [PATCH 3/3] Reject requests that contain backslash in path
+
+PR #18626.
+Closes #18618.
+---
+ src/webui/webapplication.cpp | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
+
+diff --git a/src/webui/webapplication.cpp b/src/webui/webapplication.cpp
+index f16e6e81220..629639e8a71 100644
+--- a/src/webui/webapplication.cpp
++++ b/src/webui/webapplication.cpp
+@@ -151,9 +151,14 @@ WebApplication::~WebApplication()
+ 
+ void WebApplication::sendWebUIFile()
+ {
+-    const QStringList pathItems {request().path.split(u'/', Qt::SkipEmptyParts)};
+-    if (pathItems.contains(u".") || pathItems.contains(u".."))
+-        throw InternalServerErrorHTTPError();
++    if (request().path.contains(u'\\'))
++        throw BadRequestHTTPError();
++
++    if (const QList<QStringView> pathItems = QStringView(request().path).split(u'/', Qt::SkipEmptyParts)
++            ; pathItems.contains(u".") || pathItems.contains(u".."))
++    {
++        throw BadRequestHTTPError();
++    }
+ 
+     const QString path = (request().path != u"/")
+         ? request().path
