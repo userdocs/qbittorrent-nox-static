@@ -13,7 +13,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Run the sh-checker
-        uses: luizm/action-sh-checker@v0.5.0
+        uses: luizm/action-sh-checker@v0.6.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SHELLCHECK_OPTS: -e SC2034,SC1091 # It is possible to exclude some shellcheck warnings.
