@@ -35,11 +35,14 @@ jobs:
       - name: Checkout ${{ github.event.inputs.distinct_id }}
         uses: actions/checkout@v3
 
+      - name: Host - phased updates ${{ github.event.inputs.distinct_id }}
+        run: echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
+
       - name: Host - update ${{ github.event.inputs.distinct_id }}
         run: sudo apt-get update
 
-      #- name: Host - upgrade ${{ github.event.inputs.distinct_id }}
-      #  run: sudo apt-get -y upgrade
+      - name: Host - upgrade ${{ github.event.inputs.distinct_id }}
+        run: sudo apt-get -y upgrade
 
       - name: Host - Install host qemu-static ${{ github.event.inputs.distinct_id }}
         run: sudo apt-get install -y qemu binfmt-support qemu-user-static

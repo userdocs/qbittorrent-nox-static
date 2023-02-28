@@ -105,6 +105,9 @@ jobs:
       - name: Host - Display structure of downloaded artifcats workspace
         run: ls -R
 
+      - name: Host - phased updates
+        run: echo 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
+
       - name: Host - update
         run: sudo apt-get update
 

@@ -53,10 +53,11 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Update container
-        run: |
-          apt-get update
-          apt-get upgrade -y
+      - name: Host - update
+        run: apt-get update
+
+      - name: Host - upgrade
+        run: apt-get -y upgrade
 
       - name: bionic - apt-get install gcc-8-base g++-8
         if: matrix.build_tool == 'cmake' && matrix.container_codename == 'bionic'
