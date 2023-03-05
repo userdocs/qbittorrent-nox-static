@@ -61,7 +61,7 @@ cend="\e[0m" # [c]olor[end]
 what_id="$(source /etc/os-release && printf "%s" "${ID}")"                             # Get the main platform name, for example: debian, ubuntu or alpine
 what_version_codename="$(source /etc/os-release && printf "%s" "${VERSION_CODENAME}")" # Get the codename for this this OS. Note, Alpine does not have a unique codename.
 what_version_id="$(source /etc/os-release && printf "%s" "${VERSION_ID%_*}")"          # Get the version number for this codename, for example: 10, 20.04, 3.12.4
-[[ "$(wc -w <<< "${what_version_id//\./ }")" -eq "2" ]] && alpline_min_version="310"
+[[ "$(wc -w <<<"${what_version_id//\./ }")" -eq "2" ]] && alpline_min_version="310"
 
 if [[ "${what_id}" =~ ^(alpine)$ ]]; then # If alpine, set the codename to alpine. We check for min v3.10 later with codenames.
 	what_version_codename="alpine"
@@ -121,25 +121,25 @@ set_default_values() {
 	fi
 
 	case "${qbt_qt_version}" in
-		5)
-			if [[ "${qbt_build_tool}" != 'cmake' ]]; then
-				qbt_build_tool="qmake"
-				qbt_use_qt6="OFF"
-			fi
-			;;&
-		6)
-			qbt_build_tool="cmake"
-			qbt_use_qt6="ON"
-			;;&
-		"")
-			[[ "${qbt_build_tool}" == 'cmake' ]] && qbt_qt_version="6" || qbt_qt_version="5"
-			;;&
-		*)
-			[[ ! "${qbt_qt_version}" =~ ^(5|6)$ ]] && qbt_workflow_files=no
-			[[ "${qbt_build_tool}" == 'qmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_build_tool="cmake"
-			[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^5 ]] && qbt_build_tool="cmake" qbt_qt_version="6"
-			[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_use_qt6="ON"
-			;;
+	5)
+		if [[ "${qbt_build_tool}" != 'cmake' ]]; then
+			qbt_build_tool="qmake"
+			qbt_use_qt6="OFF"
+		fi
+		;;&
+	6)
+		qbt_build_tool="cmake"
+		qbt_use_qt6="ON"
+		;;&
+	"")
+		[[ "${qbt_build_tool}" == 'cmake' ]] && qbt_qt_version="6" || qbt_qt_version="5"
+		;;&
+	*)
+		[[ ! "${qbt_qt_version}" =~ ^(5|6)$ ]] && qbt_workflow_files=no
+		[[ "${qbt_build_tool}" == 'qmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_build_tool="cmake"
+		[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^5 ]] && qbt_build_tool="cmake" qbt_qt_version="6"
+		[[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]] && qbt_use_qt6="ON"
+		;;
 	esac
 
 	qbt_python_version="3" # We are only using python3 but it's easier to just change this if we need to.
@@ -220,7 +220,7 @@ check_dependencies() {
 			pkgman() { dpkg -s "${pkg}"; }
 		fi
 
-		if pkgman > /dev/null 2>&1; then
+		if pkgman >/dev/null 2>&1; then
 			echo -e " ${utick} ${pkg}"
 		else
 			if [[ -n "${pkg}" ]]; then
@@ -296,114 +296,114 @@ check_dependencies() {
 #######################################################################################################################################################
 while (("${#}")); do
 	case "${1}" in
-		-b | --build-directory)
-			qbt_build_dir="${2}"
+	-b | --build-directory)
+		qbt_build_dir="${2}"
+		shift 2
+		;;
+	-bv | --boost-version)
+		if [[ -n "${2}" ]]; then
+			boost_version="${2}"
 			shift 2
-			;;
-		-bv | --boost-version)
-			if [[ -n "${2}" ]]; then
-				boost_version="${2}"
-				shift 2
-			else
-				echo
-				echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-bv${cend}"
-				echo
-				exit 1
-			fi
-			shift
-			;;
-		-c | --cmake)
-			qbt_build_tool="cmake"
-			shift
-			;;
-		-d | --debug)
-			qbt_build_debug='yes'
-			shift
-			;;
-		-i | --icu)
-			qbt_skip_icu='no'
-			[[ "${qbt_skip_icu}" == 'no' ]] && delete=("${delete[@]/icu/}")
-			shift
-			;;
-		-p | --proxy)
-			qbt_git_proxy="${2}"
-			qbt_curl_proxy="${2}"
+		else
+			echo
+			echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-bv${cend}"
+			echo
+			exit 1
+		fi
+		shift
+		;;
+	-c | --cmake)
+		qbt_build_tool="cmake"
+		shift
+		;;
+	-d | --debug)
+		qbt_build_debug='yes'
+		shift
+		;;
+	-i | --icu)
+		qbt_skip_icu='no'
+		[[ "${qbt_skip_icu}" == 'no' ]] && delete=("${delete[@]/icu/}")
+		shift
+		;;
+	-p | --proxy)
+		qbt_git_proxy="${2}"
+		qbt_curl_proxy="${2}"
+		shift 2
+		;;
+	-ma | --multi-arch)
+		if [[ -n "${2}" && "${2}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
+			qbt_cross_name="${2}"
 			shift 2
-			;;
-		-ma | --multi-arch)
-			if [[ -n "${2}" && "${2}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
-				qbt_cross_name="${2}"
-				shift 2
-			else
-				echo
-				echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-ma${cend}"
-				echo
-				echo -e " ${ulyc} armhf${cend}"
-				echo -e " ${ulyc} armv7${cend}"
-				echo -e " ${ulyc} aarch64${cend}"
-				echo -e " ${ulyc} x86_64${cend}"
-				echo
-				echo -e " ${ulgc} example usage:${clb} -ma aarch64${cend}"
-				echo
-				exit 1
-			fi
-			shift
-			;;
-		-o | --optimize)
-			optimize="-march=native"
-			shift
-			;;
-		-s | --strip)
-			qbt_optimise_strip='yes'
-			shift
-			;;
-		-h-bv | --help-boost-version)
+		else
 			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+			echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-ma${cend}"
 			echo
-			echo -e " This will let you set a specific version of boost to use with older build combos"
+			echo -e " ${ulyc} armhf${cend}"
+			echo -e " ${ulyc} armv7${cend}"
+			echo -e " ${ulyc} aarch64${cend}"
+			echo -e " ${ulyc} x86_64${cend}"
 			echo
-			echo -e " Example: ${clb}-bv 1.76.0${cend}"
+			echo -e " ${ulgc} example usage:${clb} -ma aarch64${cend}"
 			echo
-			exit
-			;;
-		-h-o | --help-optimize)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " ${cly}Warning, using this flag will mean your static build is limited to a matching CPU${cend}"
-			echo
-			echo -e " Example: ${clb}-o${cend}"
-			echo
-			echo -e " Additonal flags used: ${clc}-march=native${cend}"
-			echo
-			exit
-			;;
-		-h-p | --help-proxy)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Specify a proxy URL and PORT to use with curl and git"
-			echo
-			echo -e " ${td}Example:${cend} ${td}${clb}-p${cend} ${td}${clc}username:password@https://123.456.789.321:8443${cend}"
-			echo
-			echo -e " ${td}${clb}-p${cend} ${td}${clc}https://proxy.com:12345${cend}"
-			echo
-			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option:${cend}"
-			echo
-			echo -e " ${td}${clb}-p${cend} ${td}${clc}https://proxy.com:12345${cend} ${td}${clb}-h-p${cend}"
-			echo
-			[[ -n "${qbt_curl_proxy}" ]] && echo -e " proxy command: ${clc}${qbt_curl_proxy}${tn}${cend}"
-			exit
-			;;
-		--) # end argument parsing
-			shift
-			break
-			;;
-		*) # preserve positional arguments
-			params1+=("${1}")
-			shift
-			;;
+			exit 1
+		fi
+		shift
+		;;
+	-o | --optimize)
+		optimize="-march=native"
+		shift
+		;;
+	-s | --strip)
+		qbt_optimise_strip='yes'
+		shift
+		;;
+	-h-bv | --help-boost-version)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " This will let you set a specific version of boost to use with older build combos"
+		echo
+		echo -e " Example: ${clb}-bv 1.76.0${cend}"
+		echo
+		exit
+		;;
+	-h-o | --help-optimize)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " ${cly}Warning, using this flag will mean your static build is limited to a matching CPU${cend}"
+		echo
+		echo -e " Example: ${clb}-o${cend}"
+		echo
+		echo -e " Additonal flags used: ${clc}-march=native${cend}"
+		echo
+		exit
+		;;
+	-h-p | --help-proxy)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Specify a proxy URL and PORT to use with curl and git"
+		echo
+		echo -e " ${td}Example:${cend} ${td}${clb}-p${cend} ${td}${clc}username:password@https://123.456.789.321:8443${cend}"
+		echo
+		echo -e " ${td}${clb}-p${cend} ${td}${clc}https://proxy.com:12345${cend}"
+		echo
+		echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option:${cend}"
+		echo
+		echo -e " ${td}${clb}-p${cend} ${td}${clc}https://proxy.com:12345${cend} ${td}${clb}-h-p${cend}"
+		echo
+		[[ -n "${qbt_curl_proxy}" ]] && echo -e " proxy command: ${clc}${qbt_curl_proxy}${tn}${cend}"
+		exit
+		;;
+	--) # end argument parsing
+		shift
+		break
+		;;
+	*) # preserve positional arguments
+		params1+=("${1}")
+		shift
+		;;
 	esac
 done
 
@@ -445,7 +445,7 @@ git() {
 		url_test="${11}" # 11th place in our download folder function
 	fi
 
-	if ! curl -I "${url_test%\.git}" &> /dev/null; then
+	if ! curl -I "${url_test%\.git}" &>/dev/null; then
 		echo
 		echo -e " ${cy}There is an issue with your proxy settings or network connection${cend}"
 		echo
@@ -453,7 +453,7 @@ git() {
 	fi
 
 	status="$(
-		git_git ls-remote --exit-code "${url_test}" "${tag_flag}" "${tag_test}" &> /dev/null
+		git_git ls-remote --exit-code "${url_test}" "${tag_flag}" "${tag_test}" &>/dev/null
 		echo "${?}"
 	)"
 
@@ -581,17 +581,17 @@ set_module_urls() {
 
 	# we use a list since we can change the version to 6.0,6.1,6.2 and so on instead of being stuck with on the latest, i.e. 6.3
 	qt_github_tag_list="$(git_git ls-remote -q -t --refs https://github.com/qt/qtbase.git | awk '/v/{sub("refs/tags/", "");sub("(.*)(-a|-b|-r)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
-	qt_version="$(grep -Em1 "v${qbt_qt_version}" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
+	qt_version="$(grep -Em1 "v${qbt_qt_version}" <<<"${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
 
-	read -ra qt_version_short_array <<< "${qt_version//\./ }"
+	read -ra qt_version_short_array <<<"${qt_version//\./ }"
 	qt_version_short="${qt_version_short_array[0]/v/}.${qt_version_short_array[1]/v/}"
 
 	if [[ "${qbt_qt_version}" =~ ^6 ]]; then
-		qt6_version="$(grep -Em1 "v${qbt_qt_version}" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
-		qt5_version="$(grep -Em1 "v5" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
+		qt6_version="$(grep -Em1 "v${qbt_qt_version}" <<<"${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
+		qt5_version="$(grep -Em1 "v5" <<<"${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
 	else
-		qt6_version="$(grep -Em1 "v6" <<< "${qt_github_tag_list}")"
-		qt5_version="$(grep -Em1 "v${qbt_qt_version}" <<< "${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
+		qt6_version="$(grep -Em1 "v6" <<<"${qt_github_tag_list}")"
+		qt5_version="$(grep -Em1 "v${qbt_qt_version}" <<<"${qt_github_tag_list}" | sed 's/-lts-lgpl//g')"
 	fi
 
 	qtbase_github_tag="${qt_version}"
@@ -610,7 +610,7 @@ set_module_urls() {
 	libtorrent_github_url="https://github.com/arvidn/libtorrent.git"
 	libtorrent_github_tags_list="$(git_git ls-remote -q -t --refs https://github.com/arvidn/libtorrent.git | awk '/\/v/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV)"
 
-	libtorrent_github_tag_default="$(grep -Eom1 "v${qbt_libtorrent_version}.([0-9]{1,2})" <<< "${libtorrent_github_tags_list}")"
+	libtorrent_github_tag_default="$(grep -Eom1 "v${qbt_libtorrent_version}.([0-9]{1,2})" <<<"${libtorrent_github_tags_list}")"
 	libtorrent_github_tag="${libtorrent_github_tag:-$libtorrent_github_tag_default}"
 
 	qbittorrent_github_url="https://github.com/qbittorrent/qBittorrent.git"
@@ -713,7 +713,7 @@ _installation_modules() {
 		python_short_version="${python_major}.${python_minor}"
 		python_link_version="${python_major}${python_minor}"
 
-		echo -e "using gcc : : : <cflags>${optimize/*/$optimize }-std=${cxx_standard} <cxxflags>${optimize/*/$optimize }-std=${cxx_standard} ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" > "$HOME/user-config.jam"
+		echo -e "using gcc : : : <cflags>${optimize/*/$optimize }-std=${cxx_standard} <cxxflags>${optimize/*/$optimize }-std=${cxx_standard} ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" >"$HOME/user-config.jam"
 
 		## Echo the build directory.
 		echo -e "${tn} ${uyc}${tb} Install Prefix${cend} : ${clc}${qbt_install_dir_short}${cend}"
@@ -751,9 +751,9 @@ apply_patches() {
 	default_jamfile="${libtorrent_patch_tag//./\_}"
 
 	# Remove everything after second underscore. Occasionally the tag will be short, like v2.0 so we need to make sure not remove the underscore if there is only one present.
-	if [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -le 1 ]]; then
+	if [[ $(grep -o '_' <<<"$default_jamfile" | wc -l) -le 1 ]]; then
 		default_jamfile="RC_${default_jamfile}"
-	elif [[ $(grep -o '_' <<< "$default_jamfile" | wc -l) -ge 2 ]]; then
+	elif [[ $(grep -o '_' <<<"$default_jamfile" | wc -l) -ge 2 ]]; then
 		default_jamfile="RC_${default_jamfile%_*}"
 	fi
 
@@ -818,14 +818,14 @@ apply_patches() {
 			fi
 		fi
 
-		[[ -f "${patch_file}" ]] && patch -p1 < "${patch_file}"
+		[[ -f "${patch_file}" ]] && patch -p1 <"${patch_file}"
 	fi
 }
 #######################################################################################################################################################
 # This function is to test a directory exists before attemtping to cd and fail with and exit code if it doesn't.
 #######################################################################################################################################################
 _cd() {
-	if ! cd "${1}" > /dev/null 2>&1; then
+	if ! cd "${1}" >/dev/null 2>&1; then
 		echo -e "This directory does not exist. There is a problem"
 		echo
 		echo -e "${clr}${1}${cend}"
@@ -863,7 +863,7 @@ download_file() {
 			curl "${2}" -o "${file_name}"
 		fi
 
-		echo "${2}" > "${qbt_install_dir}/logs/${1}_file_url.log"
+		echo "${2}" >"${qbt_install_dir}/logs/${1}_file_url.log"
 
 		_cmd tar xf "${file_name}" -C "${qbt_install_dir}"
 		app_dir="${qbt_install_dir}/$(tar tf "${file_name}" | head -1 | cut -f1 -d"/")${subdir}"
@@ -896,7 +896,7 @@ download_folder() {
 		_cmd git clone --no-tags --single-branch --branch "${!github_tag}" --shallow-submodules --recurse-submodules -j"$(nproc)" --depth 1 "${url_github}" "${folder_name}"
 		mkdir -p "${folder_name}${subdir}"
 		[[ -d "${folder_name}${subdir}" ]] && _cd "${folder_name}${subdir}"
-		echo "${2}" > "${qbt_install_dir}/logs/${1}_github_url.log"
+		echo "${2}" >"${qbt_install_dir}/logs/${1}_github_url.log"
 	else
 		echo
 		echo "You must provide a tag name for the function - download_folder"
@@ -1012,78 +1012,78 @@ _multi_arch() {
 			[[ "${1}" != 'bootstrap' ]] && echo -e "${tn} ${ugc}${cly} Using multiarch - arch: ${qbt_cross_name} host: ${what_id} target: ${qbt_cross_target}${cend}"
 
 			case "${qbt_cross_name}" in
-				armhf)
-					case "${qbt_cross_target}" in
-						alpine)
-							cross_arch="armhf"
-							qbt_cross_host="arm-linux-musleabihf"
-							qbt_zlib_arch="armv6"
-							;;&
-						debian | ubuntu)
-							cross_arch="armel"
-							qbt_cross_host="arm-linux-gnueabi"
-							;;&
-						*)
-							qbt_cross_openssl="linux-armv4"
-							qbt_cross_boost="arm"
-							qbt_cross_qtbase="linux-arm-gnueabi-g++"
-							;;
-					esac
+			armhf)
+				case "${qbt_cross_target}" in
+				alpine)
+					cross_arch="armhf"
+					qbt_cross_host="arm-linux-musleabihf"
+					qbt_zlib_arch="armv6"
+					;;&
+				debian | ubuntu)
+					cross_arch="armel"
+					qbt_cross_host="arm-linux-gnueabi"
+					;;&
+				*)
+					qbt_cross_openssl="linux-armv4"
+					qbt_cross_boost="arm"
+					qbt_cross_qtbase="linux-arm-gnueabi-g++"
 					;;
-				armv7)
-					case "${qbt_cross_target}" in
-						alpine)
-							cross_arch="armv7"
-							qbt_cross_host="armv7l-linux-musleabihf"
-							qbt_zlib_arch="armv7"
-							;;&
-						debian | ubuntu)
-							cross_arch="armhf"
-							qbt_cross_host="arm-linux-gnueabihf"
-							;;&
-						*)
-							qbt_cross_openssl="linux-armv4"
-							qbt_cross_boost="arm"
-							qbt_cross_qtbase="linux-arm-gnueabi-g++"
-							;;
-					esac
+				esac
+				;;
+			armv7)
+				case "${qbt_cross_target}" in
+				alpine)
+					cross_arch="armv7"
+					qbt_cross_host="armv7l-linux-musleabihf"
+					qbt_zlib_arch="armv7"
+					;;&
+				debian | ubuntu)
+					cross_arch="armhf"
+					qbt_cross_host="arm-linux-gnueabihf"
+					;;&
+				*)
+					qbt_cross_openssl="linux-armv4"
+					qbt_cross_boost="arm"
+					qbt_cross_qtbase="linux-arm-gnueabi-g++"
 					;;
-				aarch64)
-					case "${qbt_cross_target}" in
-						alpine)
-							cross_arch="aarch64"
-							qbt_cross_host="aarch64-linux-musl"
-							qbt_zlib_arch="aarch64"
-							;;&
-						debian | ubuntu)
-							cross_arch="arm64"
-							qbt_cross_host="aarch64-linux-gnu"
-							;;&
-						*)
-							qbt_cross_openssl="linux-aarch64"
-							qbt_cross_boost="arm"
-							qbt_cross_qtbase="linux-aarch64-gnu-g++"
-							;;
-					esac
+				esac
+				;;
+			aarch64)
+				case "${qbt_cross_target}" in
+				alpine)
+					cross_arch="aarch64"
+					qbt_cross_host="aarch64-linux-musl"
+					qbt_zlib_arch="aarch64"
+					;;&
+				debian | ubuntu)
+					cross_arch="arm64"
+					qbt_cross_host="aarch64-linux-gnu"
+					;;&
+				*)
+					qbt_cross_openssl="linux-aarch64"
+					qbt_cross_boost="arm"
+					qbt_cross_qtbase="linux-aarch64-gnu-g++"
 					;;
-				x86_64)
-					case "${qbt_cross_target}" in
-						alpine)
-							cross_arch="x86_64"
-							qbt_cross_host="x86_64-linux-musl"
-							qbt_zlib_arch="x86_64"
-							;;&
-						debian | ubuntu)
-							cross_arch="amd64"
-							qbt_cross_host="x86_64-linux-gnu"
-							;;&
-						*)
-							qbt_cross_openssl="linux-x86_64"
-							qbt_cross_boost="x86_64"
-							qbt_cross_qtbase="linux-g++-64"
-							;;
-					esac
+				esac
+				;;
+			x86_64)
+				case "${qbt_cross_target}" in
+				alpine)
+					cross_arch="x86_64"
+					qbt_cross_host="x86_64-linux-musl"
+					qbt_zlib_arch="x86_64"
+					;;&
+				debian | ubuntu)
+					cross_arch="amd64"
+					qbt_cross_host="x86_64-linux-gnu"
+					;;&
+				*)
+					qbt_cross_openssl="linux-x86_64"
+					qbt_cross_boost="x86_64"
+					qbt_cross_qtbase="linux-g++-64"
 					;;
+				esac
+				;;
 			esac
 
 			[[ "${1}" == 'bootstrap' ]] && return
@@ -1096,7 +1096,7 @@ _multi_arch() {
 			mkdir -p "${qbt_install_dir}/logs"
 
 			if [[ "${qbt_cross_target}" =~ ^(alpine)$ && ! -f "${qbt_install_dir}/${qbt_cross_host}.tar.gz" ]]; then
-				curl "https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" > "${qbt_install_dir}/${qbt_cross_host}.tar.gz"
+				curl "https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.gz" >"${qbt_install_dir}/${qbt_cross_host}.tar.gz"
 				tar xf "${qbt_install_dir}/${qbt_cross_host}.tar.gz" --strip-components=1 -C "${qbt_install_dir}"
 			fi
 
@@ -1122,7 +1122,7 @@ _multi_arch() {
 				multi_qbittorrent=("-D CMAKE_CXX_COMPILER=${qbt_cross_host}-g++")       # ${multi_qbittorrent[@]}
 			else
 				b2_toolset="gcc-arm"
-				echo -e "using gcc : arm : ${qbt_cross_host}-g++ : <cflags>${optimize/*/$optimize }-std=${cxx_standard} <cxxflags>${optimize/*/$optimize }-std=${cxx_standard} ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" > "$HOME/user-config.jam"
+				echo -e "using gcc : arm : ${qbt_cross_host}-g++ : <cflags>${optimize/*/$optimize }-std=${cxx_standard} <cxxflags>${optimize/*/$optimize }-std=${cxx_standard} ;${tn}using python : ${python_short_version} : /usr/bin/python${python_short_version} : /usr/include/python${python_short_version} : /usr/lib/python${python_short_version} ;" >"$HOME/user-config.jam"
 				multi_libtorrent=("toolset=${b2_toolset}") # ${multi_libtorrent[@]}
 				#
 				multi_qbittorrent=("--host=${qbt_cross_host}") # ${multi_qbittorrent[@]}
@@ -1151,22 +1151,22 @@ _release_info() {
 
 	mkdir -p "${release_info_dir}"
 
-	cat > "${release_info_dir}/tag.md" <<- TAG_INFO
+	cat >"${release_info_dir}/tag.md" <<-TAG_INFO
 		${qbittorrent_github_tag#v}_${libtorrent_github_tag}
 	TAG_INFO
 
-	cat > "${release_info_dir}/title.md" <<- TITLE_INFO
+	cat >"${release_info_dir}/title.md" <<-TITLE_INFO
 		qbittorrent ${qbittorrent_github_tag#release-} libtorrent ${libtorrent_github_tag#v}
 	TITLE_INFO
 
-	if git_git ls-remote --exit-code --tags "https://github.com/${qbt_revision_url}.git" "${qbittorrent_github_tag#v}_${libtorrent_github_tag}" &> /dev/null; then
+	if git_git ls-remote --exit-code --tags "https://github.com/${qbt_revision_url}.git" "${qbittorrent_github_tag#v}_${libtorrent_github_tag}" &>/dev/null; then
 		if grep -q '"name": "dependency-version.json"' < <(curl "https://api.github.com/repos/${qbt_revision_url}/releases/tags/${qbittorrent_github_tag#v}_${libtorrent_github_tag}"); then
-			until curl_curl "https://github.com/${qbt_revision_url}/releases/download/${qbittorrent_github_tag#v}_${libtorrent_github_tag}/dependency-version.json" > remote-dependency-version.json; do
+			until curl_curl "https://github.com/${qbt_revision_url}/releases/download/${qbittorrent_github_tag#v}_${libtorrent_github_tag}/dependency-version.json" >remote-dependency-version.json; do
 				echo "Waiting for dependency-version.json URL."
 				sleep 2
 			done
 
-			remote_revision_version="$(sed -rn 's|(.*)"revision": "(.*)"|\2|p' < remote-dependency-version.json)"
+			remote_revision_version="$(sed -rn 's|(.*)"revision": "(.*)"|\2|p' <remote-dependency-version.json)"
 
 			if [[ "${remote_revision_version}" =~ ^[0-9]+$ && "${qbt_workflow_type}" == 'standard' ]]; then
 				qbt_revision_version="$((remote_revision_version + 1))"
@@ -1176,7 +1176,7 @@ _release_info() {
 		fi
 	fi
 
-	cat > "${release_info_dir}/dependency-version.json" <<- DEPENDENCY_INFO
+	cat >"${release_info_dir}/dependency-version.json" <<-DEPENDENCY_INFO
 		{
 		    "qbittorrent": "${qbittorrent_github_tag#release-}",
 		    "qt5": "${qt5_version#v}",
@@ -1188,7 +1188,7 @@ _release_info() {
 		}
 	DEPENDENCY_INFO
 
-	cat > "${release_info_dir}/release.md" <<- RELEASE_INFO
+	cat >"${release_info_dir}/release.md" <<-RELEASE_INFO
 		## Build info
 
 		| Components  |              Version               |
@@ -1246,8 +1246,8 @@ _cmake() {
 		_cd "${qbt_install_dir}"
 
 		if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then
-			if [[ "$(cmake --version 2> /dev/null | awk 'NR==1{print $3}')" != "${cmake_debian_version}" ]]; then
-				curl "https://github.com/userdocs/qbt-cmake-ninja-crossbuilds/releases/latest/download/${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" > "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz"
+			if [[ "$(cmake --version 2>/dev/null | awk 'NR==1{print $3}')" != "${cmake_debian_version}" ]]; then
+				curl "https://github.com/userdocs/qbt-cmake-ninja-crossbuilds/releases/latest/download/${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" >"${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz"
 				post_command "Debian cmake and ninja installation"
 				tar xf "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).tar.gz" --strip-components=1 -C "${qbt_install_dir}"
 				rm -f "${what_id}-${what_version_codename}-cmake-$(dpkg --print-architecture).deb"
@@ -1261,7 +1261,7 @@ _cmake() {
 		fi
 
 		if [[ "${what_id}" =~ ^(alpine)$ ]]; then
-			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2> /dev/null)" != "${ninja_version}" ]]; then
+			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2>/dev/null)" != "${ninja_version}" ]]; then
 				download_folder ninja https://github.com/ninja-build/ninja.git
 				cmake -Wno-dev -Wno-deprecated -B build \
 					-D CMAKE_BUILD_TYPE="release" \
@@ -1289,7 +1289,7 @@ _fix_static_links() {
 	for file in "${library_list[@]}"; do
 		if [[ "$(readlink "${lib_dir}/${file}.so")" != "${file}.a" ]]; then
 			ln -fsn "${file}.a" "${lib_dir}/${file}.so"
-			echo "${lib_dir}${file}.so changed to point to ${file}.a" >> "${qbt_install_dir}/logs/${log_name}-fix-static-links.log"
+			echo "${lib_dir}${file}.so changed to point to ${file}.a" >>"${qbt_install_dir}/logs/${log_name}-fix-static-links.log"
 		fi
 	done
 	return
@@ -1302,7 +1302,7 @@ _fix_multiarch_static_links() {
 		for file in "${library_list[@]}"; do
 			if [[ "$(readlink "${multiarch_lib_dir}/${file}.so")" != "${file}.a" ]]; then
 				ln -fsn "${file}.a" "${multiarch_lib_dir}/${file}.so"
-				echo "${multiarch_lib_dir}${file}.so changed to point to ${file}.a" >> "${qbt_install_dir}/logs/${log_name}-fix-static-links.log"
+				echo "${multiarch_lib_dir}${file}.so changed to point to ${file}.a" >>"${qbt_install_dir}/logs/${log_name}-fix-static-links.log"
 			fi
 		done
 		return
@@ -1361,466 +1361,466 @@ set_module_urls # see functions
 #######################################################################################################################################################
 while (("${#}")); do
 	case "${1}" in
-		-bs | --boot-strap)
-			apply_patches bootstrap
-			shift
-			;;
-		-bs-c | --boot-strap-cmake)
-			qbt_build_tool="cmake"
-			_cmake
-			shift
-			;;
-		-bs-r | --boot-strap-release)
-			_release_info
-			shift
-			;;
-		-bs-ma | --boot-strap-multi-arch)
-			if [[ -n "${2}" && "${2}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
-				qbt_cross_name="${2}"
-				shift 2
-			else
-				echo
-				echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-ma${cend}"
-				echo
-				echo -e " ${ulyc} armhf${cend}"
-				echo -e " ${ulyc} armv7${cend}"
-				echo -e " ${ulyc} aarch64${cend}"
-				echo -e " ${ulyc} x86_64${cend}"
-				echo
-				echo -e " ${ulgc} example usage:${clb} -ma aarch64${cend}"
-				echo
-				exit 1
-			fi
-			_multi_arch
-			shift
-			;;
-		-bs-a | --boot-strap-all)
-			apply_patches bootstrap
-			_release_info
-			_cmake
-			_multi_arch
-			shift
-			;;
-		-n | --no-delete)
-			qbt_skip_delete='yes'
-			shift
-			;;
-		-m | --master)
-			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${qbt_libtorrent_version//./_}")"
-			test_git_ouput "${libtorrent_github_tag}" "RC_${qbt_libtorrent_version//./_}" "libtorrent"
-
-			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
-			test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
-			override_workflow="yes"
-			shift
-			;;
-		-lm | --libtorrent-master)
-			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${qbt_libtorrent_version//./_}")"
-			test_git_ouput "${libtorrent_github_tag}" "RC_${qbt_libtorrent_version//./_}" "libtorrent"
-			override_workflow="yes"
-			shift
-			;;
-		-lt | --libtorrent-tag)
-			libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "$2")"
-			test_git_ouput "${libtorrent_github_tag}" "$2" "libtorrent"
-			override_workflow="yes"
+	-bs | --boot-strap)
+		apply_patches bootstrap
+		shift
+		;;
+	-bs-c | --boot-strap-cmake)
+		qbt_build_tool="cmake"
+		_cmake
+		shift
+		;;
+	-bs-r | --boot-strap-release)
+		_release_info
+		shift
+		;;
+	-bs-ma | --boot-strap-multi-arch)
+		if [[ -n "${2}" && "${2}" =~ ^(x86_64|armhf|armv7|aarch64)$ ]]; then
+			qbt_cross_name="${2}"
 			shift 2
-			;;
-		-pr | --patch-repo)
-			if [[ "$(curl "https://github.com/${2}")" != 'error_url' ]]; then
-				qbt_patches_url="${2}"
-			else
-				echo
-				echo -e " ${cy}This repo does not exist:${cend}"
-				echo
-				echo -e " https://github.com/${2}"
-				echo
-				echo -e " ${cy}Please provide a valid username and repo.${cend}"
-				echo
-				exit
-			fi
-			shift 2
-			;;
-		-qm | --qbittorrent-master)
-			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
-			test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
-			override_workflow="yes"
-			shift
-			;;
-		-qt | --qbittorrent-tag)
-			qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "$2")"
-			test_git_ouput "${qbittorrent_github_tag}" "$2" "qbittorrent"
-			override_workflow="yes"
-			shift 2
-			;;
-		-h | --help)
+		else
 			echo
-			echo -e " ${tb}${tu}Here are a list of available options${cend}"
+			echo -e " ${ulrc} You must provide a valid arch option when using${cend} ${clb}-ma${cend}"
 			echo
-			echo -e " ${cg}Use:${cend} ${clb}-b${cend}     ${td}or${cend} ${clb}--build-directory${cend}       ${cy}Help:${cend} ${clb}-h-b${cend}     ${td}or${cend} ${clb}--help-build-directory${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bv${cend}    ${td}or${cend} ${clb}--boost-version${cend}         ${cy}Help:${cend} ${clb}-h-bv${cend}    ${td}or${cend} ${clb}--help-boost-version${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-c${cend}     ${td}or${cend} ${clb}--cmake${cend}                 ${cy}Help:${cend} ${clb}-h-c${cend}     ${td}or${cend} ${clb}--help-cmake${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-d${cend}     ${td}or${cend} ${clb}--debug${cend}                 ${cy}Help:${cend} ${clb}-h-d${cend}     ${td}or${cend} ${clb}--help-debug${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bs${cend}    ${td}or${cend} ${clb}--boot-strap${cend}            ${cy}Help:${cend} ${clb}-h-bs${cend}    ${td}or${cend} ${clb}--help-boot-strap${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bs-c${cend}  ${td}or${cend} ${clb}--boot-strap-cmake${cend}      ${cy}Help:${cend} ${clb}-h-bs-c${cend}  ${td}or${cend} ${clb}--help-boot-strap-cmake${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bs-r${cend}  ${td}or${cend} ${clb}--boot-strap-release${cend}    ${cy}Help:${cend} ${clb}-h-bs-r${cend}  ${td}or${cend} ${clb}--help-boot-strap-release${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bs-ma${cend} ${td}or${cend} ${clb}--boot-strap-multi-arch${cend} ${cy}Help:${cend} ${clb}-h-bs-ma${cend} ${td}or${cend} ${clb}--help-boot-strap-multi-arch${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-bs-a${cend}  ${td}or${cend} ${clb}--boot-strap-all${cend}        ${cy}Help:${cend} ${clb}-h-bs-a${cend}  ${td}or${cend} ${clb}--help-boot-strap-all${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-i${cend}     ${td}or${cend} ${clb}--icu${cend}                   ${cy}Help:${cend} ${clb}-h-i${cend}     ${td}or${cend} ${clb}--help-icu${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-lm${cend}    ${td}or${cend} ${clb}--libtorrent-master${cend}     ${cy}Help:${cend} ${clb}-h-lm${cend}    ${td}or${cend} ${clb}--help-libtorrent-master${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-lt${cend}    ${td}or${cend} ${clb}--libtorrent-tag${cend}        ${cy}Help:${cend} ${clb}-h-lt${cend}    ${td}or${cend} ${clb}--help-libtorrent-tag${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-m${cend}     ${td}or${cend} ${clb}--master${cend}                ${cy}Help:${cend} ${clb}-h-m${cend}     ${td}or${cend} ${clb}--help-master${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-ma${cend}    ${td}or${cend} ${clb}--multi-arch${cend}            ${cy}Help:${cend} ${clb}-h-ma${cend}    ${td}or${cend} ${clb}--help-multi-arch${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-n${cend}     ${td}or${cend} ${clb}--no-delete${cend}             ${cy}Help:${cend} ${clb}-h-n${cend}     ${td}or${cend} ${clb}--help-no-delete${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-o${cend}     ${td}or${cend} ${clb}--optimize${cend}              ${cy}Help:${cend} ${clb}-h-o${cend}     ${td}or${cend} ${clb}--help-optimize${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-p${cend}     ${td}or${cend} ${clb}--proxy${cend}                 ${cy}Help:${cend} ${clb}-h-p${cend}     ${td}or${cend} ${clb}--help-proxy${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-pr${cend}    ${td}or${cend} ${clb}--patch-repo${cend}            ${cy}Help:${cend} ${clb}-h-pr${cend}    ${td}or${cend} ${clb}--help-patch-repo${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-qm${cend}    ${td}or${cend} ${clb}--qbittorrent-master${cend}    ${cy}Help:${cend} ${clb}-h-qm${cend}    ${td}or${cend} ${clb}--help-qbittorrent-master${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-qt${cend}    ${td}or${cend} ${clb}--qbittorrent-tag${cend}       ${cy}Help:${cend} ${clb}-h-qt${cend}    ${td}or${cend} ${clb}--help-qbittorrent-tag${cend}"
-			echo -e " ${cg}Use:${cend} ${clb}-s${cend}     ${td}or${cend} ${clb}--strip${cend}                 ${cy}Help:${cend} ${clb}-h-s${cend}     ${td}or${cend} ${clb}--help-strip${cend}"
+			echo -e " ${ulyc} armhf${cend}"
+			echo -e " ${ulyc} armv7${cend}"
+			echo -e " ${ulyc} aarch64${cend}"
+			echo -e " ${ulyc} x86_64${cend}"
 			echo
-			echo -e " ${tb}${tu}Module specific help - flags are used with the modules listed here.${cend}"
+			echo -e " ${ulgc} example usage:${clb} -ma aarch64${cend}"
 			echo
-			echo -e " ${cg}Use:${cend} ${clm}all${cend} ${td}or${cend} ${clm}module-name${cend}          ${cg}Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clm}all${cend} ${clb}-i${cend}"
-			echo
-			echo -e " ${td}${clm}all${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Recommended method to install all modules${cend}"
-			echo -e " ${td}${clm}install${cend} ${td}------------${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qbt_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
-			echo -e " ${td}${clm}zlib${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
-			echo -e " ${td}${clm}iconv${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build iconv locally${cend}"
-			echo -e " ${td}${clm}icu${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Build ICU locally${cend}"
-			echo -e " ${td}${clm}openssl${cend} ${td}------------${cend} ${td}${clr}required${cend} ${td}Build openssl locally${cend}"
-			echo -e " ${td}${clm}boost${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Download, extract and build the boost library files${cend}"
-			echo -e " ${td}${clm}libtorrent${cend} ${td}---------${cend} ${td}${clr}required${cend} ${td}Build libtorrent locally${cend}"
-			echo -e " ${td}${clm}double_conversion${cend} ${td}--${cend} ${td}${clr}required${cend} ${td}A cmakke + Qt6 build compenent on modern OS only.${cend}"
-			echo -e " ${td}${clm}qtbase${cend} ${td}-------------${cend} ${td}${clr}required${cend} ${td}Build qtbase locally${cend}"
-			echo -e " ${td}${clm}qttools${cend} ${td}------------${cend} ${td}${clr}required${cend} ${td}Build qttools locally${cend}"
-			echo -e " ${td}${clm}qbittorrent${cend} ${td}--------${cend} ${td}${clr}required${cend} ${td}Build qbittorrent locally${cend}"
-			echo
-			echo -e " ${tb}${tu}env help - supported exportable evironment variables${cend}"
-			echo
-			echo -e " ${td}${clm}export qbt_libtorrent_version=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}1.2 - 2.0${cend}"
-			echo -e " ${td}${clm}export qbt_qt_version=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}5 - 5.15 - 6 - 6.2 - 6.3 and so on${cend}"
-			echo -e " ${td}${clm}export qbt_build_tool=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}qmake - cmake${cend}"
-			echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}x86_64 - aarch64 - armv7 - armhf${cend}"
-			echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static.${cend}"
-			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files for dependencies${cend}"
-			echo -e " ${td}${clm}export qbt_libtorrent_master_jamfile=\"\"${cend} ${td}-${cend} ${td}${clr}options${cend} ${td}yes no - use RC branch instead of release jamfile${cend}"
-			echo -e " ${td}${clm}export qbt_optimise_strip=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - strip binaries - cannot be used with debug${cend}"
-			echo -e " ${td}${clm}export qbt_build_debug=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}yes no - debug build - cannot be used with strip${cend}"
-			echo
-			echo -e " ${tb}${tu}Currrent settings${cend}"
-			echo
-			echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
-			echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
-			echo -e " ${cly}qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
-			echo -e " ${cly}qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
-			echo -e " ${cly}qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
-			echo -e " ${cly}qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
-			echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
-			echo -e " ${cly}qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
-			echo -e " ${cly}qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}${tn}"
-			echo
-			exit
-			;;
-		-h-b | --help-build-directory)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Default build location: ${cc}${qbt_install_dir_short}${cend}"
-			echo
-			echo -e " ${clb}-b${cend} or ${clb}--build-directory${cend} to set the location of the build directory."
-			echo
-			echo -e " ${cy}Paths are relative to the script location. I recommend that you use a full path.${cend}"
-			echo
-			echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}all${cend} ${td}- Will install all modules and build libtorrent to the default build location${cend}"
-			echo
-			echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}all ${clb}-b${cend} ${td}${clc}\"\$HOME/build\"${cend} ${td}- Will specify a build directory and install all modules to that custom location${cend}"
-			echo
-			echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}module${cend} ${td}- Will install a single module to the default build location${cend}"
-			echo
-			echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}module${cend} ${clb}-b${cend} ${td}${clc}\"\$HOME/build\"${cend} ${td}- will specify a custom build directory and install a specific module use to that custom location${cend}"
-			#
-			echo
-			exit
-			;;
-		-h-bs | --help-boot-strap)
-			apply_patches bootstrap-help
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Creates dirs in this structure: ${cc}${qbt_install_dir_short}/patches/APPNAME/TAG/patch${cend}"
-			echo
-			echo -e " Add your patches there, for example."
-			echo
-			echo -e " ${cc}${qbt_install_dir_short}/patches/libtorrent/${libtorrent_patch_tag}/patch${cend}"
-			echo
-			echo -e " ${cc}${qbt_install_dir_short}/patches/qbittorrent/${qbittorrent_patch_tag}/patch${cend}"
-			echo
-			exit
-			;;
-		-h-bs-c | --help-boot-cmake)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " This bootstrap will install cmake and ninja build to the build directory"
-
-			echo
-			echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-c${cend}"
-			echo
-			exit
-			;;
-		-h-bs-r | --help-boot-strap-release)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e "${clr} Github action specific. You probably dont need it${cend}"
-			echo
-			echo -e " This switch creates some github release template files in this directory"
-			echo
-			echo -e " ${qbt_install_dir_short}/release_info"
-			echo
-			echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-r${cend}"
-			echo
-			exit
-			;;
-		-h-bs-ma | --help-boot-strap-multi-arch)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " ${urc}${clr} Github action and ALpine specific. You probably dont need it${cend}"
-			echo
-			echo -e " This switch bootstraps the musl cross build files needed for any provided and supported architecture"
-			echo
-			echo -e " ${uyc} armhf"
-			echo -e " ${uyc} armv7"
-			echo -e " ${uyc} aarch64"
-			echo
-			echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-ma ${qbt_cross_name:-aarch64}${cend}"
-			echo
-			echo -e " ${uyc} You can also set it as a variable to trigger cross building: ${clb}export qbt_cross_name=${qbt_cross_name:-aarch64}${cend}"
-			echo
-			exit
-			;;
-		-h-bs-a | --help-boot-strap-all)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " ${urc}${clr} Github action specific and Apine only. You probably dont need it${cend}"
-			echo
-			echo -e " Performs all bootstrapping options"
-			echo
-			echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-a${cend}"
-			echo
-			echo -e " ${uyc} ${cly}Patches${cend}"
-			echo -e " ${uyc} ${cly}Release info${cend}"
-			echo -e " ${uyc} ${cly}Cmake and ninja build${cend} if the ${clb}-c${cend} flag is passed"
-			echo -e " ${uyc} ${cly}Multi arch${cend} if the ${clb}-ma${cend} flag is passed"
-			echo
-			echo -e " Equivalent of doing: ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs -bs-r${cend}"
-			echo
-			echo -e " And with ${clb}-c${cend} and ${clb}-ma${cend} : ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs -bs-c -bs-ma -bs-r ${cend}"
-			echo
-			exit
-			;;
-		-h-c | --help-cmake)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " This flag can change the build process in a few ways."
-			echo
-			echo -e " ${uyc} Use cmake to build libtorrent."
-			echo -e " ${uyc} Use cmake to build qbittorrent."
-			echo
-			echo -e " ${uyc} You can use this flag with ICU and qtbase will use ICU instead of iconv."
-			echo
-			exit
-			;;
-		-h-d | --help-debug)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Enables debug symbols for libtorrent and qbitorrent when building - required for gdb backtrace"
-			echo
-			exit
-			;;
-		-h-n | --help-no-delete)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Skip all delete functions for selected modules to leave source code directories behind."
-			echo
-			echo -e " ${td}This flag is provided with no arguments.${cend}"
-			echo
-			echo -e " ${clb}-n${cend}"
-			echo
-			exit
-			;;
-		-h-i | --help-icu)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Use ICU libraries when building qBittorrent. Final binary size will be around ~50Mb"
-			echo
-			echo -e " ${td}This flag is provided with no arguments.${cend}"
-			echo
-			echo -e " ${clb}-i${cend}"
-			echo
-			exit
-			;;
-		-h-m | --help-master)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Always use the master branch for ${cg}libtorrent RC_${qbt_libtorrent_version//./_}${cend}"
-			echo
-			echo -e " Always use the master branch for ${cg}qBittorrent ${qbittorrent_github_tag/release-/}${cend}"
-			echo
-			echo -e " ${td}This flag is provided with no arguments.${cend}"
-			echo
-			echo -e " ${clb}-lm${cend}"
-			echo
-			exit
-			;;
-		-h-ma | --help-multi-arch)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " ${urc}${clr} Github action and ALpine specific. You probably dont need it${cend}"
-			echo
-			echo -e " This switch will make the script use the cross build configuration for these supported architectures"
-			echo
-			echo -e " ${uyc} armhf"
-			echo -e " ${uyc} armv7"
-			echo -e " ${uyc} aarch64"
-			echo
-			echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-ma ${qbt_cross_name:-aarch64}${cend}"
-			echo
-			echo -e " ${uyc} You can also set it as a variable to trigger cross building: ${clb}export qbt_cross_name=${qbt_cross_name:-aarch64}${cend}"
-			echo
-			exit
-			;;
-		-h-lm | --help-libtorrent-master)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Always use the master branch for ${cg}libtorrent-$qbt_libtorrent_version${cend}"
-			echo
-			echo -e " This master that will be used is: ${cg}RC_${qbt_libtorrent_version//./_}${cend}"
-			echo
-			echo -e " ${td}This flag is provided with no arguments.${cend}"
-			echo
-			echo -e " ${clb}-lm${cend}"
-			echo
-			exit
-			;;
-		-h-lt | --help-libtorrent-tag)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Use a provided libtorrent tag when cloning from github."
-			echo
-			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option.${cend}"
-			echo
-			echo -e " ${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend}${clb} -lt ${clc}${libtorrent_github_tag}${cend} ${clb}-h-lt${cend}"
-			if [[ ! "${libtorrent_github_tag}" =~ (error_tag|error_22) ]]; then
-				echo
-				echo -e " ${td}This is tag that will be used is: ${cg}${libtorrent_github_tag}${cend}"
-			fi
-			echo
-			echo -e " ${td}This flag must be provided with arguments.${cend}"
-			echo
-			echo -e " ${clb}-lt${cend} ${clc}${libtorrent_github_tag}${cend}"
-			echo
-			exit
-			;;
-		-h-pr | --help-patch-repo)
-			apply_patches bootstrap-help
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Specify a username and repo to use patches hosted on github${cend}"
-			echo
-			echo -e " ${cg}Example:${cend} ${clb}-pr${cend} ${clc}usnerame/repo${cend}"
-			echo
-			echo -e " ${cy}There is a specific github directory format you need to use with this flag${cend}"
-			echo
-			echo -e " ${clc}patches/libtorrent/$libtorrent_patch_tag/patch${cend}"
-			echo -e " ${clc}patches/libtorrent/$libtorrent_patch_tag/Jamfile${cend} ${clr}(defaults to branch master)${cend}"
-			echo
-			echo -e " ${clc}patches/qbittorrent/$qbittorrent_patch_tag/patch${cend}"
-			echo
-			echo -e " ${cy}If an installation tag matches a hosted tag patch file, it will be automaticlaly used.${cend}"
-			echo
-			echo -e " The tag name will alway be an abbreviated version of the default or specificed tag.${cend}"
-			echo
-			exit
-			;;
-		-h-qm | --help-qbittorrent-master)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Always use the master branch for ${cg}qBittorrent${cend}"
-			echo
-			echo -e " This master that will be used is: ${cg}master${cend}"
-			echo
-			echo -e " ${td}This flag is provided with no arguments.${cend}"
-			echo
-			echo -e " ${clb}-qm${cend}"
-			echo
-			exit
-			;;
-		-h-qt | --help-qbittorrent-tag)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Use a provided qBittorrent tag when cloning from github."
-			echo
-			echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option.${cend}"
-			echo
-			echo -e " ${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend}${clb} -qt ${clc}${qbittorrent_github_tag}${cend} ${clb}-h-qt${cend}"
-			#
-			if [[ ! "${qbittorrent_github_tag}" =~ (error_tag|error_22) ]]; then
-				echo
-				echo -e " ${td}This tag that will be used is: ${cg}${qbittorrent_github_tag}${cend}"
-			fi
-			echo
-			echo -e " ${td}This flag must be provided with arguments.${cend}"
-			echo
-			echo -e " ${clb}-qt${cend} ${clc}${qbittorrent_github_tag}${cend}"
-			echo
-			exit
-			;;
-		-h-s | --help-strip)
-			echo
-			echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			echo
-			echo -e " Strip the qbittorrent-nox binary of unneeded symbols to decrease file size"
-			echo
-			echo -e " ${uyc} Static musl builds don't work with qBittorrents built in stacktrace."
-			echo
-			echo -e " If you need to debug a build with gdb you must build a debug build using the flag ${clb}-d${cend}"
-			echo
-			echo -e " ${td}This flag is provided with no arguments.${cend}"
-			echo
-			echo -e " ${clb}-s${cend}"
-			echo
-			exit
-			;;
-		--) # end argument parsing
-			shift
-			break
-			;;
-		-*) # unsupported flags
-			echo -e "${tn} Error: Unsupported flag ${cr}$1${cend} - use ${cg}-h${cend} or ${cg}--help${cend} to see the valid options${tn}" >&2
 			exit 1
-			;;
-		*) # preserve positional arguments
-			params2+=("${1}")
-			shift
-			;;
+		fi
+		_multi_arch
+		shift
+		;;
+	-bs-a | --boot-strap-all)
+		apply_patches bootstrap
+		_release_info
+		_cmake
+		_multi_arch
+		shift
+		;;
+	-n | --no-delete)
+		qbt_skip_delete='yes'
+		shift
+		;;
+	-m | --master)
+		libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${qbt_libtorrent_version//./_}")"
+		test_git_ouput "${libtorrent_github_tag}" "RC_${qbt_libtorrent_version//./_}" "libtorrent"
+
+		qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
+		test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
+		override_workflow="yes"
+		shift
+		;;
+	-lm | --libtorrent-master)
+		libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "RC_${qbt_libtorrent_version//./_}")"
+		test_git_ouput "${libtorrent_github_tag}" "RC_${qbt_libtorrent_version//./_}" "libtorrent"
+		override_workflow="yes"
+		shift
+		;;
+	-lt | --libtorrent-tag)
+		libtorrent_github_tag="$(git "${libtorrent_github_url}" -t "$2")"
+		test_git_ouput "${libtorrent_github_tag}" "$2" "libtorrent"
+		override_workflow="yes"
+		shift 2
+		;;
+	-pr | --patch-repo)
+		if [[ "$(curl "https://github.com/${2}")" != 'error_url' ]]; then
+			qbt_patches_url="${2}"
+		else
+			echo
+			echo -e " ${cy}This repo does not exist:${cend}"
+			echo
+			echo -e " https://github.com/${2}"
+			echo
+			echo -e " ${cy}Please provide a valid username and repo.${cend}"
+			echo
+			exit
+		fi
+		shift 2
+		;;
+	-qm | --qbittorrent-master)
+		qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "master")"
+		test_git_ouput "${qbittorrent_github_tag}" "master" "qbittorrent"
+		override_workflow="yes"
+		shift
+		;;
+	-qt | --qbittorrent-tag)
+		qbittorrent_github_tag="$(git "${qbittorrent_github_url}" -t "$2")"
+		test_git_ouput "${qbittorrent_github_tag}" "$2" "qbittorrent"
+		override_workflow="yes"
+		shift 2
+		;;
+	-h | --help)
+		echo
+		echo -e " ${tb}${tu}Here are a list of available options${cend}"
+		echo
+		echo -e " ${cg}Use:${cend} ${clb}-b${cend}     ${td}or${cend} ${clb}--build-directory${cend}       ${cy}Help:${cend} ${clb}-h-b${cend}     ${td}or${cend} ${clb}--help-build-directory${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-bv${cend}    ${td}or${cend} ${clb}--boost-version${cend}         ${cy}Help:${cend} ${clb}-h-bv${cend}    ${td}or${cend} ${clb}--help-boost-version${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-c${cend}     ${td}or${cend} ${clb}--cmake${cend}                 ${cy}Help:${cend} ${clb}-h-c${cend}     ${td}or${cend} ${clb}--help-cmake${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-d${cend}     ${td}or${cend} ${clb}--debug${cend}                 ${cy}Help:${cend} ${clb}-h-d${cend}     ${td}or${cend} ${clb}--help-debug${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-bs${cend}    ${td}or${cend} ${clb}--boot-strap${cend}            ${cy}Help:${cend} ${clb}-h-bs${cend}    ${td}or${cend} ${clb}--help-boot-strap${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-bs-c${cend}  ${td}or${cend} ${clb}--boot-strap-cmake${cend}      ${cy}Help:${cend} ${clb}-h-bs-c${cend}  ${td}or${cend} ${clb}--help-boot-strap-cmake${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-bs-r${cend}  ${td}or${cend} ${clb}--boot-strap-release${cend}    ${cy}Help:${cend} ${clb}-h-bs-r${cend}  ${td}or${cend} ${clb}--help-boot-strap-release${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-bs-ma${cend} ${td}or${cend} ${clb}--boot-strap-multi-arch${cend} ${cy}Help:${cend} ${clb}-h-bs-ma${cend} ${td}or${cend} ${clb}--help-boot-strap-multi-arch${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-bs-a${cend}  ${td}or${cend} ${clb}--boot-strap-all${cend}        ${cy}Help:${cend} ${clb}-h-bs-a${cend}  ${td}or${cend} ${clb}--help-boot-strap-all${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-i${cend}     ${td}or${cend} ${clb}--icu${cend}                   ${cy}Help:${cend} ${clb}-h-i${cend}     ${td}or${cend} ${clb}--help-icu${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-lm${cend}    ${td}or${cend} ${clb}--libtorrent-master${cend}     ${cy}Help:${cend} ${clb}-h-lm${cend}    ${td}or${cend} ${clb}--help-libtorrent-master${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-lt${cend}    ${td}or${cend} ${clb}--libtorrent-tag${cend}        ${cy}Help:${cend} ${clb}-h-lt${cend}    ${td}or${cend} ${clb}--help-libtorrent-tag${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-m${cend}     ${td}or${cend} ${clb}--master${cend}                ${cy}Help:${cend} ${clb}-h-m${cend}     ${td}or${cend} ${clb}--help-master${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-ma${cend}    ${td}or${cend} ${clb}--multi-arch${cend}            ${cy}Help:${cend} ${clb}-h-ma${cend}    ${td}or${cend} ${clb}--help-multi-arch${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-n${cend}     ${td}or${cend} ${clb}--no-delete${cend}             ${cy}Help:${cend} ${clb}-h-n${cend}     ${td}or${cend} ${clb}--help-no-delete${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-o${cend}     ${td}or${cend} ${clb}--optimize${cend}              ${cy}Help:${cend} ${clb}-h-o${cend}     ${td}or${cend} ${clb}--help-optimize${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-p${cend}     ${td}or${cend} ${clb}--proxy${cend}                 ${cy}Help:${cend} ${clb}-h-p${cend}     ${td}or${cend} ${clb}--help-proxy${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-pr${cend}    ${td}or${cend} ${clb}--patch-repo${cend}            ${cy}Help:${cend} ${clb}-h-pr${cend}    ${td}or${cend} ${clb}--help-patch-repo${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-qm${cend}    ${td}or${cend} ${clb}--qbittorrent-master${cend}    ${cy}Help:${cend} ${clb}-h-qm${cend}    ${td}or${cend} ${clb}--help-qbittorrent-master${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-qt${cend}    ${td}or${cend} ${clb}--qbittorrent-tag${cend}       ${cy}Help:${cend} ${clb}-h-qt${cend}    ${td}or${cend} ${clb}--help-qbittorrent-tag${cend}"
+		echo -e " ${cg}Use:${cend} ${clb}-s${cend}     ${td}or${cend} ${clb}--strip${cend}                 ${cy}Help:${cend} ${clb}-h-s${cend}     ${td}or${cend} ${clb}--help-strip${cend}"
+		echo
+		echo -e " ${tb}${tu}Module specific help - flags are used with the modules listed here.${cend}"
+		echo
+		echo -e " ${cg}Use:${cend} ${clm}all${cend} ${td}or${cend} ${clm}module-name${cend}          ${cg}Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clm}all${cend} ${clb}-i${cend}"
+		echo
+		echo -e " ${td}${clm}all${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Recommended method to install all modules${cend}"
+		echo -e " ${td}${clm}install${cend} ${td}------------${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qbt_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
+		[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
+		[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
+		[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
+		echo -e " ${td}${clm}zlib${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
+		echo -e " ${td}${clm}iconv${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build iconv locally${cend}"
+		echo -e " ${td}${clm}icu${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Build ICU locally${cend}"
+		echo -e " ${td}${clm}openssl${cend} ${td}------------${cend} ${td}${clr}required${cend} ${td}Build openssl locally${cend}"
+		echo -e " ${td}${clm}boost${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Download, extract and build the boost library files${cend}"
+		echo -e " ${td}${clm}libtorrent${cend} ${td}---------${cend} ${td}${clr}required${cend} ${td}Build libtorrent locally${cend}"
+		echo -e " ${td}${clm}double_conversion${cend} ${td}--${cend} ${td}${clr}required${cend} ${td}A cmakke + Qt6 build compenent on modern OS only.${cend}"
+		echo -e " ${td}${clm}qtbase${cend} ${td}-------------${cend} ${td}${clr}required${cend} ${td}Build qtbase locally${cend}"
+		echo -e " ${td}${clm}qttools${cend} ${td}------------${cend} ${td}${clr}required${cend} ${td}Build qttools locally${cend}"
+		echo -e " ${td}${clm}qbittorrent${cend} ${td}--------${cend} ${td}${clr}required${cend} ${td}Build qbittorrent locally${cend}"
+		echo
+		echo -e " ${tb}${tu}env help - supported exportable evironment variables${cend}"
+		echo
+		echo -e " ${td}${clm}export qbt_libtorrent_version=\"\"${cend} ${td}--------${cend} ${td}${clr}options${cend} ${td}1.2 - 2.0${cend}"
+		echo -e " ${td}${clm}export qbt_qt_version=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}5 - 5.15 - 6 - 6.2 - 6.3 and so on${cend}"
+		echo -e " ${td}${clm}export qbt_build_tool=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}qmake - cmake${cend}"
+		echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}x86_64 - aarch64 - armv7 - armhf${cend}"
+		echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static.${cend}"
+		echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files for dependencies${cend}"
+		echo -e " ${td}${clm}export qbt_libtorrent_master_jamfile=\"\"${cend} ${td}-${cend} ${td}${clr}options${cend} ${td}yes no - use RC branch instead of release jamfile${cend}"
+		echo -e " ${td}${clm}export qbt_optimise_strip=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - strip binaries - cannot be used with debug${cend}"
+		echo -e " ${td}${clm}export qbt_build_debug=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}yes no - debug build - cannot be used with strip${cend}"
+		echo
+		echo -e " ${tb}${tu}Currrent settings${cend}"
+		echo
+		echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
+		echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
+		echo -e " ${cly}qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
+		echo -e " ${cly}qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
+		echo -e " ${cly}qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
+		echo -e " ${cly}qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
+		echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
+		echo -e " ${cly}qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
+		echo -e " ${cly}qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}${tn}"
+		echo
+		exit
+		;;
+	-h-b | --help-build-directory)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Default build location: ${cc}${qbt_install_dir_short}${cend}"
+		echo
+		echo -e " ${clb}-b${cend} or ${clb}--build-directory${cend} to set the location of the build directory."
+		echo
+		echo -e " ${cy}Paths are relative to the script location. I recommend that you use a full path.${cend}"
+		echo
+		echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}all${cend} ${td}- Will install all modules and build libtorrent to the default build location${cend}"
+		echo
+		echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}all ${clb}-b${cend} ${td}${clc}\"\$HOME/build\"${cend} ${td}- Will specify a build directory and install all modules to that custom location${cend}"
+		echo
+		echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}module${cend} ${td}- Will install a single module to the default build location${cend}"
+		echo
+		echo -e " ${td}Example:${cend} ${td}${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${td}${clm}module${cend} ${clb}-b${cend} ${td}${clc}\"\$HOME/build\"${cend} ${td}- will specify a custom build directory and install a specific module use to that custom location${cend}"
+		#
+		echo
+		exit
+		;;
+	-h-bs | --help-boot-strap)
+		apply_patches bootstrap-help
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Creates dirs in this structure: ${cc}${qbt_install_dir_short}/patches/APPNAME/TAG/patch${cend}"
+		echo
+		echo -e " Add your patches there, for example."
+		echo
+		echo -e " ${cc}${qbt_install_dir_short}/patches/libtorrent/${libtorrent_patch_tag}/patch${cend}"
+		echo
+		echo -e " ${cc}${qbt_install_dir_short}/patches/qbittorrent/${qbittorrent_patch_tag}/patch${cend}"
+		echo
+		exit
+		;;
+	-h-bs-c | --help-boot-cmake)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " This bootstrap will install cmake and ninja build to the build directory"
+
+		echo
+		echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-c${cend}"
+		echo
+		exit
+		;;
+	-h-bs-r | --help-boot-strap-release)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e "${clr} Github action specific. You probably dont need it${cend}"
+		echo
+		echo -e " This switch creates some github release template files in this directory"
+		echo
+		echo -e " ${qbt_install_dir_short}/release_info"
+		echo
+		echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-r${cend}"
+		echo
+		exit
+		;;
+	-h-bs-ma | --help-boot-strap-multi-arch)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " ${urc}${clr} Github action and ALpine specific. You probably dont need it${cend}"
+		echo
+		echo -e " This switch bootstraps the musl cross build files needed for any provided and supported architecture"
+		echo
+		echo -e " ${uyc} armhf"
+		echo -e " ${uyc} armv7"
+		echo -e " ${uyc} aarch64"
+		echo
+		echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-ma ${qbt_cross_name:-aarch64}${cend}"
+		echo
+		echo -e " ${uyc} You can also set it as a variable to trigger cross building: ${clb}export qbt_cross_name=${qbt_cross_name:-aarch64}${cend}"
+		echo
+		exit
+		;;
+	-h-bs-a | --help-boot-strap-all)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " ${urc}${clr} Github action specific and Apine only. You probably dont need it${cend}"
+		echo
+		echo -e " Performs all bootstrapping options"
+		echo
+		echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-a${cend}"
+		echo
+		echo -e " ${uyc} ${cly}Patches${cend}"
+		echo -e " ${uyc} ${cly}Release info${cend}"
+		echo -e " ${uyc} ${cly}Cmake and ninja build${cend} if the ${clb}-c${cend} flag is passed"
+		echo -e " ${uyc} ${cly}Multi arch${cend} if the ${clb}-ma${cend} flag is passed"
+		echo
+		echo -e " Equivalent of doing: ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs -bs-r${cend}"
+		echo
+		echo -e " And with ${clb}-c${cend} and ${clb}-ma${cend} : ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs -bs-c -bs-ma -bs-r ${cend}"
+		echo
+		exit
+		;;
+	-h-c | --help-cmake)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " This flag can change the build process in a few ways."
+		echo
+		echo -e " ${uyc} Use cmake to build libtorrent."
+		echo -e " ${uyc} Use cmake to build qbittorrent."
+		echo
+		echo -e " ${uyc} You can use this flag with ICU and qtbase will use ICU instead of iconv."
+		echo
+		exit
+		;;
+	-h-d | --help-debug)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Enables debug symbols for libtorrent and qbitorrent when building - required for gdb backtrace"
+		echo
+		exit
+		;;
+	-h-n | --help-no-delete)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Skip all delete functions for selected modules to leave source code directories behind."
+		echo
+		echo -e " ${td}This flag is provided with no arguments.${cend}"
+		echo
+		echo -e " ${clb}-n${cend}"
+		echo
+		exit
+		;;
+	-h-i | --help-icu)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Use ICU libraries when building qBittorrent. Final binary size will be around ~50Mb"
+		echo
+		echo -e " ${td}This flag is provided with no arguments.${cend}"
+		echo
+		echo -e " ${clb}-i${cend}"
+		echo
+		exit
+		;;
+	-h-m | --help-master)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Always use the master branch for ${cg}libtorrent RC_${qbt_libtorrent_version//./_}${cend}"
+		echo
+		echo -e " Always use the master branch for ${cg}qBittorrent ${qbittorrent_github_tag/release-/}${cend}"
+		echo
+		echo -e " ${td}This flag is provided with no arguments.${cend}"
+		echo
+		echo -e " ${clb}-lm${cend}"
+		echo
+		exit
+		;;
+	-h-ma | --help-multi-arch)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " ${urc}${clr} Github action and ALpine specific. You probably dont need it${cend}"
+		echo
+		echo -e " This switch will make the script use the cross build configuration for these supported architectures"
+		echo
+		echo -e " ${uyc} armhf"
+		echo -e " ${uyc} armv7"
+		echo -e " ${uyc} aarch64"
+		echo
+		echo -e "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-ma ${qbt_cross_name:-aarch64}${cend}"
+		echo
+		echo -e " ${uyc} You can also set it as a variable to trigger cross building: ${clb}export qbt_cross_name=${qbt_cross_name:-aarch64}${cend}"
+		echo
+		exit
+		;;
+	-h-lm | --help-libtorrent-master)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Always use the master branch for ${cg}libtorrent-$qbt_libtorrent_version${cend}"
+		echo
+		echo -e " This master that will be used is: ${cg}RC_${qbt_libtorrent_version//./_}${cend}"
+		echo
+		echo -e " ${td}This flag is provided with no arguments.${cend}"
+		echo
+		echo -e " ${clb}-lm${cend}"
+		echo
+		exit
+		;;
+	-h-lt | --help-libtorrent-tag)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Use a provided libtorrent tag when cloning from github."
+		echo
+		echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option.${cend}"
+		echo
+		echo -e " ${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend}${clb} -lt ${clc}${libtorrent_github_tag}${cend} ${clb}-h-lt${cend}"
+		if [[ ! "${libtorrent_github_tag}" =~ (error_tag|error_22) ]]; then
+			echo
+			echo -e " ${td}This is tag that will be used is: ${cg}${libtorrent_github_tag}${cend}"
+		fi
+		echo
+		echo -e " ${td}This flag must be provided with arguments.${cend}"
+		echo
+		echo -e " ${clb}-lt${cend} ${clc}${libtorrent_github_tag}${cend}"
+		echo
+		exit
+		;;
+	-h-pr | --help-patch-repo)
+		apply_patches bootstrap-help
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Specify a username and repo to use patches hosted on github${cend}"
+		echo
+		echo -e " ${cg}Example:${cend} ${clb}-pr${cend} ${clc}usnerame/repo${cend}"
+		echo
+		echo -e " ${cy}There is a specific github directory format you need to use with this flag${cend}"
+		echo
+		echo -e " ${clc}patches/libtorrent/$libtorrent_patch_tag/patch${cend}"
+		echo -e " ${clc}patches/libtorrent/$libtorrent_patch_tag/Jamfile${cend} ${clr}(defaults to branch master)${cend}"
+		echo
+		echo -e " ${clc}patches/qbittorrent/$qbittorrent_patch_tag/patch${cend}"
+		echo
+		echo -e " ${cy}If an installation tag matches a hosted tag patch file, it will be automaticlaly used.${cend}"
+		echo
+		echo -e " The tag name will alway be an abbreviated version of the default or specificed tag.${cend}"
+		echo
+		exit
+		;;
+	-h-qm | --help-qbittorrent-master)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Always use the master branch for ${cg}qBittorrent${cend}"
+		echo
+		echo -e " This master that will be used is: ${cg}master${cend}"
+		echo
+		echo -e " ${td}This flag is provided with no arguments.${cend}"
+		echo
+		echo -e " ${clb}-qm${cend}"
+		echo
+		exit
+		;;
+	-h-qt | --help-qbittorrent-tag)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Use a provided qBittorrent tag when cloning from github."
+		echo
+		echo -e " ${cy}You can use this flag with this help command to see the value if called before the help option.${cend}"
+		echo
+		echo -e " ${cg}${qbt_working_dir_short}/$(basename -- "$0")${cend}${clb} -qt ${clc}${qbittorrent_github_tag}${cend} ${clb}-h-qt${cend}"
+		#
+		if [[ ! "${qbittorrent_github_tag}" =~ (error_tag|error_22) ]]; then
+			echo
+			echo -e " ${td}This tag that will be used is: ${cg}${qbittorrent_github_tag}${cend}"
+		fi
+		echo
+		echo -e " ${td}This flag must be provided with arguments.${cend}"
+		echo
+		echo -e " ${clb}-qt${cend} ${clc}${qbittorrent_github_tag}${cend}"
+		echo
+		exit
+		;;
+	-h-s | --help-strip)
+		echo
+		echo -e " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+		echo
+		echo -e " Strip the qbittorrent-nox binary of unneeded symbols to decrease file size"
+		echo
+		echo -e " ${uyc} Static musl builds don't work with qBittorrents built in stacktrace."
+		echo
+		echo -e " If you need to debug a build with gdb you must build a debug build using the flag ${clb}-d${cend}"
+		echo
+		echo -e " ${td}This flag is provided with no arguments.${cend}"
+		echo
+		echo -e " ${clb}-s${cend}"
+		echo
+		exit
+		;;
+	--) # end argument parsing
+		shift
+		break
+		;;
+	-*) # unsupported flags
+		echo -e "${tn} Error: Unsupported flag ${cr}$1${cend} - use ${cg}-h${cend} or ${cg}--help${cend} to see the valid options${tn}" >&2
+		exit 1
+		;;
+	*) # preserve positional arguments
+		params2+=("${1}")
+		shift
+		;;
 	esac
 done
 
@@ -1930,7 +1930,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' || "${1}" == "${app_name}" ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${zlib_version}"
 
 		# force set some ARCH when using zlib-ng, cmake and musl-cross since it does detect the arch correctly.
-		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && echo -e "\narchfound ${qbt_zlib_arch:-x86_64}" >> "${qbt_install_dir}/zlib/cmake/detect-arch.c"
+		[[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && echo -e "\narchfound ${qbt_zlib_arch:-x86_64}" >>"${qbt_install_dir}/zlib/cmake/detect-arch.c"
 
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${zlib_version}/dep-graph.dot" -G Ninja -B build \
 			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
@@ -2144,7 +2144,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 			#
 			libtorrent_strings_version="$(strings -d "${lib_dir}/${libtorrent_library_filename}" | grep -Eom1 "^libtorrent/[0-9]\.(.*)")" # ${libtorrent_strings_version#*/}
 			#
-			cat > "${PKG_CONFIG_PATH}/libtorrent-rasterbar.pc" <<- LIBTORRENT_PKG_CONFIG
+			cat >"${PKG_CONFIG_PATH}/libtorrent-rasterbar.pc" <<-LIBTORRENT_PKG_CONFIG
 				prefix=${qbt_install_dir}
 				libdir=\${prefix}/lib
 				includedir=\${prefix}/include
@@ -2211,12 +2211,12 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 	download_file "${app_name}" "${!app_url}"
 
 	case "${qbt_cross_name}" in
-		armhf | armv7)
-			sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "mkspecs/linux-arm-gnueabi-g++/qmake.conf"
-			;;
-		aarch64)
-			sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "mkspecs/linux-aarch64-gnu-g++/qmake.conf"
-			;;
+	armhf | armv7)
+		sed "s|arm-linux-gnueabi|${qbt_cross_host}|g" -i "mkspecs/linux-arm-gnueabi-g++/qmake.conf"
+		;;
+	aarch64)
+		sed "s|aarch64-linux-gnu|${qbt_cross_host}|g" -i "mkspecs/linux-aarch64-gnu-g++/qmake.conf"
+		;;
 	esac
 
 	if [[ "${qbt_build_tool}" == 'cmake' && "${qbt_qt_version}" =~ ^6 ]]; then
@@ -2253,7 +2253,7 @@ if [[ "${!app_name_skip:-yes}" == 'no' ]] || [[ "${1}" == "${app_name}" ]]; then
 		sed '/^#  include <utility>/a #  include <limits>' -i "src/corelib/global/qglobal.h"
 
 		# Don't strip by default by disabling these options. We will set it as off by default and use it with a switch
-		echo "CONFIG                 += ${qbt_strip_qmake}" >> "mkspecs/common/linux.conf"
+		echo "CONFIG                 += ${qbt_strip_qmake}" >>"mkspecs/common/linux.conf"
 
 		./configure "${multi_qtbase[@]}" -prefix "${qbt_install_dir}" "${icu[@]}" -opensource -confirm-license -release \
 			-openssl-linked -static -c++std "${cxx_standard}" -qt-pcre \
