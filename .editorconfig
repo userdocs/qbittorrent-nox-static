@@ -8,6 +8,25 @@ insert_final_newline = true
 indent_style = tab
 indent_size = 4
 
+[{**.*sh,test/run,**.bats}]
+indent_size = 4
+indent_style = tab
+
+shell_variant      = bash
+binary_next_line   = true  # like -bn
+switch_case_indent = true  # like -ci
+space_redirects    = true  # like -sr
+keep_padding       = false # like -kp
+end_of_line        = lf
+charset            = utf-8
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[**.bats]
+indent_size = tab
+indent_style = tab
+shell_variant	= bats
+
 [.vscode/settings.json]
 indent_style = tab
 indent_size = 4
