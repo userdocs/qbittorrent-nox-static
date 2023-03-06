@@ -21,7 +21,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="1.0.4"
+script_version="1.0.5"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -102,6 +102,21 @@ set_default_values() {
 	qbt_optimise_strip="${qbt_optimise_strip:-no}"                          # Strip by default as we need full debug builds to be useful gdb to backtrace
 	qbt_revision_url="${qbt_revision_url:-userdocs/qbittorrent-nox-static}" # The workflow will set this dynamically so that the urls are not hardcoded to a single repo
 	qbt_workflow_type="${qbt_workflow_type:-standard}"                      # Build revisions - standard increments the revision version automatically in the script on build - The legacy workflow disables this and it is incremented by the workflow instead.
+	qbt_debian_mode="${qbt_debian_mode:-standard}"                          # In standard mode gawk and bison are installed via apt-get as system dependencies. In alternate mode they are built from source.
+
+	_print_env() {
+		printf '\n%b\n\n' " ${uyc} Default env settings${cend}"
+		printf '%b\n' " ${cly}  qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_debian_mode=\"${clg}${qbt_debian_mode}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
+		printf '%b\n' " ${cly}  qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
+		printf '%b\n\n' " ${cly}  qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}"
+	}
 
 	if [[ "${qbt_build_debug}" = 'yes' ]]; then
 		qbt_optimise_strip='no'
@@ -167,7 +182,9 @@ set_default_values() {
 	fi
 
 	if [[ "${what_id}" =~ ^(debian|ubuntu)$ ]]; then # if debian based then set the required packages array
-		qbt_required_pkgs=("build-essential" "crossbuild-essential-${cross_arch}" "curl" "pkg-config" "automake" "libtool" "git" "openssl" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "python${qbt_python_version}-numpy" "unzip" "graphviz" "re2c")
+		[[ "${qbt_debian_mode}" == 'alternate' ]] && delete_pkgs+=("gawk" "bison")
+		[[ "${qbt_debian_mode}" == 'standard' ]] && delete+=("bison" "gawk")
+		qbt_required_pkgs=("gettext" "texinfo" "gawk" "bison" "build-essential" "crossbuild-essential-${cross_arch}" "curl" "pkg-config" "automake" "libtool" "git" "openssl" "perl" "python${qbt_python_version}" "python${qbt_python_version}-dev" "python${qbt_python_version}-numpy" "unzip" "graphviz" "re2c")
 	fi
 
 	if [[ "${1}" != 'install' ]]; then # remove this module by default unless provided as a first argument to the script.
@@ -320,6 +337,10 @@ while (("${#}")); do
 			qbt_build_debug='yes'
 			shift
 			;;
+		-dma | --debian-mode-alternate)
+			qbt_debian_mode="alternate"
+			shift
+			;;
 		-i | --icu)
 			qbt_skip_icu='no'
 			[[ "${qbt_skip_icu}" == 'no' ]] && delete=("${delete[@]/icu/}")
@@ -365,6 +386,13 @@ while (("${#}")); do
 			echo
 			echo -e " Example: ${clb}-bv 1.76.0${cend}"
 			echo
+			exit
+			;;
+		-h-dma | --help-debian-mode-alternate)
+			printf '\n%b\n' " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
+			printf '\n%b\n' " This modes builds the dependencies ${clm}gawk${cend} and ${clm}bison${cend} from source"
+			printf '\n%b\n' " In the standard mode they are installed via ${clm}apt-get${cend} as dependencies"
+			printf '\n%b\n\n' " Example: ${clb}-dma${cend}"
 			exit
 			;;
 		-h-o | --help-optimize)
@@ -543,10 +571,11 @@ set_module_urls() {
 
 	if [[ ! "${what_id}" =~ ^(alpine)$ ]]; then
 		if [[ "${what_version_codename}" =~ ^(jammy)$ ]]; then
-			#glibc_version="$(git_git ls-remote -q -t --refs https://sourceware.org/git/glibc.git | awk '/\/tags\/glibc-[0-9]\.[0-9]{2}$/{sub("refs/tags/glibc-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-			#glibc_url="https://ftp.gnu.org/gnu/libc/glibc-${glibc_version}.tar.gz"
-			#glibc_url="https://ftp.gnu.org/gnu/glibc/$(grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl https://ftp.gnu.org/gnu/glibc/) | sort -V | tail -1)"
-			glibc_url="https://ftp.gnu.org/gnu/libc/glibc-2.35.tar.gz" # pin to the same version for this OS otherwise we get build errors
+			# https://www.gnu.org/software/libc/sources.html
+			# glibc_version="$(git_git ls-remote -q -t --refs https://sourceware.org/git/glibc.git | awk '/\/tags\/glibc-[0-9]\.[0-9]{2}$/{sub("refs/tags/glibc-", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
+			# glibc_url="https://ftp.gnu.org/gnu/libc/glibc-${glibc_version}.tar.gz"
+			# glibc_url="https://ftp.gnu.org/gnu/glibc/$(grep -Eo 'glibc-([0-9]{1,3}[.]?)([0-9]{1,3}[.]?)([0-9]{1,3}?)\.tar.gz' <(curl https://ftp.gnu.org/gnu/glibc/) | sort -V | tail -1)"
+			glibc_url="https://ftp.gnu.org/gnu/libc/glibc-2.37.tar.gz" # pin to the same version for this OS otherwise we get build errors
 		else
 			glibc_url="https://ftp.gnu.org/gnu/libc/glibc-2.31.tar.gz" # pin to the same version for this OS otherwise we get build errors
 		fi
@@ -723,17 +752,10 @@ _installation_modules() {
 	else
 		echo -e "${tn} ${tbk}${urc}${bkend}${tb} One or more of the provided modules are not supported${cend}"
 		echo -e "${tn} ${uyc}${tb} Below is a list of supported modules${cend}"
-		echo -e "${tn} ${umc}${clm} ${qbt_modules[*]}${cend}${tn}"
-		echo -e " ${uyc} Default env settings${cend}${tn}"
-		echo -e " ${cly}  qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
-		echo -e " ${cly}  qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}${tn}"
+		echo -e "${tn} ${umc}${clm} ${qbt_modules[*]}${cend}"
+
+		_print_env
+
 		exit
 	fi
 }
@@ -1461,6 +1483,7 @@ while (("${#}")); do
 			echo -e " ${cg}Use:${cend} ${clb}-bv${cend}    ${td}or${cend} ${clb}--boost-version${cend}         ${cy}Help:${cend} ${clb}-h-bv${cend}    ${td}or${cend} ${clb}--help-boost-version${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-c${cend}     ${td}or${cend} ${clb}--cmake${cend}                 ${cy}Help:${cend} ${clb}-h-c${cend}     ${td}or${cend} ${clb}--help-cmake${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-d${cend}     ${td}or${cend} ${clb}--debug${cend}                 ${cy}Help:${cend} ${clb}-h-d${cend}     ${td}or${cend} ${clb}--help-debug${cend}"
+			echo -e " ${cg}Use:${cend} ${clb}-dma${cend}   ${td}or${cend} ${clb}--debian-mode-alternate${cend} ${cy}Help:${cend} ${clb}-h-dma${cend}   ${td}or${cend} ${clb}--help-debian-mode-alternate${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-bs${cend}    ${td}or${cend} ${clb}--boot-strap${cend}            ${cy}Help:${cend} ${clb}-h-bs${cend}    ${td}or${cend} ${clb}--help-boot-strap${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-bs-c${cend}  ${td}or${cend} ${clb}--boot-strap-cmake${cend}      ${cy}Help:${cend} ${clb}-h-bs-c${cend}  ${td}or${cend} ${clb}--help-boot-strap-cmake${cend}"
 			echo -e " ${cg}Use:${cend} ${clb}-bs-r${cend}  ${td}or${cend} ${clb}--boot-strap-release${cend}    ${cy}Help:${cend} ${clb}-h-bs-r${cend}  ${td}or${cend} ${clb}--help-boot-strap-release${cend}"
@@ -1485,8 +1508,8 @@ while (("${#}")); do
 			echo
 			echo -e " ${td}${clm}all${cend} ${td}----------------${cend} ${td}${cly}optional${cend} ${td}Recommended method to install all modules${cend}"
 			echo -e " ${td}${clm}install${cend} ${td}------------${cend} ${td}${cly}optional${cend} ${td}Install the ${td}${clc}${qbt_install_dir_short}/completed/qbittorrent-nox${cend} ${td}binary${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build bison${cend}"
-			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build gawk${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e "${td} ${clm}bison${cend} ${td}--------------${cend} ${td}${cly}optional${cend} ${td}Build bison${cend}"
+			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}gawk${cend} ${td}---------------${cend} ${td}${cly}optional${cend} ${td}Build gawk${cend}"
 			[[ "${what_id}" =~ ^(debian|ubuntu)$ ]] && echo -e " ${td}${clm}glibc${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build libc locally to statically link nss${cend}"
 			echo -e " ${td}${clm}zlib${cend} ${td}---------------${cend} ${td}${clr}required${cend} ${td}Build zlib locally${cend}"
 			echo -e " ${td}${clm}iconv${cend} ${td}--------------${cend} ${td}${clr}required${cend} ${td}Build iconv locally${cend}"
@@ -1507,22 +1530,13 @@ while (("${#}")); do
 			echo -e " ${td}${clm}export qbt_cross_name=\"\"${cend} ${td}----------------${cend} ${td}${clr}options${cend} ${td}x86_64 - aarch64 - armv7 - armhf${cend}"
 			echo -e " ${td}${clm}export qbt_patches_url=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}userdocs/qbittorrent-nox-static.${cend}"
 			echo -e " ${td}${clm}export qbt_workflow_files=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - use qbt-workflow-files for dependencies${cend}"
+			echo -e " ${td}${clm}export qbt_debian_mode=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}standard alternate - defaults to standard${cend}"
 			echo -e " ${td}${clm}export qbt_libtorrent_master_jamfile=\"\"${cend} ${td}-${cend} ${td}${clr}options${cend} ${td}yes no - use RC branch instead of release jamfile${cend}"
 			echo -e " ${td}${clm}export qbt_optimise_strip=\"\"${cend} ${td}------------${cend} ${td}${clr}options${cend} ${td}yes no - strip binaries - cannot be used with debug${cend}"
 			echo -e " ${td}${clm}export qbt_build_debug=\"\"${cend} ${td}---------------${cend} ${td}${clr}options${cend} ${td}yes no - debug build - cannot be used with strip${cend}"
-			echo
-			echo -e " ${tb}${tu}Currrent settings${cend}"
-			echo
-			echo -e " ${cly}qbt_libtorrent_version=\"${clg}${qbt_libtorrent_version}${cly}\"${cend}"
-			echo -e " ${cly}qbt_qt_version=\"${clg}${qbt_qt_version}${cly}\"${cend}"
-			echo -e " ${cly}qbt_build_tool=\"${clg}${qbt_build_tool}${cly}\"${cend}"
-			echo -e " ${cly}qbt_cross_name=\"${clg}${qbt_cross_name}${cly}\"${cend}"
-			echo -e " ${cly}qbt_patches_url=\"${clg}${qbt_patches_url}${cly}\"${cend}"
-			echo -e " ${cly}qbt_workflow_files=\"${clg}${qbt_workflow_files}${cly}\"${cend}"
-			echo -e " ${cly}qbt_libtorrent_master_jamfile=\"${clg}${qbt_libtorrent_master_jamfile}${cly}\"${cend}"
-			echo -e " ${cly}qbt_optimise_strip=\"${clg}${qbt_optimise_strip}${cly}\"${cend}"
-			echo -e " ${cly}qbt_build_debug=\"${clg}${qbt_build_debug}${cly}\"${cend}${tn}"
-			echo
+
+			_print_env
+
 			exit
 			;;
 		-h-b | --help-build-directory)
