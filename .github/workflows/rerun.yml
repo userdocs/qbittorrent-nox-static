@@ -1,0 +1,41 @@
+name: rerun failed jobs with gh cli
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        required: true
+      attempts:
+        required: true
+      retries:
+        required: true
+
+jobs:
+  gh-cli-rerun:
+    name: rerun - attempt ${{ inputs.attempts }}
+    permissions:
+      actions: write
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+      - name: Host - Checkout action
+        uses: actions/checkout@v3
+
+      - name: gh cli rerun and summaries
+        if: inputs.attempts < inputs.retries
+        run: |
+          failures="$(gh run view ${{ inputs.run_id }} --log-failed | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g")"
+          [[ -z "${failures}" ]] && failures="$(gh run view ${{ inputs.run_id }} | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g")"
+          gh run rerun ${{ inputs.run_id }} --failed
+
+          printf '%b\n' "# gh cli workflow reruns" >> $GITHUB_STEP_SUMMARY
+          printf '\n%b\n' ":octocat: Here is a summary of inputs from the failed workflow" >> $GITHUB_STEP_SUMMARY
+          printf '\n%b\n' "🟥 Failures at:\n\n\`\`\`log\n${failures}\n\`\`\`" >> $GITHUB_STEP_SUMMARY
+          printf '\n%b\n' "🟦 Attempt: ${{ inputs.attempts }} - Rerun failed jobs in ${{ inputs.run_id }} :hammer:" >> $GITHUB_STEP_SUMMARY
+
+          if gh run watch ${{ inputs.run_id }} --exit-status; then
+              printf '\n%b\n' "✅ Attempt: ${{ inputs.attempts }} succeeded 😺" >> $GITHUB_STEP_SUMMARY
+          else
+              printf '\n%b\n' "❌ Attempt: ${{ inputs.attempts }} failed 😾" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -5,6 +5,18 @@ on:
       - "qbittorrent-nox-static.sh"
   pull_request:
   workflow_dispatch:
+    inputs:
+      distinct_id:
+      skip_rerun:
+        description: "Skip rerun?"
+        required: true
+        type: boolean
+      retries:
+        description: 'Number of rerun retries'
+        required: true
+        default: '5'
+        type: choice
+        options: [ "1", "2", "3", "4", "5", "6", "7", "8", "9" ]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -63,13 +75,11 @@ jobs:
         if: matrix.build_tool == 'cmake' && matrix.container_codename == 'bionic'
         run: |
           apt-get install -y gcc-8 g++-8
-          echo "CC=gcc-8" >> $GITHUB_ENV
-          echo "AR=gcc-ar-8" >> $GITHUB_ENV
-          echo "CXX=g++-8" >> $GITHUB_ENV
+          printf '%s\n' "CC=gcc-8" >> $GITHUB_ENV
+          printf '%s\n' "AR=gcc-ar-8" >> $GITHUB_ENV
+          printf '%s\n' "CXX=g++-8" >> $GITHUB_ENV
 
       - run: bash qbittorrent-nox-static.sh -bs-a
-      - run: bash qbittorrent-nox-static.sh bison
-      - run: bash qbittorrent-nox-static.sh gawk
       - run: bash qbittorrent-nox-static.sh glibc
       - run: bash qbittorrent-nox-static.sh zlib
       - run: bash qbittorrent-nox-static.sh iconv
@@ -79,7 +89,7 @@ jobs:
       - run: bash qbittorrent-nox-static.sh libtorrent
       - run: bash qbittorrent-nox-static.sh double_conversion
         if: matrix.build_tool == 'cmake'
-      - run: bash qbittorrent-nox-static.sh qtbase -i
+      - run: bash qbittorrent-nox-static.sh qtbase
       - run: bash qbittorrent-nox-static.sh qttools
       - run: bash qbittorrent-nox-static.sh qbittorrent
 
@@ -88,3 +98,17 @@ jobs:
         with:
           name: ${{ env.artifact_name }}
           path: ${{ env.build_dir }}/completed/qbittorrent-nox
+
+  rerun-on-failure:
+    if: failure() && inputs.skip_rerun == '0'
+    name: rerun-on-failure
+    needs: build
+    permissions:
+      actions: write
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Trigger rerun workflow on job failures
+        run: gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${{ inputs.retries }}

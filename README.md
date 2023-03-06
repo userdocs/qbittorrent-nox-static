@@ -21,6 +21,10 @@ This build script uses and depends on some related repositories
 
     This is a packaged release of cmake and ninja build for crossbuilds on debian based systems.
 
+-   [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build)
+
+    Fully static ninja-build binaries used for Alpine hosts.
+
 -   [qbittorrent-nox-static-legacy](https://github.com/userdocs/qbittorrent-nox-static-legacy) for people who want to use qBittorrent v4.3.9 built against current versions of the remaining dependencies. Libtorrent v1.2 branch only.
 
 ## Summary
@@ -29,7 +33,7 @@ The `qbittorrent-nox-static` project is a `bash` build script that compiles a st
 
 ## Documentation
 
-🔵 [Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README) for in depth information on using this project.
+🔵 [Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README) for in depth information on using this project and script usage.
 
 ## WSL2
 
@@ -150,20 +154,20 @@ As demonstrated above by using the latest release URL we can construct the tag o
 
 ## Build table - Dependencies - arch - OS - build tools
 
-|       Deps        | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make | cmake | b2  | qmake |
-| :---------------: | :----: | :-----: | :---: | :--------: | :----------: | :----: | :--: | :---: | :-: | :---: |
-|       bison       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ❌   |  ✅  |  ❌   | ❌  |  ❌   |
-|       gawk        |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ❌   |  ✅  |  ❌   | ❌  |  ❌   |
-|       glibc       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ❌   |  ✅  |  ❌   | ❌  |  ❌   |
-|       zlib        |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
-|       iconv       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
-|        icu        |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
-|      openssl      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ❌  |  ❌   |
-|       boost       |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ❌   | ✅  |  ❌   |
-|    libtorrent     |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ✅  |  ✅   | ✅  |  ❌   |
-|      qt5base      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ❌   | ❌  |  ✅   |
-|     qt5tools      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ❌   | ❌  |  ✅   |
-| double conversion |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ❌   |
-|      qt6base      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ❌   |
-|     qt6tools      |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ❌   |
-|    qbittorrent    |   ✅   |   ✅    |  ✅   |     ✅     |      ✅      |   ✅   |  ❌  |  ✅   | ❌  |  ✅   |
+|       Deps        | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make  | cmake |  b2   | qmake |
+| :---------------: | :----: | :-----: | :---: | :--------: | :----------: | :----: | :---: | :---: | :---: | :---: |
+|       bison       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       gawk        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       glibc       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       zlib        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       iconv       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|        icu        |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|      openssl      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
+|       boost       |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
+|    libtorrent     |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
+|      qt5base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+|     qt5tools      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
+| double conversion |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|      qt6base      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|     qt6tools      |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
+|    qbittorrent    |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
