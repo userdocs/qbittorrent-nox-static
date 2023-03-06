@@ -1,10 +1,22 @@
 name: Debian Based CI
 on:
-  push:
-    paths:
-      - "qbittorrent-nox-static.sh"
+  # push:
+  #   paths:
+  #     - "qbittorrent-nox-static.sh"
   pull_request:
   workflow_dispatch:
+    inputs:
+      distinct_id:
+      skip_rerun:
+        description: "Skip rerun?"
+        required: true
+        type: boolean
+      retries:
+        description: "Number of rerun retries"
+        required: true
+        default: "5"
+        type: choice
+        options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -13,16 +25,13 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
     strategy:
       fail-fast: false
       matrix:
         container_id: [debian, ubuntu]
         container_codename: [bullseye, focal, jammy]
-        build_tool: ["qmake", "cmake"]
-        libtorrent_version: ["1.2", "2.0"]
+        qbt_build_tool: ["qmake", "cmake"]
+        qbt_libtorrent_version: ["1.2", "2.0"]
         exclude:
           - container_id: debian
             container_codename: focal
@@ -31,25 +40,38 @@ jobs:
           - container_id: ubuntu
             container_codename: bullseye
         include:
-          - build_tool: "qmake"
+          - qbt_build_tool: "qmake"
             qbt_qt_version: "5"
-          - build_tool: "cmake"
+          - qbt_build_tool: "cmake"
             qbt_qt_version: "6"
 
-    name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.libtorrent_version }}-qt-${{ matrix.qbt_qt_version }}-${{ matrix.build_tool }}"
+    name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.qbt_libtorrent_version }}-qt-${{ matrix.qbt_qt_version }}-${{ matrix.qbt_build_tool }}"
     env:
       build_dir: "qbt-build"
-      artifact_name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.libtorrent_version }}-qt-${{ matrix.qbt_qt_version }}-${{ matrix.build_tool }}-nox"
+      artifact_name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.qbt_libtorrent_version }}-qt-${{ matrix.qbt_qt_version }}-${{ matrix.qbt_build_tool }}-nox"
     container:
       image: ${{ matrix.container_id }}:${{ matrix.container_codename }}
       env:
         LANG: en_GB.UTF-8
         DEBIAN_FRONTEND: noninteractive
         TZ: Europe/London
-        qbt_libtorrent_version: ${{ matrix.libtorrent_version }}
+        qbt_libtorrent_version: ${{ matrix.qbt_libtorrent_version }}
         qbt_qt_version: ${{ matrix.qbt_qt_version }}
-        qbt_build_tool: ${{ matrix.build_tool }}
+        qbt_build_tool: ${{ matrix.qbt_build_tool }}
+        qbt_cross_name: ""
+        qbt_patches_url: ${{ github.repository }}
+        qbt_skip_icu: no
+        qbt_boost_tag: ""
+        qbt_libtorrent_tag: ""
+        qbt_qt_tag: ""
+        qbt_qbittorrent_tag: ""
+        qbt_libtorrent_master_jamfile: no
         qbt_workflow_files: yes
+        qbt_workflow_artifacts: no
+        qbt_cache_dir: ""
+        qbt_optimise_strip: yes
+        qbt_build_debug: no
+        qbt_revision_url: ${{ github.repository }}
     steps:
       - uses: actions/checkout@v3
 
@@ -60,16 +82,14 @@ jobs:
         run: apt-get -y upgrade
 
       - name: bionic - apt-get install gcc-8-base g++-8
-        if: matrix.build_tool == 'cmake' && matrix.container_codename == 'bionic'
+        if: matrix.qbt_build_tool == 'cmake' && matrix.container_codename == 'bionic'
         run: |
           apt-get install -y gcc-8 g++-8
-          echo "CC=gcc-8" >> $GITHUB_ENV
-          echo "AR=gcc-ar-8" >> $GITHUB_ENV
-          echo "CXX=g++-8" >> $GITHUB_ENV
+          printf '%s\n' "CC=gcc-8" >> $GITHUB_ENV
+          printf '%s\n' "AR=gcc-ar-8" >> $GITHUB_ENV
+          printf '%s\n' "CXX=g++-8" >> $GITHUB_ENV
 
       - run: bash qbittorrent-nox-static.sh -bs-a
-      - run: bash qbittorrent-nox-static.sh bison
-      - run: bash qbittorrent-nox-static.sh gawk
       - run: bash qbittorrent-nox-static.sh glibc
       - run: bash qbittorrent-nox-static.sh zlib
       - run: bash qbittorrent-nox-static.sh iconv
@@ -78,8 +98,8 @@ jobs:
       - run: bash qbittorrent-nox-static.sh boost
       - run: bash qbittorrent-nox-static.sh libtorrent
       - run: bash qbittorrent-nox-static.sh double_conversion
-        if: matrix.build_tool == 'cmake'
-      - run: bash qbittorrent-nox-static.sh qtbase -i
+        if: matrix.qbt_build_tool == 'cmake'
+      - run: bash qbittorrent-nox-static.sh qtbase
       - run: bash qbittorrent-nox-static.sh qttools
       - run: bash qbittorrent-nox-static.sh qbittorrent
 
@@ -88,3 +108,17 @@ jobs:
         with:
           name: ${{ env.artifact_name }}
           path: ${{ env.build_dir }}/completed/qbittorrent-nox
+
+  rerun-on-failure:
+    if: failure() && inputs.skip_rerun == '0'
+    name: rerun-on-failure
+    needs: build
+    permissions:
+      actions: write
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+    steps:
+      - uses: actions/checkout@v3
+      - name: Trigger rerun workflow on job failures
+        run: gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${{ inputs.retries }}

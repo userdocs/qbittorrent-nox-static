@@ -1,5 +1,5 @@
 # @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition
-name: matrix multi build and release - qbt-workflow-files
+name: matrix multi build and release debug - qbt-workflow-files
 
 on:
   workflow_dispatch:
@@ -15,10 +15,6 @@ on:
         default: "5"
         type: choice
         options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build:
@@ -60,7 +56,7 @@ jobs:
     name: "${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.qbt_libtorrent_version }}"
 
     env:
-      qbt_build_dir: "qbt-build"
+      build_dir: "qbt-build"
 
     steps:
       - name: Checkout ${{ github.event.inputs.distinct_id }}
@@ -99,8 +95,8 @@ jobs:
           printf '%s\n' "qbt_workflow_files=yes" >> env.custom
           printf '%s\n' "qbt_workflow_artifacts=no" >> env.custom
           # printf '%s\n' "qbt_cache_dir= >> env.custom
-          printf '%s\n' "qbt_optimise_strip=yes" >> env.custom
-          printf '%s\n' "qbt_build_debug=no" >> env.custom
+          printf '%s\n' "qbt_optimise_strip=no" >> env.custom
+          printf '%s\n' "qbt_build_debug=yes" >> env.custom
           printf '%s\n' "qbt_revision_url=${{ github.repository }}" >> env.custom
 
       - name: Host - Create docker multiarch container ${{ github.event.inputs.distinct_id }}
