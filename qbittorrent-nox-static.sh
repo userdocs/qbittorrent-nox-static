@@ -651,7 +651,7 @@ set_module_urls() {
 	qbt_workflow_files_gawk="https://github.com/userdocs/qbt-workflow-files/releases/latest/download/gawk.tar.xz"
 
 	if [[ "${what_version_codename}" =~ ^(jammy)$ ]]; then
-		qbt_workflow_files_glibc="https://github.com/userdocs/qbt-workflow-files/releases/latest/download/glibc.2.35.tar.xz"
+		qbt_workflow_files_glibc="https://github.com/userdocs/qbt-workflow-files/releases/latest/download/glibc.2.37.tar.xz"
 	else
 		qbt_workflow_files_glibc="https://github.com/userdocs/qbt-workflow-files/releases/latest/download/glibc.2.31.tar.xz"
 	fi
