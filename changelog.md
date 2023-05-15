@@ -1,3 +1,7 @@
+### v2.0.1 - 15-05-2023
+
+Bug fix: `skip_icu` was being unset and defaulting to no. It is no longer unset and if set to skipped when using the module directly will still skip it.
+
 ### v2.0.0 - 03-04-2023
 
 There have been various breaking changes in the supporting architecture that effect the script and require updating to v2.0.0 from v1.1.0 or earlier.
