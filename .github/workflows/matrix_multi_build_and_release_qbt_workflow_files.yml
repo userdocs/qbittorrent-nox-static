@@ -90,7 +90,7 @@ jobs:
           printf '%s\n' "qbt_build_tool=${{ matrix.qbt_build_tool }}" >> env.custom
           printf '%s\n' "qbt_cross_name=${{ matrix.qbt_cross_name }}" >> env.custom
           printf '%s\n' "qbt_patches_url=${{ github.repository }}" >> env.custom
-          printf '%s\n' "qbt_skip_icu=no" >> env.custom
+          printf '%s\n' "qbt_skip_icu=yes" >> env.custom
           # printf '%s\n' "qbt_boost_tag=" >> env.custom
           # printf '%s\n' "qbt_libtorrent_tag=" >> env.custom
           # printf '%s\n' "qbt_qt_tag=" >> env.custom
