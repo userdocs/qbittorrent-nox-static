@@ -1,6 +1,6 @@
 ### v2.0.2 - 26-05-2023
 
-Set `ICU` default to `no`. It does not need to be forced to on as there is no longer a related bug and it also makes more sense for when using the `-i` toggle.
+Set `ICU` default to `no`. It does not need to be forced to on as there is no longer a related bug and it also makes more sense when considering the `-i` toggle.
 ### v2.0.1 - 15-05-2023
 
 Bug fix: `skip_icu` was being unset and defaulting to no. It is no longer unset and if set to skipped when using the module directly will still skip it.
