@@ -632,7 +632,7 @@ _script_version() {
 
 	if [[ "$(semantic_version "${script_version}")" -lt "$(semantic_version "${script_version_remote}")" ]]; then
 		printf '\n%b\n' " ${tbk}${urc}${cend} Script update available! Versions - ${cly}local:${clr}${script_version}${cend} ${cly}remote:${clg}${script_version_remote}${cend}"
-		printf '\n%b\n' " ${ugc} curl -sLo ~/qbittorrent-nox-static.sh https://git.io/qbstatic${cend}"
+		printf '\n%b\n' " ${ugc} curl -sLo ${BASH_SOURCE} https://git.io/qbstatic${cend}"
 	else
 		printf '\n%b\n' " ${ugc} Script version: ${clg}${script_version}${cend}"
 	fi
@@ -1736,10 +1736,10 @@ set -- "${params1[@]}"
 #######################################################################################################################################################
 _set_default_values "${@}" # see functions
 _check_dependencies        # see functions
-_script_version            # see functions
 _test_url
 _set_build_directory    # see functions
 _set_module_urls "${@}" # see functions
+_script_version         # see functions
 #######################################################################################################################################################
 # Environment variables - settings positional parameters of flags
 #######################################################################################################################################################
