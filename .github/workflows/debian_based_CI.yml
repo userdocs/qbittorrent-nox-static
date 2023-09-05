@@ -73,7 +73,7 @@ jobs:
         qbt_build_debug: no
         qbt_revision_url: ${{ github.repository }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Host - update
         run: apt-get update
@@ -119,7 +119,7 @@ jobs:
     env:
       GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Trigger rerun workflow on job failures
         run: |
           inputs_retries="${{ inputs.retries }}"
