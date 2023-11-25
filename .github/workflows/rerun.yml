@@ -23,7 +23,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: gh cli rerun and summaries
-        if: inputs.attempts < inputs.retries
+        if: inputs.attempts <= inputs.retries
         run: |
           failures="$(gh run view ${{ inputs.run_id }} --log-failed | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g")"
           [[ -z "${failures}" ]] && failures="$(gh run view ${{ inputs.run_id }} | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g")"

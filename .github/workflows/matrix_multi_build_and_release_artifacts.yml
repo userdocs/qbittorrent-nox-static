@@ -12,7 +12,7 @@ on:
       retries:
         description: "Number of rerun retries"
         required: true
-        default: "5"
+        default: "1"
         type: choice
         options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
@@ -320,4 +320,4 @@ jobs:
       - name: Trigger rerun workflow on job failures
         run: |
           inputs_retries="${{ inputs.retries }}"
-          gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-5}
+          gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-1}
