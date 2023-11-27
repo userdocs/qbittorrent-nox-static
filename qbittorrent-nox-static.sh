@@ -961,7 +961,6 @@ _apply_patches() {
 				if _curl --create-dirs "${patch_jamfile_url}" -o "${qbt_dl_folder_path}/${patch_jamfile##*/}"; then
 					printf '%b\n\n' " ${ugc}${cr} Using downloaded custom Jamfile file${cend}"
 				else
-
 					printf '%b\n\n' " ${ugc}${cr} Using libtorrent ${github_tag[libtorrent]} Jamfile file${cend}"
 				fi
 			fi
