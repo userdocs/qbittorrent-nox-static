@@ -147,7 +147,7 @@ jobs:
         run: docker exec -w /root/${{ env.qbt_build_dir }}/release_info multiarch bash -c 'mv *.md *.json '/root/${{ env.qbt_build_dir }}/completed''
 
       - name: Host - Upload libtorrent-v${{ matrix.qbt_libtorrent_version }}-qbittorrent-nox and release info artifact ${{ github.event.inputs.distinct_id }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: libtorrent-v${{ matrix.qbt_libtorrent_version }}-${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
           path: |
@@ -156,7 +156,7 @@ jobs:
 
       - name: Host - Upload cmake graphs artifact ${{ github.event.inputs.distinct_id }}
         if: matrix.qbt_build_tool == 'cmake'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-graphs"
           path: "${{ env.qbt_build_dir }}/completed/*.png"
