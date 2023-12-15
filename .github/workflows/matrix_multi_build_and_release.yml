@@ -183,7 +183,7 @@ jobs:
           curl -sLo- "https://github.com/jgm/pandoc/releases/latest/download/pandoc-${pandoc_git_tag}-linux-amd64.tar.gz" | tar xzf - --strip-components 2 -C "$(pwd)" --exclude="share"
 
       - name: Host - Download qbittorrent-nox artifacts ${{ github.event.inputs.distinct_id }}
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
 
       - name: Host - 1.2 artifacts organise for release ${{ github.event.inputs.distinct_id }}
         run: |
