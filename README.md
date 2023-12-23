@@ -29,19 +29,22 @@ This build script uses and depends on some related repositories
 
 ## Summary
 
-The `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian Stretch | Ubuntu Xenial and more.
+The `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian | Ubuntu and more.
 
 ## Documentation
 
-🔵 [Visit the documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README) for in depth information on using this project and script usage.
+> [!TIP]
+> Visit the [documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README) for in depth information on using this project and script usage.
 
 ## WSL2
 
-🟢 These static builds can be used on WSL2 and accessed via `localhost:8080` using the download instructions below
+> [!TIP]
+> These static builds can be used on WSL2 and accessed via `localhost:8080` using the download instructions below
 
 ## Install the latest release
 
-🔵 [The latest release page](https://github.com/userdocs/qbittorrent-nox-static/releases/latest) for the most current build
+> [!TIP]
+> For the most current build visit the [latest release page](https://github.com/userdocs/qbittorrent-nox-static/releases/latest)
 
 Or uses these commands for your arch:
 
@@ -87,13 +90,13 @@ chmod 700 ~/bin/qbittorrent-nox
 
 ## Libtorrent versions
 
-🟠 Libtorrent `v1.2` is currently the main branch supported by qBittorrent since a change with the release of [4.4.5](https://www.qbittorrent.org/news.php)
+> [!IMPORTANT]
+> Libtorrent `v1.2` is currently the main branch supported by qBittorrent since a change with the release of [4.4.5](https://www.qbittorrent.org/news.php)
 
 Libtorrent `v2.0` builds are still released as latest releases as it it does not really matter to this project as it always builds and releases for both `v1.2` and `v2.0`. See the next section for how to get the version you need via the latest release URL.
 
-You can view the current latest and pre releases and tags here.
-
-🔵 <https://github.com/userdocs/qbittorrent-nox-static/releases>
+> [!TIP]
+> You can view the current latest and pre releases and tags here <https://github.com/userdocs/qbittorrent-nox-static/tags>
 
 ## Getting the Version you want via the latest release URL
 
@@ -147,33 +150,18 @@ Will output a result like this:
 
 ```json
 {
-	"qbittorrent": "4.4.5",
-	"qt5": "5.15.7",
-	"qt6": "6.4.0",
-	"libtorrent_1_2": "1.2.18",
-	"libtorrent_2_0": "2.0.8",
-	"boost": "1.80.0",
-	"openssl": "3.0.7",
-	"revision": "1"
+    "openssl": "3.2.0",
+    "boost": "1.84.0",
+    "libtorrent_1_2": "1.2.19",
+    "libtorrent_2_0": "2.0.9",
+    "qt5": "5.15.12",
+    "qt6": "6.6.1",
+    "qbittorrent": "4.6.2",
+    "revision": "3"
 }
 ```
 
 As demonstrated above by using the latest release URL we can construct the tag of the twinned pre release and therefore the asset URL with no margin for error.
 
-## Build table - Dependencies - arch - OS - build tools
-
-|       Deps        |  x86  | x86_64 | aarch64 | armv7 | armhf (v6) | Debian based | Alpine | make  | cmake |  b2   | qmake |
-| :---------------: | :---: | :----: | :-----: | :---: | :--------: | :----------: | :----: | :---: | :---: | :---: | :---: |
-|       glibc       |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ❌    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       zlib        |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       iconv       |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|        icu        |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|      openssl      |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ❌   |   ❌   |
-|       boost       |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ❌   |   ✅   |   ❌   |
-|    libtorrent     |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ✅   |   ✅   |   ✅   |   ❌   |
-|      qt5base      |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-|     qt5tools      |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ❌   |   ❌   |   ✅   |
-| double conversion |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|      qt6base      |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|     qt6tools      |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ❌   |
-|    qbittorrent    |   ✅   |   ✅    |    ✅    |   ✅   |     ✅      |      ✅       |   ✅    |   ❌   |   ✅   |   ❌   |   ✅   |
+> [!IMPORTANT]
+> From the release of qBittorrent v5 configure based builds will be unsupported and we will only be able to use cmake to build qBittorrent v5 onwards. All releases from that point on will drop Qt5 builds as at this point cmake,Qt6 and v5 should be the default and preferred build combination with Qt5 being a legacy dependency.

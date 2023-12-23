@@ -1580,6 +1580,10 @@ _release_info() {
 		}
 	DEPENDENCY_INFO
 
+	[[ ${qbt_workflow_files} == "no" && ${qbt_workflow_artifacts} == "no" ]] && source_text="source files - direct"
+	[[ ${qbt_workflow_files} == "yes" ]] && source_text="source files - workflows: [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files/releases/latest)"
+	[[ ${qbt_workflow_artifacts} == "yes" ]] && source_text="source files - artifacts: [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files/releases/latest)"
+
 	cat > "${release_info_dir}/qt${qt_version_short_array[0]}-${qbt_cross_name}-release.md" <<- RELEASE_INFO
 		## Build info
 
@@ -1594,9 +1598,10 @@ _release_info() {
 
 		## Architecture and build info
 
-		🔵 These source code files are used for workflows: [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files/releases/latest)
-
-		🔵 These builds were created on Alpine linux using [custom prebuilt musl toolchains](https://github.com/userdocs/qbt-musl-cross-make/releases/latest) for:
+		> [!NOTE]
+		> ${source_text}
+		>
+		> These builds were created on Alpine linux using [custom prebuilt musl toolchains](https://github.com/userdocs/qbt-musl-cross-make/releases/latest) for:
 	RELEASE_INFO
 
 	{
@@ -1620,23 +1625,14 @@ _release_info() {
 	} >> "${release_info_dir}/qt${qt_version_short_array[0]}-${qbt_cross_name}-release.md"
 
 	cat >> "${release_info_dir}/qt${qt_version_short_array[0]}-${qbt_cross_name}-release.md" <<- RELEASE_INFO
-		## Info about the build matrixes for qbittorrent-nox-static
+		## General Info
 
-		🟡 With Qbittorrent 4.4.0 onwards all cmake builds use Qt6 and all qmake builds use Qt5, as long as Qt5 is supported.
-
-		🟡 Binary builds are stripped - See https://userdocs.github.io/qbittorrent-nox-static/#/debugging
-
-		🟠 [To see the build combinations that the script automates please check the build table. for more info](https://github.com/userdocs/qbittorrent-nox-static#build-table---dependencies---arch---os---build-tools)
-
-		<!--
-		declare -A current_build_version
-		current_build_version[openssl]="${app_version[openssl]}"
-		current_build_version[boost]="${app_version[boost]}"
-		current_build_version[libtorrent_${qbt_libtorrent_version//\./_}]="${app_version[libtorrent]}"
-		current_build_version[qt${qt_version_short_array[0]}]="${app_version[qtbase]}"
-		current_build_version[qbittorrent]="${app_version[qbittorrent]}"
-		current_build_version[revision]="${qbt_revision_version:-0}"
-		-->
+		> [!WARNING]
+		> With Qbittorrent 4.4.0 onwards all cmake builds use Qt6 and all qmake builds use Qt5, as long as Qt5 is supported or qBitorrent V5 is released.
+		>
+		> Qbittorrent v5 won't support qmake (Qt5) builds so Qt6 (cmake) will become default and Qt5 builds will no longer be released.
+		>
+		> Binary builds are stripped - See https://userdocs.github.io/qbittorrent-nox-static/#/debugging
 	RELEASE_INFO
 
 	return
@@ -2014,7 +2010,7 @@ while (("${#}")); do
 			;;
 		-h-bs-ma | --help-boot-strap-multi-arch)
 			printf '\n%b\n' " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			printf '\n%b\n' " ${urc}${clr} Github action and ALpine specific. You probably dont need it${cend}"
+			printf '\n%b\n' " ${urc}${clr} Github action and Alpine specific. You probably dont need it${cend}"
 			printf '\n%b\n' " This switch bootstraps the musl cross build files needed for any provided and supported architecture"
 			printf '\n%b\n' " ${uyc} armhf"
 			printf '%b\n' " ${uyc} armv7"
@@ -2025,7 +2021,7 @@ while (("${#}")); do
 			;;
 		-h-bs-a | --help-boot-strap-all)
 			printf '\n%b\n' " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			printf '\n%b\n' " ${urc}${clr} Github action specific and Apine only. You probably dont need it${cend}"
+			printf '\n%b\n' " ${urc}${clr} Github action specific and Alpine only. You probably dont need it${cend}"
 			printf '\n%b\n' " Performs all bootstrapping options"
 			printf '\n%b\n' "${clg} Usage:${cend} ${clc}${qbt_working_dir_short}/$(basename -- "$0")${cend} ${clb}-bs-a${cend}"
 			printf '\n%b\n' " ${uyc} ${cly}Patches${cend}"
@@ -2092,7 +2088,7 @@ while (("${#}")); do
 			;;
 		-h-ma | --help-multi-arch)
 			printf '\n%b\n' " ${ulcc} ${tb}${tu}Here is the help description for this flag:${cend}"
-			printf '\n%b\n' " ${urc}${clr} Github action and ALpine specific. You probably dont need it${cend}"
+			printf '\n%b\n' " ${urc}${clr} Github action and Alpine specific. You probably dont need it${cend}"
 			printf '\n%b\n' " This switch will make the script use the cross build configuration for these supported architectures"
 			printf '\n%b\n' " ${uyc} armhf"
 			printf '%b\n' " ${uyc} armv7"

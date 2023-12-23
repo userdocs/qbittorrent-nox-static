@@ -246,31 +246,37 @@ jobs:
           pandoc_git_tag="$(git ls-remote -q -t --refs https://github.com/jgm/pandoc.git | awk '/tags\/[0-9]/{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
           curl -sLo- "https://github.com/jgm/pandoc/releases/latest/download/pandoc-${pandoc_git_tag}-linux-amd64.tar.gz" | tar xzf - --strip-components 2 -C "$(pwd)" --exclude="share"
 
-      - name: Host - Download qbittorrent-nox artifacts ${{ github.event.inputs.distinct_id }}
+      - name: Host - Download 1.2 qbittorrent-nox artifacts ${{ github.event.inputs.distinct_id }}
         uses: actions/download-artifact@v4
+        with:
+          path: "1.2"
+          pattern: libtorrent-v1.2-*-qbittorrent-nox
+          merge-multiple: true
 
-      - name: Host - 1.2 artifacts organise for release ${{ github.event.inputs.distinct_id }}
-        run: |
-          mkdir -p "1.2"
-          for files in libtorrent-v1.2-*-qbittorrent-nox; do
-              cp -rf ${files}/* "1.2/"
-          done
-
-      - name: Host - 2.0 artifacts organise for release ${{ github.event.inputs.distinct_id }}
-        run: |
-          mkdir -p "2.0"
-          for files in libtorrent-v2.0-*-qbittorrent-nox; do
-              cp -rf ${files}/* "2.0/"
-          done
+      - name: Host - Download 2.0 qbittorrent-nox artifacts ${{ github.event.inputs.distinct_id }}
+        uses: actions/download-artifact@v4
+        with:
+          path: "2.0"
+          pattern: libtorrent-v2.0-*-qbittorrent-nox
+          merge-multiple: true
 
       - name: Host - merge release-info ${{ github.event.inputs.distinct_id }}
         run: |
-          paste -d '\n' 1.2/qt5-*-release.md | uniq > 1.2/tmp-release.md
-          paste -d '\n' 2.0/qt6-*-release.md | uniq > 2.0/tmp-release.md
-          paste -d '\n' 1.2/tmp-release.md 2.0/tmp-release.md | uniq > tmp-release.md
-          ./pandoc --wrap=preserve -f gfm tmp-release.md -t gfm -o release.md
+          for release in 1\.2/*-release.md 2\.0/*-release.md; do
+            [[ -f "${release}" ]] && release+=("${release}")
+          done
 
-          paste -d '\n' 1.2/qt5-dependency-version.json 2.0/qt6-dependency-version.json | uniq > dependency-version.json
+          for dependency_version in 1\.2/*-dependency-version.json 2\.0/*-dependency-version.json; do
+            [[ -f "${dependency_version}" ]] && dependency_version+=("${dependency_version}")
+          done
+
+          readarray -t release_sorted < <(printf '%s\n' "${release[@]}" | sort)
+          readarray -t dependency_version_sorted < <(printf '%s\n' "${dependency_version[@]}" | sort)
+
+          paste -d '\n' "${release_sorted[@]}" | uniq | awk '!(NF && seen[$0]++) || /^>/' > "tmp-release.md"
+          paste -d '\n' "${dependency_version_sorted[@]}" | uniq | awk '!(NF && seen[$0]++)' > "dependency-version.json"
+
+          ./pandoc --wrap=preserve -f gfm tmp-release.md -t gfm -o release.md
 
       - name: Host - Bootstrap release tag ${{ github.event.inputs.distinct_id }}
         run: printf '%s\n' "release_tag=$(cat ${{ matrix.qbt_libtorrent_version }}/tag.md)" >> $GITHUB_ENV
