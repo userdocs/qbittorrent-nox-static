@@ -1,6 +1,13 @@
+### v2.0.3 - 27-12-2023
+
+Fixed a regression from the V2 update where the host arch for `zlib-ng` was incorrectly set to `x86_64`, regardless of the actual host arch, when building on a non `x86_64` host to the same target arch (not cross building).
+
+https://github.com/userdocs/qbittorrent-nox-static/issues/131
+
 ### v2.0.2 - 26-05-2023
 
 Set `ICU` default to `no`. It does not need to be forced to on as there is no longer a related bug and it also makes more sense when considering the `-i` toggle.
+
 ### v2.0.1 - 15-05-2023
 
 Bug fix: `skip_icu` was being unset and defaulting to no. It is no longer unset and if set to skipped when using the module directly will still skip it.
