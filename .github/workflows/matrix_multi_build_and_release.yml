@@ -99,6 +99,9 @@ jobs:
       - name: Docker - Bootstrap ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh -bs-a
 
+      - name: Docker - Copy repo patches to build folder ${{ github.event.inputs.distinct_id }}
+        run: docker exec -w /root multiarch cp -r patches/* /root/${{ env.qbt_build_dir }}/patches
+
       - name: Docker - zlib-ng ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh zlib
 

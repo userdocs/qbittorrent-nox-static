@@ -17,7 +17,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="2.0.3"
+script_version="2.0.4"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -720,7 +720,7 @@ _set_module_urls() {
 	github_tag[icu]="$(_git_git ls-remote -q -t --refs "${github_url[icu]}" | awk '/\/release-/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	github_tag[double_conversion]="$(_git_git ls-remote -q -t --refs "${github_url[double_conversion]}" | awk '/v/{sub("refs/tags/", "");sub("(.*)(v6|rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	github_tag[openssl]="$(_git_git ls-remote -q -t --refs "${github_url[openssl]}" | awk '/openssl/{sub("refs/tags/", "");sub("(.*)(v6|rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
-	github_tag[boost]=$(_git_git ls-remote -q -t --refs "${github_url[boost]}" | awk '{sub("refs/tags/", "");sub("(.*)(rc|alpha|beta)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)
+	github_tag[boost]=$(_git_git ls-remote -q -t --refs "${github_url[boost]}" | awk '{sub("refs/tags/", "");sub("(.*)(rc|alpha|beta|-bgl)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)
 	github_tag[libtorrent]="$(_git_git ls-remote -q -t --refs "${github_url[libtorrent]}" | awk '/'"v${qbt_libtorrent_version}"'/{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	github_tag[qtbase]="$(_git_git ls-remote -q -t --refs "${github_url[qtbase]}" | awk '/'"v${qbt_qt_version}"'/{sub("refs/tags/", "");sub("(.*)(-a|-b|-r)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	github_tag[qttools]="$(_git_git ls-remote -q -t --refs "${github_url[qttools]}" | awk '/'"v${qbt_qt_version}"'/{sub("refs/tags/", "");sub("(.*)(-a|-b|-r)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
@@ -928,29 +928,47 @@ _apply_patches() {
 		printf '\n%b\n' " ${ucc} If a patch file, named ${clc}patch${cend} is found in these directories it will be applied to the relevant module with a matching tag."
 	else
 		patch_dir="${qbt_install_dir}/patches/${app_name}/${app_version[${app_name}]}"
+
+		# local
 		patch_file="${patch_dir}/patch"
-		patch_file_url="https://raw.githubusercontent.com/${qbt_patches_url}/master/patches/${app_name}/${app_version[${app_name}]}/patch"
+		patch_url_file="${patch_dir}/url" # A file with a url to raw patch info
+		# remote
+		patch_file_remote="https://raw.githubusercontent.com/${qbt_patches_url}/master/patches/${app_name}/${app_version[${app_name}]}"
 
 		if [[ "${app_name}" == "libtorrent" ]]; then
 			patch_jamfile="${patch_dir}/Jamfile"
 			patch_jamfile_url="https://raw.githubusercontent.com/${qbt_patches_url}/master/patches/${app_name}/${app_version[${app_name}]}/Jamfile"
 		fi
 
-		# If the patch file exists in the module version folder matching the build configuration then use this.
-		if [[ -f "${patch_file}" ]]; then
-			printf '%b\n\n' " ${ugc} ${cr}Patching${cend} ${clr}local${cend} - ${clm}${app_name}${cend} ${cly}${app_version[${app_name}]}${cend} - ${clc}${patch_file}${cend}"
-		else
-			# Else check that if there is a remotely host patch file available in the patch repo
-			if _curl --create-dirs "${patch_file_url}" -o "${patch_file}"; then
-				printf '%b\n\n' " ${ugc} ${cr}Patching${cend} ${clr}remote${cend} - ${clm}${app_name}${cend} ${cly}${app_version[${app_name}]}${cend} - ${cly}${patch_file_url}${cend}"
+		# Order of patch file preference
+		# 1. Local patch file - A custom patch file in the module version folder matching the build configuration
+		# 2. Local url file - A custom url to a raw patch file in the module version folder matching the build configuration
+		# 3. Remote patch file using the patch_file_remote/patch - A custom url to a raw patch file
+		# 4. Remote url file using patch_file_remote/url - A url to a raw patch file in the patch repo
+
+		[[ "${source_default[${app_name}]}" == "folder" && ! -d "${qbt_cache_dir}/${app_name}" ]] && printf '\n' # cosmetics
+
+		_patch_url() {
+			patch_url="$(< "${patch_url_file}")"
+			if _curl --create-dirs "${patch_url}" -o "${patch_file}"; then
+				printf '%b\n\n' " ${ugc} ${cr}Patching${cend} from ${clr}remote:url${cend} - ${clm}${app_name}${cend} ${cly}${app_version[${app_name}]}${cend} - ${cly}${patch_url}${cend}"
+			fi
+		}
+
+		if [[ -f "${patch_file}" ]]; then # If the patch file exists in the module version folder matching the build configuration then use this.
+			printf '%b\n\n' " ${ugc} ${cr}Patching${cend} from ${clr}local:patch${cend} - ${clm}${app_name}${cend} ${cly}${app_version[${app_name}]}${cend} - ${clc}${patch_file}${cend}"
+		elif [[ -f "${patch_url_file}" ]]; then # If a remote URL file exists in the module version folder matching the build configuration then use this to create the patch file for the next check
+			_patch_url
+		else # Else check that if there is a remotely host patch file available in the patch repo
+			if _curl --create-dirs "${patch_file_remote}/patch" -o "${patch_file}"; then
+				printf '%b\n\n' " ${ugc} ${cr}Patching${cend} from ${clr}remote:patch${cend} - ${clm}${app_name}${cend} ${cly}${app_version[${app_name}]}${cend} - ${cly}${patch_file_remote}/patch${cend}"
+			elif _curl --create-dirs "${patch_file_remote}/url" -o "${patch_url_file}"; then
+				_patch_url
 			fi
 		fi
 
 		# Libtorrent specific stuff
 		if [[ "${app_name}" == "libtorrent" ]]; then
-			# cosmetics
-			[[ "${source_default[libtorrent]}" == "folder" && ! -d "${qbt_cache_dir}/${app_name}" ]] && printf '\n'
-
 			if [[ "${qbt_libtorrent_master_jamfile}" == "yes" ]]; then
 				_curl --create-dirs "https://raw.githubusercontent.com/arvidn/libtorrent/${default_jamfile}/Jamfile" -o "${qbt_dl_folder_path}/${patch_jamfile##*/}"
 				printf '%b\n\n' " ${ugc}${cr} Using libtorrent branch master Jamfile file${cend}"
@@ -1019,7 +1037,7 @@ _cache_dirs() {
 	qbt_dl_file_path="${qbt_dl_dir}/${app_name}.tar.xz"
 	qbt_dl_folder_path="${qbt_dl_dir}/${app_name}"
 
-	if [[ "${qbt_workflow_files}" == "yes" || "${app_name}" == "cmake_ninja" ]]; then
+	if [[ "${qbt_workflow_files}" == "yes" && "${qbt_workflow_override[${app_name}]}" == "no" || "${app_name}" == "cmake_ninja" ]]; then
 		source_default["${app_name}"]="file"
 	elif [[ "${qbt_cache_dir_options}" == "bs" || -d "${qbt_dl_folder_path}" ]]; then
 		source_default["${app_name}"]="folder"

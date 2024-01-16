@@ -1,3 +1,9 @@
+### v2.0.4 - 16-01-2024
+
+Make sure the workflow override applies when using cached dependencies
+Allow patching from a remote raw git patch via URL - an file called `url` in the patch repo for the module version that contains a URL to the raw patch
+other minor tweaks and cosmetic changes
+
 ### v2.0.3 - 27-12-2023
 
 Fixed a regression from the V2 update where the host arch for `zlib-ng` was incorrectly set to `x86_64`, regardless of the actual host arch, when building on a non `x86_64` host to the same target arch (not cross building).
