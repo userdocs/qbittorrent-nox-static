@@ -1,3 +1,18 @@
+### v2.0.5 - 23-01-2024
+
+Codename: Copilot made me do it
+
+Improved readability of the colour variables used throughout the script.
+Some minor tweaks to OS detection
+Moved some things around or into their own functions and some error handling.
+Some changes to how cxx standard is handled and defined so the script will default to 23 when the conditions are met.
+minor bug fix - `qbt_libtorrent_version` displays correctly when using an RC github tag.
+
+Support for Ubuntu Noble added - Mantic removed as it's preferred to support LTS releases
+
+Ubuntu Focal - Jammy - Noble
+Debian Bullseye - Bookworm
+
 ### v2.0.4 - 16-01-2024
 
 Make sure the workflow override applies when using cached dependencies

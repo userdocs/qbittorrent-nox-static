@@ -7,6 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       distinct_id:
+        description: "Distinct id"
       skip_rerun:
         description: "Skip rerun?"
         required: true
@@ -14,7 +15,7 @@ on:
       retries:
         description: "Number of rerun retries"
         required: true
-        default: "5"
+        default: "1"
         type: choice
         options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
@@ -29,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         container_id: [debian, ubuntu]
-        container_codename: [bullseye, focal, jammy]
+        container_codename: [bullseye, bookworm, focal, jammy, noble]
         qbt_build_tool: ["qmake", "cmake"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         exclude:
@@ -37,8 +38,12 @@ jobs:
             container_codename: focal
           - container_id: debian
             container_codename: jammy
+          - container_id: debian
+            container_codename: noble
           - container_id: ubuntu
             container_codename: bullseye
+          - container_id: ubuntu
+            container_codename: bookworm
         include:
           - qbt_build_tool: "qmake"
             qbt_qt_version: "5"
@@ -81,14 +86,6 @@ jobs:
       - name: Host - upgrade
         run: apt-get -y upgrade
 
-      - name: bionic - apt-get install gcc-8-base g++-8
-        if: matrix.qbt_build_tool == 'cmake' && matrix.container_codename == 'bionic'
-        run: |
-          apt-get install -y gcc-8 g++-8
-          printf '%s\n' "CC=gcc-8" >> $GITHUB_ENV
-          printf '%s\n' "AR=gcc-ar-8" >> $GITHUB_ENV
-          printf '%s\n' "CXX=g++-8" >> $GITHUB_ENV
-
       - run: bash qbittorrent-nox-static.sh -bs-a
       - run: bash qbittorrent-nox-static.sh glibc
       - run: bash qbittorrent-nox-static.sh zlib
@@ -103,7 +100,15 @@ jobs:
       - run: bash qbittorrent-nox-static.sh qttools
       - run: bash qbittorrent-nox-static.sh qbittorrent
 
+      - name: Host - qBittorrent v5 transition
+        run: |
+          # When qBittorrent v5 is released, remove this
+          if [[ -f ${{ env.qbt_build_dir }}/release_info/disable-qt5 ]]; then
+            printf '%s\n' "disable_qt5=yes" >> $GITHUB_ENV
+          fi
+
       - name: Archive code coverage results
+        if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
         uses: actions/upload-artifact@v4
         with:
           name: ${{ env.artifact_name }}
@@ -123,4 +128,4 @@ jobs:
       - name: Trigger rerun workflow on job failures
         run: |
           inputs_retries="${{ inputs.retries }}"
-          gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-5}
+          gh workflow run rerun.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-1}

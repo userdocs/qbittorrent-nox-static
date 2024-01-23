@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       distinct_id:
+        description: "Distinct id"
       skip_rerun:
         description: "Skip rerun?"
         required: true
@@ -100,7 +101,7 @@ jobs:
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh -bs-a
 
       - name: Docker - Copy repo patches to build folder ${{ github.event.inputs.distinct_id }}
-        run: docker exec -w /root multiarch cp -r patches/* /root/${{ env.qbt_build_dir }}/patches
+        run: if [[ -d patches ]]; then docker exec -w /root multiarch cp -r patches/* /root/${{ env.qbt_build_dir }}/patches; fi
 
       - name: Docker - zlib-ng ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh zlib
@@ -133,13 +134,23 @@ jobs:
       - name: Docker - qbittorrent ${{ github.event.inputs.distinct_id }}
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qbittorrent
 
+      - name: Host - qBittorrent v5 transition
+        run: |
+          # When qBittorrent v5 is released, remove this
+          if [[ -f ${{ env.qbt_build_dir }}/release_info/disable-qt5 ]]; then
+            printf '%s\n' "disable_qt5=yes" >> $GITHUB_ENV
+          fi
+
       - name: Docker - Set release asset name ${{ github.event.inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
         run: docker exec -w /root/${{ env.qbt_build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
 
       - name: Docker - Release Info ${{ github.event.inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
         run: docker exec -w /root/${{ env.qbt_build_dir }}/release_info multiarch bash -c 'mv *.md *.json '/root/${{ env.qbt_build_dir }}/completed''
 
       - name: Host - Upload libtorrent-v${{ matrix.qbt_libtorrent_version }}-qbittorrent-nox and release info artifact ${{ github.event.inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
         uses: actions/upload-artifact@v4
         with:
           name: libtorrent-v${{ matrix.qbt_libtorrent_version }}-${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
@@ -148,7 +159,7 @@ jobs:
             !${{ env.qbt_build_dir }}/completed/*.png
 
       - name: Host - Upload cmake graphs artifact ${{ github.event.inputs.distinct_id }}
-        if: matrix.qbt_build_tool == 'cmake'
+        if: matrix.qbt_build_tool == 'cmake' && env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-graphs"
