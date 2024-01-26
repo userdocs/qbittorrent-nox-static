@@ -27,6 +27,8 @@ This build script uses and depends on some related repositories
 
 -   [qbittorrent-nox-static-legacy](https://github.com/userdocs/qbittorrent-nox-static-legacy) for people who want to use qBittorrent v4.3.9 built against current versions of the remaining dependencies. Libtorrent v1.2 branch only.
 
+-   [qbittorrent-nox-static-embedded](https://github.com/userdocs/qbittorrent-nox-static-embedded) - experimental [upx](https://upx.github.io/) compressed binaries for testing.
+
 ## Summary
 
 The `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian | Ubuntu and more.
