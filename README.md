@@ -5,33 +5,32 @@
 [![matrix multi build and release](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release.yml)
 [![Debian Based CI](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/debian_based_CI.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/debian_based_CI.yml)
 
-## Linked Github repositories
-
-This build script uses and depends on some related repositories
-
--   [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make)
-
-    `qbt-musl-cross-make` builds the customized [musl cross make tool chains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds.
-
--   [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files)
-
-    This is a dependency tracker that checks for and releases all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
-
--   [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds)
-
-    This is a packaged release of cmake and ninja build for crossbuilds on debian based systems.
-
--   [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build)
-
-    Fully static ninja-build binaries used for Alpine hosts.
-
--   [qbittorrent-nox-static-legacy](https://github.com/userdocs/qbittorrent-nox-static-legacy) for people who want to use qBittorrent v4.3.9 built against current versions of the remaining dependencies. Libtorrent v1.2 branch only.
-
--   [qbittorrent-nox-static-embedded](https://github.com/userdocs/qbittorrent-nox-static-embedded) - experimental [upx](https://upx.github.io/) compressed binaries for testing.
-
 ## Summary
 
 The `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian | Ubuntu and more.
+
+> [!TIP]
+> You don't need to use the script to access the binaries it creates, just use the [release tag](https://github.com/userdocs/qbittorrent-nox-static/tags) you need or [latest release page](https://github.com/userdocs/qbittorrent-nox-static/releases/latest)
+
+See here for how to [install the latest release](https://github.com/userdocs/qbittorrent-nox-static?tab=readme-ov-file#install-the-latest-release)
+
+## Linked Github repositories
+
+This build script uses and depends on some related repositories.
+
+-   [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make) - builds the customized [musl cross make tool chains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds.
+
+-   [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files) - a dependency tracker to check for and release all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
+
+-   [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds) - a packaged release of cmake and ninja build for crossbuilds on debian based systems.
+
+-   [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build) - fully static ninja-build binaries used for Alpine hosts.
+
+-   [qbittorrent-nox-static-legacy](https://github.com/userdocs/qbittorrent-nox-static-legacy) - for people who want to use qBittorrent v4.3.9 built against current versions of the remaining dependencies. Libtorrent v1.2 branch only.
+
+## Optional Github repositories
+
+-   [qbittorrent-nox-static-embedded](https://github.com/userdocs/qbittorrent-nox-static-embedded) - experimental [upx](https://upx.github.io/) compressed binaries for testing.
 
 ## Documentation
 
