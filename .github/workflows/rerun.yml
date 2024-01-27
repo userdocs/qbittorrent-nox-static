@@ -4,10 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
+        description: "The run id of the workflow to rerun"
         required: true
       attempts:
+        description: "The number of attempts to rerun the workflow"
         required: true
       retries:
+        description: "The number of retries to rerun the workflow"
         required: true
 
 jobs:
