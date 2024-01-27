@@ -17,7 +17,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="2.0.5"
+script_version="2.0.6"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -219,7 +219,8 @@ _set_default_values() {
 		printf '%b\n' " ${color_yellow_light}  qbt_cache_dir=\"${color_green_light}${qbt_cache_dir}${color_yellow_light}\"${color_end}"
 		printf '%b\n' " ${color_yellow_light}  qbt_optimise_strip=\"${color_green_light}${qbt_optimise_strip}${color_yellow_light}\"${color_end}"
 		printf '%b\n' " ${color_yellow_light}  qbt_build_debug=\"${color_green_light}${qbt_build_debug}${color_yellow_light}\"${color_end}"
-		printf '%b\n\n' " ${color_yellow_light}  qbt_standard=\"${color_green_light}${qbt_standard}${color_yellow_light}\"${color_end}"
+		printf '%b\n' " ${color_yellow_light}  qbt_standard=\"${color_green_light}${qbt_standard}${color_yellow_light}\"${color_end}"
+		printf '%b\n\n' " ${color_yellow_light}  qbt_static_ish=\"${color_green_light}${qbt_static_ish}${color_yellow_light}\"${color_end}"
 	}
 
 	# Dynamic tests to change settings based on the use of qmake,cmake,strip and debug
@@ -230,6 +231,20 @@ _set_default_values() {
 		qbt_qbittorrent_debug='--enable-debug'
 	else
 		qbt_cmake_debug='OFF'
+	fi
+
+	# staticish builds
+	if [[ ${qbt_static_ish:=no} == "yes" ]]; then
+		qbt_ldflags_static=""
+
+		if [[ "${os_id}" =~ ^(debian|ubuntu)$ ]]; then delete+=("glibc"); fi
+
+		if [[ ${qbt_cross_name} != "default" ]]; then
+			printf '\n%b\n\n' " ${unicode_red_light_circle} You cannot use the ${color_blue_light}-si${color_end} flag with cross compilation${color_end}"
+			exit 1
+		fi
+	else
+		qbt_ldflags_static="-static"
 	fi
 
 	# Dynamic tests to change settings based on the use of qmake,cmake,strip and debug
@@ -636,9 +651,9 @@ _debug() {
 # This function sets some compiler flags globally - b2 settings are set in the ~/user-config.jam  set in the _installation_modules function
 #######################################################################################################################################################
 _custom_flags_set() {
-	CXXFLAGS="${qbt_optimize/*/${qbt_optimize} }-std=${qbt_cxx_standard} -static -w -Wno-psabi -I${include_dir}"
-	CPPFLAGS="${qbt_optimize/*/${qbt_optimize} }-static -w -Wno-psabi -I${include_dir}"
-	LDFLAGS="${qbt_optimize/*/${qbt_optimize} }-static ${qbt_strip_flags} -L${lib_dir} -pthread"
+	CXXFLAGS="${qbt_optimize/*/${qbt_optimize} }-std=${qbt_cxx_standard} ${qbt_ldflags_static} -w -Wno-psabi -I${include_dir}"
+	CPPFLAGS="${qbt_optimize/*/${qbt_optimize} }${qbt_ldflags_static} -w -Wno-psabi -I${include_dir}"
+	LDFLAGS="${qbt_optimize/*/${qbt_optimize} }${qbt_ldflags_static} ${qbt_strip_flags} -L${lib_dir} -pthread"
 }
 
 _custom_flags_reset() {
@@ -1770,10 +1785,26 @@ while (("${#}")); do
 		-o | --optimize)
 			qbt_optimize="-march=native"
 			shift
+			if [[ -z ${qbt_cross_name} ]]; then
+				qbt_optimize="-march=native"
+				shift
+			else
+				printf '\n%b\n\n' " ${unicode_red_light_circle} You cannot use the ${color_blue_light}-o${color_end} flag with cross compilation"
+				exit 1
+			fi
 			;;
 		-s | --strip)
 			qbt_optimise_strip="yes"
 			shift
+			;;
+		-si | --static-ish)
+			if [[ -z ${qbt_cross_name} ]]; then
+				qbt_static_ish="yes"
+				shift
+			else
+				printf '\n%b\n\n' " ${unicode_red_light_circle} You cannot use the ${color_blue_light}-si${color_end} flag with cross compilation${color_end}"
+				exit 1
+			fi
 			;;
 		-sdu | --script-debug-urls)
 			script_debug_urls="yes"
@@ -2005,8 +2036,9 @@ while (("${#}")); do
 			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-qm${color_end}    ${text_dim}or${color_end} ${color_blue_light}--qbittorrent-master${color_end}    ${color_yellow}Help:${color_end} ${color_blue_light}-h-qm${color_end}    ${text_dim}or${color_end} ${color_blue_light}--help-qbittorrent-master${color_end}"
 			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-qt${color_end}    ${text_dim}or${color_end} ${color_blue_light}--qbittorrent-tag${color_end}       ${color_yellow}Help:${color_end} ${color_blue_light}-h-qt${color_end}    ${text_dim}or${color_end} ${color_blue_light}--help-qbittorrent-tag${color_end}"
 			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-qtt${color_end}   ${text_dim}or${color_end} ${color_blue_light}--qt-tag${color_end}                ${color_yellow}Help:${color_end} ${color_blue_light}-h-qtt${color_end}   ${text_dim}or${color_end} ${color_blue_light}--help-qtt-tag${color_end}"
-			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-s${color_end}     ${text_dim}or${color_end} ${color_blue_light}--strip${color_end}                 ${color_yellow}Help:${color_end} ${color_blue_light}-h-s${color_end}     ${text_dim}or${color_end} ${color_blue_light}--help-strip${color_end}"
 			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-sdu${color_end}   ${text_dim}or${color_end} ${color_blue_light}--script-debug-urls${color_end}     ${color_yellow}Help:${color_end} ${color_blue_light}-h-sdu${color_end}   ${text_dim}or${color_end} ${color_blue_light}--help-script-debug-urls${color_end}"
+			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-si${color_end}    ${text_dim}or${color_end} ${color_blue_light}--static-ish${color_end}            ${color_yellow}Help:${color_end} ${color_blue_light}-h-s${color_end}     ${text_dim}or${color_end} ${color_blue_light}--help-strip${color_end}"
+			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-s${color_end}     ${text_dim}or${color_end} ${color_blue_light}--strip${color_end}                 ${color_yellow}Help:${color_end} ${color_blue_light}-h-s${color_end}     ${text_dim}or${color_end} ${color_blue_light}--help-strip${color_end}"
 			printf '%b\n' " ${color_green}Use:${color_end} ${color_blue_light}-wf${color_end}    ${text_dim}or${color_end} ${color_blue_light}--workflow${color_end}              ${color_yellow}Help:${color_end} ${color_blue_light}-h-wf${color_end}    ${text_dim}or${color_end} ${color_blue_light}--help-workflow${color_end}"
 			printf '\n%b\n' " ${text_bold}${text_underlined}Module specific help - flags are used with the modules listed here.${color_end}"
 			printf '\n%b\n' " ${color_green}Use:${color_end} ${color_magenta_light}all${color_end} ${text_dim}or${color_end} ${color_magenta_light}module-name${color_end}          ${color_green}Usage:${color_end} ${color_cyan_light}${qbt_working_dir_short}/$(basename -- "$0")${color_end} ${color_magenta_light}all${color_end} ${color_blue_light}-i${color_end}"
@@ -2039,6 +2071,8 @@ while (("${#}")); do
 			printf '%b\n' " ${text_dim}${color_magenta_light}export qbt_libtorrent_master_jamfile=\"\"${color_end} ${text_dim}-${color_end} ${text_dim}${color_red_light}options${color_end} ${text_dim}yes no - use RC branch instead of release jamfile${color_end}"
 			printf '%b\n' " ${text_dim}${color_magenta_light}export qbt_optimise_strip=\"\"${color_end} ${text_dim}------------${color_end} ${text_dim}${color_red_light}options${color_end} ${text_dim}yes no - strip binaries - cannot be used with debug${color_end}"
 			printf '%b\n' " ${text_dim}${color_magenta_light}export qbt_build_debug=\"\"${color_end} ${text_dim}---------------${color_end} ${text_dim}${color_red_light}options${color_end} ${text_dim}yes no - debug build - cannot be used with strip${color_end}"
+			printf '%b\n' " ${text_dim}${color_magenta_light}export qbt_standard=\"\"${color_end} ${text_dim}------------------${color_end} ${text_dim}${color_red_light}options${color_end} ${text_dim}14 - 17 - 20 - 23 - c standard for gcc - for older build combos${color_end}"
+			printf '%b\n' " ${text_dim}${color_magenta_light}export qbt_static_ish=\"\"${color_end} ${text_dim}----------------${color_end} ${text_dim}${color_red_light}options${color_end} ${text_dim}yes no - libc linking - link dynamically to libc${color_end}"
 			_print_env
 			exit
 			;;
@@ -2254,6 +2288,13 @@ while (("${#}")); do
 			printf '\n%b\n' " If you need to debug a build with gdb you must build a debug build using the flag ${color_blue_light}-d${color_end}"
 			printf '\n%b\n' " ${text_dim}This flag is provided with no arguments.${color_end}"
 			printf '\n%b\n\n' " ${color_blue_light}-s${color_end}"
+			exit
+			;;
+		-h-si | --help-static-ish)
+			printf '\n%b\n' " ${unicode_cyan_light_circle} ${text_bold}${text_underlined}Here is the help description for this flag:${color_end}"
+			printf '\n%b\n' " Do not statically link libc (glibc/muslc) when building qbittorrent-nox"
+			printf '\n%b\n' " ${text_dim}This flag is provided with no arguments.${color_end}"
+			printf '\n%b\n\n' " ${color_blue_light}-si${color_end}"
 			exit
 			;;
 		-h-sdu | --help-script-debug-urls)

@@ -1,3 +1,11 @@
+### 2.0.6 - 2024-01-27
+
+New flag: `-si` / `--static-ish` for Debian, Ubuntu, and Alpine platforms. This flag disables LDFLAG static linking, allowing the OS libc to be dynamically linked.
+
+You cannot you this flag with cross compilation, only native host builds.
+
+Tests were added for ` static-ish` and `optimise` to check for bad combinations, exiting the script with a helpful reason when used in combination with cross compilation, as the build will fail.
+
 ### v2.0.5 - 23-01-2024
 
 Codename: Copilot made me do it
