@@ -797,7 +797,7 @@ _set_module_urls() {
 		app_version[ninja_debian]="${github_tag[cmake_ninja]#*_}"
 		app_version[glibc]="${github_tag[glibc]#glibc-}"
 	else
-		app_version[cmake]="$(apk info -d cmake | awk '/cmake-/{sub("(cmake-)", "");sub("(-r)", ""); print $1 }')"
+		app_version[cmake]="$(apk info -d cmake | awk '/cmake-/{sub("(cmake-)", "");sub("(-r)", ""); print $1 }' | sort -r | head -n1)"
 		app_version[ninja]="${github_tag[ninja]#v}"
 	fi
 	app_version[zlib]="$(_curl "https://raw.githubusercontent.com/zlib-ng/zlib-ng/${github_tag[zlib]}/zlib.h.in" | sed -rn 's|#define ZLIB_VERSION "(.*)"|\1|p' | sed 's/\.zlib-ng//g')"
@@ -1589,6 +1589,7 @@ _multi_arch() {
 				fi
 
 				tar xf "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz" --strip-components=1 -C "${qbt_install_dir}"
+
 				_fix_multiarch_static_links "${qbt_cross_host}"
 			fi
 
