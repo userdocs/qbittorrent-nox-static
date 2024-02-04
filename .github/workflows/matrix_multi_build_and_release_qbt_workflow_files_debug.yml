@@ -9,6 +9,7 @@ on:
       skip_rerun:
         description: "Skip rerun?"
         required: true
+        default: true
         type: boolean
       retries:
         description: "Number of rerun retries"
@@ -30,9 +31,9 @@ jobs:
         os_id: [alpine]
         os_version_id: [edge]
         # qbt_cross_name: [armel,armhf,armv7,aarch64,x86_64,x86,s390x,powerpc,ppc64el,mips,mipsel,mips64,mips64el,riscv64]
-        qbt_cross_name: [armhf, armv7, aarch64, x86_64, x86]
+        qbt_cross_name: ["armhf", "armv7", "aarch64", "x86_64", "x86"]
         qbt_libtorrent_version: ["1.2", "2.0"]
-        qbt_build_tool: ["", cmake]
+        qbt_build_tool: ["", "cmake"]
         include:
           - qbt_build_tool: ""
             qbt_qt_version_name: "qt5-"
@@ -233,8 +234,8 @@ jobs:
 
           readarray -t release_sorted < <(printf '%s\n' "${release[@]}" | sort)
 
-          for dependency_version in 1\.2/*-dependency-version.json 2\.0/*-dependency-version.json; do
-            [[ -f "${dependency_version}" ]] && dependency_version+=("${dependency_version}")
+          for dependency_version_files in 1\.2/*-dependency-version.json 2\.0/*-dependency-version.json; do
+            [[ -f "${dependency_version_files}" ]] && dependency_version+=("${dependency_version_files}")
           done
 
           readarray -t dependency_version_sorted < <(printf '%s\n' "${dependency_version[@]}" | sort)
@@ -260,7 +261,7 @@ jobs:
           name: "${{ env.release_title }}"
           bodyFile: "release.md"
           allowUpdates: true
-          token: "${{ secrets.GITHUB_TOKEN }}"
+          token: "${{ github.TOKEN }}"
 
   rerun-on-failure:
     if: failure() && inputs.skip_rerun == '0'
@@ -270,7 +271,7 @@ jobs:
       actions: write
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+      GH_TOKEN: "${{ github.TOKEN }}"
     steps:
       - uses: actions/checkout@v4
       - name: Trigger rerun workflow on job failures
