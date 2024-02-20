@@ -60,7 +60,6 @@ jobs:
           - qbt_build_tool: ""
             qbt_qt_version_name: "qt5-"
             qbt_qt_version: "5"
-
           - qbt_build_tool: "cmake"
             qbt_qt_version_name: ""
             qbt_qt_version: "6"
@@ -288,24 +287,31 @@ jobs:
             for release in 1\.2/*-release.md; do
               [[ -f "${release}" ]] && release+=("${release}")
             done
+            revision="$(jq -r .revision 1\.2/*-dependency-version.json | head -n1)"
           fi
 
           if [[ ${{ matrix.qbt_libtorrent_version }} == "2.0" ]]; then
             for release in 2\.0/*-release.md; do
               [[ -f "${release}" ]] && release+=("${release}")
             done
+            revision="$(jq -r .revision 2\.0/*-dependency-version.json | head -n1)"
           fi
 
           readarray -t release_sorted < <(printf '%s\n' "${release[@]}" | sort)
 
           for dependency_version_files in 1\.2/*-dependency-version.json 2\.0/*-dependency-version.json; do
-            [[ -f "${dependency_version_files}" ]] && dependency_version+=("${dependency_version_files}")
+            if [[ -f "${dependency_version_files}" ]]; then
+                sed -r 's/"revision": (.*)/PLACEHOLDER/g' -i "${dependency_version_files}"
+                dependency_version+=("${dependency_version_files}")
+            fi
           done
 
           readarray -t dependency_version_sorted < <(printf '%s\n' "${dependency_version[@]}" | sort)
 
           paste -d '\n' "${release_sorted[@]}" | uniq | awk '!(NF && seen[$0]++) || /^>/' > "tmp-release.md"
           paste -d '\n' "${dependency_version_sorted[@]}" | uniq | awk '!(NF && seen[$0]++)' > "dependency-version.json"
+
+          sed -i "s|PLACEHOLDER|\"revision\": \"${revision}\"|" dependency-version.json
 
           ./pandoc --wrap=preserve -f gfm tmp-release.md -t gfm -o release.md
 
