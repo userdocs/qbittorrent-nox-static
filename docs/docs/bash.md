@@ -1,6 +1,6 @@
 ---
-title: Build Help
-description: Build Help
+title: A bash file via shiki
+description: syntax highlighting
 ---
 
 ```bash
