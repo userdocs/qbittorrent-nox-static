@@ -1,0 +1,51 @@
+.CodeBlock {
+  position: relative;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--ifm-color-emphasis-700);
+  border-bottom: 1px solid var(--ifm-color-emphasis-200);
+  background-color: var(--ifm-color-emphasis-100);
+  font-size: calc(var(--ifm-code-font-size) * 0.8);
+  font-weight: 500;
+  padding: 0.5em var(--ifm-pre-padding);
+  border-top-left-radius: var(--ifm-pre-border-radius);
+  border-top-right-radius: var(--ifm-pre-border-radius);
+}
+
+.button {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  background: var(--prism-background-color);
+  color: var(--ifm-color-emphasis-700);
+  border: 1.4px solid var(--ifm-color-emphasis-700);
+  border-radius: var(--ifm-global-radius);
+  padding: 0.4rem;
+  line-height: 0;
+  transition: opacity var(--ifm-transition-fast) ease-in-out;
+  opacity: 0;
+}
+
+.CodeBlock:hover .button {
+  opacity: 0.4;
+}
+
+.CodeBlock:hover .button:focus-visible,
+.CodeBlock:hover .button:hover {
+  opacity: 1;
+}
+
+.content {
+  position: relative;
+}
+
+.header + .content .pre {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
