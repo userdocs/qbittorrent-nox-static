@@ -22,15 +22,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: node lts version check
-        run: |
-          node_ver="$(curl -sL https://nodejs.org/download/release/index.json | jq -r '[.[]|select(.lts)][0].version')"
-          printf '%s' "node_ver=${node_ver#v}" >> $GITHUB_ENV
+      # - name: node lts version check
+      #   run: |
+      #     node_ver="$(curl -sL https://nodejs.org/download/release/index.json | jq -r '[.[]|select(.lts)][0].version')"
+      #     printf '%s' "node_ver=${node_ver#v}" >> $GITHUB_ENV
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: ${{ env.node_ver }}
+          node-version: lts/*
 
       - name: Install dependencies
         run: if [[ -d docs ]]; then cd docs && npm install; else exit 1; fi
