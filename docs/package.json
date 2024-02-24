@@ -27,7 +27,8 @@
 		"react-icons": "^5.0.1",
 		"react-markdown": "^9.0.1",
 		"react-toggle": "^4.1.3",
-		"react-tooltip": "^5.26.0"
+		"react-tooltip": "^5.26.0",
+		"remark-expressive-code": "^0.33.4"
 	},
 	"devDependencies": {
 		"@docusaurus/module-type-aliases": "3.1.1",
