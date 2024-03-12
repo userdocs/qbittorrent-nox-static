@@ -1,0 +1,13 @@
+---
+const posts = await Astro.glob('/src/content/docs/glossary/*.md');
+const basePath = "/" + Astro.url.pathname.split("/")[1] + "/";
+const Test = Astro.url.pathname;
+// const Test2 = thePath.substring(thePath.lastIndexOf('/') + 1);
+---
+
+<ul>
+  {posts.map(post =>
+  <li>
+  <a href= {"glossary/" + post.file.substring(post.file.lastIndexOf('/') + 1).replace(".md", "")}>{post.frontmatter.title}</a>
+  </li>)}
+</ul>

@@ -1,16 +1,14 @@
 name: Deploy to GitHub Pages
 
 on:
+  # Trigger the workflow every time you push to the `main` branch
+  # Using a different branch name? Replace `main` with your branch’s name
   push:
     branches: [master]
-    paths:
-      - docs/**
+  # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
 
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
+# Allow this job to clone the repo and create a page deployment
 permissions:
   contents: read
   pages: write
@@ -20,29 +18,13 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout your repository using git
+        uses: actions/checkout@v4
 
-      # - name: node lts version check
-      #   run: |
-      #     node_ver="$(curl -sL https://nodejs.org/download/release/index.json | jq -r '[.[]|select(.lts)][0].version')"
-      #     printf '%s' "node_ver=${node_ver#v}" >> $GITHUB_ENV
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Install, build, and upload your site
+        uses: withastro/action@v2
         with:
-          node-version: lts/*
-
-      - name: Install dependencies
-        run: if [[ -d docs ]]; then cd docs && npm install; else exit 1; fi
-
-      - name: Build site
-        run: if [[ -d docs ]]; then cd docs && npm run build; else exit 1; fi
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          name: github-pages
-          path: ./docs/build/
+          path: ./docs
 
   deploy:
     needs: build

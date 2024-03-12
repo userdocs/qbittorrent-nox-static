@@ -1,0 +1,11 @@
+---
+const html = await Astro.slots.render('default');
+const regex = /id=/g;
+const fixed = html.replace(regex, 'class="Advanced-class" id=');
+
+---
+
+{fixed}
+
+<Fragment set:html={fixed} />
+

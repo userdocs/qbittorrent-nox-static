@@ -1,0 +1,11 @@
+---
+import MyToolTip from "/src/components/react/tooltip.jsx"
+const { id, label } = Astro.props;
+
+const posts = await Astro.glob('/src/content/docs/glossary/*.md');
+const regex = new RegExp(`${id}\.md$|${id}\.mdx$`);
+const filtered = posts.find(post => post.file.match(regex));
+const basePath = "/" + Astro.url.pathname.split("/")[1] + "/";
+---
+
+<MyToolTip test={filtered} id={id} label={label} slot="test" html={filtered.compiledContent()} basePath={basePath} client:only></MyToolTip>

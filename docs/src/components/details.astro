@@ -1,0 +1,12 @@
+---
+const { class: className, id, summary } = Astro.props;
+---
+
+<div class:list={['custom-details-container', className]}  {... Astro.props}>
+    <details class="custom-details" >
+        <summary class="custom-summary">{summary}</summary>
+        <div class="custom-content">
+            <slot />
+        </div>
+    </details>
+</div>

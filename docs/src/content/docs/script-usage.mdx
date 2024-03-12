@@ -1,0 +1,56 @@
+---
+title: Script Usage
+hide_title: true
+---
+
+import { Advanced, Details, Modal, Tooltip, Charts } from "/src/components/global.jsx"
+import { Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon  } from '@astrojs/starlight/components';
+
+:::tip[Just use docker]
+The preferred and recommended build platform is Alpine Linux and the recommended method is via docker. It will just make things easier.
+:::
+
+:::caution[Assumptions]
+The guide will assume you are using docker, with example commands that are either one liners or from within the container.
+:::
+
+:::danger
+Don't run this directly on the host system unless you know what you are doing. It's not recommended and the build will probably fail.
+:::
+
+
+<Details summary="What to expect">![](/astro-starlight/docs_images/script_usage/first-run.png)</Details>
+
+⭐ When you are familiar with the script you can do anything you want with a one liner. It's pretty simple to use.
+
+### Host - execute script
+
+To execute the script use this command:
+
+```bash
+chmod +x ~/qbt.sh # make it executable
+```
+
+```bash
+~/qbt.sh
+```
+
+<Advanced client:only>
+
+:::note
+Please see the [switches and flags summary](./build-help?id=switches-and-flags-summarised) to see what options you can pass and how to use them
+:::
+
+You can modify the installation command by editing this part of the docker command.
+
+```bash
+bash -s all
+```
+
+For example, to use `ICU` using `-i`, `-c` to trigger cmake and in turn activate Qt6 and optimise for the system CPU using `-o`:
+
+```bash
+bash -s all -i -c -o
+```
+
+</Advanced>

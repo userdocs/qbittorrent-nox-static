@@ -1,0 +1,6 @@
+---
+import LightBox from '/src/components/react/lightbox.jsx'
+const {path, width, height} = Astro.props;
+---
+
+<LightBox path={path} width={width} height={height} client:only/>

@@ -1,0 +1,207 @@
+---
+title: Script Installation
+description: Script Installation
+---
+
+import { Advanced, Details, Modal, Tooltip, Charts } from "/src/components/global.jsx"
+import { Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon  } from '@astrojs/starlight/components';
+
+## Docker - Install commands
+
+<Tabs>
+<TabItem value="Notes" label="Notes">
+
+Some notes on the dockers method:
+
+- We use a subdirectory, not your `$HOME` directory, to avoid `.bashrc` and `.profile` conflicts.
+- A subdirectory is automatically created, named `qbt` by the use of `-v $HOME/qbt:/root`
+- The default path will be `HOME/qbt` outside the docker container and `/root/qbt` inside it.
+- We use `-e "LANG=en_GB.UTF-8"` with Debian based images to avoid some errors.
+
+</TabItem>
+<TabItem value="Debian Linux" label="Debian">
+
+:::note[tags]
+You use `debian:bullseye` `debian:bookworm` `debian:latest` or a supported tag
+:::
+
+To bootstrap the container:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
+```
+
+</TabItem>
+<TabItem value="Ubuntu Linux" label="Ubuntu">
+
+:::note[tags]
+You use `ubuntu:focal` `ubuntu:jammy` `ubuntu:noble` `ubuntu:latest`
+:::
+
+To bootstrap the container:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
+```
+
+</TabItem>
+<TabItem value="Alpine Linux" label="Alpine">
+
+:::note[tags]
+You use `alpine:edge` `alpine:latest`
+:::
+
+To bootstrap the container:
+
+```bash
+docker run -it -w /root -v ~/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -v ~/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && curl -sL git.io/qbstatic | bash -s all'
+```
+</TabItem>
+</Tabs>
+
+## Host - Install commands
+
+<Tabs>
+<TabItem value="Debian" label="Debian">
+
+```bash
+wget -qO ~/qbittorrent-nox-static.sh https://git.io/qbstatic
+```
+
+</TabItem>
+<TabItem value="Alpine" label="Alpine">
+For Alpine specifically, you need to install bash to use this script.
+
+```bash
+apk add bash
+```
+
+To execute the script use this command:
+
+```bash
+wget -qO ~/qbittorrent-nox-static.sh https://git.io/qbstatic
+```
+</TabItem>
+</Tabs>
+
+## Post installation
+
+If you need to install the dependencies and you have `sudo` privileges then do this:
+
+:::caution
+This only needs to be done once, as root, to install the dependencies. Using certain enviroment variables or switches can add dependencies, like `-c` for cmake.
+
+You may need to escalate your privileges again.
+:::
+
+```bash
+sudo bash ~/qbittorrent-nox-static.sh
+```
+
+## Docker via SSH
+
+Some notes on the dockers method:
+
+- We use a subdirectory, not your `$HOME` directory, to avoid `.bashrc` and `.profile` conflicts.
+- A subdirectory is automatically created, named `qbt` by the use of `-v $HOME/qbt:/root`
+- The finale default path will be `HOME/qbt` outside the docker container and `/root/qbt` inside it.
+
+:::tip
+build envs can be passed to the docker using `-e` . Such as `-e qbt_cross_name=aarch64`
+:::
+
+<Tabs>
+  <TabItem label="Debian">
+
+:::tip
+You use `debian:bullseye` `debian:bookworm` `debian:latest`
+:::
+
+To bootstrap the container:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
+```
+
+</TabItem>
+
+<TabItem label="Ubuntu">
+
+:::tip
+You use `ubuntu:focal` `ubuntu:jammy` `ubuntu:noble` `ubuntu:latest`
+:::
+
+To bootstrap the container:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -e "LANG=en_GB.UTF-8" -v ~/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && curl -sL git.io/qbstatic | bash -s all'
+```
+
+</TabItem>
+
+<TabItem label="Alpine">
+
+:::tip
+You use `alpine:edge` `alpine:latest`
+:::
+
+To bootstrap the container:
+
+```bash
+docker run -it -w /root -v ~/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && bash'
+```
+
+All in one command:
+
+```bash
+docker run -it -w /root -v ~/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && curl -sL git.io/qbstatic | bash -s all'
+```
+
+</TabItem>
+</Tabs>
+
+:::note
+Please see the [switches and flags summary](/build-help?id=switches-and-flags-summarised) to see what options you can pass and how to use them
+:::
+
+You can modify the installation command by editing this part of the docker command.
+
+```bash
+bash -s all
+```
+
+For example, to use `ICU` using `-i`, `-c` to trigger cmake and in turn activate Qt6 and optimise for the system CPU using `-o`:
+
+```bash
+bash -s all -i -c -o
+```

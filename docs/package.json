@@ -1,55 +1,23 @@
 {
-	"name": "qbt-static-docs",
-	"version": "0.0.0",
-	"private": true,
-	"scripts": {
-		"docusaurus": "docusaurus",
-		"start": "docusaurus start",
-		"build": "docusaurus build",
-		"swizzle": "docusaurus swizzle",
-		"deploy": "docusaurus deploy",
-		"clear": "docusaurus clear",
-		"serve": "docusaurus serve",
-		"write-translations": "docusaurus write-translations",
-		"write-heading-ids": "docusaurus write-heading-ids"
-	},
-	"dependencies": {
-		"@docusaurus/core": "3.1.1",
-		"@docusaurus/preset-classic": "3.1.1",
-		"@mdx-js/react": "^3.0.0",
-		"clsx": "^2.0.0",
-		"docusaurus-plugin-remote-content": "^4.0.0",
-		"docusaurus-theme-github-codeblock": "^2.0.2",
-		"markdown-in-js": "^1.1.4",
-		"prism-react-renderer": "^2.3.1",
-		"react": "^18.2.0",
-		"react-dom": "^18.2.0",
-		"react-icons": "^5.0.1",
-		"react-markdown": "^9.0.1",
-		"react-toggle": "^4.1.3",
-		"react-tooltip": "^5.26.0",
-		"remark-expressive-code": "^0.33.4"
-	},
-	"devDependencies": {
-		"@docusaurus/module-type-aliases": "3.1.1",
-		"@docusaurus/types": "3.1.1",
-		"@shikijs/rehype": "^1.1.7",
-		"@shikijs/transformers": "^1.1.7",
-		"shiki": "^1.1.7"
-	},
-	"browserslist": {
-		"production": [
-			">0.5%",
-			"not dead",
-			"not op_mini all"
-		],
-		"development": [
-			"last 3 chrome version",
-			"last 3 firefox version",
-			"last 5 safari version"
-		]
-	},
-	"engines": {
-		"node": ">=18.0"
-	}
+  "name": "proper-plasma",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
+  },
+  "dependencies": {
+    "@astrojs/react": "^3.1.0",
+    "@astrojs/starlight": "^0.21.1",
+    "astro": "^4.5.0",
+    "react-icons": "^5.0.1",
+    "react-markdown": "^9.0.1",
+    "react-toggle": "^4.1.3",
+    "react-tooltip": "^5.26.3",
+    "sharp": "^0.32.5",
+    "yet-another-react-lightbox": "^3.17.0"
+  }
 }

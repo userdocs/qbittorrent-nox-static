@@ -1,0 +1,96 @@
+---
+title: qbittorrent-nox-static
+description: Get started building your docs site with Starlight.
+template: splash
+hero:
+  tagline: Fully static linux binaries for qbittorrent-nox.
+  image:
+    file: /public/logo-static.svg
+  actions:
+    - text: Docs
+      link: /astro-starlight/introduction
+      icon: right-arrow
+      variant: primary
+
+    - text: Github repo
+      link: https://github.com/userdocs/qbittorrent-nox-static
+      icon: right-arrow
+      variant: secondary
+
+    - text: Latest release
+      link: https://github.com/userdocs/qbittorrent-nox-static/releases/latest
+      icon: right-arrow
+      variant: secondary
+    - text: Legacy build
+      link: https://github.com/userdocs/qbittorrent-nox-static-legacy/releases/latest
+      icon: right-arrow
+      variant: secondary
+---
+
+import { Card, CardGrid } from '@astrojs/starlight/components';
+
+<div class="float-container" >
+    <Card class="card-github" icon="github" title="Github Actions and Workflows" >
+
+        <div class="float-child card-image card-image-github">
+            <img class="card-image" style="height:100px; width:100px;" src="/astro-starlight/logo-github.svg"  alt=""/>
+        </div>
+
+        <div class="float-child card-text">
+            <p class="card-text">
+                Making the most of the Github ecosystem by leveraging Github Actions to automate the build process and release new versions as soon as core dependencies are updated and available.
+            </p>
+        </div>
+
+    </Card>
+</div>
+
+<div class="float-container" >
+    <Card class="card-musl" icon="rocket" title="Musl Libc and static linking" >
+
+        <div class="float-child card-image card-image-musl">
+            <img class="card-image" style="height:100px; width:100px;" src="/astro-starlight/logo-musl.svg" alt=""/>
+        </div>
+
+        <div class="float-child card-text">
+            <p class="card-text">
+               Musl libc to create fully secondarytatically linked binaries than can run on on Linux based OS. It was never supposed to be hard to do this. Musl makes it easy.
+            </p>
+        </div>
+
+    </Card>
+</div>
+
+<div class="float-container" >
+    <Card class="card-alpine" icon="star"  title="Alpine Linux as a build host" >
+
+        <div class="float-child card-image card-image-alpine">
+            <img class="card-image" style="height:100px; width:100px;" src="/astro-starlight/logo-alpine.svg" alt=""/>
+        </div>
+
+        <div class="float-child card-text">
+            <p class="card-text">
+                The build host - Alpine Linux is a security-oriented, lightweight Linux distribution based on musl libc and busybox. It is designed for security, simplicity, and resource efficiency.
+            </p>
+        </div>
+
+    </Card>
+</div>
+
+<div class="float-container" >
+    <Card class="card-github" icon="approve-check" title="qBittorent-nox fully static binaries" >
+
+        <div class="float-child card-image card-image-github">
+            <img class="card-image" style="height:100px; width:100px;" src="/astro-starlight/logo-qbittorrent.svg" alt=""/>
+        </div>
+
+        <div class="float-child card-text">
+            <p class="card-text">
+                A fullt static build of qbittorrent-nox. No need to install any dependencies. Just download and run. Deploy it however you want. Easy to deploy as a binary or as part of a docker solution.
+            </p>
+        </div>
+
+    </Card>
+</div>
+
+

@@ -1,0 +1,2234 @@
+[
+  {
+    "name": "Bearded Theme Arc",
+    "slug": "arc",
+    "theme": {
+      "colors": {
+        "blue": "#69C3FF",
+        "green": "#3CEC85",
+        "greenAlt": "#A4EF58",
+        "orange": "#FF955C",
+        "pink": "#F38CEC",
+        "purple": "#B78AFF",
+        "red": "#E35535",
+        "salmon": "#FF738A",
+        "turquoize": "#22ECDB",
+        "yellow": "#EACD61"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#69C3FF",
+        "success": "#3CEC85",
+        "warning": "#FF955C"
+      },
+      "ui": {
+        "border": "#11161f",
+        "default": "#d0d7e4",
+        "defaultMain": "#afbbd2",
+        "defaultalt": "#4a5e84",
+        "primary": "#8196b5",
+        "primaryalt": "#253043",
+        "uibackground": "#1c2433",
+        "uibackgroundalt": "#181f2c",
+        "uibackgroundmid": "#1a212f"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Arc Eolstorm",
+    "slug": "arc-eolstorm",
+    "theme": {
+      "colors": {
+        "blue": "#69C3FF",
+        "green": "#3CEC85",
+        "greenAlt": "#A4EF58",
+        "orange": "#FF955C",
+        "pink": "#F38CEC",
+        "purple": "#B78AFF",
+        "red": "#E35535",
+        "salmon": "#FF738A",
+        "turquoize": "#22ECDB",
+        "yellow": "#EACD61"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#69C3FF",
+        "success": "#3CEC85",
+        "warning": "#FF955C"
+      },
+      "ui": {
+        "border": "#161c25",
+        "default": "#d8dde7",
+        "defaultMain": "#b9c2d3",
+        "defaultalt": "#536686",
+        "primary": "#9DACC3",
+        "primaryalt": "#2c3648",
+        "uibackground": "#222A38",
+        "uibackgroundalt": "#1e2531",
+        "uibackgroundmid": "#202734"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Arc Blueberry",
+    "slug": "arc-blueberry",
+    "theme": {
+      "colors": {
+        "blue": "#69C3FF",
+        "green": "#3CEC85",
+        "greenAlt": "#A4EF58",
+        "orange": "#FF955C",
+        "pink": "#F38CEC",
+        "purple": "#B78AFF",
+        "red": "#E35535",
+        "salmon": "#FF738A",
+        "turquoize": "#22ECDB",
+        "yellow": "#EACD61"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#69C3FF",
+        "success": "#3CEC85",
+        "warning": "#FF955C"
+      },
+      "ui": {
+        "border": "#07080e",
+        "default": "#bcc1dc",
+        "defaultMain": "#9aa2cb",
+        "defaultalt": "#3c4776",
+        "primary": "#8eb0e6",
+        "primaryalt": "#1a1e33",
+        "uibackground": "#111422",
+        "uibackgroundalt": "#0d101b",
+        "uibackgroundmid": "#0f121e"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Arc Eggplant",
+    "slug": "arc-eggplant",
+    "theme": {
+      "colors": {
+        "blue": "#69C3FF",
+        "green": "#3CEC85",
+        "greenAlt": "#A4EF58",
+        "orange": "#FF955C",
+        "pink": "#F38CEC",
+        "purple": "#B78AFF",
+        "red": "#E35535",
+        "salmon": "#FF738A",
+        "turquoize": "#22ECDB",
+        "yellow": "#EACD61"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#69C3FF",
+        "success": "#3CEC85",
+        "warning": "#FF955C"
+      },
+      "ui": {
+        "border": "#0a080e",
+        "default": "#c8c1d9",
+        "defaultMain": "#ada2c5",
+        "defaultalt": "#52456f",
+        "primary": "#9698d8",
+        "primaryalt": "#241e31",
+        "uibackground": "#181421",
+        "uibackgroundalt": "#13101a",
+        "uibackgroundmid": "#16121d"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Oceanic",
+    "slug": "oceanic",
+    "theme": {
+      "colors": {
+        "blue": "#5fb2df",
+        "green": "#97c892",
+        "greenAlt": "#A4EF58",
+        "orange": "#DC8255",
+        "pink": "#d194cd",
+        "purple": "#978dd6",
+        "red": "#B4552D",
+        "salmon": "#ee5d75",
+        "turquoize": "#59c6c8",
+        "yellow": "#f6cc73"
+      },
+      "levels": {
+        "danger": "#ee5d75",
+        "info": "#5fb2df",
+        "success": "#97c892",
+        "warning": "#DC8255"
+      },
+      "ui": {
+        "border": "#101a20",
+        "default": "#cddde6",
+        "defaultMain": "#acc6d4",
+        "defaultalt": "#467188",
+        "primary": "#97c892",
+        "primaryalt": "#284450",
+        "uibackground": "#1a2b34",
+        "uibackgroundalt": "#16252d",
+        "uibackgroundmid": "#182830"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Oceanic Reversed",
+    "slug": "oceanic-reversed",
+    "theme": {
+      "colors": {
+        "blue": "#5fb2df",
+        "green": "#97c892",
+        "greenAlt": "#A4EF58",
+        "orange": "#DC8255",
+        "pink": "#d194cd",
+        "purple": "#978dd6",
+        "red": "#B4552D",
+        "salmon": "#ee5d75",
+        "turquoize": "#59c6c8",
+        "yellow": "#f6cc73"
+      },
+      "levels": {
+        "danger": "#ee5d75",
+        "info": "#5fb2df",
+        "success": "#97c892",
+        "warning": "#DC8255"
+      },
+      "ui": {
+        "border": "#0b1115",
+        "default": "#c3d6e0",
+        "defaultMain": "#a2bfce",
+        "defaultalt": "#41687c",
+        "primary": "#97c892",
+        "primaryalt": "#1e303a",
+        "uibackground": "#111c22",
+        "uibackgroundalt": "#152229",
+        "uibackgroundmid": "#131f25"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Solarized Dark",
+    "slug": "solarized-dark",
+    "theme": {
+      "colors": {
+        "blue": "#399fe8",
+        "green": "#94a522",
+        "greenAlt": "#A4EF58",
+        "orange": "#d8822c",
+        "pink": "#ce81c8",
+        "purple": "#767cde",
+        "red": "#eb4937",
+        "salmon": "#e54b95",
+        "turquoize": "#38bbb0",
+        "yellow": "#dfbe5a"
+      },
+      "levels": {
+        "danger": "#eb4937",
+        "info": "#399fe8",
+        "success": "#94a522",
+        "warning": "#dfbe5a"
+      },
+      "ui": {
+        "border": "#0b191e",
+        "default": "#c3e0e9",
+        "defaultMain": "#9eccdb",
+        "defaultalt": "#367b90",
+        "primary": "#47cfc4",
+        "primaryalt": "#1a3c47",
+        "uibackground": "#132c34",
+        "uibackgroundalt": "#10252c",
+        "uibackgroundmid": "#112830"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Solarized Light",
+    "slug": "solarized-light",
+    "theme": {
+      "colors": {
+        "blue": "#399fe8",
+        "green": "#94a522",
+        "greenAlt": "#A4EF58",
+        "orange": "#d8822c",
+        "pink": "#ce81c8",
+        "purple": "#767cde",
+        "red": "#eb4937",
+        "salmon": "#e54b95",
+        "turquoize": "#38bbb0",
+        "yellow": "#dfbe5a"
+      },
+      "levels": {
+        "danger": "#eb4937",
+        "info": "#399fe8",
+        "success": "#94a522",
+        "warning": "#dfbe5a"
+      },
+      "ui": {
+        "border": "#ddd3b7",
+        "default": "#000000",
+        "defaultMain": "#000000",
+        "defaultalt": "#8fa2a0",
+        "primary": "#2aa198",
+        "primaryalt": "#fef9ed",
+        "uibackground": "#fdf6e3",
+        "uibackgroundalt": "#f4edda",
+        "uibackgroundmid": "#f8f1df"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Solarized Reversed",
+    "slug": "solarized-reversed",
+    "theme": {
+      "colors": {
+        "blue": "#399fe8",
+        "green": "#94a522",
+        "greenAlt": "#A4EF58",
+        "orange": "#d8822c",
+        "pink": "#ce81c8",
+        "purple": "#767cde",
+        "red": "#eb4937",
+        "salmon": "#e54b95",
+        "turquoize": "#38bbb0",
+        "yellow": "#dfbe5a"
+      },
+      "levels": {
+        "danger": "#eb4937",
+        "info": "#399fe8",
+        "success": "#94a522",
+        "warning": "#dfbe5a"
+      },
+      "ui": {
+        "border": "#070f12",
+        "default": "#bad7e3",
+        "defaultMain": "#96c2d4",
+        "defaultalt": "#356c82",
+        "primary": "#47cfc4",
+        "primaryalt": "#17303a",
+        "uibackground": "#0d1a20",
+        "uibackgroundalt": "#102128",
+        "uibackgroundmid": "#0f1d24"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Amethyst",
+    "slug": "black-&-amethyst",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#040506",
+        "default": "#bec6d0",
+        "defaultMain": "#a0acbb",
+        "defaultalt": "#475262",
+        "primary": "#a85ff1",
+        "primaryalt": "#1c2027",
+        "uibackground": "#111418",
+        "uibackgroundalt": "#0c0f11",
+        "uibackgroundmid": "#0f1215"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Amethyst Soft",
+    "slug": "black-&-amethyst-soft",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#0b0b13",
+        "default": "#c6c5dc",
+        "defaultMain": "#a7a5c9",
+        "defaultalt": "#494676",
+        "primary": "#a85ff1",
+        "primaryalt": "#211f36",
+        "uibackground": "#171626",
+        "uibackgroundalt": "#13121f",
+        "uibackgroundmid": "#151422"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Diamond",
+    "slug": "black-&-diamond",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#040506",
+        "default": "#bec6d0",
+        "defaultMain": "#a0acbb",
+        "defaultalt": "#475262",
+        "primary": "#11B7D4",
+        "primaryalt": "#1c2027",
+        "uibackground": "#111418",
+        "uibackgroundalt": "#0c0f11",
+        "uibackgroundmid": "#0f1215"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Diamond Soft",
+    "slug": "black-&-diamond-soft",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#0b0e13",
+        "default": "#c5cfdc",
+        "defaultMain": "#a5b5c9",
+        "defaultalt": "#465b76",
+        "primary": "#11B7D4",
+        "primaryalt": "#1f2936",
+        "uibackground": "#161d26",
+        "uibackgroundalt": "#12181f",
+        "uibackgroundmid": "#141a22"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Emerald",
+    "slug": "black-&-emerald",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#040506",
+        "default": "#bec6d0",
+        "defaultMain": "#a0acbb",
+        "defaultalt": "#475262",
+        "primary": "#38c7bd",
+        "primaryalt": "#1c2027",
+        "uibackground": "#111418",
+        "uibackgroundalt": "#0c0f11",
+        "uibackgroundmid": "#0f1215"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Emerald Soft",
+    "slug": "black-&-emerald-soft",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#0b1113",
+        "default": "#c5d6dc",
+        "defaultMain": "#a5c0c9",
+        "defaultalt": "#466a76",
+        "primary": "#38c7bd",
+        "primaryalt": "#1f3036",
+        "uibackground": "#162226",
+        "uibackgroundalt": "#121c1f",
+        "uibackgroundmid": "#141f22"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Gold",
+    "slug": "black-&-gold",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#040506",
+        "default": "#bec6d0",
+        "defaultMain": "#a0acbb",
+        "defaultalt": "#475262",
+        "primary": "#c7910c",
+        "primaryalt": "#1c2027",
+        "uibackground": "#111418",
+        "uibackgroundalt": "#0c0f11",
+        "uibackgroundmid": "#0f1215"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Gold Soft",
+    "slug": "black-&-gold-soft",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#11100f",
+        "default": "#d5d1cf",
+        "defaultMain": "#bdb8b4",
+        "defaultalt": "#665e59",
+        "primary": "#c7910c",
+        "primaryalt": "#302c29",
+        "uibackground": "#221f1d",
+        "uibackgroundalt": "#1c1918",
+        "uibackgroundmid": "#1f1c1a"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Ruby",
+    "slug": "black-&-ruby",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#040506",
+        "default": "#bec6d0",
+        "defaultMain": "#a0acbb",
+        "defaultalt": "#475262",
+        "primary": "#c62f52",
+        "primaryalt": "#1c2027",
+        "uibackground": "#111418",
+        "uibackgroundalt": "#0c0f11",
+        "uibackgroundmid": "#0f1215"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Black & Ruby Soft",
+    "slug": "black-&-ruby-soft",
+    "theme": {
+      "colors": {
+        "blue": "#11B7D4",
+        "green": "#00a884",
+        "greenAlt": "#3585bb",
+        "orange": "#d4770c",
+        "pink": "#d46ec0",
+        "purple": "#a85ff1",
+        "red": "#E35535",
+        "salmon": "#c62f52",
+        "turquoize": "#38c7bd",
+        "yellow": "#c7910c"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#11B7D4",
+        "success": "#00a884",
+        "warning": "#d4770c"
+      },
+      "ui": {
+        "border": "#150e12",
+        "default": "#dccbd3",
+        "defaultMain": "#c8acba",
+        "defaultalt": "#744d61",
+        "primary": "#c62f52",
+        "primaryalt": "#37242e",
+        "uibackground": "#281a21",
+        "uibackgroundalt": "#21161b",
+        "uibackgroundmid": "#24181e"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Stained Purple",
+    "slug": "stained-purple",
+    "theme": {
+      "colors": {
+        "blue": "#3398DB",
+        "green": "#37ae6f",
+        "greenAlt": "#7E9E2D",
+        "orange": "#D26D32",
+        "pink": "#CC71BC",
+        "purple": "#935cd1",
+        "red": "#C13838",
+        "salmon": "#de456b",
+        "turquoize": "#24B5A8",
+        "yellow": "#c9a022"
+      },
+      "levels": {
+        "danger": "#C13838",
+        "info": "#3398DB",
+        "success": "#37ae6f",
+        "warning": "#c9a022"
+      },
+      "ui": {
+        "border": "#120e18",
+        "default": "#d2cadf",
+        "defaultMain": "#b7aacc",
+        "defaultalt": "#5c497b",
+        "primary": "#a948ef",
+        "primaryalt": "#2c223b",
+        "uibackground": "#20192b",
+        "uibackgroundalt": "#1b1524",
+        "uibackgroundmid": "#1d1727"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Stained Blue",
+    "slug": "stained-blue",
+    "theme": {
+      "colors": {
+        "blue": "#3398DB",
+        "green": "#37ae6f",
+        "greenAlt": "#7E9E2D",
+        "orange": "#D26D32",
+        "pink": "#CC71BC",
+        "purple": "#935cd1",
+        "red": "#C13838",
+        "salmon": "#de456b",
+        "turquoize": "#24B5A8",
+        "yellow": "#c9a022"
+      },
+      "levels": {
+        "danger": "#C13838",
+        "info": "#3398DB",
+        "success": "#37ae6f",
+        "warning": "#c9a022"
+      },
+      "ui": {
+        "border": "#080a11",
+        "default": "#bec6df",
+        "defaultMain": "#9ba8cf",
+        "defaultalt": "#3c4c7c",
+        "primary": "#3A7FFF",
+        "primaryalt": "#1a2137",
+        "uibackground": "#121726",
+        "uibackgroundalt": "#0e121e",
+        "uibackgroundmid": "#101522"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Vivid Purple",
+    "slug": "vivid-purple",
+    "theme": {
+      "colors": {
+        "blue": "#28A9FF",
+        "green": "#42DD76",
+        "greenAlt": "#b7d175",
+        "orange": "#FF7135",
+        "pink": "#E66DFF",
+        "purple": "#A95EFF",
+        "red": "#D62C2C",
+        "salmon": "#FF478D",
+        "turquoize": "#14E5D4",
+        "yellow": "#FFB638"
+      },
+      "levels": {
+        "danger": "#D62C2C",
+        "info": "#28A9FF",
+        "success": "#42DD76",
+        "warning": "#FFB638"
+      },
+      "ui": {
+        "border": "#0c091a",
+        "default": "#c7bfe8",
+        "defaultMain": "#a699db",
+        "defaultalt": "#44338f",
+        "primary": "#A680FF",
+        "primaryalt": "#201844",
+        "uibackground": "#171131",
+        "uibackgroundalt": "#130e29",
+        "uibackgroundmid": "#15102d"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Vivid Black",
+    "slug": "vivid-black",
+    "theme": {
+      "colors": {
+        "blue": "#28A9FF",
+        "green": "#42DD76",
+        "greenAlt": "#b7d175",
+        "orange": "#FF7135",
+        "pink": "#E66DFF",
+        "purple": "#A95EFF",
+        "red": "#D62C2C",
+        "salmon": "#FF478D",
+        "turquoize": "#14E5D4",
+        "yellow": "#FFB638"
+      },
+      "levels": {
+        "danger": "#D62C2C",
+        "info": "#28A9FF",
+        "success": "#42DD76",
+        "warning": "#FFB638"
+      },
+      "ui": {
+        "border": "#060607",
+        "default": "#c5c5cb",
+        "defaultMain": "#aaaab3",
+        "defaultalt": "#50505a",
+        "primary": "#AAAAAA",
+        "primaryalt": "#202025",
+        "uibackground": "#141417",
+        "uibackgroundalt": "#0f0f11",
+        "uibackgroundmid": "#121214"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Vivid Light",
+    "slug": "vivid-light",
+    "theme": {
+      "colors": {
+        "blue": "#28A9FF",
+        "green": "#00d647",
+        "greenAlt": "#b7d175",
+        "orange": "#FF7135",
+        "pink": "#E66DFF",
+        "purple": "#A95EFF",
+        "red": "#D62C2C",
+        "salmon": "#FF478D",
+        "turquoize": "#00d6c4",
+        "yellow": "#ffaa18"
+      },
+      "levels": {
+        "danger": "#D62C2C",
+        "info": "#28A9FF",
+        "success": "#42DD76",
+        "warning": "#FFB638"
+      },
+      "ui": {
+        "border": "#cecece",
+        "default": "#181818",
+        "defaultMain": "#000000",
+        "defaultalt": "#8a8a8a",
+        "primary": "#7e7e7e",
+        "primaryalt": "#f9f9f9",
+        "uibackground": "#f4f4f4",
+        "uibackgroundalt": "#ebebeb",
+        "uibackgroundmid": "#efefef"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Monokai Terra",
+    "slug": "monokai-terra",
+    "theme": {
+      "colors": {
+        "blue": "#78dce8",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#fc9867",
+        "pink": "#e991e3",
+        "purple": "#ab9df2",
+        "red": "#fc6a67",
+        "salmon": "#ff6188",
+        "turquoize": "#78e8c6",
+        "yellow": "#ffd866"
+      },
+      "levels": {
+        "danger": "#fc6a67",
+        "info": "#78dce8",
+        "success": "#a9dc76",
+        "warning": "#ffd866"
+      },
+      "ui": {
+        "border": "#171518",
+        "default": "#d9d6db",
+        "defaultMain": "#bfbbc3",
+        "defaultalt": "#665f6d",
+        "primary": "#b0a2a6",
+        "primaryalt": "#332f37",
+        "uibackground": "#262329",
+        "uibackgroundalt": "#201e23",
+        "uibackgroundmid": "#232026"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Monokai Metallian",
+    "slug": "monokai-metallian",
+    "theme": {
+      "colors": {
+        "blue": "#78dce8",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#fc9867",
+        "pink": "#e991e3",
+        "purple": "#ab9df2",
+        "red": "#fc6a67",
+        "salmon": "#ff6188",
+        "turquoize": "#78e8c6",
+        "yellow": "#ffd866"
+      },
+      "levels": {
+        "danger": "#fc6a67",
+        "info": "#78dce8",
+        "success": "#a9dc76",
+        "warning": "#ffd866"
+      },
+      "ui": {
+        "border": "#111319",
+        "default": "#d0d3de",
+        "defaultMain": "#b2b8c9",
+        "defaultalt": "#535b75",
+        "primary": "#98a2b5",
+        "primaryalt": "#282d3a",
+        "uibackground": "#1e212b",
+        "uibackgroundalt": "#191c24",
+        "uibackgroundmid": "#1b1e27"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Monokai Stone",
+    "slug": "monokai-stone",
+    "theme": {
+      "colors": {
+        "blue": "#78dce8",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#fc9867",
+        "pink": "#e991e3",
+        "purple": "#ab9df2",
+        "red": "#fc6a67",
+        "salmon": "#ff6188",
+        "turquoize": "#78e8c6",
+        "yellow": "#ffd866"
+      },
+      "levels": {
+        "danger": "#fc6a67",
+        "info": "#78dce8",
+        "success": "#a9dc76",
+        "warning": "#ffd866"
+      },
+      "ui": {
+        "border": "#1c1e22",
+        "default": "#dee0e4",
+        "defaultMain": "#c3c6cc",
+        "defaultalt": "#656b78",
+        "primary": "#9AA2A6",
+        "primaryalt": "#363941",
+        "uibackground": "#2A2D33",
+        "uibackgroundalt": "#25282d",
+        "uibackgroundmid": "#272a30"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Monokai Black",
+    "slug": "monokai-black",
+    "theme": {
+      "colors": {
+        "blue": "#78dce8",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#fc9867",
+        "pink": "#e991e3",
+        "purple": "#ab9df2",
+        "red": "#fc6a67",
+        "salmon": "#ff6188",
+        "turquoize": "#78e8c6",
+        "yellow": "#ffd866"
+      },
+      "levels": {
+        "danger": "#fc6a67",
+        "info": "#78dce8",
+        "success": "#a9dc76",
+        "warning": "#ffd866"
+      },
+      "ui": {
+        "border": "#050505",
+        "default": "#c7c7c7",
+        "defaultMain": "#adadad",
+        "defaultalt": "#545454",
+        "primary": "#8f8f8f",
+        "primaryalt": "#212121",
+        "uibackground": "#141414",
+        "uibackgroundalt": "#0e0e0e",
+        "uibackgroundmid": "#111111"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Monokai Reversed",
+    "slug": "monokai-reversed",
+    "theme": {
+      "colors": {
+        "blue": "#78dce8",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#fc9867",
+        "pink": "#e991e3",
+        "purple": "#ab9df2",
+        "red": "#fc6a67",
+        "salmon": "#ff6188",
+        "turquoize": "#78e8c6",
+        "yellow": "#ffd866"
+      },
+      "levels": {
+        "danger": "#fc6a67",
+        "info": "#78dce8",
+        "success": "#a9dc76",
+        "warning": "#ffd866"
+      },
+      "ui": {
+        "border": "#0a0b0f",
+        "default": "#c6cad7",
+        "defaultMain": "#a9aec1",
+        "defaultalt": "#4c526b",
+        "primary": "#98a2b5",
+        "primaryalt": "#212430",
+        "uibackground": "#12141a",
+        "uibackgroundalt": "#171921",
+        "uibackgroundmid": "#15171d"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Earth",
+    "slug": "earth",
+    "theme": {
+      "colors": {
+        "blue": "#BA9D6F",
+        "green": "#639E29",
+        "greenAlt": "#7E9E2D",
+        "orange": "#D1711D",
+        "pink": "#A8547A",
+        "purple": "#BAB13B",
+        "red": "#C13838",
+        "salmon": "#D65151",
+        "turquoize": "#4EAAA4",
+        "yellow": "#C48519"
+      },
+      "levels": {
+        "danger": "#C13838",
+        "info": "#04c4d9",
+        "success": "#14b871",
+        "warning": "#cc8c39"
+      },
+      "ui": {
+        "border": "#110d0d",
+        "default": "#caa5a5",
+        "defaultMain": "#ba9b9b",
+        "defaultalt": "#503939",
+        "primary": "#d35386",
+        "primaryalt": "#40222e",
+        "uibackground": "#221b1b",
+        "uibackgroundalt": "#1c1616",
+        "uibackgroundmid": "#1f1819"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Coffee",
+    "slug": "coffee",
+    "theme": {
+      "colors": {
+        "blue": "#6EDDD6",
+        "green": "#9DCC57",
+        "greenAlt": "#7E9E2D",
+        "orange": "#ffa777",
+        "pink": "#E480AD",
+        "purple": "#9991F1",
+        "red": "#f24343",
+        "salmon": "#f77a6a",
+        "turquoize": "#3ceaa8",
+        "yellow": "#f7d979"
+      },
+      "levels": {
+        "danger": "#f24343",
+        "info": "#6EDDD6",
+        "success": "#94D652",
+        "warning": "#ffa777"
+      },
+      "ui": {
+        "border": "#181615",
+        "default": "#ceb5b0",
+        "defaultMain": "#beaba7",
+        "defaultalt": "#564642",
+        "primary": "#F09177",
+        "primaryalt": "#51403b",
+        "uibackground": "#292423",
+        "uibackgroundalt": "#231f1e",
+        "uibackgroundmid": "#262120"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Coffee Reversed",
+    "slug": "coffee-reversed",
+    "theme": {
+      "colors": {
+        "blue": "#6EDDD6",
+        "green": "#9DCC57",
+        "greenAlt": "#7E9E2D",
+        "orange": "#ffa777",
+        "pink": "#E480AD",
+        "purple": "#9991F1",
+        "red": "#f24343",
+        "salmon": "#f77a6a",
+        "turquoize": "#3ceaa8",
+        "yellow": "#f7d979"
+      },
+      "levels": {
+        "danger": "#f24343",
+        "info": "#6EDDD6",
+        "success": "#94D652",
+        "warning": "#ffa777"
+      },
+      "ui": {
+        "border": "#0f0d0d",
+        "default": "#c8aca5",
+        "defaultMain": "#b7a29d",
+        "defaultalt": "#4d3e3b",
+        "primary": "#F09177",
+        "primaryalt": "#51403b",
+        "uibackground": "#1a1716",
+        "uibackgroundalt": "#201c1b",
+        "uibackgroundmid": "#1d1919"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Coffee Cream",
+    "slug": "coffee-cream",
+    "theme": {
+      "colors": {
+        "blue": "#009DB5",
+        "green": "#51A200",
+        "greenAlt": "#7E9E2D",
+        "orange": "#ce6700",
+        "pink": "#CE4985",
+        "purple": "#7056c4",
+        "red": "#dc2e2e",
+        "salmon": "#D8573E",
+        "turquoize": "#00A47B",
+        "yellow": "#ad8200"
+      },
+      "levels": {
+        "danger": "#FF3A3A",
+        "info": "#009DB5",
+        "success": "#51A200",
+        "warning": "#ce6700"
+      },
+      "ui": {
+        "border": "#cbbbb4",
+        "default": "#36221d",
+        "defaultMain": "#000000",
+        "defaultalt": "#a69692",
+        "primary": "#D3694C",
+        "primaryalt": "#eee9e7",
+        "uibackground": "#EAE4E1",
+        "uibackgroundalt": "#e3dbd7",
+        "uibackgroundmid": "#e6dfdc"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Void",
+    "slug": "void",
+    "theme": {
+      "colors": {
+        "blue": "#7A63ED",
+        "green": "#6DBBFF",
+        "greenAlt": "#2C729E",
+        "orange": "#3D8DE2",
+        "pink": "#A8547A",
+        "purple": "#2BD3E2",
+        "red": "#C13838",
+        "salmon": "#D65170",
+        "turquoize": "#89C4FF",
+        "yellow": "#585785"
+      },
+      "levels": {
+        "danger": "#C13838",
+        "info": "#04c4d9",
+        "success": "#14b871",
+        "warning": "#cc8c39"
+      },
+      "ui": {
+        "border": "#0a080e",
+        "default": "#c7bfdb",
+        "defaultMain": "#aa9fc8",
+        "defaultalt": "#4f4273",
+        "primary": "#7A63ED",
+        "primaryalt": "#221c32",
+        "uibackground": "#171322",
+        "uibackgroundalt": "#120f1b",
+        "uibackgroundmid": "#15111e"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Altica",
+    "slug": "altica",
+    "theme": {
+      "colors": {
+        "blue": "#10bdc9",
+        "green": "#6bc793",
+        "greenAlt": "#2C729E",
+        "orange": "#0187a6",
+        "pink": "#A8547A",
+        "purple": "#9c8acf",
+        "red": "#C13838",
+        "salmon": "#d6724d",
+        "turquoize": "#0187a6",
+        "yellow": "#d6ac63"
+      },
+      "levels": {
+        "danger": "#C13838",
+        "info": "#04c4d9",
+        "success": "#14b871",
+        "warning": "#cc8c39"
+      },
+      "ui": {
+        "border": "#0a1217",
+        "default": "#c2ced1",
+        "defaultMain": "#9FADB1",
+        "defaultalt": "#45565c",
+        "primary": "#0187a6",
+        "primaryalt": "#15262e",
+        "uibackground": "#0f1c21",
+        "uibackgroundalt": "#0e171c",
+        "uibackgroundmid": "#0f1a1f"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Arc Reversed",
+    "slug": "arc-reversed",
+    "theme": {
+      "colors": {
+        "blue": "#69C3FF",
+        "green": "#3CEC85",
+        "greenAlt": "#A4EF58",
+        "orange": "#FF955C",
+        "pink": "#F38CEC",
+        "purple": "#B78AFF",
+        "red": "#E35535",
+        "salmon": "#FF738A",
+        "turquoize": "#22ECDB",
+        "yellow": "#EACD61"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#69C3FF",
+        "success": "#3CEC85",
+        "warning": "#FF955C"
+      },
+      "ui": {
+        "border": "#0b0e14",
+        "default": "#c5cdde",
+        "defaultMain": "#a4b1cc",
+        "defaultalt": "#445679",
+        "primary": "#8196b5",
+        "primaryalt": "#1f2838",
+        "uibackground": "#121721",
+        "uibackgroundalt": "#161c28",
+        "uibackgroundmid": "#141924"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Feat Will",
+    "slug": "feat-will",
+    "theme": {
+      "colors": {
+        "blue": "#8ad0ff",
+        "green": "#5fee9b",
+        "greenAlt": "#A4EF58",
+        "orange": "#ffae82",
+        "pink": "#fda7f7",
+        "purple": "#c39eff",
+        "red": "#f7775a",
+        "salmon": "#ff8ea0",
+        "turquoize": "#44f8e9",
+        "yellow": "#fce38a"
+      },
+      "levels": {
+        "danger": "#f7775a",
+        "info": "#8ad0ff",
+        "success": "#5fee9b",
+        "warning": "#ffae82"
+      },
+      "ui": {
+        "border": "#000000",
+        "default": "#bdb6d3",
+        "defaultMain": "#bfb9da",
+        "defaultalt": "#585775",
+        "primary": "#b498f5",
+        "primaryalt": "#231e36",
+        "uibackground": "#14111f",
+        "uibackgroundalt": "#0d0a14",
+        "uibackgroundmid": "#100e1a"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Feat Gold D Raynh",
+    "slug": "feat-gold-d-raynh",
+    "theme": {
+      "colors": {
+        "blue": "#3eb2ff",
+        "green": "#21ff7d",
+        "greenAlt": "#A4EF58",
+        "orange": "#ff823f",
+        "pink": "#e4ac73",
+        "purple": "#a167ff",
+        "red": "#f7775a",
+        "salmon": "#ff3d3d",
+        "turquoize": "#44f8e9",
+        "yellow": "#ffd000"
+      },
+      "levels": {
+        "danger": "#f7775a",
+        "info": "#3eb2ff",
+        "success": "#21ff7d",
+        "warning": "#ff823f"
+      },
+      "ui": {
+        "border": "#070a12",
+        "default": "#b8c4e4",
+        "defaultMain": "#93a6d6",
+        "defaultalt": "#334984",
+        "primary": "#e39000",
+        "primaryalt": "#16203b",
+        "uibackground": "#0f1628",
+        "uibackgroundalt": "#0c1220",
+        "uibackgroundmid": "#0e1424"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Feat Gold D Raynh Light",
+    "slug": "feat-gold-d-raynh-light",
+    "theme": {
+      "colors": {
+        "blue": "#037ed1",
+        "green": "#03810d",
+        "greenAlt": "#A4EF58",
+        "orange": "#c0571f",
+        "pink": "#002e74",
+        "purple": "#7537d7",
+        "red": "#f7775a",
+        "salmon": "#1da90d",
+        "turquoize": "#009c8f",
+        "yellow": "#d0a00f"
+      },
+      "levels": {
+        "danger": "#f7775a",
+        "info": "#037ed1",
+        "success": "#03810d",
+        "warning": "#c0571f"
+      },
+      "ui": {
+        "border": "#cfcfcf",
+        "default": "#0f212d",
+        "defaultMain": "#000000",
+        "defaultalt": "#7197b0",
+        "primary": "#2397e5",
+        "primaryalt": "#fafafa",
+        "uibackground": "#f5f5f5",
+        "uibackgroundalt": "#ececec",
+        "uibackgroundmid": "#f0f0f0"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Feat Mellejulie",
+    "slug": "feat-mellejulie",
+    "theme": {
+      "colors": {
+        "blue": "#63c0ff",
+        "green": "#71e893",
+        "greenAlt": "#a4c947",
+        "orange": "#edb492",
+        "pink": "#c3a1e5",
+        "purple": "#968ffb",
+        "red": "#e55454",
+        "salmon": "#9dcace",
+        "turquoize": "#50dbd4",
+        "yellow": "#ecd282"
+      },
+      "levels": {
+        "danger": "#e55454",
+        "info": "#63c0ff",
+        "success": "#71e893",
+        "warning": "#edb492"
+      },
+      "ui": {
+        "border": "#0f1013",
+        "default": "#cdd1d8",
+        "defaultMain": "#b1b7c1",
+        "defaultalt": "#555d6b",
+        "primary": "#63edef",
+        "primaryalt": "#272b32",
+        "uibackground": "#1c1f24",
+        "uibackgroundalt": "#171a1e",
+        "uibackgroundmid": "#191c21"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Feat Mellejulie Light",
+    "slug": "feat-mellejulie-light",
+    "theme": {
+      "colors": {
+        "blue": "#1f89cf",
+        "green": "#2aa54d",
+        "greenAlt": "#81a622",
+        "orange": "#c97a2a",
+        "pink": "#ae6cbe",
+        "purple": "#7c68ef",
+        "red": "#d24545",
+        "salmon": "#39a9b4",
+        "turquoize": "#23716d",
+        "yellow": "#b48806"
+      },
+      "levels": {
+        "danger": "#d24545",
+        "info": "#1f89cf",
+        "success": "#2aa54d",
+        "warning": "#c97a2a"
+      },
+      "ui": {
+        "border": "#c6c9c9",
+        "default": "#000000",
+        "defaultMain": "#000000",
+        "defaultalt": "#577172",
+        "primary": "#218d8f",
+        "primaryalt": "#f2f3f3",
+        "uibackground": "#edeeee",
+        "uibackgroundalt": "#e4e5e5",
+        "uibackgroundmid": "#e8e9e9"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Classics Anthracite",
+    "slug": "classics-anthracite",
+    "theme": {
+      "colors": {
+        "blue": "#3398DB",
+        "green": "#37ae6f",
+        "greenAlt": "#7E9E2D",
+        "orange": "#D26D32",
+        "pink": "#CC71BC",
+        "purple": "#935cd1",
+        "red": "#C13838",
+        "salmon": "#de456b",
+        "turquoize": "#24B5A8",
+        "yellow": "#c9a022"
+      },
+      "levels": {
+        "danger": "#C13838",
+        "info": "#3398DB",
+        "success": "#37ae6f",
+        "warning": "#c9a022"
+      },
+      "ui": {
+        "border": "#0b0c0e",
+        "default": "#c8ccd4",
+        "defaultMain": "#acb1bd",
+        "defaultalt": "#515766",
+        "primary": "#a2abb6",
+        "primaryalt": "#23262d",
+        "uibackground": "#181a1f",
+        "uibackgroundalt": "#131519",
+        "uibackgroundmid": "#16181c"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Classics Light",
+    "slug": "classics-light",
+    "theme": {
+      "colors": {
+        "blue": "#0f8fe4",
+        "green": "#18ac31",
+        "greenAlt": "#6b8d16",
+        "orange": "#dd7404",
+        "pink": "#dd39bf",
+        "purple": "#9244ec",
+        "red": "#df3c3c",
+        "salmon": "#ec4476",
+        "turquoize": "#00aaaa",
+        "yellow": "#d49408"
+      },
+      "levels": {
+        "danger": "#C13838",
+        "info": "#3398DB",
+        "success": "#37ae6f",
+        "warning": "#c9a022"
+      },
+      "ui": {
+        "border": "#c9ced2",
+        "default": "#1f3a41",
+        "defaultMain": "#000000",
+        "defaultalt": "#95abb0",
+        "primary": "#52C1DA",
+        "primaryalt": "#f9f9fa",
+        "uibackground": "#f3f4f5",
+        "uibackgroundalt": "#e9ebed",
+        "uibackgroundmid": "#eeeff1"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Surprising Eggplant",
+    "slug": "surprising-eggplant",
+    "theme": {
+      "colors": {
+        "blue": "#00B3BD",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#5288BA",
+        "pink": "#c47cbf",
+        "purple": "#CC9B52",
+        "red": "#C13838",
+        "salmon": "#B85C40",
+        "turquoize": "#d24e4e",
+        "yellow": "#d24e4e"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#00B3BD",
+        "success": "#a9dc76",
+        "warning": "#d1a456"
+      },
+      "ui": {
+        "border": "#0e0912",
+        "default": "#d0c1de",
+        "defaultMain": "#b6a0cc",
+        "defaultalt": "#5d4179",
+        "primary": "#d24e4e",
+        "primaryalt": "#441f30",
+        "uibackground": "#1d1426",
+        "uibackgroundalt": "#17101f",
+        "uibackgroundmid": "#1a1222"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Surprising Blueberry",
+    "slug": "surprising-blueberry",
+    "theme": {
+      "colors": {
+        "blue": "#00B3BD",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#5288BA",
+        "pink": "#c47cbf",
+        "purple": "#CC9B52",
+        "red": "#C13838",
+        "salmon": "#B85C40",
+        "turquoize": "#c93e71",
+        "yellow": "#c93e71"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#00B3BD",
+        "success": "#a9dc76",
+        "warning": "#d1a456"
+      },
+      "ui": {
+        "border": "#070c13",
+        "default": "#bacbe4",
+        "defaultMain": "#96afd5",
+        "defaultalt": "#355484",
+        "primary": "#c93e71",
+        "primaryalt": "#441f30",
+        "uibackground": "#101a29",
+        "uibackgroundalt": "#0d1521",
+        "uibackgroundmid": "#0f1825"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Surprising Watermelon",
+    "slug": "surprising-watermelon",
+    "theme": {
+      "colors": {
+        "blue": "#00B3BD",
+        "green": "#a9dc76",
+        "greenAlt": "#b7d175",
+        "orange": "#5288BA",
+        "pink": "#c47cbf",
+        "purple": "#CC9B52",
+        "red": "#C13838",
+        "salmon": "#B85C40",
+        "turquoize": "#da6c62",
+        "yellow": "#da6c62"
+      },
+      "levels": {
+        "danger": "#E35535",
+        "info": "#00B3BD",
+        "success": "#a9dc76",
+        "warning": "#d1a456"
+      },
+      "ui": {
+        "border": "#091112",
+        "default": "#c1d9de",
+        "defaultMain": "#a0c5cc",
+        "defaultalt": "#416f79",
+        "primary": "#da6c62",
+        "primaryalt": "#5f3333",
+        "uibackground": "#142326",
+        "uibackgroundalt": "#101c1f",
+        "uibackgroundmid": "#121f22"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Hc Ebony",
+    "slug": "hc-ebony",
+    "theme": {
+      "colors": {
+        "blue": "#7fd7f5",
+        "green": "#AFEA7B",
+        "greenAlt": "#A4EF58",
+        "orange": "#ffaa7d",
+        "pink": "#e4a3df",
+        "purple": "#bc98ff",
+        "red": "#fd604f",
+        "salmon": "#EC7886",
+        "turquoize": "#22D3B1",
+        "yellow": "#F5DF76"
+      },
+      "levels": {
+        "danger": "#fd604f",
+        "info": "#7fd7f5",
+        "success": "#AFEA7B",
+        "warning": "#ffaa7d"
+      },
+      "ui": {
+        "border": "#0b0b0f",
+        "default": "#c8c8d5",
+        "defaultMain": "#ababbf",
+        "defaultalt": "#505068",
+        "primary": "#dbdeea",
+        "primaryalt": "#23232f",
+        "uibackground": "#181820",
+        "uibackgroundalt": "#13131a",
+        "uibackgroundmid": "#16161d"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Hc Midnightvoid",
+    "slug": "hc-midnightvoid",
+    "theme": {
+      "colors": {
+        "blue": "#7fd7f5",
+        "green": "#AFEA7B",
+        "greenAlt": "#A4EF58",
+        "orange": "#ffaa7d",
+        "pink": "#e4a3df",
+        "purple": "#bc98ff",
+        "red": "#fd604f",
+        "salmon": "#EC7886",
+        "turquoize": "#22D3B1",
+        "yellow": "#F5DF76"
+      },
+      "levels": {
+        "danger": "#fd604f",
+        "info": "#7fd7f5",
+        "success": "#AFEA7B",
+        "warning": "#ffaa7d"
+      },
+      "ui": {
+        "border": "#0a0f13",
+        "default": "#c3d2de",
+        "defaultMain": "#a2b9cc",
+        "defaultalt": "#436179",
+        "primary": "#dbefff",
+        "primaryalt": "#1e2c38",
+        "uibackground": "#151f27",
+        "uibackgroundalt": "#111920",
+        "uibackgroundmid": "#131c23"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Hc Flurry",
+    "slug": "hc-flurry",
+    "theme": {
+      "colors": {
+        "blue": "#0aa3d6",
+        "green": "#41ad4e",
+        "greenAlt": "#589f11",
+        "orange": "#e3946a",
+        "pink": "#f08ad9",
+        "purple": "#b377e3",
+        "red": "#ee5f50",
+        "salmon": "#ed7b89",
+        "turquoize": "#00b696",
+        "yellow": "#e39c03"
+      },
+      "levels": {
+        "danger": "#ee5f50",
+        "info": "#0aa3d6",
+        "success": "#41ad4e",
+        "warning": "#e3946a"
+      },
+      "ui": {
+        "border": "#c2c8ce",
+        "default": "#272d34",
+        "defaultMain": "#3f4750",
+        "defaultalt": "#898989",
+        "primary": "#444c54",
+        "primaryalt": "#f9fbfe",
+        "uibackground": "#f5f8fc",
+        "uibackgroundalt": "#EAECEE",
+        "uibackgroundmid": "#f0f2f5"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Hc Wonderland Wood",
+    "slug": "hc-wonderland-wood",
+    "theme": {
+      "colors": {
+        "blue": "#92b4ff",
+        "green": "#91d6a7",
+        "greenAlt": "#A4EF58",
+        "orange": "#e4a792",
+        "pink": "#de98ae",
+        "purple": "#9a94e9",
+        "red": "#ff7e70",
+        "salmon": "#ed98cb",
+        "turquoize": "#7ddcbf",
+        "yellow": "#fbe7c3"
+      },
+      "levels": {
+        "danger": "#ff7e70",
+        "info": "#92b4ff",
+        "success": "#91d6a7",
+        "warning": "#e4a792"
+      },
+      "ui": {
+        "border": "#141222",
+        "default": "#d3d2e6",
+        "defaultMain": "#b4b1d4",
+        "defaultalt": "#504b88",
+        "primary": "#fbe7c3",
+        "primaryalt": "#52426a",
+        "uibackground": "#1F1D36",
+        "uibackgroundalt": "#1b192f",
+        "uibackgroundmid": "#1d1b32"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Hc Brewing Storm",
+    "slug": "hc-brewing-storm",
+    "theme": {
+      "colors": {
+        "blue": "#82c4ff",
+        "green": "#9dffbd",
+        "greenAlt": "#A4EF58",
+        "orange": "#ffaf94",
+        "pink": "#f1c6ee",
+        "purple": "#b8b3ff",
+        "red": "#ff7e70",
+        "salmon": "#f994bf",
+        "turquoize": "#22D3B1",
+        "yellow": "#fff0a6"
+      },
+      "levels": {
+        "danger": "#ff5e4c",
+        "info": "#3391e3",
+        "success": "#84ffad",
+        "warning": "#ff9d7c"
+      },
+      "ui": {
+        "border": "#071a28",
+        "default": "#c0dcf3",
+        "defaultMain": "#95c5eb",
+        "defaultalt": "#216fad",
+        "primary": "#9dffd9",
+        "primaryalt": "#2a5a5c",
+        "uibackground": "#0c2a42",
+        "uibackgroundalt": "#0a2439",
+        "uibackgroundmid": "#0b273d"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Hc Minuit",
+    "slug": "hc-minuit",
+    "theme": {
+      "colors": {
+        "blue": "#4fc1e8",
+        "green": "#69d2ab",
+        "greenAlt": "#77b03e",
+        "orange": "#eea67f",
+        "pink": "#d995c9",
+        "purple": "#ad92ff",
+        "red": "#fb7a6c",
+        "salmon": "#e38d97",
+        "turquoize": "#17d7b4",
+        "yellow": "#dbc2a3"
+      },
+      "levels": {
+        "danger": "#fb7a6c",
+        "info": "#4fc1e8",
+        "success": "#74be7d",
+        "warning": "#eea67f"
+      },
+      "ui": {
+        "border": "#0e0c14",
+        "default": "#cdc8dc",
+        "defaultMain": "#b1a8c9",
+        "defaultalt": "#554a75",
+        "primary": "#ecc48c",
+        "primaryalt": "#635345",
+        "uibackground": "#1C1827",
+        "uibackgroundalt": "#171420",
+        "uibackgroundmid": "#191623"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Hc Chocolate Espresso",
+    "slug": "hc-chocolate-espresso",
+    "theme": {
+      "colors": {
+        "blue": "#17d7d7",
+        "green": "#69d293",
+        "greenAlt": "#77b03e",
+        "orange": "#f69662",
+        "pink": "#d995c9",
+        "purple": "#ad92ff",
+        "red": "#fb7a6c",
+        "salmon": "#f08390",
+        "turquoize": "#17d7c4",
+        "yellow": "#edbc7f"
+      },
+      "levels": {
+        "danger": "#fb7a6c",
+        "info": "#4fc1e8",
+        "success": "#74be7d",
+        "warning": "#eea67f"
+      },
+      "ui": {
+        "border": "#1d1717",
+        "default": "#d3b1b1",
+        "defaultMain": "#c3a7a7",
+        "defaultalt": "#5d4242",
+        "primary": "#f69c95",
+        "primaryalt": "#5d423d",
+        "uibackground": "#2e2424",
+        "uibackgroundalt": "#281f1f",
+        "uibackgroundmid": "#2b2121"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Milkshake Raspberry",
+    "slug": "milkshake-raspberry",
+    "theme": {
+      "colors": {
+        "blue": "#0f8fe4",
+        "green": "#18ac31",
+        "greenAlt": "#6b8d16",
+        "orange": "#dd7404",
+        "pink": "#dd39bf",
+        "purple": "#9244ec",
+        "red": "#df3c3c",
+        "salmon": "#ec4476",
+        "turquoize": "#00aaaa",
+        "yellow": "#d49408"
+      },
+      "levels": {
+        "danger": "#df3c3c",
+        "info": "#0f8fe4",
+        "success": "#18ac31",
+        "warning": "#d49408"
+      },
+      "ui": {
+        "border": "#d4b8c2",
+        "default": "#15070b",
+        "defaultMain": "#000000",
+        "defaultalt": "#a75b72",
+        "primary": "#d1174f",
+        "primaryalt": "#f6eff1",
+        "uibackground": "#f1e8eb",
+        "uibackgroundalt": "#eadde1",
+        "uibackgroundmid": "#eee2e6"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Milkshake Blueberry",
+    "slug": "milkshake-blueberry",
+    "theme": {
+      "colors": {
+        "blue": "#0f8fe4",
+        "green": "#18ac31",
+        "greenAlt": "#6b8d16",
+        "orange": "#dd7404",
+        "pink": "#dd39bf",
+        "purple": "#9244ec",
+        "red": "#df3c3c",
+        "salmon": "#ec4476",
+        "turquoize": "#00aaaa",
+        "yellow": "#d49408"
+      },
+      "levels": {
+        "danger": "#df3c3c",
+        "info": "#0f8fe4",
+        "success": "#18ac31",
+        "warning": "#d49408"
+      },
+      "ui": {
+        "border": "#a9a7d1",
+        "default": "#07060c",
+        "defaultMain": "#000000",
+        "defaultalt": "#747187",
+        "primary": "#422eb0",
+        "primaryalt": "#e1e0ef",
+        "uibackground": "#dad9eb",
+        "uibackgroundalt": "#cfcde5",
+        "uibackgroundmid": "#d4d3e8"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Milkshake Mango",
+    "slug": "milkshake-mango",
+    "theme": {
+      "colors": {
+        "blue": "#0f8fe4",
+        "green": "#18ac31",
+        "greenAlt": "#6b8d16",
+        "orange": "#dd7404",
+        "pink": "#dd39bf",
+        "purple": "#9244ec",
+        "red": "#df3c3c",
+        "salmon": "#ec4476",
+        "turquoize": "#00aaaa",
+        "yellow": "#d49408"
+      },
+      "levels": {
+        "danger": "#df3c3c",
+        "info": "#0f8fe4",
+        "success": "#18ac31",
+        "warning": "#d49408"
+      },
+      "ui": {
+        "border": "#dcc2ad",
+        "default": "#100a08",
+        "defaultMain": "#000000",
+        "defaultalt": "#93756a",
+        "primary": "#bd4f27",
+        "primaryalt": "#f6efea",
+        "uibackground": "#f3eae3",
+        "uibackgroundalt": "#eee1d7",
+        "uibackgroundmid": "#f1e5dd"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Milkshake Mint",
+    "slug": "milkshake-mint",
+    "theme": {
+      "colors": {
+        "blue": "#0f8fe4",
+        "green": "#18ac31",
+        "greenAlt": "#6b8d16",
+        "orange": "#dd7404",
+        "pink": "#dd39bf",
+        "purple": "#9244ec",
+        "red": "#df3c3c",
+        "salmon": "#ec4476",
+        "turquoize": "#00aaaa",
+        "yellow": "#d49408"
+      },
+      "levels": {
+        "danger": "#df3c3c",
+        "info": "#0f8fe4",
+        "success": "#18ac31",
+        "warning": "#d49408"
+      },
+      "ui": {
+        "border": "#bfd4c3",
+        "default": "#000000",
+        "defaultMain": "#000000",
+        "defaultalt": "#677873",
+        "primary": "#2a9b7d",
+        "primaryalt": "#f3f7f4",
+        "uibackground": "#edf3ee",
+        "uibackgroundalt": "#e2ece4",
+        "uibackgroundmid": "#e7efe9"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Milkshake Vanilla",
+    "slug": "milkshake-vanilla",
+    "theme": {
+      "colors": {
+        "blue": "#0f8fe4",
+        "green": "#18ac31",
+        "greenAlt": "#6b8d16",
+        "orange": "#dd7404",
+        "pink": "#dd39bf",
+        "purple": "#9244ec",
+        "red": "#df3c3c",
+        "salmon": "#ec4476",
+        "turquoize": "#00aaaa",
+        "yellow": "#d49408"
+      },
+      "levels": {
+        "danger": "#df3c3c",
+        "info": "#0f8fe4",
+        "success": "#18ac31",
+        "warning": "#d49408"
+      },
+      "ui": {
+        "border": "#d2c6a7",
+        "default": "#000000",
+        "defaultMain": "#000000",
+        "defaultalt": "#796d49",
+        "primary": "#937416",
+        "primaryalt": "#efebe1",
+        "uibackground": "#ece7da",
+        "uibackgroundalt": "#e6dfce",
+        "uibackgroundmid": "#e9e3d4"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Themanopia",
+    "slug": "themanopia",
+    "theme": {
+      "colors": {
+        "blue": "#32A7FF",
+        "green": "#38FFA1",
+        "greenAlt": "#C9FFAE",
+        "orange": "#FFAF86",
+        "pink": "#FF97BF",
+        "purple": "#5F77DC",
+        "red": "#FF5B82",
+        "salmon": "#00F0FD",
+        "turquoize": "#4AE0D1",
+        "yellow": "#F5DEC1"
+      },
+      "levels": {
+        "danger": "#FF5B82",
+        "info": "#32A7FF",
+        "success": "#38FFA1",
+        "warning": "#FFAF86"
+      },
+      "ui": {
+        "border": "#0f1016",
+        "default": "#ccd0dc",
+        "defaultMain": "#aeb4c7",
+        "defaultalt": "#4f5873",
+        "primary": "#9887eb",
+        "primaryalt": "#252937",
+        "uibackground": "#1b1e28",
+        "uibackgroundalt": "#161921",
+        "uibackgroundmid": "#181b24"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Aquarelle Cymbidium",
+    "slug": "aquarelle-cymbidium",
+    "theme": {
+      "colors": {
+        "blue": "#afd9ec",
+        "green": "#c3e5a1",
+        "greenAlt": "#d1e796",
+        "orange": "#f0bba2",
+        "pink": "#edc1ea",
+        "purple": "#bcb1f1",
+        "red": "#eca099",
+        "salmon": "#f3aabc",
+        "turquoize": "#a9edd9",
+        "yellow": "#f3e1ac"
+      },
+      "levels": {
+        "danger": "#e87a70",
+        "info": "#73bee9",
+        "success": "#aada77",
+        "warning": "#eea064"
+      },
+      "ui": {
+        "border": "#1b171a",
+        "default": "#ded8dc",
+        "defaultMain": "#c6bdc4",
+        "defaultalt": "#70606c",
+        "primary": "#da6e6c",
+        "primaryalt": "#3a3137",
+        "uibackground": "#2c252a",
+        "uibackgroundalt": "#262024",
+        "uibackgroundmid": "#292227"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Aquarelle Hydrangea",
+    "slug": "aquarelle-hydrangea",
+    "theme": {
+      "colors": {
+        "blue": "#afd9ec",
+        "green": "#c3e5a1",
+        "greenAlt": "#d1e796",
+        "orange": "#f0bba2",
+        "pink": "#edc1ea",
+        "purple": "#bcb1f1",
+        "red": "#eca099",
+        "salmon": "#f3aabc",
+        "turquoize": "#a9edd9",
+        "yellow": "#f3e1ac"
+      },
+      "levels": {
+        "danger": "#e87a70",
+        "info": "#73bee9",
+        "success": "#aada77",
+        "warning": "#eea064"
+      },
+      "ui": {
+        "border": "#171a28",
+        "default": "#dadde9",
+        "defaultMain": "#b9bfd7",
+        "defaultalt": "#515d8c",
+        "primary": "#6394f1",
+        "primaryalt": "#2b324c",
+        "uibackground": "#22273c",
+        "uibackgroundalt": "#1e2235",
+        "uibackgroundmid": "#202438"
+      }
+    },
+    "uiTheme": "vs-dark"
+  },
+  {
+    "name": "Bearded Theme Aquarelle Lilac",
+    "slug": "aquarelle-lilac",
+    "theme": {
+      "colors": {
+        "blue": "#afd9ec",
+        "green": "#c3e5a1",
+        "greenAlt": "#d1e796",
+        "orange": "#f0bba2",
+        "pink": "#edc1ea",
+        "purple": "#bcb1f1",
+        "red": "#eca099",
+        "salmon": "#f3aabc",
+        "turquoize": "#a9edd9",
+        "yellow": "#f3e1ac"
+      },
+      "levels": {
+        "danger": "#e87a70",
+        "info": "#73bee9",
+        "success": "#aada77",
+        "warning": "#eea064"
+      },
+      "ui": {
+        "border": "#181721",
+        "default": "#d9d9e3",
+        "defaultMain": "#bcbbce",
+        "defaultalt": "#5c5a7d",
+        "primary": "#9587ff",
+        "primaryalt": "#302f42",
+        "uibackground": "#252433",
+        "uibackgroundalt": "#201f2c",
+        "uibackgroundmid": "#22212f"
+      }
+    },
+    "uiTheme": "vs-dark"
+  }
+]
