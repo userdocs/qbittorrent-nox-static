@@ -155,17 +155,25 @@ p a:hover {
 }
 
 .float-child.card-text {
-    width: 70%;
     margin: auto;
-    float: right;
     padding: 0px;
     padding-left: 10px;
 }
 
 /* front page button stuff */
 
-.float-container .sl-flex.astro-v5tidmuc {
-    align-items: center !important;
+.title {
+    align-items: left !important;
+    margin-left: 31% !important;
+}
+
+.card-image {
+    margin-right: 5% !important;
+    margin-left: 2% !important;
+    width: 150px !important;
+    max-width: 150px;
+    padding: 0px;
+
 }
 
 .sl-flex.actions.astro-jbfsktt5 a {
