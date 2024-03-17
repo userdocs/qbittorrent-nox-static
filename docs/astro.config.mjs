@@ -1,6 +1,5 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import react from "@astrojs/react";
 import { ExpressiveCodeTheme } from "@astrojs/starlight/expressive-code";
 import fs from "node:fs";
 import starlightImageZoom from "starlight-image-zoom";
@@ -29,39 +28,19 @@ export default defineConfig({
 	site: "https://userdocs.github.io",
 	base: "/qbittorrent-nox-static",
 	integrations: [
-		react({
-			include: ["**/react/*"],
-			experimentalReactChildren: true,
-		}),
-
 		starlight({
 			plugins: [starlightImageZoom()],
-			//   favicon: "./favicon.svg",
-			head: [
-				// // https://starlight.astro.build/reference/configuration/#head
-				// {
-				//   tag: "script",
-				//   content:
-				//     'document.addEventListener("DOMContentLoaded", function() {document.body.classList.add("body-custom");});',
-				//   defer: true,
-				// },
-			],
 			title: "qbittorrent-nox-static",
 			logo: {
 				src: "./public/logo-static.svg",
 			},
 			components: {
-				// Override the default `SocialIcons` component.
 				Header: "./src/components/Header.astro",
-				// Head: "./src/components/Head.astro",
 			},
 			expressiveCode: {
-				// Pass the theme to the `themes` option
-				// (consider adding a dark and light theme for accessibility)
 				themes: [darkMode, lightMode],
 				tabWidth: 0,
 				styleOverrides: {
-					// You can also override styles
 					borderRadius: "0.1rem",
 					frames: {
 						shadowColor: "none",
