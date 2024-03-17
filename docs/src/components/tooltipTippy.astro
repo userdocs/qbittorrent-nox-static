@@ -9,39 +9,39 @@ const glossaryUrl = basePath + "glossary/" + id;
 ---
 
 <a
-	class="tooltippy-link"
-	data-tippy-content={htmlSplit[0] +
-		'<hr class="tooltippy-line"><div class="tooltippy-div">🟩 <a class="tooltippy-link" href=' +
-		glossaryUrl +
-		' target="_blank">Click here for the full Glossary entry</a></div>'}
-	id={id}
-	{...rest}>{label}</a
+  class="tooltippy-link"
+  data-tippy-content={htmlSplit[0] +
+    '<hr class="tooltippy-line"><div class="tooltippy-div">🟩 <a class="tooltippy-link" href=' +
+    glossaryUrl +
+    ' target="_blank">Click here for the full Glossary entry</a></div>'}
+  id={id}
+  {...rest}>{label}</a
 >
 
 <script>
-	import tippy, {
-		followCursor,
-		animateFill,
-		inlinePositioning,
-	} from "tippy.js";
-	import "tippy.js/dist/tippy.css"; // optional for styling
-	import "tippy.js/themes/light.css";
-	import "tippy.js/dist/backdrop.css";
-	import "tippy.js/animations/shift-away.css";
-	const theme = document.documentElement.dataset.theme;
+  import tippy, {
+    followCursor,
+    animateFill,
+    inlinePositioning,
+  } from "tippy.js";
+  import "tippy.js/dist/tippy.css"; // optional for styling
+  import "tippy.js/themes/light.css";
+  import "tippy.js/dist/backdrop.css";
+  import "tippy.js/animations/shift-away.css";
+  const theme = document.documentElement.dataset.theme;
 
-	tippy("[data-tippy-content]", {
-		arrow: false,
-		allowHTML: true,
-		interactive: true,
-		animateFill: true,
-		followCursor: true,
-		inlinePositioning: true,
-		plugins: [followCursor, animateFill, inlinePositioning],
-		zIndex: 9999,
-		appendTo: () => document.body,
-		trigger: "click",
-		theme: theme,
-		placement: "bottom",
-	});
+  tippy("[data-tippy-content]", {
+    arrow: false,
+    allowHTML: true,
+    interactive: true,
+    animateFill: true,
+    followCursor: true,
+    inlinePositioning: true,
+    plugins: [followCursor, animateFill, inlinePositioning],
+    zIndex: 9999,
+    appendTo: () => document.body,
+    trigger: "click",
+    theme: theme,
+    placement: "bottom",
+  });
 </script>

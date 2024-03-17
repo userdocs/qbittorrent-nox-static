@@ -3,117 +3,112 @@
 ---
 
 <input data-advanced-input type="checkbox" class="toggle" id="switch" /><label
-	for="switch"
-	hidden="hidden">Toggle</label
+  for="switch"
+  hidden="hidden">Toggle</label
 >
 
 <script>
-	document.addEventListener("DOMContentLoaded", function () {
-		function toggleAdvancedClass() {
-			let input = document.querySelector("[data-advanced-input]");
-			let advancedState = localStorage.getItem("advanced");
-			let elements = document.getElementsByClassName("advanced-title");
+  document.addEventListener("DOMContentLoaded", function () {
+    function toggleAdvancedClass() {
+      let input = document.querySelector("[data-advanced-input]");
+      let advancedState = localStorage.getItem("advanced");
+      let elements = document.getElementsByClassName("advanced-title");
 
-			for (let element of elements) {
-				element.style.display =
-					advancedState === "false" ? "none" : "block";
-			}
+      for (let element of elements) {
+        element.style.display = advancedState === "false" ? "none" : "block";
+      }
 
-			if (input) {
-				input.checked = advancedState !== "false";
-			}
+      if (input) {
+        input.checked = advancedState !== "false";
+      }
 
-			let AdvancedTitleList = [];
-			let AdvancedTocList = [];
-			let DefaultTocList = [];
-			let HideTheseTocs = document.querySelectorAll(
-				".advanced-title h1, .advanced-title h2, .advanced-title h3, .advanced-title h4, .advanced-title h5, .advanced-title h6"
-			);
+      let AdvancedTitleList = [];
+      let AdvancedTocList = [];
+      let DefaultTocList = [];
+      let HideTheseTocs = document.querySelectorAll(
+        ".advanced-title h1, .advanced-title h2, .advanced-title h3, .advanced-title h4, .advanced-title h5, .advanced-title h6"
+      );
 
-			if (HideTheseTocs !== null) {
-				for (let i = 0; i < HideTheseTocs.length; i++) {
-					let AdvancedTitleId = HideTheseTocs[i].id;
-					AdvancedTitleList.push("#" + AdvancedTitleId);
-				}
-			}
+      if (HideTheseTocs !== null) {
+        for (let i = 0; i < HideTheseTocs.length; i++) {
+          let AdvancedTitleId = HideTheseTocs[i].id;
+          AdvancedTitleList.push("#" + AdvancedTitleId);
+        }
+      }
 
-			let AdvancedTocHref = document.querySelectorAll(
-				"starlight-toc nav ul li a"
-			);
+      let AdvancedTocHref = document.querySelectorAll(
+        "starlight-toc nav ul li a"
+      );
 
-			for (let i = 0; i < AdvancedTocHref.length; i++) {
-				if (AdvancedTitleList.includes(AdvancedTocHref[i].hash)) {
-					AdvancedTocList.push(AdvancedTocHref[i]);
-				} else {
-					DefaultTocList.push(AdvancedTocHref[i]);
-				}
-			}
+      for (let i = 0; i < AdvancedTocHref.length; i++) {
+        if (AdvancedTitleList.includes(AdvancedTocHref[i].hash)) {
+          AdvancedTocList.push(AdvancedTocHref[i]);
+        } else {
+          DefaultTocList.push(AdvancedTocHref[i]);
+        }
+      }
 
-			for (let i = 0; i < DefaultTocList.length; i++) {
-				DefaultTocList[i].classList.add("default-toc-show");
-			}
+      for (let i = 0; i < DefaultTocList.length; i++) {
+        DefaultTocList[i].classList.add("default-toc-show");
+      }
 
-			for (let i = 0; i < AdvancedTocList.length; i++) {
-				AdvancedTocList[i].classList.add("Advanced-class");
-				let advancedElements =
-					document.getElementsByClassName("Advanced-class");
-				for (let element of advancedElements) {
-					element.style.display =
-						advancedState === "false" ? "none" : "block";
-				}
-			}
-		}
+      for (let i = 0; i < AdvancedTocList.length; i++) {
+        AdvancedTocList[i].classList.add("Advanced-class");
+        let advancedElements =
+          document.getElementsByClassName("Advanced-class");
+        for (let element of advancedElements) {
+          element.style.display = advancedState === "false" ? "none" : "block";
+        }
+      }
+    }
 
-		toggleAdvancedClass();
+    toggleAdvancedClass();
 
-		let input = document.querySelector("[data-advanced-input]");
-		if (input) {
-			input.addEventListener("click", () => {
-				localStorage.setItem(
-					"advanced",
-					input.checked ? "true" : "false"
-				);
-				toggleAdvancedClass();
-			});
-		}
-	});
+    let input = document.querySelector("[data-advanced-input]");
+    if (input) {
+      input.addEventListener("click", () => {
+        localStorage.setItem("advanced", input.checked ? "true" : "false");
+        toggleAdvancedClass();
+      });
+    }
+  });
 </script>
 
 <style lang="sass">
-	input[type="checkbox"]
-	  -webkit-appearance: none
-	  -moz-appearance: none
-	  appearance: none
-	  -webkit-tap-highlight-color: transparent
-	  cursor: pointer
-	&:focus
-		outline: 0
+  input[type="checkbox"]
+    -webkit-appearance: none
+    -moz-appearance: none
+    appearance: none
+    -webkit-tap-highlight-color: transparent
+    cursor: pointer
+    &:focus
+      outline: 0
 
-	.toggle
-	  height: 26px
-	  width: 46px
-	  border-radius: 16px
-	  display: inline-block
-	  position: relative
-	  border: 2px solid #474755
-	  background: linear-gradient(180deg, #2D2F39 0%, #1F2027 100%)
-	  transition: all .2s ease
-	  border-color: #aa4bb3
-	&:after
-		content: ''
-		position: absolute
-		top: 2px
-		left: 2px
-		width: 18px
-		height: 18px
-		border-radius: 50%
-		background: #C7A06F
-		box-shadow: 0 1px 2px rgba(44,44,44,.2)
-		transition: all .0s cubic-bezier(.5,.1,.75,1.35)
-	&:checked
-		border-color: #54C59F
-		&:after
-	      content: ''
-	      background: #8464C6
-	      transform: translatex(20px)
+  .toggle
+    height: 26px
+    width: 46px
+    border-radius: 16px
+    display: inline-block
+    position: relative
+    border: 2px solid #474755
+    background: linear-gradient(180deg, #2D2F39 0%, #1F2027 100%)
+    transition: all .2s ease
+    border-color: #aa4bb3
+    &:after
+      content: ''
+      position: absolute
+      top: 2px
+      left: 2px
+      width: 18px
+      height: 18px
+      border-radius: 50%
+      background: #C7A06F
+      box-shadow: 0 1px 2px rgba(44,44,44,.2)
+      transition: all .0s cubic-bezier(.5,.1,.75,1.35)
+    &:checked
+      border-color: #54C59F
+      &:after
+        content: ''
+        background: #8464C6
+        transform: translatex(20px)
 </style>

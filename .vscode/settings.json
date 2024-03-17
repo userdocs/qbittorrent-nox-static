@@ -30,5 +30,11 @@
 		"files.eol": "\n",
 		"editor.tabSize": 2,
 		"editor.insertSpaces": true
-	}
+	},
+	"[astro]": {
+		"files.eol": "\n",
+		"editor.tabSize": 2,
+		"editor.insertSpaces": true
+	},
+	"typescript.tsdk": "node_modules/typescript/lib"
 }
