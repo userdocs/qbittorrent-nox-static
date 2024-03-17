@@ -621,3 +621,53 @@ button.dialog-button-close {
     color: var(--url-colour-hover) !important;
     cursor: pointer;
 }
+
+.my-tooltip {
+    padding-bottom: 5px !important;
+}
+
+.tooltip-link {}
+
+.tooltip-line {
+    display: block;
+    margin-bottom: 2px;
+}
+
+.tooltippy-line {
+    margin: 10px 0px 5px 0px;
+}
+
+.tooltippy-link {
+    margin: 0px 0px 0px 0px;
+}
+
+.tooltippy-div {
+    margin: 5px 0px 0px 0px;
+}
+
+.tippy-box {
+    border: 4px solid var(--react-toggle-checked);
+    opacity: 1 !important;
+    padding: 5px 4px 5px 4px;
+    margin-bottom: 0px;
+}
+
+.tippy-content {}
+
+.my-tooltip-url {
+    color: var(--url-colour) !important;
+}
+
+.my-tooltip-url:hover {
+    color: var(--url-colour-hover) !important;
+    cursor: pointer;
+}
+
+.tooltippy-link {
+    color: var(--url-colour) !important;
+}
+
+.tooltippy-link:hover {
+    color: var(--url-colour-hover) !important;
+    cursor: pointer;
+}

@@ -10,9 +10,12 @@ const Test = Astro.url.pathname;
 		posts.map((post) => (
 			<li>
 				<a
-					href={post.file
-						.substring(post.file.lastIndexOf("/") + 1)
-						.replace(".md", "")}
+					href={
+						"glossary/" +
+						post.file
+							.substring(post.file.lastIndexOf("/") + 1)
+							.replace(".md", "")
+					}
 				>
 					{post.frontmatter.title}
 				</a>

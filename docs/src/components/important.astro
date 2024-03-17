@@ -1,13 +1,16 @@
 ---
 const { id, alt } = Astro.props;
-const basePath = "/" + Astro.url.pathname.split("/")[1];
 ---
 
-<div class=`my-icon-container ${id}` >
-    <div class=`my-icon ${id}`>
-        <img class=`my-icon-image ${id}` src={`${basePath}/icons/${id}.svg`} alt={alt}>
-    </div>
-    <div class="my-icon-text">
-        <slot/>
-    </div>
+<div class=`my-icon-container ${id}`>
+	<div class=`my-icon ${id}`>
+		<img
+			class=`my-icon-image ${id}`
+			src={`/astro-starlight/icons/${id}.svg`}
+			alt={alt}
+		/>
+	</div>
+	<div class="my-icon-text">
+		<slot />
+	</div>
 </div>

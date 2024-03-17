@@ -3,7 +3,7 @@ title: Script Usage
 hide_title: true
 ---
 
-import { Advanced, Details, Modal, Tooltip, Charts } from "/src/components/global.jsx"
+import { Advanced, Details, Modal, Tooltip, Charts, Important } from "/src/components/global.jsx"
 import { Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon  } from '@astrojs/starlight/components';
 
 :::tip[Just use docker]
@@ -18,7 +18,8 @@ The guide will assume you are using docker, with example commands that are eithe
 Don't run this directly on the host system unless you know what you are doing. It's not recommended and the build will probably fail.
 :::
 
-<Details summary="What to expect">![](/qbittorrent-nox-static/docs_images/script_usage/first-run.png)</Details>
+
+<Details summary="What to expect">![](/astro-starlight/docs_images/script_usage/first-run.png)</Details>
 
 ⭐ When you are familiar with the script you can do anything you want with a one liner. It's pretty simple to use.
 
@@ -34,7 +35,7 @@ chmod +x ~/qbt.sh # make it executable
 ~/qbt.sh
 ```
 
-<Advanced client:only>
+<Advanced>
 
 :::note
 Please see the [switches and flags summary](./build-help?id=switches-and-flags-summarised) to see what options you can pass and how to use them

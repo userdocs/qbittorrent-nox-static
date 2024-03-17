@@ -3,63 +3,69 @@ const { id, label } = Astro.props;
 const buttonId = id + "-open";
 const buttonClose = id + "-close";
 
-const posts = await Astro.glob('/src/content/docs/glossary/*.md');
+const posts = await Astro.glob("/src/content/docs/glossary/*.md");
 
-const filtered = posts.find(post => post.file.includes(id));
+const filtered = posts.find((post) => post.file.includes(id));
 ---
 
 <!-- Store the message prop as a data attribute. -->
-<my-modal data-id={id} data-button-id={buttonId}  data-button-close={buttonClose}>
-<a id={buttonId}>{label}</a>
+<my-modal
+	data-tippy-maxWidth="100"
+	data-id={id}
+	data-button-id={buttonId}
+	data-button-close={buttonClose}
+>
+	<a id={buttonId}>{label}</a>
 
-<dialog class="toolTipDialog" id={id}>
-    <div class="dialog-content">
-  <article>
-    <p set:html={filtered.compiledContent()}></p>
-  </article>
-    </div>
-    <div class="dialog-button">
-        <button class="dialog-button-close" id={buttonClose} type="reset">Cancel</button>
-    </div>
-</dialog>
-
+	<dialog class="toolTipDialog" id={id}>
+		<div class="dialog-content">
+			<article>
+				<p set:html={filtered.compiledContent()} />
+			</article>
+		</div>
+		<div class="dialog-button">
+			<button class="dialog-button-close" id={buttonClose} type="reset"
+				>Cancel</button
+			>
+		</div>
+	</dialog>
 </my-modal>
 
 <script>
-  class MyModal extends HTMLElement {
-    constructor() {
-      super();
-        const id = this.dataset.id;
-        const buttonId = this.dataset.buttonId;
-        const buttonClose = this.dataset.buttonClose;
+	class MyModal extends HTMLElement {
+		constructor() {
+			super();
+			const id = this.dataset.id;
+			const buttonId = this.dataset.buttonId;
+			const buttonClose = this.dataset.buttonClose;
 
-        console.log(id, buttonId, buttonClose);
+			console.log(id, buttonId, buttonClose);
 
-        const openDialog = document.getElementById(buttonId);
-        const closeDialog = document.getElementById(buttonClose);
-        const dialog = document.getElementById(id);
+			const openDialog = document.getElementById(buttonId);
+			const closeDialog = document.getElementById(buttonClose);
+			const dialog = document.getElementById(id);
 
-        function clickOutside(dialog) {
-        // When the user clicks anywhere outside of the dialog, close it
-        window.onclick = function(event) {
-            if (event.target == dialog) {
-            dialog.close();
-            }
-        }
-        }
+			function clickOutside(dialog) {
+				// When the user clicks anywhere outside of the dialog, close it
+				window.onclick = function (event) {
+					if (event.target == dialog) {
+						dialog.close();
+					}
+				};
+			}
 
-        // Update button opens a modal dialog
-        openDialog.addEventListener("click", () => {
-            dialog.showModal();
-            clickOutside(dialog);
-        });
+			// Update button opens a modal dialog
+			openDialog.addEventListener("click", () => {
+				dialog.showModal();
+				clickOutside(dialog);
+			});
 
-        // Form cancel button closes the dialog box
-        closeDialog.addEventListener("click", () => {
-            dialog.close();
-            clickOutside(dialog);
-        });
-    }
-  }
-customElements.define('my-modal', MyModal);
+			// Form cancel button closes the dialog box
+			closeDialog.addEventListener("click", () => {
+				dialog.close();
+				clickOutside(dialog);
+			});
+		}
+	}
+	customElements.define("my-modal", MyModal);
 </script>

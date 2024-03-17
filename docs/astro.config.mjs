@@ -3,6 +3,7 @@ import starlight from "@astrojs/starlight";
 import react from "@astrojs/react";
 import { ExpressiveCodeTheme } from "@astrojs/starlight/expressive-code";
 import fs from "node:fs";
+import starlightImageZoom from "starlight-image-zoom";
 
 const jsoncStringLight = fs.readFileSync(
 	new URL(
@@ -34,6 +35,7 @@ export default defineConfig({
 		}),
 
 		starlight({
+			plugins: [starlightImageZoom()],
 			//   favicon: "./favicon.svg",
 			head: [
 				// // https://starlight.astro.build/reference/configuration/#head
