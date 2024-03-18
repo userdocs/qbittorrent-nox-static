@@ -1,7 +1,5 @@
 ---
 const { id, label } = Astro.props;
-const buttonId = id + "-open";
-const buttonClose = id + "-close";
 const posts = await Astro.glob("/src/content/docs/glossary/*.md");
 const regex = new RegExp(`${id}\.md$|${id}\.mdx$`);
 const filtered = posts.find((post) => post.file.match(regex));
@@ -13,15 +11,14 @@ const glossaryUrl = basePath + "glossary/" + id;
 <my-modal
 	tabindex="0"
 	data-tippy-maxWidth="100"
-	data-id={id + "-dialog"}
-	data-button-id={buttonId}
-	data-button-close={buttonClose}
+	data-id={id}
 	data-html={htmlSplit[0] +
-		'<hr class="tooltippy-line"><div class="tooltippy-div">🟩 <a class="tooltippy-link" href=' +
+		`<hr class="tooltippy-line"><div class="tooltippy-div" id="${id}-glossary-url">🟩 <a class="tooltippy-link" href=` +
 		glossaryUrl +
 		' target="_blank">Click here for the full Glossary entry</a></div>'}
+	data-html-more={htmlSplit[1]}
 >
-	<a class="tooltippy-link" id={buttonId}>{label}</a>
+	<a class="tooltippy-link" id={id + "-open"}>{label}</a>
 </my-modal>
 
 <script>
@@ -29,9 +26,13 @@ const glossaryUrl = basePath + "glossary/" + id;
 		constructor() {
 			super();
 			const id = this.dataset.id || "";
-			const buttonId = this.dataset.buttonId || "";
-			const buttonClose = this.dataset.buttonClose || "";
+			const buttonId = id + "-open" || "";
+			const buttonClose = id + "-close" || "";
+			const buttonMore = id + "-more" || "";
+			const showMore = id + "-show-more" || "";
+			const glossaryUrl = id + "-glossary-url" || "";
 			const html = this.dataset.html || "";
+			const htmlMore = this.dataset.htmlMore || "";
 
 			const body = document.querySelector("body");
 			if (!body) {
@@ -40,10 +41,12 @@ const glossaryUrl = basePath + "glossary/" + id;
 
 			body.insertAdjacentHTML(
 				"beforeend",
-				`<dialog class="toolTipDialog" id="${id}">` +
+				`<dialog class="toolTipDialog" id="${id}-dialog">` +
 					`<div class="dialog-content" id="${id}-content"></div>` +
 					`<div class="dialog-button">` +
+					`<div class="dialog-show-more" id="${showMore}" style="display: none;">${htmlMore}</div>` +
 					`<button class="dialog-button-close" id="${buttonClose}" type="reset">Close this Dialog</button>` +
+					`<button class="dialog-button-more" id="${buttonMore}" type="reset">Show for full glossary entry</button>` +
 					`</div>` +
 					`</dialog>`
 			);
@@ -53,9 +56,13 @@ const glossaryUrl = basePath + "glossary/" + id;
 				dialogDiv.innerHTML = html;
 			}
 
+			const dialog = document.getElementById(id + "-dialog");
 			const openDialog = document.getElementById(buttonId);
 			const closeDialog = document.getElementById(buttonClose);
-			const dialog = document.getElementById(id);
+
+			const toggleMore = document.getElementById(buttonMore);
+			const moreDialog = document.getElementById(showMore);
+			const dialogUrl = document.getElementById(glossaryUrl);
 
 			if (!openDialog || !closeDialog || !dialog) {
 				return;
@@ -71,10 +78,29 @@ const glossaryUrl = basePath + "glossary/" + id;
 				(dialog as HTMLDialogElement).close();
 			});
 
+			toggleMore?.addEventListener("click", () => {
+				const isHidden = moreDialog?.style.display === "none";
+				if (moreDialog) {
+					moreDialog.style.display = isHidden ? "block" : "none";
+				}
+
+				const isShown = dialogUrl?.style.display === "none";
+				if (dialogUrl) {
+					dialogUrl.style.display = isShown ? "block" : "none";
+				}
+			});
+
 			// Close the dialog when clicked outside
 			window.addEventListener("click", (event) => {
 				if (event.target === dialog) {
 					(dialog as HTMLDialogElement).close();
+					if (moreDialog) {
+						moreDialog.style.display = "none";
+					}
+
+					if (dialogUrl) {
+						dialogUrl.style.display = "block";
+					}
 				}
 			});
 		}
