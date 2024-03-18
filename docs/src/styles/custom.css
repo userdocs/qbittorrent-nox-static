@@ -37,7 +37,7 @@
 
 :root[data-theme='light'] {
 	--sl-color-accent-low: #f5b5ea;
-	--sl-color-accent: #007d6d;
+	--sl-color-accent: #136454;
 	--sl-color-accent-high: #003c33;
 	--sl-color-white: #1d122b;
 	--sl-color-gray-1: #31154f;
@@ -47,7 +47,7 @@
 	--sl-color-gray-5: #c8bbde;
 	--sl-color-gray-6: #f1e9ff;
 	--sl-color-gray-7: #dedae6;
-	--sl-color-black: #cecdcd;
+	--sl-color-black: #e7e6e6;
 
 	/* custom colors */
 	--sl-button-bg-primary: #c1dad1;
@@ -56,10 +56,10 @@
 
 	--details-1: #a0b494;
 	--details-2: #4c0879;
-	--details-3: rgb(187, 151, 190);
+	--details-3: #d6d6d6;
 
-	--url-colour: #d020e0;
-	--url-colour-hover: #54c59f;
+	--url-colour: #660891 !important;
+	--url-colour-hover: #14574c !important;
 
 	--code-inline-background: #54c59f;
 	--code-inline-color: #000000;
@@ -68,7 +68,7 @@
 	--tab-background-if: #ab94b4;
 	--tab-background-oof: #54385f;
 	--tab-color-if: #111011;
-	--tab-color-oof: #828285;
+	--tab-color-oof: rgb(210, 210, 214);
 	--steps-border: #aa4bb3;
 }
 
@@ -121,7 +121,11 @@ p a:hover {
 }
 
 .sl-markdown-content ul li::marker {
-	content: "▶ ";
+	content: "⯀ ";
+}
+
+.sl-markdown-content ul li ul li::marker {
+	content: "￭ ";
 }
 
 .tab::marker {
@@ -525,29 +529,6 @@ details[open] div.custom-content {
 	background-color: transparent !important;
 }
 
-.toolTipDialog {
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	width: auto;
-	height: auto;
-	border: 2px solid rgb(146, 52, 88);
-
-}
-
-.dialog-button {}
-
-.dialog-button-close {
-	position: absolute;
-	bottom: auto;
-	border: 2px solid rgb(146, 52, 88);
-	margin: 5px;
-}
-
-button.dialog-button-close {
-	right: 0;
-}
-
 .my-icon-container {
 	padding: 0px 0px 10px 10px;
 	/* margin-top: 25px !important; */
@@ -670,4 +651,31 @@ button.dialog-button-close {
 .tooltippy-link:hover {
 	color: var(--url-colour-hover) !important;
 	cursor: pointer;
+}
+
+.toolTipDialog {
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	max-width: 800px;
+	width: max-content;
+	height: max-content;
+	border: 2px solid rgb(146, 52, 88);
+}
+
+.dialog-button {
+	float: none !important;
+	padding-top: 10px !important;
+	padding-bottom: 0px !important;
+
+	margin-right: 30% !important;
+	margin-left: 30% !important;
+	margin-bottom: -16px !important;
+
+}
+
+.dialog-button-close {
+	width: 100% !important;
+	border: 2px solid rgb(146, 52, 88);
+	border-bottom: none !important;
 }

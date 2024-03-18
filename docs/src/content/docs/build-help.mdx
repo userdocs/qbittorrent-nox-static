@@ -12,7 +12,7 @@ Once the script has successfully configured the platform you can execute the hel
 bash ~/qbittorrent-nox-static.sh -h
 ```
 
-### ENV settings
+## ENV settings
 
 The script has some `env` settings that can trigger certain behaviour.
 
@@ -42,7 +42,7 @@ If you see more variables in the script but they are not listed here they are Gi
 If you set `qbt_build_tool=cmake` and `qt_version=6.2` with the switch `-qm` you can build against QT6.
 :::
 
-### Switches and flags summarised
+## Switches and flags summarised
 
 All switches and flags have a supporting help option that will provide dynamic content where applicable.
 
@@ -187,7 +187,7 @@ Add your patches there, for example.
 </TabItem>
 </Tabs>
 
-### Build - default profile
+## Build - default profile
 
 Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the default build directory `qbt-build/compelted`.
 
@@ -195,7 +195,7 @@ Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the 
 bash ~/qbittorrent-nox-static.sh all
 ```
 
-### Build - modules (optional and mostly for debugging and testing)
+## Build - modules (optional and mostly for debugging and testing)
 
 You can build modules individually, subject to this warning.
 
@@ -225,7 +225,7 @@ libtorrent (default)
 qbittorrent (default)
 ```
 
-### Build - paths
+## Build - paths
 
 By default the script will built to a hard coded path defined by the scripts `$install_dir` variable as to avoid installing files to a server and causing conflicts.
 
