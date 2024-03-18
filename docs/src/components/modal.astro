@@ -4,35 +4,32 @@ const posts = await Astro.glob("/src/content/docs/glossary/*.md");
 const regex = new RegExp(`${id}\.md$|${id}\.mdx$`);
 const filtered = posts.find((post) => post.file.match(regex));
 const htmlSplit = filtered?.compiledContent()?.toString()?.split("<hr>") || [];
-const basePath = "/" + Astro.url.pathname.split("/")[1] + "/";
-const glossaryUrl = basePath + "glossary/" + id;
+const basePath = `/${Astro.url.pathname.split("/")[1]}/`;
+const glossaryUrl = `${basePath}glossary/${id}`;
 ---
 
 <my-modal
 	tabindex="0"
 	data-tippy-maxWidth="100"
 	data-id={id}
-	data-html={htmlSplit[0] +
-		`<hr class="tooltippy-line"><div class="tooltippy-div" id="${id}-glossary-url">🟩 <a class="tooltippy-link" href=` +
-		glossaryUrl +
-		' target="_blank">Click here for the full Glossary entry</a></div>'}
+	data-html={`${htmlSplit[0]}<hr class="tooltippy-line"><div class="tooltippy-div" id="${id}-glossary-url">🟩 <a class="tooltippy-link" href=${glossaryUrl} target="_blank">Click here for the full Glossary entry</a></div>`}
 	data-html-more={htmlSplit[1]}
 >
-	<a class="tooltippy-link" id={id + "-open"}>{label}</a>
+	<a class="tooltippy-link" id={`${id}-open`}>{label}</a>
 </my-modal>
 
 <script>
 	class MyModal extends HTMLElement {
 		constructor() {
 			super();
-			const id = this.dataset.id || "";
-			const buttonId = id + "-open" || "";
-			const buttonClose = id + "-close" || "";
-			const buttonMore = id + "-more" || "";
-			const showMore = id + "-show-more" || "";
-			const glossaryUrl = id + "-glossary-url" || "";
-			const html = this.dataset.html || "";
-			const htmlMore = this.dataset.htmlMore || "";
+			const id = this.dataset.id ?? "";
+			const buttonId = `${id}-open`;
+			const buttonClose = `${id}-close`;
+			const buttonMore = `${id}-more`;
+			const showMore = `${id}-show-more`;
+			const glossaryUrl = `${id}-glossary-url`;
+			const html = this.dataset.html ?? "";
+			const htmlMore = this.dataset.htmlMore ?? "";
 
 			const body = document.querySelector("body");
 			if (!body) {
@@ -41,22 +38,23 @@ const glossaryUrl = basePath + "glossary/" + id;
 
 			body.insertAdjacentHTML(
 				"beforeend",
-				`<dialog class="toolTipDialog" id="${id}-dialog">` +
-					`<div class="dialog-content" id="${id}-content"></div>` +
-					`<div class="dialog-button">` +
-					`<div class="dialog-show-more" id="${showMore}" style="display: none;">${htmlMore}</div>` +
-					`<button class="dialog-button-close" id="${buttonClose}" type="reset">Close this Dialog</button>` +
-					`<button class="dialog-button-more" id="${buttonMore}" type="reset">Show for full glossary entry</button>` +
-					`</div>` +
-					`</dialog>`
+				`<dialog class="toolTipDialog" id="${id}-dialog">
+                    <div class="dialog-content" id="${id}-content"></div>
+                    <div class="dialog-button">
+                        <div class="dialog-show-more" id="${showMore}" style="display: none;">${htmlMore}</div>
+                        <button class="dialog-button-close" id="${buttonClose}" type="reset">Close this Dialog</button>
+                        <button class="dialog-button-more" id="${buttonMore}" type="reset">Show for full glossary entry</button>
+                    </div>
+                </dialog>`
 			);
 
 			const dialogDiv = document.getElementById(`${id}-content`);
+
 			if (dialogDiv) {
 				dialogDiv.innerHTML = html;
 			}
 
-			const dialog = document.getElementById(id + "-dialog");
+			const dialog = document.getElementById(`${id}-dialog`);
 			const openDialog = document.getElementById(buttonId);
 			const closeDialog = document.getElementById(buttonClose);
 
@@ -78,29 +76,24 @@ const glossaryUrl = basePath + "glossary/" + id;
 				(dialog as HTMLDialogElement).close();
 			});
 
-			toggleMore?.addEventListener("click", () => {
-				const isHidden = moreDialog?.style.display === "none";
-				if (moreDialog) {
-					moreDialog.style.display = isHidden ? "block" : "none";
+			const toggleDisplay = (element: HTMLElement | null) => {
+				if (element) {
+					element.style.display =
+						element.style.display === "none" ? "block" : "none";
 				}
+			};
 
-				const isShown = dialogUrl?.style.display === "none";
-				if (dialogUrl) {
-					dialogUrl.style.display = isShown ? "block" : "none";
-				}
+			toggleMore?.addEventListener("click", () => {
+				toggleDisplay(moreDialog);
+				toggleDisplay(dialogUrl);
 			});
 
 			// Close the dialog when clicked outside
 			window.addEventListener("click", (event) => {
 				if (event.target === dialog) {
 					(dialog as HTMLDialogElement).close();
-					if (moreDialog) {
-						moreDialog.style.display = "none";
-					}
-
-					if (dialogUrl) {
-						dialogUrl.style.display = "block";
-					}
+					toggleDisplay(moreDialog);
+					toggleDisplay(dialogUrl);
 				}
 			});
 		}
