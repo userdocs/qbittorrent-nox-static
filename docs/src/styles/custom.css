@@ -667,15 +667,24 @@ details[open] div.custom-content {
 	float: none !important;
 	padding-top: 10px !important;
 	padding-bottom: 0px !important;
-
-	margin-right: 30% !important;
-	margin-left: 30% !important;
-	margin-bottom: -16px !important;
+	/* margin-bottom: -16px !important; */
 
 }
 
 .dialog-button-close {
-	width: 100% !important;
+	width: 40% !important;
+	float: left !important;
 	border: 2px solid rgb(146, 52, 88);
-	border-bottom: none !important;
+}
+
+
+.dialog-button-more {
+	width: 40% !important;
+	float: right !important;
+	border: 2px solid rgb(146, 52, 88);
+}
+
+.dialog-show-more {
+	padding-bottom: 10px !important;
+	margin-top: -10px !important;
 }
