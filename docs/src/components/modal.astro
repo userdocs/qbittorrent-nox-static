@@ -2,25 +2,31 @@
 const { id, label } = Astro.props;
 const buttonId = id + "-open";
 const buttonClose = id + "-close";
-
 const posts = await Astro.glob("/src/content/docs/glossary/*.md");
-
-const filtered = posts.find((post) => post.file.includes(id));
+const regex = new RegExp(`${id}\.md$|${id}\.mdx$`);
+const filtered = posts.find((post) => post.file.match(regex));
+const htmlSplit = filtered?.compiledContent()?.toString()?.split("<hr>") || [];
+const basePath = "/" + Astro.url.pathname.split("/")[1] + "/";
+const glossaryUrl = basePath + "glossary/" + id;
 ---
 
-<!-- Store the message prop as a data attribute. -->
 <my-modal
 	data-tippy-maxWidth="100"
-	data-id={id}
+	data-id={id + "-dialog"}
 	data-button-id={buttonId}
 	data-button-close={buttonClose}
 >
 	<a id={buttonId}>{label}</a>
 
-	<dialog class="toolTipDialog" id={id}>
+	<dialog class="toolTipDialog" id={id + "-dialog"}>
 		<div class="dialog-content">
 			<article>
-				<p set:html={filtered.compiledContent()} />
+				<p
+					set:html={htmlSplit[0] +
+						'<hr class="tooltippy-line"><div class="tooltippy-div">🟩 <a class="tooltippy-link" href=' +
+						glossaryUrl +
+						' target="_blank">Click here for the full Glossary entry</a></div>'}
+				/>
 			</article>
 		</div>
 		<div class="dialog-button">
@@ -35,9 +41,9 @@ const filtered = posts.find((post) => post.file.includes(id));
 	class MyModal extends HTMLElement {
 		constructor() {
 			super();
-			const id = this.dataset.id;
-			const buttonId = this.dataset.buttonId;
-			const buttonClose = this.dataset.buttonClose;
+			const id = this.dataset.id || "";
+			const buttonId = this.dataset.buttonId || "";
+			const buttonClose = this.dataset.buttonClose || "";
 
 			console.log(id, buttonId, buttonClose);
 
@@ -45,7 +51,11 @@ const filtered = posts.find((post) => post.file.includes(id));
 			const closeDialog = document.getElementById(buttonClose);
 			const dialog = document.getElementById(id);
 
-			function clickOutside(dialog) {
+			if (!openDialog || !closeDialog || !dialog) {
+				return;
+			}
+
+			function clickOutside(dialog: HTMLDialogElement) {
 				// When the user clicks anywhere outside of the dialog, close it
 				window.onclick = function (event) {
 					if (event.target == dialog) {
@@ -56,14 +66,14 @@ const filtered = posts.find((post) => post.file.includes(id));
 
 			// Update button opens a modal dialog
 			openDialog.addEventListener("click", () => {
-				dialog.showModal();
-				clickOutside(dialog);
+				(dialog as HTMLDialogElement).showModal();
+				clickOutside(dialog as HTMLDialogElement);
 			});
 
 			// Form cancel button closes the dialog box
 			closeDialog.addEventListener("click", () => {
-				dialog.close();
-				clickOutside(dialog);
+				(dialog as HTMLDialogElement).close();
+				clickOutside(dialog as HTMLDialogElement);
 			});
 		}
 	}

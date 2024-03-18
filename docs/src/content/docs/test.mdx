@@ -6,6 +6,10 @@ hide_title: true
 import { Advanced, Details, Modal, Tooltip, Charts, Important } from "/src/components/global.jsx"
 import { Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon  } from '@astrojs/starlight/components';
 
+import Floating from '/src/components/floating.astro'
+
+<Floating id="bash" label="bash"/>
+
 <Details>
 ## 2142121
 
@@ -40,6 +44,8 @@ import { Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon  } from '@a
 <Tooltip id="muslc" label="musl libc"/>
 <Tooltip id="glibc" label="glibc"/>
 <Tooltip id="github-actions" label="Github Actions"/>
+<Modal id="bash" label="bash"/>
 </Advanced>
 
 </Details>
+

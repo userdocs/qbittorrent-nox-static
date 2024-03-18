@@ -6,6 +6,10 @@ const filtered = posts.find((post) => post.file.match(regex));
 const htmlSplit = filtered?.compiledContent()?.toString()?.split("<hr>") || [];
 const basePath = "/" + Astro.url.pathname.split("/")[1] + "/";
 const glossaryUrl = basePath + "glossary/" + id;
+
+import "tippy.js/dist/tippy.css"; // optional for styling
+import "tippy.js/dist/backdrop.css";
+import "tippy.js/animations/shift-away.css";
 ---
 
 <a
@@ -24,10 +28,6 @@ const glossaryUrl = basePath + "glossary/" + id;
 		animateFill,
 		inlinePositioning,
 	} from "tippy.js";
-	import "tippy.js/dist/tippy.css"; // optional for styling
-	import "tippy.js/themes/light.css";
-	import "tippy.js/dist/backdrop.css";
-	import "tippy.js/animations/shift-away.css";
 	const theme = document.documentElement.dataset.theme;
 
 	tippy("[data-tippy-content]", {
@@ -35,7 +35,7 @@ const glossaryUrl = basePath + "glossary/" + id;
 		allowHTML: true,
 		interactive: true,
 		animateFill: true,
-		followCursor: true,
+		followCursor: false,
 		inlinePositioning: true,
 		plugins: [followCursor, animateFill, inlinePositioning],
 		zIndex: 9999,
