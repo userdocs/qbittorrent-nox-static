@@ -657,7 +657,7 @@ details[open] div.custom-content {
 	top: 50%;
 	left: 50%;
 	transform: translate(-50%, -50%);
-	max-width: 800px;
+	max-width: 50%;
 	width: max-content;
 	height: max-content;
 	border: 2px solid rgb(146, 52, 88);
@@ -667,19 +667,18 @@ details[open] div.custom-content {
 	float: none !important;
 	padding-top: 10px !important;
 	padding-bottom: 0px !important;
-	/* margin-bottom: -16px !important; */
 
 }
 
 .dialog-button-close {
-	width: 40% !important;
+	width: 49% !important;
 	float: left !important;
 	border: 2px solid rgb(146, 52, 88);
 }
 
 
 .dialog-button-more {
-	width: 40% !important;
+	width: 49% !important;
 	float: right !important;
 	border: 2px solid rgb(146, 52, 88);
 }
