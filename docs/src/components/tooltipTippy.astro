@@ -12,8 +12,20 @@ import "tippy.js/dist/backdrop.css";
 import "tippy.js/animations/shift-away.css";
 ---
 
+<style is:global>
+	.tippy-box[data-theme~="myLightTheme"] {
+		background-color: rgb(187, 151, 190) !important;
+		color: rgb(0, 0, 0) !important;
+	}
+
+	.tippy-box[data-theme~="myDarkTheme"] {
+		background-color: #543768 !important;
+		color: rgb(219, 219, 213) !important;
+	}
+</style>
+
 <a
-	class="tooltippy-link"
+	class="tooltippy tooltippy-link"
 	data-tippy-content={htmlSplit[0] +
 		'<hr class="tooltippy-line"><div class="tooltippy-div">🟩 <a class="tooltippy-link" href=' +
 		glossaryUrl +
@@ -28,20 +40,30 @@ import "tippy.js/animations/shift-away.css";
 		animateFill,
 		inlinePositioning,
 	} from "tippy.js";
+
 	const theme = document.documentElement.dataset.theme;
+
+	console.log(theme);
+
+	let tippyTheme;
+	if (theme === "light") {
+		tippyTheme = "myLightTheme";
+	} else if (theme === "dark") {
+		tippyTheme = "myDarkTheme";
+	}
 
 	tippy("[data-tippy-content]", {
 		arrow: false,
 		allowHTML: true,
 		interactive: true,
-		animateFill: true,
+		animateFill: false,
 		followCursor: false,
 		inlinePositioning: true,
 		plugins: [followCursor, animateFill, inlinePositioning],
 		zIndex: 9999,
 		appendTo: () => document.body,
 		trigger: "click",
-		theme: theme,
 		placement: "bottom",
+		theme: tippyTheme,
 	});
 </script>
