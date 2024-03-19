@@ -87,6 +87,10 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 			toggleMore?.addEventListener("click", () => {
 				toggleDisplay(moreDialog);
 				toggleDisplay(dialogUrl);
+				toggleMore.innerHTML =
+					toggleMore.innerHTML === "Show less"
+						? "Show for full glossary entry"
+						: "Show less";
 			});
 
 			// Close the dialog when clicked outside
