@@ -9,13 +9,14 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 ---
 
 <my-modal
+	class="dialog-button-modal"
 	tabindex="0"
 	data-tippy-maxWidth="100"
 	data-id={id}
 	data-html={`${htmlSplit[0]}<hr class="tooltippy-line"><div class="tooltippy-div" id="${id}-glossary-url">🟩 <a class="tooltippy-link" href=${glossaryUrl} target="_blank">Click here for the full Glossary entry</a></div>`}
 	data-html-more={htmlSplit[1]}
 >
-	<a class="tooltippy-link" id={`${id}-open`}>{label}</a>
+	<a class="tooltippy-link dialog-button-open" id={`${id}-open`}>{label}</a>
 </my-modal>
 
 <script>
@@ -92,8 +93,12 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 			window.addEventListener("click", (event) => {
 				if (event.target === dialog) {
 					(dialog as HTMLDialogElement).close();
-					toggleDisplay(moreDialog);
-					toggleDisplay(dialogUrl);
+					if (moreDialog) {
+						moreDialog.style.display = "none";
+					}
+					if (dialogUrl) {
+						dialogUrl.style.display = "block";
+					}
 				}
 			});
 		}
