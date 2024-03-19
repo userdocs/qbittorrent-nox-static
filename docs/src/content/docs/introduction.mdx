@@ -3,7 +3,7 @@ title: Introduction
 description: Introduction
 ---
 
-import { Advanced, Details, Modal, Tooltip, Charts, Important, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
 
 ## What is it?
 
@@ -54,7 +54,7 @@ zlib: 1.2.13.zlib-ng
 <Tabs>
 <TabItem label="Debian and Ubuntu Linux">
 
-The script creates a fully static `qbittorrent-nox` binary using <Tooltip id="glibc" label="glibc"/>
+The script creates a fully static `qbittorrent-nox` binary using <Modal id="glibc" label="glibc"/>
 
 The final result will show this when using `ldd`
 
@@ -71,7 +71,7 @@ not a dynamic executable
 </TabItem>
 <TabItem label="Alpine Linux">
 
-The script creates a fully static `qbittorrent-nox` binary using <Tooltip id="muslc" label="musl libc"/>
+The script creates a fully static `qbittorrent-nox` binary using <Modal id="muslc" label="musl libc"/>
 
 The final result will show this when using `ldd`
 
@@ -93,5 +93,5 @@ statically linked
 The script can be downloaded locally and run on a supported host or via docker. It has a comprehensive help section built in, available via the `-h` flag, that explains all options and demonstrates dynamic command choices. The best thing to do is read the script installation and usage sections to understand the key features and how to user them.
 
 :::tip[The hard part is done.]
-You always have a easy method available to you to build your own releases, simply by forking the repo and using the available workflows. How to do this will be shown in the <Tooltip id="github-actions" label="Github Actions"/> sections later on. You can build locally or fork the repo and build and release using CI where the git repo acts as a local environment to the script.
+You always have a easy method available to you to build your own releases, simply by forking the repo and using the available workflows. How to do this will be shown in the <Modal id="github-actions" label="Github Actions"/> sections later on. You can build locally or fork the repo and build and release using CI where the git repo acts as a local environment to the script.
 :::

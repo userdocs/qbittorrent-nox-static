@@ -3,7 +3,7 @@ title: Prerequisite Check list
 hide_title: true
 ---
 
-import { Advanced, Details, Modal, Tooltip, Charts, Important, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
 
 ⭐ The rules of engagement are:
 
@@ -30,7 +30,7 @@ import { Advanced, Details, Modal, Tooltip, Charts, Important, Steps, Tabs, TabI
 <Advanced>
 
 :::tip[Optional - Paid service for faster build times]
-For faster build times you can consider a paid service like <Tooltip id="buildjet" label="buildjet.com "/> to use as self hosted runners with the Github Actions
+For faster build times you can consider a paid service like <Modal id="buildjet" label="buildjet.com "/> to use as self hosted runners with the Github Actions
 :::
 
 </Advanced>
@@ -45,12 +45,12 @@ If you want to self host you need to be able to meet these conditions on your ho
     - Alpine: `3.10` or greater
 
 🟩 Build environment
-    - <Tooltip id="docker" label="Docker"/> via a shell like <Tooltip id="bash" label="Bash"/> or <Tooltip id="powershell" label="Powershell"/>
-    - <Tooltip id="docker-desktop" label="Docker Desktop"/>: `Windows` `MacOS` `WSL2`
+    - <Modal id="docker" label="Docker"/> via a shell like <Modal id="bash" label="Bash"/> or <Modal id="powershell" label="Powershell"/>
+    - <Modal id="docker-desktop" label="Docker Desktop"/>: `Windows` `MacOS` `WSL2`
     - WSL2
       - Run directly in the Debian or Ubuntu image ❌ (works but not recommended)
-      - Via <Tooltip id="docker-desktop" label="Docker Desktop"/> ✅ (recommended method)
-      - Docker installed in <Tooltip id="wsl2" label="WSL2"/> image ✅ (alternative recommendation)
+      - Via <Modal id="docker-desktop" label="Docker Desktop"/> ✅ (recommended method)
+      - Docker installed in <Modal id="wsl2" label="WSL2"/> image ✅ (alternative recommendation)
 
 
 🟩 Bash Shell script
@@ -64,7 +64,7 @@ If you want to self host you need to be able to meet these conditions on your ho
 
 🟥 Qt6 requirements
 
-    - If you build using Qt6 you will need to have these dependencies installed on the host, <Tooltip id="qemu" label="qemu and binmtfs"/>
+    - If you build using Qt6 you will need to have these dependencies installed on the host, <Modal id="qemu" label="qemu and binmtfs"/>
 
 <Tabs>
 <TabItem value="Debian based Linux" label="debian">
