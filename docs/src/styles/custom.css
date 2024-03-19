@@ -607,6 +607,7 @@ details[open] div.custom-content {
 	padding-bottom: 5px !important;
 }
 
+
 .tooltip-link {}
 
 .tooltip-line {
@@ -651,51 +652,4 @@ details[open] div.custom-content {
 .tooltippy-link:hover {
 	color: var(--url-colour-hover) !important;
 	cursor: pointer;
-}
-
-.toolTipDialog {
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	max-width: 50%;
-	width: max-content;
-	height: max-content;
-	border: 2px solid rgb(146, 52, 88);
-}
-
-.dialog-button {
-	float: none !important;
-	padding-top: 10px !important;
-	padding-bottom: 0px !important;
-
-}
-
-.dialog-button-close {
-	width: 49% !important;
-	float: left !important;
-	border: 2px solid rgb(146, 52, 88);
-}
-
-
-.dialog-button-more {
-	width: 49% !important;
-	float: right !important;
-	border: 2px solid rgb(146, 52, 88);
-}
-
-.dialog-show-more {
-	padding-bottom: 10px !important;
-	margin-top: -10px !important;
-}
-
-.dialog-button-open {
-	border-radius: 6px !important;
-	padding: 0px 2px 2px 2px !important;
-	background-color: rgb(31, 138, 123) !important;
-	color: rgb(228, 222, 222) !important;
-}
-
-.dialog-button-open:hover {
-	background-color: rgb(34, 199, 191) !important;
-	color: black !important;
 }

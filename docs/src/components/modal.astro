@@ -9,14 +9,14 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 ---
 
 <my-modal
-	class="dialog-button-modal"
+	class="modal-dialog-button"
 	tabindex="0"
 	data-tippy-maxWidth="100"
 	data-id={id}
-	data-html={`${htmlSplit[0]}<hr class="tooltippy-line"><div class="tooltippy-div" id="${id}-glossary-url">🟩 <a class="tooltippy-link" href=${glossaryUrl} target="_blank">Click here for the full Glossary entry</a></div>`}
+	data-html={`${htmlSplit[0]}<hr class="glossary-separator"><div class="glossary-url-div" id="${id}-glossary-url">🟩 <a class="glossary-url" href=${glossaryUrl} target="_blank">Click here for the full Glossary entry</a></div>`}
 	data-html-more={htmlSplit[1]}
 >
-	<a class="tooltippy-link dialog-button-open" id={`${id}-open`}>{label}</a>
+	<a class="glossary-url dialog-button-open" id={`${id}-open`}>{label}</a>
 </my-modal>
 
 <script>
@@ -39,7 +39,7 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 
 			body.insertAdjacentHTML(
 				"beforeend",
-				`<dialog class="toolTipDialog" id="${id}-dialog">
+				`<dialog class="modal-dialog" id="${id}-dialog">
                     <div class="dialog-content" id="${id}-content"></div>
                     <div class="dialog-button">
                         <div class="dialog-show-more" id="${showMore}" style="display: none;">${htmlMore}</div>
@@ -109,3 +109,71 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 	}
 	customElements.define("my-modal", MyModal);
 </script>
+
+<style is:global>
+	.glossary-separator {
+		margin: 10px 0px 5px 0px;
+	}
+
+	.glossary-url {
+		margin: 0px 0px 0px 0px;
+	}
+
+	.glossary-url-div {
+		margin: 5px 0px 0px 0px;
+	}
+
+	.glossary-url {
+		color: var(--url-colour) !important;
+	}
+
+	.glossary-url:hover {
+		color: var(--url-colour-hover) !important;
+		cursor: pointer;
+	}
+
+	.modal-dialog {
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		max-width: 100%;
+		width: 1000px;
+		height: max-content;
+		border: 2px solid rgb(146, 52, 88);
+	}
+
+	.dialog-button {
+		float: none !important;
+		padding-top: 10px !important;
+		padding-bottom: 0px !important;
+	}
+
+	.dialog-button-close {
+		width: 49% !important;
+		float: left !important;
+		border: 2px solid rgb(146, 52, 88);
+	}
+
+	.dialog-button-more {
+		width: 49% !important;
+		float: right !important;
+		border: 2px solid rgb(146, 52, 88);
+	}
+
+	.dialog-show-more {
+		padding-bottom: 10px !important;
+		margin-top: -10px !important;
+	}
+
+	.dialog-button-open {
+		border-radius: 6px !important;
+		padding: 0px 2px 2px 2px !important;
+		background-color: rgb(31, 138, 123) !important;
+		color: rgb(228, 222, 222) !important;
+	}
+
+	.dialog-button-open:hover {
+		background-color: rgb(34, 199, 191) !important;
+		color: black !important;
+	}
+</style>
