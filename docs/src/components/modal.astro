@@ -44,7 +44,7 @@ const glossaryUrl = `${basePath}glossary/${id}`;
                     <div class="dialog-button">
                         <div class="dialog-show-more" id="${showMore}" style="display: none;">${htmlMore}</div>
                         <button class="dialog-button-close" id="${buttonClose}" type="reset">Close this Dialog</button>
-                        <button class="dialog-button-more" id="${buttonMore}" type="reset">Show for full glossary entry</button>
+                        <button class="dialog-button-more" id="${buttonMore}" type="reset">Show more</button>
                     </div>
                 </dialog>`
 			);
@@ -88,9 +88,7 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 				toggleDisplay(moreDialog);
 				toggleDisplay(dialogUrl);
 				toggleMore.innerHTML =
-					toggleMore.innerHTML === "Show less"
-						? "Show for full glossary entry"
-						: "Show less";
+					toggleMore.innerHTML === "Show less" ? "Show more" : "Show less";
 			});
 
 			// Close the dialog when clicked outside
