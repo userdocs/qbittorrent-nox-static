@@ -16,9 +16,8 @@ const files = filenames.map((filename) => {
 	const filePath = path.join(dir, filename);
 	const fileContent = fs.readFileSync(filePath, "utf-8");
 	const frontMatter = matter(fileContent).data;
-	const importedModule = import(`/${filePath}`);
 	const title = path.basename(filename, path.extname(filename));
-	return { title, frontMatter, importedModule };
+	return { title, frontMatter };
 });
 
 // Sort the files alphabetically by title
