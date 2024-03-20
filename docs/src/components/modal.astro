@@ -24,6 +24,8 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 		constructor() {
 			super();
 			const id = this.dataset.id ?? "";
+			const idDialog = `${id}-dialog`;
+			const idContent = `${id}-content`;
 			const buttonId = `${id}-open`;
 			const buttonClose = `${id}-close`;
 			const buttonMore = `${id}-more`;
@@ -39,23 +41,28 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 
 			body.insertAdjacentHTML(
 				"beforeend",
-				`<dialog class="modal-dialog" id="${id}-dialog">
-                    <div class="dialog-content" id="${id}-content"></div>
+				`<dialog class="modal-dialog" id="${idDialog}">
+                    <div class="dialog-content" id="${idContent}"></div>
                     <div class="dialog-button">
-                        <div class="dialog-show-more" id="${showMore}" style="display: none;">${htmlMore}</div>
+                        <div class="dialog-show-more" id="${showMore}" style="display: none"></div>
                         <button class="dialog-button-close" id="${buttonClose}" type="reset">Close this Dialog</button>
                         <button class="dialog-button-more" id="${buttonMore}" type="reset">Show more</button>
                     </div>
                 </dialog>`
 			);
 
-			const dialogDiv = document.getElementById(`${id}-content`);
+			const dialogDiv = document.getElementById(idContent);
+			const dialogMoreDiv = document.getElementById(showMore);
 
 			if (dialogDiv) {
 				dialogDiv.innerHTML = html;
 			}
 
-			const dialog = document.getElementById(`${id}-dialog`);
+			if (dialogMoreDiv) {
+				dialogMoreDiv.innerHTML = htmlMore;
+			}
+
+			const dialog = document.getElementById(idDialog);
 			const openDialog = document.getElementById(buttonId);
 			const closeDialog = document.getElementById(buttonClose);
 
@@ -110,7 +117,8 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 
 <style is:global>
 	.glossary-separator {
-		margin: 10px 0px 5px 0px;
+		color: rgb(146, 52, 88);
+		margin: -10px 0px 0px 0px;
 	}
 
 	.glossary-url {
@@ -118,7 +126,7 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 	}
 
 	.glossary-url-div {
-		margin: 5px 0px 0px 0px;
+		margin: 10px 0px 0px 0px;
 	}
 
 	.glossary-url {
@@ -138,6 +146,8 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 		width: 1000px;
 		height: max-content;
 		border: 2px solid rgb(146, 52, 88);
+		line-height: 20px;
+		border-radius: 5px;
 	}
 
 	.dialog-button {
@@ -150,17 +160,28 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 		width: 49% !important;
 		float: left !important;
 		border: 2px solid rgb(146, 52, 88);
+		padding: 10px;
+		border-radius: 5px;
 	}
 
 	.dialog-button-more {
 		width: 49% !important;
 		float: right !important;
 		border: 2px solid rgb(146, 52, 88);
+		padding: 10px;
+		border-radius: 5px;
+	}
+
+	.dialog-content {
+		padding: 0px !important;
+		margin-bottom: 5px !important;
+		white-space: pre-wrap !important;
 	}
 
 	.dialog-show-more {
 		padding-bottom: 10px !important;
-		margin-top: -10px !important;
+		margin-top: -20px !important;
+		white-space: pre-wrap !important;
 	}
 
 	.dialog-button-open {
