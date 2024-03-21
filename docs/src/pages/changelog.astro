@@ -1,0 +1,14 @@
+---
+import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import * as myPost from "../../../changelog.md";
+
+const headings = myPost.getHeadings().map((heading) => ({
+	depth: heading.depth,
+	slug: heading.slug,
+	text: heading.text,
+}));
+---
+
+<StarlightPage frontmatter={{ title: "Script Change Log" }} headings={headings}>
+	<article set:html={myPost.compiledContent()} />
+</StarlightPage>
