@@ -1,11 +1,11 @@
-### 2.0.7 - 12-02-2024
+### v2.0.7 - 12-02-2024
 
 Added: a boost download function to combine some logic around fallback urls and minimise external calls.
 Added: a check to build combos for qt + cmake to prevent env files trying to build a known bad combo.
 fixed: modules check for whole word and not accept partial matches
 fixed: associative arrays declared earlier and in a group to allow changing settings via functions
 
-### 2.0.6 - 2024-01-27
+### v2.0.6 - 2024-01-27
 
 New flag: `-si` / `--static-ish` for Debian, Ubuntu, and Alpine platforms. This flag disables LDFLAG static linking, allowing the OS libc to be dynamically linked.
 
