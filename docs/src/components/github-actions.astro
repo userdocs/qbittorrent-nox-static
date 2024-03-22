@@ -1,0 +1,25 @@
+---
+const { id } = Astro.props;
+import { Code } from "@astrojs/starlight/components";
+
+import debian_based_CI from "../../../.github/workflows/debian_based_CI.yml?raw";
+import matrix_multi_build_and_release from "../../../.github/workflows/matrix_multi_build_and_release.yml?raw";
+import matrix_multi_build_and_release_artifacts from "../../../.github/workflows/matrix_multi_build_and_release_artifacts.yml?raw";
+import matrix_multi_build_and_release_customs_tags from "../../../.github/workflows/matrix_multi_build_and_release_customs_tags.yml?raw";
+import matrix_multi_build_and_release_qbt_workflow_files from "../../../.github/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml?raw";
+import matrix_multi_build_and_release_qbt_workflow_files_debug from "../../../.github/workflows/matrix_multi_build_and_release_qbt_workflow_files_debug.yml?raw";
+import rerun from "../../../.github/workflows/rerun.yml?raw";
+
+const imports = {
+	debian_based_CI,
+	matrix_multi_build_and_release,
+	matrix_multi_build_and_release_artifacts,
+	matrix_multi_build_and_release_customs_tags,
+	matrix_multi_build_and_release_qbt_workflow_files,
+	matrix_multi_build_and_release_qbt_workflow_files_debug,
+	rerun,
+};
+const code = imports[id];
+---
+
+<Code code={code} lang="yaml" />
