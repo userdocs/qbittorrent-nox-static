@@ -1,55 +1,51 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 
-import fs from "fs";
-import path from "path";
-import matter from "gray-matter";
+interface File {
+	fileBase: string;
+	title: string;
+}
 
-// Directory containing the files
-const dir = "src/content/docs/glossary";
+const importedFiles = await Astro.glob("/src/content/docs/glossary/*.md");
 
-// Read the directory and get an array of filenames
-const filenames = fs.readdirSync(dir);
-
-// Map over the filenames and read each file's content and metadata
-const files = filenames.map((filename) => {
-	const filePath = path.join(dir, filename);
-	const fileContent = fs.readFileSync(filePath, "utf-8");
-	const frontMatter = matter(fileContent).data;
-	const title = path.basename(filename, path.extname(filename));
-	return { title, frontMatter };
+const files: File[] = importedFiles.map(({ file, frontmatter: { title } }) => {
+	const fileBase = file.toString().split("/").pop()?.split(".").shift();
+	return { fileBase, title };
 });
 
-// Sort the files alphabetically by title
-files.sort((a, b) => a.title.localeCompare(b.title));
+const sections = files.reduce(
+	(acc: { [key: string]: File[] }, { title, fileBase }) => {
+		const firstLetter = title.charAt(0).toUpperCase();
+		if (!acc[firstLetter]) {
+			acc[firstLetter] = [];
+		}
+		acc[firstLetter].push({ fileBase, title });
+		return acc;
+	},
+	{}
+);
 
-// Group the files by the first letter of their title
-const sections = files.reduce((acc: { [key: string]: any[] }, file) => {
-	const firstLetter = file.title.charAt(0).toUpperCase();
-	if (!acc[firstLetter]) {
-		acc[firstLetter] = [];
-	}
-	acc[firstLetter].push(file);
-	return acc;
-}, {});
+const headings = Object.entries(sections).map(
+	([slug, _]: [string, File[]]) => ({
+		depth: 2,
+		slug,
+		text: slug,
+	})
+);
 
-const headings = Object.entries(sections).map((section: [string, any]) => ({
-	depth: 2,
-	slug: section[0],
-	text: section[0],
-}));
+console.log(headings);
 ---
 
 <StarlightPage frontmatter={{ title: "Glossary" }} headings={headings}>
 	{
-		Object.entries(sections).map((section: [string, any]) => (
+		Object.entries(sections).map(([sectionTitle, files]: [string, File[]]) => (
 			<>
-				<h2 id={section[0]}>{section[0]}</h2>
+				<h2 id={sectionTitle}>{sectionTitle}</h2>
 				<ul>
-					{section[1].map((file: any) => (
+					{files.map(({ fileBase, title }: File) => (
 						<li>
-							<a href={"/qbittorrent-nox-static/glossary/" + file.title}>
-								{file.frontMatter.title}
+							<a href={`/qbittorrent-nox-static/glossary/${fileBase}`}>
+								{title}
 							</a>
 						</li>
 					))}
