@@ -1,5 +1,6 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+const basePath = `/${Astro.url.pathname.split("/")[1]}`;
 
 interface File {
 	fileBase: string;
@@ -32,8 +33,6 @@ const headings = Object.entries(sections).map(
 		text: slug,
 	})
 );
-
-console.log(headings);
 ---
 
 <StarlightPage frontmatter={{ title: "Glossary" }} headings={headings}>
@@ -44,9 +43,7 @@ console.log(headings);
 				<ul>
 					{files.map(({ fileBase, title }: File) => (
 						<li>
-							<a href={`/qbittorrent-nox-static/glossary/${fileBase}`}>
-								{title}
-							</a>
+							<a href={`${basePath}/${fileBase}`}>{title}</a>
 						</li>
 					))}
 				</ul>
