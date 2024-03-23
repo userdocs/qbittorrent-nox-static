@@ -10,3 +10,47 @@ const { class: className, summary } = Astro.props;
 		</div>
 	</details>
 </div>
+
+<style>
+	.custom-details {
+		background-color: var(--details-1) !important;
+		margin: 0px;
+		padding: 0px;
+
+		border-left: 2px solid var(--details-2);
+		border-bottom: 2px solid var(--details-2);
+	}
+
+	.custom-summary {
+		background-color: var(--details-1) !important;
+		padding: 10px 0px 0px 15px;
+		margin-bottom: 10px;
+	}
+
+	.custom-content {
+		/* padding-top: 10px; */
+		padding: 10px;
+		border-top: 2px solid var(--details-2);
+		background-color: var(--details-3) !important;
+	}
+
+	@keyframes custom-details {
+		0% {
+			opacity: 0;
+			transform: translateY(-1vw);
+		}
+
+		100% {
+			opacity: 1;
+			margin-left: 0px;
+		}
+	}
+
+	.custom-details-container {
+		padding-top: 15px;
+	}
+
+	details[open] div.custom-content {
+		animation: custom-details 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+	}
+</style>
