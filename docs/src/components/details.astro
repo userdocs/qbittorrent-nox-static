@@ -1,40 +1,42 @@
 ---
 const { class: className, summary } = Astro.props;
+const randomID = Math.random().toString(36).substring(2, 8);
 ---
 
-<div class:list={["custom-details-container", className]} {...Astro.props}>
-	<details class="custom-details">
-		<summary class="custom-summary">{summary}</summary>
-		<div class="custom-content">
+<div>
+	<details>
+		<summary>{summary}</summary>
+		<div>
 			<slot />
 		</div>
 	</details>
 </div>
 
 <style>
-	.custom-details {
-		background-color: var(--details-1) !important;
-		margin: 0px;
-		padding: 0px;
-
+	details {
+		background-color: var(--details-2) !important;
 		border-left: 2px solid var(--details-2);
 		border-bottom: 2px solid var(--details-2);
 	}
 
-	.custom-summary {
+	details summary {
 		background-color: var(--details-1) !important;
-		padding: 10px 0px 0px 15px;
-		margin-bottom: 10px;
+		padding: 10px 0px 10px 15px;
+		margin-bottom: 0px;
 	}
 
-	.custom-content {
-		/* padding-top: 10px; */
-		padding: 10px;
-		border-top: 2px solid var(--details-2);
-		background-color: var(--details-3) !important;
+	details div {
+		margin-top: 2px !important;
+		margin-bottom: -7px !important;
+
+		z-index: -1 !important;
 	}
 
-	@keyframes custom-details {
+	details[open] div {
+		animation: details 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+	}
+
+	@keyframes details {
 		0% {
 			opacity: 0;
 			transform: translateY(-1vw);
@@ -44,13 +46,5 @@ const { class: className, summary } = Astro.props;
 			opacity: 1;
 			margin-left: 0px;
 		}
-	}
-
-	.custom-details-container {
-		padding-top: 15px;
-	}
-
-	details[open] div.custom-content {
-		animation: custom-details 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
 	}
 </style>
