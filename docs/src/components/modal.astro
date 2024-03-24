@@ -6,31 +6,33 @@ const filtered = posts.find((post) => post.file.match(regex));
 const htmlSplit = filtered?.compiledContent()?.toString()?.split("<hr>") || [];
 const basePath = `/${Astro.url.pathname.split("/")[1]}/`;
 const glossaryUrl = `${basePath}glossary/${id}`;
+const randomNumbers = Math.random().toString(36).substring(2, 8);
+const uniqueId = `${randomNumbers}-${id}`;
 ---
 
 <my-modal
 	class="modal-dialog-button"
 	tabindex="0"
 	data-tippy-maxWidth="100"
-	data-id={id}
-	data-html={`${htmlSplit[0]}<hr class="glossary-separator"><div class="glossary-url-div" id="${id}-glossary-url">🟩 <a class="glossary-url" href=${glossaryUrl} target="_blank">Click here for the full Glossary entry</a></div>`}
+	data-unique-id={uniqueId}
+	data-html={`${htmlSplit[0]}<hr color="#923458" class="glossary-separator"><div class="glossary-url-div" id="${uniqueId}-glossary-url">🟩 <a class="glossary-url" href=${glossaryUrl} target="_blank">Click here for the full Glossary entry</a></div>`}
 	data-html-more={htmlSplit[1]}
 >
-	<a class="glossary-url dialog-button-open" id={`${id}-open`}>{label}</a>
+	<a class="glossary-url dialog-button-open" id={`${uniqueId}-open`}>{label}</a>
 </my-modal>
 
 <script>
 	class MyModal extends HTMLElement {
 		constructor() {
 			super();
-			const id = this.dataset.id ?? "";
-			const idDialog = `${id}-dialog`;
-			const idContent = `${id}-content`;
-			const buttonId = `${id}-open`;
-			const buttonClose = `${id}-close`;
-			const buttonMore = `${id}-more`;
-			const showMore = `${id}-show-more`;
-			const glossaryUrl = `${id}-glossary-url`;
+			const uniqueId = this.dataset.uniqueId ?? "";
+			const idDialog = `${uniqueId}-dialog`;
+			const idContent = `${uniqueId}-content`;
+			const buttonId = `${uniqueId}-open`;
+			const buttonClose = `${uniqueId}-close`;
+			const buttonMore = `${uniqueId}-more`;
+			const showMore = `${uniqueId}-show-more`;
+			const glossaryUrl = `${uniqueId}-glossary-url`;
 			const html = this.dataset.html ?? "";
 			const htmlMore = this.dataset.htmlMore ?? "";
 
@@ -117,12 +119,13 @@ const glossaryUrl = `${basePath}glossary/${id}`;
 
 <style is:global>
 	.glossary-separator {
-		color: rgb(146, 52, 88);
+		color: rgb(146, 52, 88) !important;
 		margin: -10px 0px 0px 0px;
 	}
 
 	.glossary-url {
 		margin: 0px 0px 0px 0px;
+		color: blue !important;
 	}
 
 	.glossary-url-div {
