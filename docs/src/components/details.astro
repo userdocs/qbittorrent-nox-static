@@ -1,6 +1,5 @@
 ---
 const { class: className, summary } = Astro.props;
-const randomID = Math.random().toString(36).substring(2, 8);
 ---
 
 <div>
@@ -26,10 +25,9 @@ const randomID = Math.random().toString(36).substring(2, 8);
 	}
 
 	details div {
+		background-color: var(--details-1) !important;
 		margin-top: 2px !important;
-		margin-bottom: -7px !important;
-
-		z-index: -1 !important;
+		padding: 5px;
 	}
 
 	details[open] div {
