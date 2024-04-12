@@ -1809,8 +1809,6 @@ while (("${#}")); do
 			shift 2
 			;;
 		-o | --optimize)
-			qbt_optimize="-march=native"
-			shift
 			if [[ -z ${qbt_cross_name} ]]; then
 				qbt_optimize="-march=native"
 				shift
