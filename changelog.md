@@ -1,3 +1,9 @@
+### v2.0.8 - 12-04-2024
+
+Fixed a regression with `-o` where part the code was left in and duplicated after introducing a check for cross compilation, causing the positional parameters to be shifted twice, breaking things.
+
+fix - https://github.com/userdocs/qbittorrent-nox-static/commit/b51e1ef356fbdbd3f2f93f2b2a8a6279b99e5f22
+
 ### v2.0.7 - 12-02-2024
 
 Added: a boost download function to combine some logic around fallback urls and minimise external calls.
