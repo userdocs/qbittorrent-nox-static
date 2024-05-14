@@ -1,3 +1,7 @@
+### v2.0.9 - 14/05/2024
+
+Change default c++ standard used for newer build combinations from 23 to 20.
+
 ### v2.0.8 - 12-04-2024
 
 Fixed a regression with `-o` where part the code was left in and duplicated after introducing a check for cross compilation, causing the positional parameters to be shifted twice, breaking things.
