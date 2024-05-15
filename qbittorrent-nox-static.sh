@@ -470,7 +470,11 @@ _qbittorrent_std_cons() {
 }
 
 _set_cxx_standard() {
-	[[ $(_qt_std_cons) == "yes" && $(_libtorrent_std_cons) == "yes" && $(_qbittorrent_std_cons) == "yes" ]] && qbt_standard="20" qbt_cxx_standard="c++${qbt_standard}"
+	if [[ $(_qt_std_cons) == "yes" && $(_libtorrent_std_cons) == "yes" && $(_qbittorrent_std_cons) == "yes" ]]; then
+		if [[ "${os_version_codename}" =~ ^(alpine|bookworm|jammy|noble)$ ]]; then
+			qbt_standard="20" qbt_cxx_standard="c++${qbt_standard}"
+		fi
+	fi
 }
 
 #######################################################################################################################################################
