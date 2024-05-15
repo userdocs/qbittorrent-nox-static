@@ -510,7 +510,9 @@ _post_command() {
 	outcome=("${PIPESTATUS[@]}")
 	[[ -n "${1}" ]] && command_type="${1}"
 	if [[ "${outcome[*]}" =~ [1-9] ]]; then
-		printf '\n%b\n\n' " ${unicode_red_circle}${color_red_light} Error: The ${command_type:-tested} command produced an exit code greater than 0 - Check the logs${color_end}"
+		printf '\n%b\n' " ${unicode_red_circle}${color_red} Error:${color_end} The ${command_type:-tested} command produced an exit code greater than 0 - Check the logs ${color_end}"
+		printf '\n%b\n' " ${unicode_yellow_circle}${color_yellow} Warning:${color_end} Developers can be easily startled or confused by wild issues, if you are seeing this warning and cannot resolve the issue yourself, please open an issue at this repo first:"
+		printf '\n%b\n\n' " ${unicode_blue_circle}${color_blue_light} https://github.com/userdocs/qbittorrent-nox-static/issues ${color_end}"
 		exit 1
 	fi
 }
@@ -2391,8 +2393,8 @@ _glibc_bootstrap() {
 }
 # shellcheck disable=SC2317
 _glibc() {
-	"${qbt_dl_folder_path}/configure" "${multi_glibc[@]}" --prefix="${qbt_install_dir}" --enable-static-nss --disable-nscd --srcdir="${qbt_dl_folder_path}" |& _tee "${qbt_install_dir}/logs/${app_name}.log"
-	make -j"$(nproc)" |& _tee -a "${qbt_install_dir}/logs/$app_name.log"
+	CFLAGS="-O2 -U_FORTIFY_SOURCE" "${qbt_dl_folder_path}/configure" "${multi_glibc[@]}" --prefix="${qbt_install_dir}" --enable-static-nss --disable-nscd --srcdir="${qbt_dl_folder_path}" |& _tee "${qbt_install_dir}/logs/${app_name}.log"
+	CFLAGS="-O2 -U_FORTIFY_SOURCE" make -j"$(nproc)" |& _tee -a "${qbt_install_dir}/logs/$app_name.log"
 	_post_command build
 	make install |& _tee -a "${qbt_install_dir}/logs/${app_name}.log"
 
