@@ -30,7 +30,7 @@ jobs:
       fail-fast: false
       matrix:
         container_id: [debian, ubuntu]
-        container_codename: [bullseye, bookworm, focal, jammy, noble]
+        container_codename: [bookworm, jammy, noble]
         qbt_build_tool: ["qmake", "cmake"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         exclude:
