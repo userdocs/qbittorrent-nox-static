@@ -3,7 +3,7 @@ on:
   # push:
   #   paths:
   #     - "qbittorrent-nox-static.sh"
-  pull_request:
+  # pull_request:
   workflow_dispatch:
     inputs:
       distinct_id:
