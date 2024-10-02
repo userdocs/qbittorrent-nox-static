@@ -18,6 +18,11 @@ on:
         type: choice
         options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
+permissions:
+  id-token: write
+  contents: read
+  attestations: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -146,6 +151,12 @@ jobs:
       - name: Docker - Set release asset name ${{ github.event.inputs.distinct_id }}
         if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
         run: docker exec -w /root/${{ env.qbt_build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
+
+      - name: Generate artifact attestation  ${{ github.event.inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
+        uses: actions/attest-build-provenance@v1
+        with:
+          subject-path: "${{ env.qbt_build_dir }}/completed/${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox"
 
       - name: Docker - Release Info ${{ github.event.inputs.distinct_id }}
         if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
