@@ -611,13 +611,13 @@ a[tabindex="-1"] {
 
 
 .sl-markdown-content details:not(:where(.not-content *)) {
-    --sl-details-border-color: var(--sl-color-gray-5);
-    --sl-details-border-color--hover: var(--sl-color-text-accent);
-    border-inline-start: 0px solid var(--sl-details-border-color);
+    --sl-details-border-color--hover: var(--sl-color-gray-1);
+
+    border-inline-start: 0 solid var(--sl-details-border-color);
     padding-inline-start: 0.6rem;
+    padding-left: 0 !important;
 }
 
 .sl-markdown-content details[open]>summary:not(:where(.not-content *)) {
-    margin-bottom: 0rem;
-    padding-inline-start: 0.6rem;
+    margin-bottom: 0;
 }

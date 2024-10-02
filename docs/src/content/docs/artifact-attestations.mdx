@@ -1,0 +1,18 @@
+---
+title: artifact attestations
+description: artifact attestations
+---
+
+import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+
+From releases after the 03/10/2024 you can use the `artifact_attestations` to verify the provenance of the build.
+
+https://docs.github.com/en/actions/security-for-github-actions/using-artifact-attestations/using-artifact-attestations-to-establish-provenance-for-builds
+
+Using `gh` cli you can use this command to verify the provenance of the build:
+
+For example, using the `x86_64-qbittorrent-nox` build:
+
+```bash
+gh attestation verify x86_64-qbittorrent-nox -o userdocs
+```

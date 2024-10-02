@@ -104,6 +104,10 @@ export default defineConfig({
 							link: "/systemd",
 						},
 						{
+							label: "Github - Artifact Attestations",
+							link: "/artifact-attestations",
+						},
+						{
 							label: "Github actions",
 							link: "/github-actions",
 						},

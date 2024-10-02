@@ -11,4 +11,8 @@ One of the issues here is that with the static build the libtorrent debug symbol
 
 This can be done using the `-d` flag or `export qbt_build_debug=on`.
 
-I am considering the best way to release a debug build but in the mean time you can build it if you need.
+The easiest way to get this is to fork the repo - https://github.com/userdocs/qbittorrent-nox-static/fork
+
+Then use the `matrix_multi_build_and_release_qbt_workflow_files_debug.yml` via the actions section of your fork and it will build the debug version for you and upload it to the releases section of your fork.
+
+Then you can download the debug version and use it to debug the segfault.

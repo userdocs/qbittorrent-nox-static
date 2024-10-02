@@ -162,3 +162,29 @@ As demonstrated above by using the latest release URL we can construct the tag o
 
 > [!IMPORTANT]
 > From the release of qBittorrent v5 configure based builds will be unsupported and we will only be able to use cmake to build qBittorrent v5 onwards. All releases from that point on will drop Qt5 builds as at this point cmake,Qt6 and v5 should be the default and preferred build combination with Qt5 being a legacy dependency.
+
+## gh attestation verify
+
+Binaries built from the release of release `release-5.0.0_v2.0.10` and `release-5.0.0_v1.2.19` revision `1` use [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance}
+
+Verify the integrity and provenance of an artifact using its associated cryptographically signed attestations.
+
+https://cli.github.com/manual/gh_attestation_verify
+
+For example:
+
+```
+gh attestation verify x86_64-qbittorrent-nox -o userdocs
+```
+
+Will give you this result for the `release-5.0.0_v2.0.10` revision `1` binary.
+
+```
+Loaded digest sha256:a656ff57b03ee6218205d858679ea189246caaecbbcc38d4d2b57eb81d8e59bb for file://x86_64-qbittorrent-nox
+Loaded 1 attestation from GitHub API
+✓ Verification succeeded!
+
+sha256:a656ff57b03ee6218205d858679ea189246caaecbbcc38d4d2b57eb81d8e59bb was attested by:
+REPO                             PREDICATE_TYPE                  WORKFLOW
+userdocs/qbittorrent-nox-static  https://slsa.dev/provenance/v1  .github/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml@refs/heads/master
+```
