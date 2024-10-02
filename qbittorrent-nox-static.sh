@@ -1747,7 +1747,7 @@ _release_info() {
 		>
 		> Qbittorrent v5 won't support qmake (Qt5) builds so Qt6 (cmake) will become default and Qt5 builds will no longer be released.
 		>
-		> Binary builds are stripped - See https://userdocs.github.io/qbittorrent-nox-static/#/debugging
+		> Binary builds are stripped - See https://userdocs.github.io/qbittorrent-nox-static/debugging/
 	RELEASE_INFO
 
 	return
