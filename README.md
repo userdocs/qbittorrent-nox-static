@@ -165,7 +165,7 @@ As demonstrated above by using the latest release URL we can construct the tag o
 
 ## gh attestation verify
 
-Binaries built from the release of release `release-5.0.0_v2.0.10` and `release-5.0.0_v1.2.19` revision `1` use [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance}
+Binaries built from the release of release `release-5.0.0_v2.0.10` and `release-5.0.0_v1.2.19` revision `1` use [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance)
 
 Verify the integrity and provenance of an artifact using its associated cryptographically signed attestations.
 
@@ -173,13 +173,13 @@ https://cli.github.com/manual/gh_attestation_verify
 
 For example:
 
-```
+```bash
 gh attestation verify x86_64-qbittorrent-nox -o userdocs
 ```
 
 Will give you this result for the `release-5.0.0_v2.0.10` revision `1` binary.
 
-```
+```bash
 Loaded digest sha256:a656ff57b03ee6218205d858679ea189246caaecbbcc38d4d2b57eb81d8e59bb for file://x86_64-qbittorrent-nox
 Loaded 1 attestation from GitHub API
 ✓ Verification succeeded!
