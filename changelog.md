@@ -1,3 +1,7 @@
+### v2.0.10 - 05/10/2024
+
+Make `cmake` the default build tool with the release of qBittorrent v5
+
 ### v2.0.9 - 14/05/2024
 
 Change default c++ standard used for newer build combinations from 23 to 20.
