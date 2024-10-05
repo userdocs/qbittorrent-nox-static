@@ -131,7 +131,7 @@ _set_default_values() {
 	export DEBIAN_FRONTEND="noninteractive" && TZ="Europe/London"
 
 	# The default build configuration is qmake + qt5, qbt_build_tool=cmake or -c will make qt6 and cmake default
-	qbt_build_tool="${qbt_build_tool:-qmake}"
+	qbt_build_tool="${qbt_build_tool:-cmake}"
 
 	# Default to empty to use host native build tools. This way we can build on native arch on a supported OS and skip cross build toolchains
 	qbt_cross_name="${qbt_cross_name:-default}"
