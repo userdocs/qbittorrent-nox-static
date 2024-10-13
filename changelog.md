@@ -1,3 +1,11 @@
+### v2.0.11 - 13/10/2024
+
+Disable glib tests on zlib-ng https://github.com/userdocs/qbittorrent-nox-static/pull/173
+
+Update contributor info
+
+minor changes - https://github.com/userdocs/qbittorrent-nox-static/commit/e4a674fa3832e0c0d6950539adac9d1d8d00d0e7
+
 ### v2.0.10 - 05/10/2024
 
 Make `cmake` the default build tool with the release of qBittorrent v5

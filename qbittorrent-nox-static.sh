@@ -8,7 +8,9 @@
 #
 # @author - userdocs
 #
-# @contributors IceCodeNew Stanislas boredazfcuk AdvenT. guillaumedsde inochisa
+# @contributors IceCodeNew Stanislas boredazfcuk AdvenT. guillaumedsde inochisa angristan xNihil0 Jercik
+#
+# https://github.com/userdocs/qbittorrent-nox-static/graphs/contributors
 #
 # @credits - https://gist.github.com/notsure2 https://github.com/c0re100/qBittorrent-Enhanced-Edition
 #
@@ -17,7 +19,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="2.0.10"
+script_version="2.0.11"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
