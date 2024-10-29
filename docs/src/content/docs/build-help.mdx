@@ -39,7 +39,7 @@ You can export these before you run the script to set them. The can be used for 
 | `qbt_libtorrent_version`        | `2.0`                               | `1.2` `2.0`                  | `qbt_libtorrent_version="2.0"`                      |
 | `qbt_qt_version`                | `6`                                 | `5.12` `5.15` `6.3` `6.3.1`  | `qbt_qt_version="6"`                                |
 | `qbt_build_tool`                | `cmake`                             | `cmake` `qmake`              | `qbt_build_tool="cmake"`                            |
-| `qbt_cross_name`                | empty = `unset` (default to OS gcc) | See Cross arch otpions below | `qbt_cross_name="aarch64"`                          |
+| `qbt_cross_name`                | empty = `unset` (default to OS gcc) | See Cross arch options below | `qbt_cross_name="aarch64"`                          |
 | `qbt_patches_url`               | `username/repo`                     | `username/repo`              | `qbt_patches_url="userdocs/qbittorrent-nox-static"` |
 | `qbt_skip_icu`                  | `yes`                               | `yes` `no`                   | `qbt_skip_icu="yes"`                                |
 | `qbt_boost_tag`                 | latest github stable release or tag | Any valid git tag            | `qbt_boost_tag="boost-1.86.0"`                      |
@@ -55,17 +55,17 @@ You can export these before you run the script to set them. The can be used for 
 | `qbt_standard`                  | `20`                                | `14` `17` `20` `23`          | `qbt_standard="20"`                                 |
 | `qbt_static_ish`                | `no`                                | `yes` `no`                   | `qbt_static_ish="no"`                               |
 
-<Details summary="Cross arch otpions">
+<Details summary="Cross arch options">
 	`armel` `armhf` `armv7` `aarch64` `x86_64` `x86` `s390x` `powerpc` `ppc64el`
 	`mips` `mipsel` `mips64` `mips64el` `riscv64`
 </Details>
 
 :::tip
-If you see more variables in the script but they are not listed here they are Github Action specific configured by workflows and you should ignroe them
+If you see more variables in the script but they are not listed here they are Github Action specific configured by workflows and you should ignore them
 :::
 
 :::note
-If you set `qbt_build_tool=qmake` and `qbt_qt_version=5` you can build qBittorrent v4 or earleir using Qt5.
+If you set `qbt_build_tool=qmake` and `qbt_qt_version=5` you can build qBittorrent v4 or earlier using Qt5.
 :::
 
 ## Switches and flags summarised
@@ -126,7 +126,7 @@ The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to
  qttools ------------ required Build qttools locally
  qbittorrent -------- required Build qbittorrent locally
 
- env help - supported exportable evironment variables
+ env help - supported exportable environment variables
 
  export qbt_libtorrent_version="" -------- options 1.2 - 2.0
  export qbt_qt_version="" ---------------- options 5 - 5.15 - 6 - 6.2 - 6.3 and so on
