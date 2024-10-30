@@ -17,39 +17,40 @@ The guide will assume you are using docker, with example commands that are eithe
 Don't run this directly on the host system unless you know what you are doing. It's not recommended and the build will probably fail.
 :::
 
-
 <Details summary="What to expect">![](/qbittorrent-nox-static/docs_images/script_usage/first-run.png)</Details>
 
-⭐ When you are familiar with the script you can do anything you want with a one liner. It's pretty simple to use.
+⭐ When you are familiar with the script you can do most builds you want with a one liner. It's pretty simple to use.
 
-### Host - execute script
-
-To execute the script use this command:
+### Execute the script
 
 ```bash
-chmod +x ~/qbt.sh # make it executable
+./qbt-nox-static.sh
 ```
-
-```bash
-~/qbt.sh
-```
-
-<Advanced>
 
 :::note
 Please see the [switches and flags summary](./build-help?id=switches-and-flags-summarised) to see what options you can pass and how to use them
 :::
 
-You can modify the installation command by editing this part of the docker command.
+The first thing you should do is to run the script with the `-h` flag to see the help output and the script defaults.
 
 ```bash
-bash -s all
+./qbt-nox-static.sh -h
 ```
 
-For example, to use `ICU` using `-i`, `-c` to trigger cmake and in turn activate Qt6 and optimise for the system CPU using `-o`:
+By passing `all` as the first argument, you can build everything based on the default settings.
 
 ```bash
-bash -s all -i -c -o
+./qbt-nox-static.sh all
 ```
 
-</Advanced>
+For example, to use `ICU` using `-i`, optimise for the host system CPU using `-o`, `-s` to strip the binary and build using libtorrent v1.2.19
+
+```bash
+./qbt-nox-static.sh all -i -o -s -lt v1.2.19
+```
+
+Same as previous command but using `env` settings
+
+```bash
+qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimise_strip="yes" qbt_optimize="-march=native" ./qbt-nox-static.sh all
+```

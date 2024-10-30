@@ -14,14 +14,19 @@ import { Advanced, BuildInfo, Charts, Details, Modal, Steps, Tabs, TabItem, Card
 It handles a lot of the nuanced complexity around building various different dependencies on two different host platforms, towards the same outcome, whilst targeting these architectures:
 
 <Details summary=" target architectures">
-`aarch64` - `armel` - `armhf` - `armv7`
+	`armel` `armhf` `armv7` `aarch64`
 
-`x86` - `x86_64`
+	`x86_64` `x86`
 
-`powerpc` - `ppc64el`
+	`s390x`
 
-`mips` - `mipsel` - `mips64` - `mips64el`
+	`powerpc` `ppc64el`
+
+	`mips` `mipsel` `mips64` `mips64el`
+
+	`riscv64`
 </Details>
+
 
 ⭐ On supported host build platforms the `qbittorrent-nox-static.sh` will perform these three main tasks via simple prompt:
 
