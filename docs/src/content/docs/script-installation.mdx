@@ -6,6 +6,8 @@ description: Script Installation
 import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
 
 :::note[Host environment]
+The recommended build platform is Alpine Linux and the supported build method is via docker. It will just make things easier.
+
 We do not support a non docker build environment. If you are not using docker, you are on your own.
 :::
 
@@ -35,6 +37,27 @@ There are multiple ways to pass an env file when using Docker.
 :::
 
 </TabItem>
+
+<TabItem value="Alpine Linux" label="Alpine">
+
+:::note[tags]
+You use `alpine:edge` `alpine:latest`
+:::
+
+To bootstrap the container:
+
+```bash
+docker run -it -w /root -p 8080:8080 -v ~/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && bash'
+```
+
+If you need to download the script use this command
+
+```bash
+curl -sLo qbittorrent-nox-static.sh git.io/qbstatic && chmod +x qbittorrent-nox-static.sh
+```
+
+</TabItem>
+
 <TabItem value="Debian Linux" label="Debian">
 
 :::note[tags]
@@ -50,7 +73,7 @@ docker run -it -w /root -p 8080:8080 -e "LANG=en_GB.UTF-8" -v ~/qbt:/root debian
 If you need to download the script use this command
 
 ```bash
-curl -sLo qbt-nox-static.sh git.io/qbstatic && chmod +x qbt-nox-static.sh
+curl -sLo qbittorrent-nox-static.sh git.io/qbstatic && chmod +x qbittorrent-nox-static.sh
 ```
 
 </TabItem>
@@ -69,26 +92,7 @@ docker run -it -w /root -p 8080:8080 -e "LANG=en_GB.UTF-8" -v ~/qbt:/root ubuntu
 If you need to download the script use this command
 
 ```bash
-curl -sLo qbt-nox-static.sh git.io/qbstatic && chmod +x qbt-nox-static.sh
-```
-
-</TabItem>
-<TabItem value="Alpine Linux" label="Alpine">
-
-:::note[tags]
-You use `alpine:edge` `alpine:latest`
-:::
-
-To bootstrap the container:
-
-```bash
-docker run -it -w /root -p 8080:8080 -v ~/qbt:/root alpine:edge /bin/ash -c 'apk update && apk add bash curl && bash'
-```
-
-If you need to download the script use this command
-
-```bash
-curl -sLo qbt-nox-static.sh git.io/qbstatic && chmod +x qbt-nox-static.sh
+curl -sLo qbittorrent-nox-static.sh git.io/qbstatic && chmod +x qbittorrent-nox-static.sh
 ```
 
 </TabItem>

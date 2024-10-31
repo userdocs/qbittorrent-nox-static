@@ -3,25 +3,12 @@ title: Build Help
 description: Build Help
 ---
 
-import {
-	Advanced,
-	Charts,
-	Details,
-	Modal,
-	Steps,
-	Tabs,
-	TabItem,
-	Card,
-	CardGrid,
-	LinkCard,
-	Aside,
-	Icon,
-} from "/src/components/global.jsx";
+import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
 
 Once the script has successfully configured the platform you can execute the help switch to see how it works and what options you have available to you.
 
 ```bash
-bash ~/qbittorrent-nox-static.sh -h
+./qbittorrent-nox-static.sh -h
 ```
 
 ## ENV settings
@@ -228,7 +215,7 @@ Add your patches there, for example.
 Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the default build directory `qbt-build/compelted`.
 
 ```bash
-bash ~/qbittorrent-nox-static.sh all
+./qbittorrent-nox-static.sh all
 ```
 
 ## Build - modules (optional and mostly for debugging and testing)
@@ -240,7 +227,7 @@ It's best to consider all individual modules listed below as being dependent on 
 :::
 
 ```bash
-bash ~/qbittorrent-nox-static.sh module
+./qbittorrent-nox-static.sh module
 ```
 
 Here are the list of supported modules:
@@ -284,5 +271,5 @@ The `-b` flag accepts both full `/opt` and relative `opt` paths.
 :::
 
 ```bash
-bash ~/qbittorrent-nox-static.sh all -b "/opt"
+./qbittorrent-nox-static.sh all -b "/opt"
 ```
