@@ -149,7 +149,7 @@ jobs:
 
       - name: Generate artifact attestation  ${{ github.event.inputs.distinct_id }}
         if: env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
-        uses: actions/attest-build-provenance@v1
+        uses: actions/attest-build-provenance@v2
         with:
           subject-path: "${{ env.qbt_build_dir }}/completed/${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox"
 
