@@ -1,38 +1,55 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
-const basePath = `/${Astro.url.pathname.split("/")[1]}`;
+
+interface GlossaryEntry {
+	file: string;
+	frontmatter: {
+		title: string;
+	};
+}
 
 interface File {
 	fileBase: string;
 	title: string;
 }
 
-const importedFiles = await Astro.glob("/src/content/docs/glossary/*.md");
+const basePath = `/${Astro.url.pathname.split("/")[1]}`;
 
-const files: File[] = importedFiles.map(({ file, frontmatter: { title } }) => {
-	const fileBase = file.toString().split("/").pop()?.split(".").shift();
-	return { fileBase, title };
-});
-
-const sections = files.reduce(
-	(acc: { [key: string]: File[] }, { title, fileBase }) => {
-		const firstLetter = title.charAt(0).toUpperCase();
-		if (!acc[firstLetter]) {
-			acc[firstLetter] = [];
-		}
-		acc[firstLetter].push({ fileBase, title });
-		return acc;
-	},
-	{}
+// Get all markdown files
+const posts = import.meta.glob<GlossaryEntry>(
+	"/src/content/docs/glossary/*.md",
+	{
+		eager: true,
+	}
 );
 
-const headings = Object.entries(sections).map(
-	([slug, _]: [string, File[]]) => ({
+// Convert posts object to array and map to File[]
+const files: File[] = Object.entries(posts).map(([path, post]) => {
+	const fileBase = path.split("/").pop()?.split(".").shift() ?? "";
+	return {
+		fileBase,
+		title: post.frontmatter.title,
+	};
+});
+
+// Group files by first letter
+const sections = files.reduce((acc: { [key: string]: File[] }, file) => {
+	const firstLetter = file.title.charAt(0).toUpperCase();
+	if (!acc[firstLetter]) {
+		acc[firstLetter] = [];
+	}
+	acc[firstLetter].push(file);
+	return acc;
+}, {});
+
+// Generate headings for each section
+const headings = Object.entries(sections)
+	.sort(([a], [b]) => a.localeCompare(b))
+	.map(([slug]) => ({
 		depth: 2,
 		slug,
 		text: slug,
-	})
-);
+	}));
 ---
 
 <StarlightPage frontmatter={{ title: "Glossary" }} headings={headings}>
