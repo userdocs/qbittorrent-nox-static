@@ -1,13 +1,44 @@
 ---
+interface GlossaryEntry {
+	compiledContent: () => Promise<string>;
+	Content: any;
+	file: string;
+	toString: () => string;
+}
+
 const { id, label } = Astro.props;
-const posts = await Astro.glob("/src/content/docs/glossary/*.md");
-const regex = new RegExp(`${id}\.md$|${id}\.mdx$`);
-const filtered = posts.find((post) => post.file.match(regex));
-const htmlSplit = filtered?.compiledContent()?.toString()?.split("<hr>") || [];
+
+if (!id) throw new Error("Modal id parameter is required");
+
+const posts = import.meta.glob<GlossaryEntry>(
+	"/src/content/docs/glossary/*.md",
+	{
+		eager: true,
+	}
+);
+
+const regex = new RegExp(`${id}\\.md$|${id}\\.mdx$`);
+const [path, post] =
+	Object.entries(posts).find(([path]) => regex.test(path)) ?? [];
+if (!post) throw new Error(`Glossary entry "${id}" not found`);
+
+// Extract content safely with type checking
+let htmlContent = "";
+try {
+	const content = await post.compiledContent();
+	htmlContent = String(content);
+} catch (e) {
+	throw new Error(`Failed to extract content for "${id}": ${e.message}`);
+}
+
+if (!htmlContent) throw new Error(`Empty content for "${id}"`);
+
+const htmlSplit = htmlContent.split("<hr>");
+if (!htmlSplit.length) throw new Error(`Invalid content format for "${id}"`);
+
 const basePath = `/${Astro.url.pathname.split("/")[1]}/`;
 const glossaryUrl = `${basePath}glossary/${id}`;
-const randomNumbers = Math.random().toString(36).substring(2, 8);
-const uniqueId = `${randomNumbers}-${id}`;
+const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 ---
 
 <my-modal
@@ -177,7 +208,7 @@ const uniqueId = `${randomNumbers}-${id}`;
 
 	.dialog-content {
 		padding: 0px !important;
-		margin-bottom: 5px !important;
+		margin-bottom: 0px !important;
 		white-space: pre-wrap !important;
 	}
 
