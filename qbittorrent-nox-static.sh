@@ -19,7 +19,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="2.0.11"
+script_version="2.0.12"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -176,7 +176,11 @@ _set_default_values() {
 	qbt_skip_icu="${qbt_skip_icu:-yes}"
 
 	# Env setting for the boost tag
-	qbt_boost_tag="${qbt_boost_tag:-}"
+	if [[ "${qbt_libtorrent_version}" == "1.2" ]]; then
+		qbt_boost_tag="${qbt_boost_tag:-boost-1.86.0}"
+	else
+		qbt_boost_tag="${qbt_boost_tag:-}"
+	fi
 
 	# Env setting for the libtorrent tag
 	qbt_libtorrent_tag="${qbt_libtorrent_tag:-}"
