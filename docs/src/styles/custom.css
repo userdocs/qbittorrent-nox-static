@@ -24,15 +24,20 @@
     --url-colour: #54c59f;
     --url-colour-hover: #6cb2c7;
 
-    --code-inline-background: #aa4bb3;
+    --code-inline-background: #321735;
     --code-inline-color: #bdbdbd;
-    --code-inline-border: #54c59f;
+    --code-inline-border: #45aa88;
 
     --tab-background-if: #ab94b4;
     --tab-background-oof: #54385f;
     --tab-color-if: #111011;
     --tab-color-oof: #828285;
     --steps-border: #aa4bb3;
+
+    --modal-url-color: var(--sl-color-black);
+    --modal-url-hover-color: rgb(255, 255, 255);
+    --modal-url-bg-color: var(--code-inline-border);
+    --modal-url-bg-hv-color: rgb(34, 199, 191);
 }
 
 :root[data-theme='light'] {
@@ -70,6 +75,11 @@
     --tab-color-if: #111011;
     --tab-color-oof: rgb(210, 210, 214);
     --steps-border: #aa4bb3;
+
+    --modal-url-color: var(--sl-color-black);
+    --modal-url-hover-color: rgb(0, 0, 0);
+    --modal-url-bg-color: var(--code-inline-border);
+    --modal-url-bg-hv-color: rgb(34, 199, 191);
 }
 
 /* Theme adjustments */
@@ -109,12 +119,11 @@ p a:hover {
 
 .sl-markdown-content code:not(:where(.not-content *)) {
     background-color: var(--code-inline-background);
-    border-radius: 3px;
+    border-radius: 0px;
     font-size: 0.8em;
     color: var(--code-inline-color);
-    border: 2px solid var(--code-inline-border);
+    border: 1px solid var(--code-inline-border);
 }
-
 
 .sl-markdown-content p ul li::marker {
     content: "🔹 ";

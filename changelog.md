@@ -1,3 +1,11 @@
+### v2.0.12 - 17/12/2024
+
+Default to `boost-1.86.0` for `RC_1_2` or `v1.2.x` builds because `RC_1_2` has not been updated to support the (depreciated) features removed in `boost-1.87.0` so the build will fail.
+
+This method allows the user to override the setting by providing a valid boost tag using `qbt_boost_tag` or `-bt`
+
+fix: changed `-bt | --boost-version` to `-bt | --boost-tag` for consistency. It was always supposed to be `--boost-tag` since that is what we are providing and testing via this flag.
+
 ### v2.0.11 - 13/10/2024
 
 Disable glib tests on zlib-ng https://github.com/userdocs/qbittorrent-nox-static/pull/173

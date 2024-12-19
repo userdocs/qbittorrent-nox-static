@@ -38,16 +38,11 @@ jobs:
         # qbt_cross_name: [armel,armhf,armv7,aarch64,x86_64,x86,s390x,powerpc,ppc64el,mips,mipsel,mips64,mips64el,riscv64]
         qbt_cross_name: ["armhf", "armv7", "aarch64", "x86_64", "x86"]
         qbt_libtorrent_version: ["1.2", "2.0"]
-        qbt_build_tool: ["", "qmake"]
+        qbt_build_tool: [""]
         include:
-          - qbt_build_tool: "qmake"
-            qbt_qt_version_name: "qt5-"
-            qbt_qt_version: "5"
           - qbt_build_tool: ""
             qbt_qt_version_name: ""
             qbt_qt_version: "6"
-          - qbt_libtorrent_version: 1.2
-            qbt_boost_tag: boost-1.86.0
 
     name: "${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.qbt_libtorrent_version }}"
 
@@ -126,7 +121,7 @@ jobs:
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent
 
       - name: Docker - double_conversion ${{ github.event.inputs.distinct_id }}
-        if: matrix.qbt_build_tool == 'cmake'
+        if: matrix.qbt_build_tool == ''
         run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh double_conversion
 
       - name: Docker - qtbase ${{ github.event.inputs.distinct_id }}
@@ -174,7 +169,7 @@ jobs:
             !${{ env.qbt_build_dir }}/completed/*.png
 
       - name: Host - Upload cmake graphs artifact ${{ github.event.inputs.distinct_id }}
-        if: matrix.qbt_build_tool == 'cmake' && env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
+        if: matrix.qbt_build_tool == '' && env.disable_qt5 != 'yes' # When qBittorrent v5 is released, remove this
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-graphs"
