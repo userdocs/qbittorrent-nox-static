@@ -11,29 +11,22 @@
     --sl-color-gray-5: #bdbdbd;
     --sl-color-gray-6: #543768;
     --sl-color-black: #15141b;
-
-    /* custom colors */
     --sl-button-bg-primary: #347c64;
     --sl-button-bg-secondary: #553f64;
     --react-toggle-checked: #aa4bb3;
-
     --details-1: #2a2a2c;
     --details-2: #543768;
     --details-3: #54385f;
-
     --url-colour: #54c59f;
     --url-colour-hover: #6cb2c7;
-
     --code-inline-background: #321735;
     --code-inline-color: #bdbdbd;
     --code-inline-border: #45aa88;
-
     --tab-background-if: #ab94b4;
     --tab-background-oof: #54385f;
     --tab-color-if: #111011;
     --tab-color-oof: #828285;
     --steps-border: #aa4bb3;
-
     --modal-url-color: var(--sl-color-black);
     --modal-url-hover-color: rgb(255, 255, 255);
     --modal-url-bg-color: var(--code-inline-border);
@@ -53,29 +46,22 @@
     --sl-color-gray-6: #f1e9ff;
     --sl-color-gray-7: #dedae6;
     --sl-color-black: #e7e6e6;
-
-    /* custom colors */
     --sl-button-bg-primary: #c1dad1;
     --sl-button-bg-secondary: #beadc9;
     --react-toggle-checked: #aa4bb3;
-
     --details-1: #a0b494;
     --details-2: #4c0879;
     --details-3: #d6d6d6;
-
     --url-colour: #660891 !important;
     --url-colour-hover: #14574c !important;
-
     --code-inline-background: #54c59f;
-    --code-inline-color: #000000;
+    --code-inline-color: #000;
     --code-inline-border: #002b24;
-
     --tab-background-if: #ab94b4;
     --tab-background-oof: #54385f;
     --tab-color-if: #111011;
     --tab-color-oof: rgb(210, 210, 214);
     --steps-border: #aa4bb3;
-
     --modal-url-color: var(--sl-color-black);
     --modal-url-hover-color: rgb(0, 0, 0);
     --modal-url-bg-color: var(--code-inline-border);
@@ -121,21 +107,6 @@ p a:hover {
     border: 1px solid var(--code-inline-border);
 }
 
-.sl-markdown-content p ul li::marker {
-    content: "🔹 ";
-}
-
-.sl-markdown-content ul li::marker {
-    content: "⯀ ";
-}
-
-.sl-markdown-content ul li ul li::marker {
-    content: "￭ ";
-}
-
-.tab::marker {
-    content: "" !important;
-}
 
 /* resize the card svg logos */
 
@@ -148,7 +119,7 @@ p a:hover {
 /* front page card stuff */
 
 .float-container {
-    padding: 0px;
+    padding: 0;
 }
 
 .float-child {
@@ -160,12 +131,12 @@ p a:hover {
     max-width: 100px;
     min-height: 150px;
     float: left;
-    padding: 0px;
+    padding: 0;
 }
 
 .float-child.card-text {
     margin: auto;
-    padding: 0px;
+    padding: 0;
     padding-left: 10px;
 }
 
@@ -181,7 +152,7 @@ p a:hover {
     margin-left: 2% !important;
     width: 150px !important;
     max-width: 150px;
-    padding: 0px;
+    padding: 0;
 }
 
 .sl-flex.actions.astro-jbfsktt5 a {
@@ -207,15 +178,6 @@ p a:hover {
 
 /* tabs stuff start */
 
-ul[role="tablist"] {
-    border-bottom: 1px solid var(--sl-button-bg-secondary) !important;
-    padding-bottom: 1px;
-}
-
-li.tab {
-    border: 0px solid rgb(17, 192, 70) !important;
-}
-
 a[aria-selected="true"] {
     border-top: 1px solid var(--sl-color-white) !important;
     border-bottom: 1px solid var(--sl-color-white) !important;
@@ -230,22 +192,27 @@ a[tabindex="-1"] {
     color: var(--tab-color-oof) !important;
 }
 
-/* react toggle start*/
+/* react toggle start */
 
 .toggle-global {
-    margin: 20px 16px 16px 0px;
+    margin: 20px 16px 16px 0;
     padding-top: 5px;
     padding-left: 5px;
 }
 
 .react-toggle-track-x {
-    margin: 0px 3px 0px 0px;
+    margin: 0 3px 0 0;
     padding-bottom: 17px;
 }
 
 .react-toggle-track-check {
-    margin: 0px 0px 0px 0px;
+    margin: 0;
     padding-bottom: 16px;
+}
+
+.react-toggle-track {
+    min-width: 16px;
+    background-color: #6d6d6d !important;
 }
 
 .react-toggle-thumb {
@@ -264,25 +231,17 @@ a[tabindex="-1"] {
     background-color: #8464c6 !important;
 }
 
-/* .react-toggle .react-toggle-thumb {
-    background-color: red !important;
-} */
-
 .react-toggle--checked .react-toggle-track {
     background-color: var(--react-toggle-checked) !important;
-    /* background-color: var(--sl-color-gray-4); */
 }
 
-.react-toggle-track {
-    min-width: 16px;
-    background-color: #6d6d6d !important;
-}
 
 /* react toggle end */
 
 /* react tooltip end */
 
 .my-tooltip {
+    padding-bottom: 5px !important;
     position: absolute !important;
     z-index: 9999 !important;
     max-width: 400px;
@@ -306,11 +265,7 @@ a[tabindex="-1"] {
     min-width: 75% !important;
 }
 
-.my-tooltip {
-    padding-bottom: 5px !important;
-}
-
-.tooltip-link {}
+/* .tooltip-link {} */
 
 .tooltip-line {
     display: block;
@@ -326,18 +281,10 @@ a[tabindex="-1"] {
 
 .starlight-aside {
     color: var(--sl-color-gray-2) !important;
-}
-
-.starlight-aside--caution {
-    background-color: rgba(22, 218, 218, 0);
-}
-
-.starlight-aside--tip {
-    background-color: rgba(22, 218, 218, 0);
-}
-
-.starlight-aside--note {
-    background-color: rgba(22, 218, 218, 0);
+    padding: 1rem;
+    border-inline-start: 0.25rem solid;
+    border-left: 1px solid;
+    border-bottom: 1px solid;
 }
 
 .expressive-code .ec-line {
@@ -384,14 +331,6 @@ a[tabindex="-1"] {
     border-radius: 100%;
 }
 
-.starlight-aside {
-    padding: 1rem;
-    border-inline-start: 0.25rem solid;
-    color: var(--sl-color-white);
-    border-left: 1px solid;
-    border-bottom: 1px solid;
-}
-
 .starlight-aside--note {
     border-color: rgba(76, 179, 212);
     background-color: rgba(76, 179, 212, 0.05);
@@ -400,12 +339,6 @@ a[tabindex="-1"] {
 .starlight-aside--tip {
     border-color: rgba(0, 148, 0);
     background-color: rgba(0, 148, 0, 0.05);
-}
-
-.starlight-aside__title {
-    margin-top: -8px !important;
-    margin-left: 0px !important;
-    margin-bottom: -5px !important;
 }
 
 .starlight-aside--caution {
@@ -418,9 +351,15 @@ a[tabindex="-1"] {
     background-color: rgba(225, 50, 56, 0.05);
 }
 
+.starlight-aside__title {
+    margin-top: -8px !important;
+    margin-left: 0 !important;
+    margin-bottom: -5px !important;
+}
+
 .starlight-aside__content {
     margin-bottom: -10px !important;
-    padding-bottom: 0px !important;
+    padding-bottom: 0 !important;
 }
 
 [class*="starlight-aside--"] {
@@ -428,8 +367,7 @@ a[tabindex="-1"] {
 }
 
 .my-icon-container {
-    padding: 0px 0px 10px 10px;
-    /* margin-top: 25px !important; */
+    padding: 0 0 10px 10px;
 }
 
 .my-icon-container.star-tip {
@@ -460,7 +398,6 @@ a[tabindex="-1"] {
 .my-icon-image {
     margin-left: -13px !important;
     height: 30px !important;
-    /* border: 3px solid var(--sl-color-black) !important; */
 }
 
 .my-icon-image.tip {
@@ -488,24 +425,11 @@ a[tabindex="-1"] {
 }
 
 .my-icon-text {
-    margin-top: 0px !important;
+    margin-top: 0 !important;
     width: 100% !important;
 }
 
-.my-tooltip-url {
-    color: var(--url-colour) !important;
-}
-
-.my-tooltip-url:hover {
-    color: var(--url-colour-hover) !important;
-    cursor: pointer;
-}
-
-.my-tooltip {
-    padding-bottom: 5px !important;
-}
-
-.tooltip-link {}
+/* .tooltip-link {} */
 
 .tooltip-line {
     display: block;
@@ -513,25 +437,25 @@ a[tabindex="-1"] {
 }
 
 .tooltippy-line {
-    margin: 10px 0px 5px 0px;
+    margin: 10px 0 5px 0;
 }
 
 .tooltippy-link {
-    margin: 0px 0px 0px 0px;
+    margin: 0 ;
 }
 
 .tooltippy-div {
-    margin: 5px 0px 0px 0px;
+    margin: 5px 0 0 0;
 }
 
 .tippy-box {
     border: 4px solid var(--react-toggle-checked);
     opacity: 1 !important;
-    padding: 5px 4px 5px 4px;
-    margin-bottom: 0px;
+    padding: 5px 4px;
+    margin-bottom: 0;
 }
 
-.tippy-content {}
+/* .tippy-content {} */
 
 .my-tooltip-url {
     color: var(--url-colour) !important;

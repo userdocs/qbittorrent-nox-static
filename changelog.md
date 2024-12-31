@@ -1,3 +1,14 @@
+### v2.0.14 - 31/12/2024
+
+fix: libtorrent `v1.2` and boost `1.86.0` check to not ignore `RC_1_2`
+fix: the `_apply_patches` function was assuming the remote default branch name of `master` which made it fail the check. It now tests for the remote default branch of a patch repo and uses that.
+fix: boost source URL. jfrog source is just a problem. Script now defaults to github boost release and falls back to archives.boost.i, jfrog is purged.
+fix: Some typos
+
+### v2.0.13 - 31/12/2024
+
+Added `qbt_build_dir` as a definable env variable. This variable is to set the build directory which defaults to `qbt-build` if unset
+
 ### v2.0.12 - 17/12/2024
 
 Default to `boost-1.86.0` for `RC_1_2` or `v1.2.x` builds because `RC_1_2` has not been updated to support the (depreciated) features removed in `boost-1.87.0` so the build will fail.

@@ -1,4 +1,4 @@
-name: rerun failed jobs with gh cli
+name: ci auto rerun failed jobs
 
 on:
   workflow_dispatch:
@@ -30,7 +30,12 @@ jobs:
         run: |
           failures="$(gh run view ${{ inputs.run_id }} --log-failed | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g")"
           [[ -z "${failures}" ]] && failures="$(gh run view ${{ inputs.run_id }} | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g")"
-          gh run rerun ${{ inputs.run_id }} --failed
+
+          if [[ "${{ inputs.retries }}" -ge "2" ]]; then
+              gh run rerun "${{ inputs.run_id }}" --failed --debug
+          else
+              gh run rerun "${{ inputs.run_id }}" --failed
+          fi
 
           printf '%b\n' "# gh cli workflow reruns" >> $GITHUB_STEP_SUMMARY
           printf '\n%b\n' ":octocat: Here is a summary of inputs from the failed workflow" >> $GITHUB_STEP_SUMMARY

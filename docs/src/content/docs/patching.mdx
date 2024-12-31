@@ -3,11 +3,38 @@ title: Patching
 hide_title: true
 ---
 
-import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, PatchInfo, FileTree } from "/src/components/global.jsx"
 
-### Patching info
+### Patching summary
 
-The script supports the automatic patching of libtorrent and qbittorrent when building, providing certain conditions are met. You can do it in two ways, local or via a GitHub repo. Let's take a look at these methods.
+The script supports the automatic patching of all modules when building, providing the prerequisite conditions are met. In summary it works like this:
+
+- The script will look for a patch file, url file or sources directory in the `patches` sub directory of the build directory.
+- If none are found, then the script will check the default online patch directory `userdocs/qbittorrent-nox-static` for a patch or url file to apply (ignoring source files)
+- It will compare tag versions of the activated modules and if a match is found it will use an existing local patch or download and apply the patch.
+- Order of priorities:
+  - local - patch file
+  - local - patch url
+  - local - sources directory
+  - remote - patch file
+  - remote - patch url
+
+Here is an example local directory structure that the script will use to apply patches to libtorrent `v1.2.19` and qBittorrent `release-5.0.3`
+
+<FileTree>
+- qbittorrent-nox-static.sh
+- qbt-build
+  - patches
+    - libtorrent/
+	  - v1.2.19
+	    - patch
+		- Jamfile
+		- sources/
+	- qbittorrent/
+	  - 5.0.3
+		- patch
+		- sources/src/webui/webui.cpp
+</FileTree>
 
 :::tip
 Use the help command to get more information
@@ -15,45 +42,109 @@ Use the help command to get more information
 ```bash
 ./qbittorrent-nox-static.sh -h-pr
 ```
-
 :::
-
-### Local patching via boot strapping
-
-Here we will look bootstrapping the build process to make patching simple
 
 :::note
-Using this command the script will create the required directory structure using the current defaults
+The default remote patch repo if `userdocs/qbittorrent-nox-static` will only store critical patches required to build successfully or apply security fixes.
+
+There are no customisations or additional patches stored in the default repo. If it applies a remote patch consider that patch essnetial.
+:::
+
+### Boot strapping
+
+By default the script installs to a build directory that is a sub directory relative to the script location. This means that if you clone the git repo and run the script it won't find the local patches. There are few ways to handle this.
+
+- **Option 1:** Default, the script assumes you will prepare the environment before building by using the bootstrapping feature. This will create the required directory structure, then you copy the patch files to the correct location as needed.
+- **Option 2:** Clone the repo and copy the patches to the correct location
+
+	```bash
+	git clone --depth 1 https://github.com/userdocs/qbittorrent-nox-static.git
+	cd qbittorrent-nox-static
+	mkdir -p qbt-build
+	cp -r patches qbt-build/
+	```
+
+- **Option 3:** You can set the build dir to the root of the github repo and the script will find the patches
+
+	```bash
+	export qbt_build_dir="."
+	```
+- **Option 4:**
+    Upload the patches to a remote github repo with the `patches` dir in the repo root and use the `pr` switch or `qbt_patches_url` env to specify the repo URL. The script will download the patches from the remote location and apply them.
+- **Option 5:**
+    Do nothing and the script will use the default remote patch repo `userdocs/qbittorrent-nox-static` to apply patches
+
+When bootstrapping the script will create the required directory structure using the current defaults and it will look like this:
+
+<PatchInfo/>
+
+## Local patching via example
+
+In this example we will apply a real patch that can be used with this script from this pinned issue: https://github.com/userdocs/qbittorrent-nox-static/issues/149
+
+:::note
+We will assume you are in folder with the `qbittorrent-nox-static.sh` script.
+:::
+
+Step 1: Boot strap the patches directory
 
 ```bash
-./qbittorrent-nox-static.sh -bs
+qbittorrent-nox-static.sh -bs-p
 ```
 
-:::
+Step 2: Clone the qBittorrent repo targeting the specific tag we want to patch - `--branch release-5.0.3`
+
+```bash
+git clone --branch release-5.0.3 --depth 1 https://github.com/qbittorrent/qBittorrent.git
+```
+
+Step 3: Copy the file that we need to edit to our home directory.
+
+```bash
+cp qBittorrent/src/webui/webui.cpp webui.cpp
+```
+
+Step 4: Now edit the `~/webui.cpp` as per this [example of the applied patch](https://github.com/userdocs/qbittorrent-nox-static-test/blob/9b48000c7faa8baabbab57b733eceb20431d5d77/patches/qbittorrent/5.0.3/source/src/webui/webui.cpp#L41-L75)
+
+Step 5: Once you have finished making your changes you can create a patch file using this command
+
+```bash
+diff -Naru qBittorrent/src/webui/webui.cpp webui.cpp > ~/patch
+```
+
+You will now have a `patch` file that looks like this: [qbittorrent/5.0.3/patch](https://github.com/userdocs/qbittorrent-nox-static-test/blob/main/patches/qbittorrent/5.0.3/patch)
+
+Step 6:
 
 The directory structure that will be created will look like this:
 
-```bash
-qbt-build/patches/qbittorrent/4.5.0
-qbt-build/patches/libtorrent/v1.2.18
-```
 
 Place your patch file named `patch` inside the relevant directories. So it would look something like this:
 
 ```bash
-qbt-build/patches/qbittorrent/4.5.0/patch
-qbt-build/patches/libtorrent/v1.2.18/patch
+qbt-build/patches/qbittorrent/5.0.3/patch
 ```
 
 Then the patch file will be automatically matched to the tag used by the script and loaded.
 
-### Using custom qBittorrent and libtorrent tags
+### Using custom github tags
 
-You can change the defaults by using the `qt` and `lt` switches to specify a tag. So for example if you used this command:
+Some modules like libtorrent and qbittorrent have multiple tags that can be used and they can be passed to the script as variables or switches. The script will use the default tags if none are provided.
 
-`bash ~/qbittorrent-nox-static.sh -qt master -lt RC_2_0 -bs`
+Using the `-qt` and -`lt` switches here:
 
-The boot strapped directory structure will look like this instead:
+```bash
+~/qbittorrent-nox-static.sh -qt master -lt RC_2_0 -bs
+```
+
+or
+
+```bash
+export qbt_qbittorrent_tag=master
+export qbt_libtorrent_tag=RC_2_0
+```
+
+The bootstrapped directory structure would look like this instead:
 
 ```bash
 qbt-build/patches/qbittorrent/master
@@ -61,11 +152,13 @@ qbt-build/patches/libtorrent/RC_2_0
 ```
 
 :::caution
-Remember to provide the same tags when using the build command or the patches won't match the defaults.
+Remember to provide the same tags via switches when using the build command or the patches won't match the defaults.
+
+Only the env variables will persist between uses of the script.
 :::
 
 ```bash
-bash ~/qbittorrent-nox-static.sh -qt master -lt RC_2_0 all
+qbittorrent-nox-static.sh -qt master -lt RC_2_0 all
 ```
 
 ### Git based patching
@@ -73,7 +166,7 @@ bash ~/qbittorrent-nox-static.sh -qt master -lt RC_2_0 all
 Instead of a local patch you can use github hosted patch files. Your patches need to be hosted in the root of the repo like this:
 
 <Tabs>
-  <TabItem value="qbittorrent" label="🔹 qbittorrent" default>
+  <TabItem value="qbittorrent" label="qbittorrent" default>
 
 ```bash
 patches/qbittorrent/master/patch
@@ -81,7 +174,7 @@ patches/qbittorrent/4.5.0/patch
 ```
 
   </TabItem>
-  <TabItem value="libtorrent" label="🔹 libtorrent">
+  <TabItem value="libtorrent" label="libtorrent">
 
 ```bash
 patches/libtorrent/RC_2_0/patch
@@ -147,3 +240,13 @@ https://github.com/qbittorrent/qBittorrent/pull/18271.patch
 https://github.com/qbittorrent/qBittorrent/commit/c924904308e806db6e1b321da18c1f91c4e8f8bf.patch
 
 You can download these using `curl` or `wget` and use these as patches in custom builds.
+
+### Cache folder based patching
+
+The cache folder system is essentially an offline dependency system that allows you to store source files for modules that you want to patch.
+
+This allows the cached folder system to serve as a way patch modules. Source folders are stored in the cache folder and they are copied over to the build directory when the script is run.
+
+This means you can edit the source files in the cache folder and they will be copied over to the build directory when the script is run.
+
+This method is similar to the `source` directory method but it is more flexible and allows you to store multiple versions of the source files via checking out a specific tag or branch.

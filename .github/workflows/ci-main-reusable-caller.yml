@@ -1,0 +1,115 @@
+# @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition
+name: ci - main reusable caller
+
+on:
+  workflow_dispatch:
+    inputs:
+      debian-build:
+        description: "Debian: build"
+        required: true
+        default: false
+        type: boolean
+      alpine-build:
+        description: "Alpine: build"
+        required: true
+        default: true
+        type: boolean
+      workflow-files:
+        description: "Workflow files"
+        required: true
+        default: true
+        type: boolean
+      icu:
+        description: "Enable icu"
+        required: true
+        default: false
+        type: boolean
+      debug:
+        description: "Debug builds (symbols)"
+        required: true
+        default: false
+        type: boolean
+      release:
+        description: "Release assets?"
+        required: true
+        default: true
+        type: boolean
+      distinct_id:
+        description: "Distinct id"
+        required: false
+        type: string
+      skip_rerun:
+        description: "Skip rerun?"
+        required: true
+        default: false
+        type: boolean
+      retries:
+        description: "Number of rerun retries"
+        required: true
+        default: "1"
+        type: choice
+        options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
+
+concurrency:
+  group: ci-main-reusable-caller
+  cancel-in-progress: true
+
+jobs:
+  ci-debian-build:
+    if: always() && github.event.inputs.debian-build == 'true'
+    concurrency:
+      group: ci-debian-build
+      cancel-in-progress: true
+    uses: ./.github/workflows/ci-debian-build.yml
+    with:
+      distinct_id: ${{ github.event.inputs.distinct_id }}
+      workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
+      icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
+      debug: ${{ github.event.inputs.debug == 'true' && 'yes' || 'no' }}
+
+  ci-alpine-build:
+    if: always() && github.event.inputs.alpine-build == 'true'
+    concurrency:
+      group: ci-alpine-build
+      cancel-in-progress: true
+    permissions:
+      id-token: write
+      contents: read
+      attestations: write
+    uses: ./.github/workflows/ci-alpine-build.yml
+    with:
+      distinct_id: ${{ github.event.inputs.distinct_id }}
+      workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
+      icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
+      debug: ${{ github.event.inputs.debug == 'true' && 'yes' || 'no' }}
+
+  ci-alpine-release:
+    needs: [ci-alpine-build]
+    if: always() && github.event.inputs.release == 'true' && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    concurrency:
+      group: ci-alpine-release
+      cancel-in-progress: true
+    permissions:
+      contents: write
+    uses: ./.github/workflows/ci-alpine-release.yml
+    secrets: inherit
+    with:
+      distinct_id: ${{ github.event.inputs.distinct_id }}
+
+  ci-auto-rerun-failed-jobs:
+    needs: [ci-debian-build, ci-alpine-build, ci-alpine-release]
+    if: failure() && github.event.inputs.skip_rerun == 'false'
+    concurrency:
+      group: ci-auto-rerun-failed-jobs
+      cancel-in-progress: true
+    permissions:
+      actions: write
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: "${{ github.token }}"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Trigger rerun workflow on job failures
+        run: |
+          inputs_retries="${{ github.event.inputs.retries }}"
+          gh workflow run ci-auto-rerun-failed-jobs.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-1}

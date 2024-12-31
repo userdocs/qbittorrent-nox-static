@@ -1,0 +1,177 @@
+# @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition
+name: ci - alpine build
+
+on:
+  workflow_call:
+    inputs:
+      distinct_id:
+        description: "Distinct id"
+        required: false
+        type: string
+      workflow-files:
+        description: "Alpine: workflow-files files"
+        required: true
+        type: string
+      icu:
+        description: "enable icu"
+        required: true
+        type: string
+      debug:
+        description: "debug builds"
+        required: true
+        type: string
+
+jobs:
+  build-alpine:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os_id: [alpine]
+        os_version_id: [edge]
+        qbt_cross_name: ["armhf", "armv7", "aarch64", "x86_64", "x86"]
+        qbt_libtorrent_version: ["1.2", "2.0"]
+        qbt_build_tool: ["", "qmake"]
+        include:
+          - qbt_build_tool: "qmake"
+            qbt_qt_version_name: "qt5-"
+            qbt_qt_version: "5"
+          - qbt_build_tool: ""
+            qbt_qt_version_name: ""
+            qbt_qt_version: "6"
+
+    name: "${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.qbt_libtorrent_version }}"
+
+    env:
+      qbt_build_dir: "qbt-build"
+
+    steps:
+      - name: Checkout ${{ inputs.distinct_id }}
+        uses: actions/checkout@v4
+
+      - name: Host - phased updates ${{ inputs.distinct_id }}
+        run: printf '%s\n' 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
+
+      - name: Host - update ${{ inputs.distinct_id }}
+        run: sudo apt-get update
+
+      - name: Host - upgrade ${{ inputs.distinct_id }}
+        run: sudo apt-get -y upgrade
+
+      - name: Host - set up qemu-user-static binfmt-support ${{ inputs.distinct_id }}
+        run: sudo apt install libpipeline1 qemu-user-static binfmt-support
+
+      - name: Host - Create Docker template env file ${{ inputs.distinct_id }}
+        run: |
+          printf '%s\n' "qbt_build_dir=${{ env.qbt_build_dir }}" > env.custom
+          printf '%s\n' "qbt_libtorrent_version=${{ matrix.qbt_libtorrent_version }}" >> env.custom
+          printf '%s\n' "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
+          printf '%s\n' "qbt_build_tool=${{ matrix.qbt_build_tool }}" >> env.custom
+          printf '%s\n' "qbt_cross_name=${{ matrix.qbt_cross_name }}" >> env.custom
+          printf '%s\n' "qbt_patches_url=${{ github.repository }}" >> env.custom
+          printf '%s\n' "qbt_skip_icu=${{ inputs.icu }}" >> env.custom
+          printf '%s\n' "qbt_boost_tag=" >> env.custom
+          printf '%s\n' "qbt_libtorrent_tag=" >> env.custom
+          printf '%s\n' "qbt_qt_tag=" >> env.custom
+          printf '%s\n' "qbt_qbittorrent_tag=" >> env.custom
+          printf '%s\n' "qbt_libtorrent_master_jamfile=" >> env.custom
+          printf '%s\n' "qbt_workflow_files=${{ inputs.workflow-files }}" >> env.custom
+          printf '%s\n' "qbt_workflow_artifacts=" >> env.custom
+          printf '%s\n' "qbt_cache_dir=" >> env.custom
+          printf '%s\n' "qbt_optimise_strip=${{ inputs.debug }}" >> env.custom
+          printf '%s\n' "qbt_build_debug=${{ inputs.debug }}" >> env.custom
+          printf '%s\n' "qbt_revision_url=${{ github.repository }}" >> env.custom
+          printf '%s\n' "qbt_standard=" >> env.custom
+          printf '%s\n' "qbt_static_ish=" >> env.custom
+
+      - name: Host - Create docker multiarch container ${{ inputs.distinct_id }}
+        run: docker run --name multiarch -it -d --env-file env.custom -w /root -v ${{ github.workspace }}:/root ${{ matrix.os_id }}:${{ matrix.os_version_id }}
+
+      - name: Docker - apk update ${{ inputs.distinct_id }}
+        run: docker exec -w /root multiarch apk update
+
+      - name: Docker - apk install bash ${{ inputs.distinct_id }}
+        run: docker exec -w /root multiarch apk add bash
+
+      - name: Docker - Bootstrap ${{ inputs.distinct_id }}
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh -bs-a
+
+      - name: Host - qBittorrent v5 transition ${{ inputs.distinct_id }}
+        run: |
+          if [[ -f "${{ env.qbt_build_dir }}/release_info/disable-qt5" ]]; then
+              printf '%s\n' "disable_qt5=yes" >> $GITHUB_ENV
+          fi
+
+      - name: Docker - Copy repo patches to build folder ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: if [[ -d patches ]]; then docker exec -w /root multiarch cp -r patches/* /root/${{ env.qbt_build_dir }}/patches; fi
+
+      - name: Docker - zlib-ng ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh zlib
+
+      - name: Docker - iconv ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh iconv
+
+      - name: Docker - icu ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh icu
+
+      - name: Docker - openssl ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh openssl
+
+      - name: Docker - boost ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh boost
+
+      - name: Docker - libtorrent ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent
+
+      - name: Docker - double_conversion ${{ inputs.distinct_id }}
+        if: matrix.qbt_build_tool == '' && env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh double_conversion
+
+      - name: Docker - qtbase ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qtbase
+
+      - name: Docker - qttools ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qttools
+
+      - name: Docker - qbittorrent ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qbittorrent
+
+      - name: Docker - Set release asset name ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root/${{ env.qbt_build_dir }}/completed multiarch mv -f qbittorrent-nox ${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
+
+      - name: Generate artifact attestation  ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        uses: actions/attest-build-provenance@v2
+        with:
+          subject-path: "${{ env.qbt_build_dir }}/completed/${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox"
+
+      - name: Docker - Release Info ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: docker exec -w /root/${{ env.qbt_build_dir }}/release_info multiarch bash -c 'mv *.md *.json '/root/${{ env.qbt_build_dir }}/completed''
+
+      - name: Host - Upload libtorrent-v${{ matrix.qbt_libtorrent_version }}-qbittorrent-nox and release info artifact ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: libtorrent-v${{ matrix.qbt_libtorrent_version }}-${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
+          path: |
+            ${{ env.qbt_build_dir }}/completed/*
+            !${{ env.qbt_build_dir }}/completed/*.png
+
+      - name: Host - Upload cmake graphs artifact ${{ inputs.distinct_id }}
+        if: matrix.qbt_build_tool == '' && env.disable_qt5 != 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-graphs"
+          path: "${{ env.qbt_build_dir }}/completed/*.png"

@@ -5,14 +5,30 @@ hide_title: true
 
 import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
 
-To properly debug a segfault the build will need to have been built with libtorrent and qbitorrent debug symbols.
+:::note
+By default the static builds are built with the debug symbols stripped out to reduce the file size.
+:::
 
-One of the issues here is that with the static build the libtorrent debug symbols can add 100MB to the file size.
+To properly debug a segfault we need to use a build with libtorrent and qBittorrent debug symbols included.
 
-This can be done using the `-d` flag or `export qbt_build_debug=on`.
+Some reasons I don't release them here:
+- static builds using `b2` the libtorrent debug symbols can add 100MB to the file size.
+- static builds using `cmake` are about 15MB larger and potentially slower.
+- It doubles the build time.
+- It's not needed for most users.
 
-The easiest way to get this is to fork the repo - https://github.com/userdocs/qbittorrent-nox-static/fork
+The easiest way to get a debug build is to build it yourself by
 
-Then use the `matrix_multi_build_and_release_qbt_workflow_files_debug.yml` via the actions section of your fork and it will build the debug version for you and upload it to the releases section of your fork.
+- [forking the repo](https://github.com/userdocs/qbittorrent-nox-static/fork) the repo and running the `ci-main-reusable-caller.yml` workflow with the debug flag enabled.
 
-Then you can download the debug version and use it to debug the segfault.
+	![](/qbittorrent-nox-static/docs_images/reusable_workflow_inputs-debug.png)
+
+	:::tip
+	The builds will be uploaded as artifacts to the workflow run and can be downloaded from there.
+	:::
+
+- Build it yourself locally
+
+	This can be done when building locally by using the `-d` flag or `export qbt_build_debug=on`
+
+Then you will have a debug build with the debug symbols included to get a stack traces using [gdb](https://www.gnu.org/software/gdb/).

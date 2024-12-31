@@ -2,22 +2,18 @@
 const { id } = Astro.props;
 import { Code } from "@astrojs/starlight/components";
 
-import debian_based_CI from "../../../.github/workflows/debian_based_CI.yml?raw";
-import matrix_multi_build_and_release from "../../../.github/workflows/matrix_multi_build_and_release.yml?raw";
-import matrix_multi_build_and_release_artifacts from "../../../.github/workflows/matrix_multi_build_and_release_artifacts.yml?raw";
-import matrix_multi_build_and_release_customs_tags from "../../../.github/workflows/matrix_multi_build_and_release_customs_tags.yml?raw";
-import matrix_multi_build_and_release_qbt_workflow_files from "../../../.github/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml?raw";
-import matrix_multi_build_and_release_qbt_workflow_files_debug from "../../../.github/workflows/matrix_multi_build_and_release_qbt_workflow_files_debug.yml?raw";
-import rerun from "../../../.github/workflows/rerun.yml?raw";
+import ci_main_reusable_caller from "../../../.github/workflows/ci-main-reusable-caller.yml?raw";
+import ci_debian_build from "../../../.github/workflows/ci-debian-build.yml?raw";
+import ci_alpine_build from "../../../.github/workflows/ci-alpine-build.yml?raw";
+import ci_alpine_release from "../../../.github/workflows/ci-alpine-release.yml?raw";
+import ci_auto_rerun_failed_jobs from "../../../.github/workflows/ci-auto-rerun-failed-jobs.yml?raw";
 
 const imports = {
-	debian_based_CI,
-	matrix_multi_build_and_release,
-	matrix_multi_build_and_release_artifacts,
-	matrix_multi_build_and_release_customs_tags,
-	matrix_multi_build_and_release_qbt_workflow_files,
-	matrix_multi_build_and_release_qbt_workflow_files_debug,
-	rerun,
+	ci_main_reusable_caller,
+	ci_debian_build,
+	ci_alpine_build,
+	ci_alpine_release,
+	ci_auto_rerun_failed_jobs,
 };
 const code = imports[id];
 ---

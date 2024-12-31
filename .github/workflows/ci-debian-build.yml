@@ -1,0 +1,144 @@
+name: ci - debian build
+
+on:
+  workflow_call:
+    inputs:
+      distinct_id:
+        description: "Distinct id"
+        required: false
+        type: string
+      workflow-files:
+        description: "Alpine: workflow-files files"
+        required: true
+        type: string
+      icu:
+        description: "enable icu"
+        required: true
+        type: string
+      debug:
+        description: "debug builds"
+        required: true
+        type: string
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        container_id: [debian, ubuntu]
+        container_codename: [bookworm, jammy, noble]
+        qbt_build_tool: ["cmake", "qmake"]
+        qbt_libtorrent_version: ["1.2", "2.0"]
+        exclude:
+          - container_id: debian
+            container_codename: focal
+          - container_id: debian
+            container_codename: jammy
+          - container_id: debian
+            container_codename: noble
+          - container_id: ubuntu
+            container_codename: bullseye
+          - container_id: ubuntu
+            container_codename: bookworm
+        include:
+          - qbt_build_tool: "qmake"
+            qbt_qt_version: "5"
+          - qbt_build_tool: "cmake"
+            qbt_qt_version: "6"
+
+    name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.qbt_libtorrent_version }}-qt-${{ matrix.qbt_qt_version }}-${{ matrix.qbt_build_tool }}"
+    env: # host
+      qbt_build_dir: "qbt-build"
+      disable_qt5: ""
+      artifact_name: "${{ matrix.container_id }}-${{ matrix.container_codename }}-${{ matrix.qbt_libtorrent_version }}-qt-${{ matrix.qbt_qt_version }}-${{ matrix.qbt_build_tool }}-nox"
+    container:
+      image: ${{ matrix.container_id }}:${{ matrix.container_codename }}
+      env: # container
+        LANG: C.UTF-8
+        LC_ALL: C.UTF-8
+        DEBIAN_FRONTEND: noninteractive
+        disable_qt5: ${{ env.disable_qt5 }}
+        qbt_build_dir: ${{ env.qbt_build_dir }}
+        qbt_libtorrent_version: ${{ matrix.qbt_libtorrent_version }}
+        qbt_qt_version: ${{ matrix.qbt_qt_version }}
+        qbt_build_tool: ${{ matrix.qbt_build_tool }}
+        qbt_cross_name: ""
+        qbt_patches_url: ${{ github.repository }}
+        qbt_skip_icu: ${{ inputs.icu }}
+        qbt_boost_tag: ""
+        qbt_libtorrent_tag: ""
+        qbt_qt_tag: ""
+        qbt_qbittorrent_tag: ""
+        qbt_libtorrent_master_jamfile: ""
+        qbt_workflow_files: ${{ inputs.workflow-files }}
+        qbt_workflow_artifacts: ""
+        qbt_cache_dir: ""
+        qbt_optimise_strip: ""
+        qbt_build_debug: ${{ inputs.debug }}
+        qbt_revision_url: ${{ github.repository }}
+        qbt_standard: ""
+        qbt_static_ish: ""
+    steps:
+      - name: Checkout ${{ inputs.distinct_id }}
+        uses: actions/checkout@v4
+
+      - name: Bootstrap all ${{ inputs.distinct_id }}
+        run: bash qbittorrent-nox-static.sh -bs-a
+
+      - name: Host - qBittorrent v5 transition ${{ inputs.distinct_id }}
+        run: |
+          if [[ -f "${{ env.qbt_build_dir }}/release_info/disable-qt5" ]]; then
+              printf '%s\n' "disable_qt5=yes" >> $GITHUB_ENV
+          fi
+
+      - name: glibc ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh glibc
+
+      - name: zlib ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh zlib
+
+      - name: iconv ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh iconv
+
+      - name: icu ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh icu
+
+      - name: openssl ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh openssl
+
+      - name: boost ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh boost
+
+      - name: libtorrent ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh libtorrent
+
+      - name: double conversion ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes' && matrix.qbt_build_tool == 'cmake'
+        run: bash qbittorrent-nox-static.sh double_conversion
+
+      - name: qtbase ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh qtbase
+
+      - name: qttools ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh qttools
+
+      - name: qbittorrent ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash qbittorrent-nox-static.sh qbittorrent
+
+      - name: Archive code coverage results ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.artifact_name }}
+          path: ${{ env.qbt_build_dir }}/completed/qbittorrent-nox
