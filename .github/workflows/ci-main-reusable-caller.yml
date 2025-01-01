@@ -106,10 +106,11 @@ jobs:
       actions: write
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: "${{ github.token }}"
+      GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
     steps:
       - uses: actions/checkout@v4
       - name: Trigger rerun workflow on job failures
         run: |
           inputs_retries="${{ github.event.inputs.retries }}"
-          gh workflow run ci-auto-rerun-failed-jobs.yml -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-1}
+          gh workflow run ci-auto-rerun-failed-jobs.yml --repo "${{ env.github_repo || github.repository }}" -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-1} -f github_repo=${{ github.repository }} -f distinct_id=${{ github.event.inputs.distinct_id }}
+

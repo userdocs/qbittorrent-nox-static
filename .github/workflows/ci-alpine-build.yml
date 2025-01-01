@@ -102,9 +102,9 @@ jobs:
               printf '%s\n' "disable_qt5=yes" >> $GITHUB_ENV
           fi
 
-      - name: Docker - Copy repo patches to build folder ${{ inputs.distinct_id }}
-        if: env.disable_qt5 != 'yes'
-        run: if [[ -d patches ]]; then docker exec -w /root multiarch cp -r patches/* /root/${{ env.qbt_build_dir }}/patches; fi
+      # - name: Docker - Copy repo patches to build folder ${{ inputs.distinct_id }}
+      #   if: env.disable_qt5 != 'yes'
+      #   run: if [[ -d patches ]]; then docker exec -w /root multiarch cp -r patches/* /root/${{ env.qbt_build_dir }}/patches; fi
 
       - name: Docker - zlib-ng ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
