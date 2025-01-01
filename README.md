@@ -17,20 +17,15 @@ See here for how to [install the latest release](https://github.com/userdocs/qbi
 
 This build script uses and depends on some related repositories.
 
--   [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make) - builds the customized [musl cross make tool chains](https://git.zv.io/toolchains/musl-cross-make) this build script uses for Alpine based builds.
--   [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files) - a dependency tracker to check for and release all of the dependencies this build script needs as a [latest release](https://github.com/userdocs/qbt-workflow-files/releases/latest)
--   [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds) - a packaged release of cmake and ninja build for crossbuilds on debian based systems.
--   [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build) - fully static ninja-build binaries used for Alpine hosts.
--   [qbittorrent-nox-static-legacy](https://github.com/userdocs/qbittorrent-nox-static-legacy) - for people who want to use qBittorrent v4.3.9 built against current versions of the remaining dependencies. Libtorrent v1.2 branch only.
-
-## Optional Github repositories
-
--   [qbittorrent-nox-static-embedded](https://github.com/userdocs/qbittorrent-nox-static-embedded) - experimental [upx](https://upx.github.io/) compressed binaries for testing.
+-   [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make)
+-   [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files)
+-   [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build)
+-   [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds)
 
 ## Documentation
 
 > [!TIP]
-> Visit the [documentation](https://userdocs.github.io/qbittorrent-nox-static/#/README) for in depth information on using this project and script usage.
+> Visit the [documentation](https://userdocs.github.io/qbittorrent-nox-static/introduction/) for in depth information on using this project and script usage.
 
 ## WSL2
 
