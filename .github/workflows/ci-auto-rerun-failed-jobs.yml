@@ -14,10 +14,12 @@ on:
         required: true
       github_repo:
         description: "The repository to rerun the workflow"
-        required: true
+        required: false
       distinct_id:
         description: "The distinct id of the workflow to rerun"
         required: false
+
+run-name: ci auto rerun failed jobs - attempt ${{ inputs.attempts }}
 
 jobs:
   gh-cli-rerun:
@@ -26,7 +28,7 @@ jobs:
       actions: write
     runs-on: ubuntu-latest
     env:
-      GH_TOKEN: "${{ secrets.PERSONAL_TOKEN || github.token }}"
+      GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
     steps:
       - name: Host - Checkout action ${{ inputs.distinct_id }}
         uses: actions/checkout@v4
@@ -52,7 +54,7 @@ jobs:
           printf '\n%b\n' "🟥 Failures at:\n\n\`\`\`log\n${failures}\n\`\`\`" >> $GITHUB_STEP_SUMMARY
           printf '\n%b\n' "🟦 Attempt: ${{ inputs.attempts }} - Rerun failed jobs in ${{ inputs.run_id }} :hammer:" >> $GITHUB_STEP_SUMMARY
 
-          if gh run watch ${{ inputs.run_id }} --exit-status; then
+          if gh run watch ${{ inputs.run_id }} --exit-status --repo "${github_repo}"; then
               printf '\n%b\n' "✅ Attempt: ${{ inputs.attempts }} succeeded 😺" >> $GITHUB_STEP_SUMMARY
           else
               printf '\n%b\n' "❌ Attempt: ${{ inputs.attempts }} failed 😾" >> $GITHUB_STEP_SUMMARY
