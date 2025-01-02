@@ -97,8 +97,8 @@ jobs:
       distinct_id: ${{ github.event.inputs.distinct_id }}
 
   ci-auto-rerun-failed-jobs:
+    if: failure() && (github.event.inputs.skip_rerun || 'false') == 'false'
     needs: [ci-debian-build, ci-alpine-build, ci-alpine-release]
-    if: failure() && github.event.inputs.skip_rerun == 'false'
     concurrency:
       group: ci-auto-rerun-failed-jobs
       cancel-in-progress: true
@@ -107,11 +107,15 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
-      github_repo: ""
+      github_repo: "" # To use ci-auto-rerun-failed-jobs.yml hosted in a remote repository else default to the current repository. Requires PAT token AUTO_RERUN
     steps:
       - uses: actions/checkout@v4
-      - name: Trigger rerun workflow on job failures
-        run: |
-          inputs_retries="${{ github.event.inputs.retries }}"
-          gh workflow run ci-auto-rerun-failed-jobs.yml --repo "${{ env.github_repo || github.repository }}" -f run_id=${{ github.run_id }} -f attempts=${{ github.run_attempt }} -f retries=${inputs_retries:-1} -f github_repo=${{ github.repository }} -f distinct_id=${{ github.event.inputs.distinct_id }}
-
+      - name: ci-auto-rerun-failed-jobs via ${{ env.github_repo || github.repository }}
+        run: >
+          gh workflow run ci-auto-rerun-failed-jobs.yml
+          --repo "${{ env.github_repo || github.repository }}"
+          -f github_repo=${{ github.repository }}
+          -f run_id=${{ github.run_id }}
+          -f attempts=${{ github.run_attempt }}
+          -f retries=${{ github.event.inputs.retries || '1' }}
+          -f distinct_id=${{ github.event.inputs.distinct_id }}
