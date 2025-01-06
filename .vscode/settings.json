@@ -1,40 +1,40 @@
 {
-	"telemetry.enableTelemetry": false,
-	"telemetry.enableCrashReporter": false,
-	"cSpell.words": [
-		"wolfssl",
-		"libtorrent"
-	],
-	"shellformat.flag": "-ci -sr -i 0",
-	"editor.formatOnSave": true,
-	"editor.formatOnPaste": true,
-	"editor.formatOnType": true,
-	"editor.detectIndentation": false,
-	"editor.insertSpaces": false,
-	"shellcheck.customArgs": [
-		"-x"
-	],
-	"shellcheck.useWorkspaceRootAsCwd": true,
-	"shellcheck.run": "onType",
-	"diffEditor.codeLens": true,
-	"files.defaultLanguage": "shellscript",
-	"[shellscript]": {
-		"files.eol": "\n",
-		"editor.tabSize": 4
-	},
-	"[markdown]": {
-		"files.eol": "\n",
-		"editor.tabSize": 4
-	},
-	"[yaml]": {
-		"files.eol": "\n",
-		"editor.tabSize": 2,
-		"editor.insertSpaces": true
-	},
-	"[astro]": {
-		"files.eol": "\n",
-		"editor.tabSize": 2,
-		"editor.insertSpaces": true
-	},
-	"typescript.tsdk": "node_modules/typescript/lib"
+  "telemetry.enableTelemetry": false,
+  "telemetry.enableCrashReporter": false,
+  "cSpell.words": [
+    "wolfssl",
+    "libtorrent"
+  ],
+  "shellformat.flag": "-ci -sr -i 0",
+  "editor.formatOnSave": true,
+  "editor.formatOnPaste": true,
+  "editor.formatOnType": true,
+  "editor.detectIndentation": false,
+  "editor.insertSpaces": false,
+  "shellcheck.customArgs": [
+    "-x"
+  ],
+  "shellcheck.useWorkspaceRootAsCwd": true,
+  "shellcheck.run": "onType",
+  "diffEditor.codeLens": true,
+  "files.defaultLanguage": "shellscript",
+  "[shellscript]": {
+    "files.eol": "\n",
+    "editor.tabSize": 4
+  },
+  "[markdown]": {
+    "files.eol": "\n",
+    "editor.tabSize": 4
+  },
+  "[yaml]": {
+    "files.eol": "\n",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "[astro]": {
+    "files.eol": "\n",
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "typescript.tsdk": "node_modules/typescript/lib"
 }
