@@ -1,4 +1,4 @@
-name: ci-checks
+name: ci - checks
 on:
   push:
   pull_request:

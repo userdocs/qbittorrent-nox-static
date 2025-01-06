@@ -1697,16 +1697,8 @@ _release_info() {
 		fi
 	fi
 
-	cat > "${release_info_dir}/qt${qt_version_short_array[0]}-dependency-version.json" <<- DEPENDENCY_INFO
-		{
-		    "openssl": "${app_version[openssl]}",
-		    "boost": "${app_version[boost]}",
-		    "libtorrent_${qbt_libtorrent_version//\./_}": "${app_version[libtorrent]}",
-		    "qt${qt_version_short_array[0]}": "${app_version[qtbase]}",
-		    "qbittorrent": "${app_version[qbittorrent]}",
-		    "revision": "${qbt_revision_version:-0}"
-		}
-	DEPENDENCY_INFO
+	# Dependency version info
+	printf '%b\n' "{\n  \"openssl\": \"${app_version[openssl]}\",\n  \"boost\": \"${app_version[boost]}\",\n  \"libtorrent_${qbt_libtorrent_version//\./_}\": \"${app_version[libtorrent]}\",\n  \"qt${qt_version_short_array[0]}\": \"${app_version[qtbase]}\",\n  \"qbittorrent\": \"${app_version[qbittorrent]}\",\n  \"revision\": \"${qbt_revision_version:-0}\"\n}" > "${release_info_dir}/qt${qt_version_short_array[0]}-dependency-version.json"
 
 	[[ ${qbt_workflow_files} == "no" && ${qbt_workflow_artifacts} == "no" ]] && source_text="source files - direct"
 	[[ ${qbt_workflow_files} == "yes" ]] && source_text="source files - workflows: [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files/releases/latest)"
