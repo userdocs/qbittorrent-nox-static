@@ -23,7 +23,7 @@ on:
 
 jobs:
   build-alpine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
       matrix:
@@ -48,6 +48,8 @@ jobs:
     steps:
       - name: Checkout ${{ inputs.distinct_id }}
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Host - phased updates ${{ inputs.distinct_id }}
         run: printf '%s\n' 'APT::Get::Always-Include-Phased-Updates "false";' | sudo tee /etc/apt/apt.conf.d/99-phased-updates
@@ -62,6 +64,10 @@ jobs:
         run: sudo apt install libpipeline1 qemu-user-static binfmt-support
 
       - name: Host - Create Docker template env file ${{ inputs.distinct_id }}
+        env:
+          set_skip_icu: ${{ inputs.icu }}
+          set_workflow_files: ${{ inputs.workflow-files }}
+          set_build_debug: ${{ inputs.debug }}
         run: |
           printf '%s\n' "qbt_build_dir=${{ env.qbt_build_dir }}" > env.custom
           printf '%s\n' "qbt_libtorrent_version=${{ matrix.qbt_libtorrent_version }}" >> env.custom
@@ -69,17 +75,17 @@ jobs:
           printf '%s\n' "qbt_build_tool=${{ matrix.qbt_build_tool }}" >> env.custom
           printf '%s\n' "qbt_cross_name=${{ matrix.qbt_cross_name }}" >> env.custom
           printf '%s\n' "qbt_patches_url=${{ github.repository }}" >> env.custom
-          printf '%s\n' "qbt_skip_icu=${{ inputs.icu }}" >> env.custom
+          printf '%s\n' "qbt_skip_icu=${set_skip_icu}" >> env.custom
           printf '%s\n' "qbt_boost_tag=" >> env.custom
           printf '%s\n' "qbt_libtorrent_tag=" >> env.custom
           printf '%s\n' "qbt_qt_tag=" >> env.custom
           printf '%s\n' "qbt_qbittorrent_tag=" >> env.custom
           printf '%s\n' "qbt_libtorrent_master_jamfile=" >> env.custom
-          printf '%s\n' "qbt_workflow_files=${{ inputs.workflow-files }}" >> env.custom
+          printf '%s\n' "qbt_workflow_files=${set_workflow_files}" >> env.custom
           printf '%s\n' "qbt_workflow_artifacts=" >> env.custom
           printf '%s\n' "qbt_cache_dir=" >> env.custom
-          printf '%s\n' "qbt_optimise_strip=${{ inputs.debug }}" >> env.custom
-          printf '%s\n' "qbt_build_debug=${{ inputs.debug }}" >> env.custom
+          printf '%s\n' "qbt_optimise_strip=" >> env.custom
+          printf '%s\n' "qbt_build_debug=${set_build_debug}" >> env.custom
           printf '%s\n' "qbt_revision_url=${{ github.repository }}" >> env.custom
           printf '%s\n' "qbt_standard=" >> env.custom
           printf '%s\n' "qbt_static_ish=" >> env.custom
@@ -98,8 +104,9 @@ jobs:
 
       - name: Host - qBittorrent v5 transition ${{ inputs.distinct_id }}
         run: |
-          if [[ -f "${{ env.qbt_build_dir }}/release_info/disable-qt5" ]]; then
+          if [[ -f "${qbt_build_dir}/release_info/disable-qt5" ]]; then
               printf '%s\n' "disable_qt5=yes" >> $GITHUB_ENV
+              printf '%s\n' "Found file: \`disable-qt5\`: settings \`disable_qt5=yes\` to yes" >> $GITHUB_STEP_SUMMARY
           fi
 
       # - name: Docker - Copy repo patches to build folder ${{ inputs.distinct_id }}

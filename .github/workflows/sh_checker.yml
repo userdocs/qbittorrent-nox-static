@@ -9,9 +9,12 @@ concurrency:
 
 jobs:
   sh-checker:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Run the sh-checker
         uses: luizm/action-sh-checker@v0.9.0
         env:

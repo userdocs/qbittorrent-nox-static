@@ -1,0 +1,44 @@
+name: ci auto rerun failed jobs
+
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: "The run id of the workflow to rerun"
+        required: true
+      attempts:
+        description: "The number of attempts to rerun the workflow"
+        required: true
+      retries:
+        description: "The number of retries to rerun the workflow"
+        required: true
+      github_repo:
+        description: "The repository to rerun the workflow"
+        required: false
+      distinct_id:
+        description: "The distinct id of the workflow to rerun"
+        required: false
+
+run-name: ci auto rerun failed jobs - attempt ${{ inputs.attempts }}
+
+jobs:
+  gh-cli-rerun:
+    name: rerun - attempt ${{ inputs.attempts }}
+    permissions:
+      actions: write
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
+    steps:
+      - name: Host - Checkout action ${{ inputs.distinct_id }}
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: userdocs/gh-cli-workflow-reruns/actions/auto-rerun-failed@main
+        with:
+          run_id: ${{ inputs.run_id }}
+          attempts: ${{ inputs.attempts }}
+          retries: ${{ inputs.retries }}
+          github_repo: ${{ inputs.github_repo || github.repository }}
+          distinct_id: ${{ inputs.distinct_id || github.run_id }}
