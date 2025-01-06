@@ -1,0 +1,65 @@
+name: ci-checks
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  sh-checker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Run the sh-checker
+        uses: luizm/action-sh-checker@v0.9.0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHELLCHECK_OPTS: -e SC2034,SC1091 # It is possible to exclude some shellcheck warnings.
+          SHFMT_OPTS: -ci -sr -i 0 # It is possible to pass arguments to shftm
+        with:
+          sh_checker_comment: true
+          sh_checker_exclude: ""
+
+  zizmor-workflow-audits:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: zizmor workflow audits
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install zizmor
+
+          printf '%b\n' "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          zizmor . --gh-token $GITHUB_TOKEN >> $GITHUB_STEP_SUMMARY
+          printf '%b' "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  editorconfig-checker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: editorconfig-checker
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -Lo- "https://github.com/editorconfig-checker/editorconfig-checker/releases/latest/download/ec-linux-amd64.tar.gz" | tar xzf - --strip-components=1
+
+          printf '%b\n' "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ./ec-linux-amd64 --exclude '^(docs/.*|patches/.*)$' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" >> $GITHUB_STEP_SUMMARY
+          outcome=("${PIPESTATUS[@]}")
+          printf '%b' "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+          # [[ "${outcome[*]}" =~ [1-9] ]] && exit 1 || exit 0
+
