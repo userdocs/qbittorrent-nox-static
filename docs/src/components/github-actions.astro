@@ -6,14 +6,14 @@ import ci_main_reusable_caller from "../../../.github/workflows/ci-main-reusable
 import ci_debian_build from "../../../.github/workflows/ci-debian-build.yml?raw";
 import ci_alpine_build from "../../../.github/workflows/ci-alpine-build.yml?raw";
 import ci_alpine_release from "../../../.github/workflows/ci-alpine-release.yml?raw";
-import ci_auto_rerun_failed_jobs from "../../../.github/workflows/ci-auto-rerun-failed-jobs.yml?raw";
+import ci_auto_rerun_failed_jobs_action from "../../../.github/workflows/ci-auto-rerun-failed-jobs-action.yml?raw";
 
 const imports = {
 	ci_main_reusable_caller,
 	ci_debian_build,
 	ci_alpine_build,
 	ci_alpine_release,
-	ci_auto_rerun_failed_jobs,
+	ci_auto_rerun_failed_jobs_action,
 };
 const code = imports[id];
 ---

@@ -27,15 +27,15 @@ indent_size = 4
 indent_style = space
 
 [**.bats]
-indent_size = tab
 indent_style = tab
 shell_variant	= bats
 
-[.vscode/settings.json]
-indent_style = tab
-indent_size = 4
-
 [*.{yml,yaml,html}]
+indent_style = space
+indent_size = 2
+
+[*.json]
+insert_final_newline = false
 indent_style = space
 indent_size = 2
 
@@ -48,3 +48,24 @@ end_of_line = lf
 indent_size = 4
 indent_style = space
 end_of_line = lf
+
+[LICENSE.txt]
+indent_style = space
+indent_size = 2
+
+[**.txt]
+
+[patch]
+indent_style = space
+indent_size = 0
+trim_trailing_whitespace = false
+
+[url]
+insert_final_newline = false
+
+[patch]
+indent_style = space
+indent_size = 0
+
+[Jamfile]
+indent_style = tab
