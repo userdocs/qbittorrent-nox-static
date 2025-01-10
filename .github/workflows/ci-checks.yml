@@ -26,6 +26,13 @@ jobs:
           sh_checker_comment: true
           sh_checker_exclude: ""
 
+  zizmor-checker:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
       - name: Check GitHub Action workflows
         shell: bash {0}
         run: |
