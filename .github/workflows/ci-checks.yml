@@ -26,26 +26,21 @@ jobs:
           sh_checker_comment: true
           sh_checker_exclude: ""
 
-  zizmor-workflow-audits:
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          persist-credentials: false
-
-      - name: zizmor workflow audits
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Check GitHub Action workflows
+        shell: bash {0}
         run: |
           pip install zizmor
-          zizmor . --gh-token $GITHUB_TOKEN |& tee summary.md
-          exit_codes="${PIPESTATUS[0]}"
+
+          zizmor="$(zizmor . --gh-token "${{ github.token }}")"
+          exit_code="$?"
+
+          printf '%s\n' "$zizmor"
 
           printf '%b\n' "\`\`\`" >> $GITHUB_STEP_SUMMARY
-          cat summary.md >> $GITHUB_STEP_SUMMARY
+          printf '%s\n' "$zizmor" >> $GITHUB_STEP_SUMMARY
           printf '%b' "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
-          exit "${exit_codes}"
+          exit "$exit_code"
 
   editorconfig-checker:
     runs-on: ubuntu-24.04
