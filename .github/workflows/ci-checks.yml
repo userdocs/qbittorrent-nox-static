@@ -64,8 +64,8 @@ jobs:
 
           printf '%b\n' "\`\`\`" >> $GITHUB_STEP_SUMMARY
           ./ec-linux-amd64 --exclude '^(docs/.*|patches/.*)$' | sed "s,\x1B\[[0-9;]*[a-zA-Z],,g" >> $GITHUB_STEP_SUMMARY
-          exit_codes=("${PIPESTATUS[0]}")
+          exit_code=("${PIPESTATUS[0]}")
           printf '%b' "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
-          # exit "${exit_codes}"
+          # exit "${exit_code}"
 

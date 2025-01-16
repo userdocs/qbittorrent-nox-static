@@ -92,7 +92,6 @@ jobs:
     permissions:
       contents: write
     uses: ./.github/workflows/ci-alpine-release.yml
-    secrets: inherit
     with:
       distinct_id: ${{ github.event.inputs.distinct_id }}
 
