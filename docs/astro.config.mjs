@@ -1,49 +1,6 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import { ExpressiveCodeTheme } from "@astrojs/starlight/expressive-code";
-import fs from "node:fs";
-import path from "node:path";
 import starlightImageZoom from "starlight-image-zoom";
-
-// Define allowed paths relative to project root
-const ALLOWED_PATHS = ["src/themes/expressive-code"];
-
-function readFileSyncSafe(url) {
-	if (url.protocol !== "file:") {
-		throw new Error("Invalid URL protocol");
-	}
-
-	// Convert URL to filesystem path and normalize
-	const filePath = path.normalize(url.pathname);
-
-	// Ensure path is within allowed directories
-	const isAllowed = ALLOWED_PATHS.some((allowedPath) =>
-		filePath.includes(path.normalize(allowedPath))
-	);
-
-	if (!isAllowed) {
-		throw new Error("Access to this directory is not allowed");
-	}
-
-	return fs.readFileSync(url, "utf-8");
-}
-
-const jsoncStringLight = readFileSyncSafe(
-	new URL(
-		"./src/themes/expressive-code/Snazzy-Light-color-theme.json",
-		import.meta.url
-	)
-);
-
-const jsoncStringDark = readFileSyncSafe(
-	new URL(
-		"./src/themes/expressive-code/aura-soft-dark-soft-text-color-theme.json",
-		import.meta.url
-	)
-);
-
-const darkMode = ExpressiveCodeTheme.fromJSONString(jsoncStringDark);
-const lightMode = ExpressiveCodeTheme.fromJSONString(jsoncStringLight);
 
 // https://astro.build/config
 export default defineConfig({
@@ -58,19 +15,6 @@ export default defineConfig({
 			},
 			components: {
 				Header: "./src/components/Header.astro",
-			},
-			expressiveCode: {
-				themes: [darkMode, lightMode],
-				tabWidth: 0,
-				styleOverrides: {
-					borderRadius: "0.1rem",
-					frames: {
-						shadowColor: "none",
-					},
-				},
-				defaultProps: {
-					frame: "none",
-				},
 			},
 
 			social: {

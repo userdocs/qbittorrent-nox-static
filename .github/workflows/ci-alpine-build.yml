@@ -20,7 +20,10 @@ on:
         description: "debug builds"
         required: true
         type: string
-
+      script_name:
+        description: "script name"
+        required: true
+        type: string
 jobs:
   build-alpine:
     runs-on: ubuntu-24.04
@@ -44,6 +47,7 @@ jobs:
 
     env:
       qbt_build_dir: "qbt-build"
+      script_name: ${{ inputs.script_name }}
 
     steps:
       - name: Checkout ${{ inputs.distinct_id }}
@@ -57,8 +61,8 @@ jobs:
       - name: Host - update ${{ inputs.distinct_id }}
         run: sudo apt-get update
 
-      - name: Host - upgrade ${{ inputs.distinct_id }}
-        run: sudo apt-get -y upgrade
+      # - name: Host - upgrade ${{ inputs.distinct_id }}
+      #   run: sudo apt-get -y upgrade
 
       - name: Host - set up qemu-user-static binfmt-support ${{ inputs.distinct_id }}
         run: sudo apt install libpipeline1 qemu-user-static binfmt-support
@@ -76,10 +80,10 @@ jobs:
           printf '%s\n' "qbt_cross_name=${{ matrix.qbt_cross_name }}" >> env.custom
           printf '%s\n' "qbt_patches_url=${{ github.repository }}" >> env.custom
           printf '%s\n' "qbt_skip_icu=${set_skip_icu}" >> env.custom
-          printf '%s\n' "qbt_boost_tag=" >> env.custom
-          printf '%s\n' "qbt_libtorrent_tag=" >> env.custom
-          printf '%s\n' "qbt_qt_tag=" >> env.custom
-          printf '%s\n' "qbt_qbittorrent_tag=" >> env.custom
+          printf '%s\n' "qbt_boost_tag=${{ matrix.qbt_boost_tag }}" >> env.custom
+          printf '%s\n' "qbt_libtorrent_tag=${{ matrix.qbt_libtorrent_tag }}" >> env.custom
+          printf '%s\n' "qbt_qt_tag=${{ matrix.qbt_qt_tag }}" >> env.custom
+          printf '%s\n' "qbt_qbittorrent_tag=${{ matrix.qbt_qbittorrent_tag }}" >> env.custom
           printf '%s\n' "qbt_libtorrent_master_jamfile=" >> env.custom
           printf '%s\n' "qbt_workflow_files=${set_workflow_files}" >> env.custom
           printf '%s\n' "qbt_workflow_artifacts=" >> env.custom
@@ -99,8 +103,11 @@ jobs:
       - name: Docker - apk install bash ${{ inputs.distinct_id }}
         run: docker exec -w /root multiarch apk add bash
 
-      - name: Docker - Bootstrap ${{ inputs.distinct_id }}
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh -bs-a
+      - name: Docker - Bootstrap deps ${{ inputs.distinct_id }}
+        run: docker exec -w /root multiarch bash ${script_name} bootstrap_deps
+
+      - name: Docker - Bootstrap build ${{ inputs.distinct_id }}
+        run: docker exec -w /root multiarch bash ${script_name} -bs-a
 
       - name: Host - qBittorrent v5 transition ${{ inputs.distinct_id }}
         run: |
@@ -109,49 +116,45 @@ jobs:
               printf '%s\n' "Found file: \`disable-qt5\`: settings \`disable_qt5=yes\` to yes" >> $GITHUB_STEP_SUMMARY
           fi
 
-      # - name: Docker - Copy repo patches to build folder ${{ inputs.distinct_id }}
-      #   if: env.disable_qt5 != 'yes'
-      #   run: if [[ -d patches ]]; then docker exec -w /root multiarch cp -r patches/* /root/${{ env.qbt_build_dir }}/patches; fi
-
       - name: Docker - zlib-ng ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh zlib
+        run: docker exec -w /root multiarch bash ${script_name} zlib
 
       - name: Docker - iconv ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh iconv
+        run: docker exec -w /root multiarch bash ${script_name} iconv
 
       - name: Docker - icu ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh icu
+        run: docker exec -w /root multiarch bash ${script_name} icu
 
       - name: Docker - openssl ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh openssl
+        run: docker exec -w /root multiarch bash ${script_name} openssl
 
       - name: Docker - boost ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh boost
+        run: docker exec -w /root multiarch bash ${script_name} boost
 
       - name: Docker - libtorrent ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh libtorrent
+        run: docker exec -w /root multiarch bash ${script_name} libtorrent
 
       - name: Docker - double_conversion ${{ inputs.distinct_id }}
         if: matrix.qbt_build_tool == '' && env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh double_conversion
+        run: docker exec -w /root multiarch bash ${script_name} double_conversion
 
       - name: Docker - qtbase ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qtbase
+        run: docker exec -w /root multiarch bash ${script_name} qtbase
 
       - name: Docker - qttools ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qttools
+        run: docker exec -w /root multiarch bash ${script_name} qttools
 
       - name: Docker - qbittorrent ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
-        run: docker exec -w /root multiarch bash qbittorrent-nox-static.sh qbittorrent
+        run: docker exec -w /root multiarch bash ${script_name} qbittorrent
 
       - name: Docker - Set release asset name ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'
@@ -168,7 +171,7 @@ jobs:
         run: docker exec -w /root/${{ env.qbt_build_dir }}/release_info multiarch bash -c 'mv *.md *.json '/root/${{ env.qbt_build_dir }}/completed''
 
       - name: Host - Upload libtorrent-v${{ matrix.qbt_libtorrent_version }}-qbittorrent-nox and release info artifact ${{ inputs.distinct_id }}
-        if: env.disable_qt5 != 'yes'
+        if: success() && env.disable_qt5 != 'yes'
         uses: actions/upload-artifact@v4
         with:
           name: libtorrent-v${{ matrix.qbt_libtorrent_version }}-${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
@@ -177,8 +180,15 @@ jobs:
             !${{ env.qbt_build_dir }}/completed/*.png
 
       - name: Host - Upload cmake graphs artifact ${{ inputs.distinct_id }}
-        if: matrix.qbt_build_tool == '' && env.disable_qt5 != 'yes'
+        if: success() && matrix.qbt_build_tool == '' && env.disable_qt5 != 'yes'
         uses: actions/upload-artifact@v4
         with:
           name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-graphs"
           path: "${{ env.qbt_build_dir }}/completed/*.png"
+
+      - name: Host - Upload logs on error
+        if: failure() && env.disable_qt5 != 'yes'
+        uses: actions/upload-artifact@v4
+        with:
+          name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-logs"
+          path: "${{ env.qbt_build_dir }}/logs/*"

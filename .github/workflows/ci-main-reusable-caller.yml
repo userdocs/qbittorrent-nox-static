@@ -4,6 +4,12 @@ name: ci - main reusable caller
 on:
   workflow_dispatch:
     inputs:
+      script_name:
+        description: "Which script to run?"
+        required: true
+        default: "qbt-nox-static.bash"
+        type: choice
+        options: ["qbt-nox-static.bash", "qbittorrent-nox-static.sh"]
       debian-build:
         description: "Debian: build"
         required: true
@@ -51,8 +57,10 @@ on:
         options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
 concurrency:
-  group: ci-main-reusable-caller
+  group: ${{ github.workflow }}
   cancel-in-progress: true
+
+permissions: {}
 
 jobs:
   ci-debian-build:
@@ -60,12 +68,15 @@ jobs:
     concurrency:
       group: ci-debian-build
       cancel-in-progress: true
+    permissions:
+      contents: read
     uses: ./.github/workflows/ci-debian-build.yml
     with:
       distinct_id: ${{ github.event.inputs.distinct_id }}
       workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
       icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
       debug: ${{ github.event.inputs.debug == 'true' && 'yes' || 'no' }}
+      script_name: ${{ github.event.inputs.script_name }}
 
   ci-alpine-build:
     if: always() && github.event.inputs.alpine-build == 'true'
@@ -82,6 +93,7 @@ jobs:
       workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
       icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
       debug: ${{ github.event.inputs.debug == 'true' && 'yes' || 'no' }}
+      script_name: ${{ github.event.inputs.script_name }}
 
   ci-alpine-release:
     needs: [ci-alpine-build]

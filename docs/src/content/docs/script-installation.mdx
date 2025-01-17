@@ -67,7 +67,7 @@ You use `debian:bullseye` `debian:bookworm` `debian:latest` or a supported tag
 To bootstrap the container:
 
 ```bash
-docker run -it -w /root -p 8080:8080 -e "LANG=en_GB.UTF-8" -v ~/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && bash'
+docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root debian:latest /bin/bash -c 'apt update && apt install -y curl && bash'
 ```
 
 If you need to download the script use this command
@@ -86,7 +86,7 @@ You use `ubuntu:jammy` `ubuntu:noble` `ubuntu:latest`
 To bootstrap the container:
 
 ```bash
-docker run -it -w /root -p 8080:8080 -e "LANG=en_GB.UTF-8" -v ~/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && bash'
+docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root ubuntu:latest /bin/bash -c 'apt update && apt install -y curl && bash'
 ```
 
 If you need to download the script use this command

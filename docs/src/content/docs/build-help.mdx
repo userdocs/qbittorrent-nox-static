@@ -55,6 +55,7 @@ You can export these before you run the script to set them. The can be used for 
 | `qbt_build_debug`               | `no`                                | `yes` `no`                   | `qbt_build_debug="no"`                              |
 | `qbt_standard`                  | `20`                                | `14` `17` `20` `23`          | `qbt_standard="20"`                                 |
 | `qbt_static_ish`                | `no`                                | `yes` `no`                   | `qbt_static_ish="no"`                               |
+| `qbt_optimise`                  | `no`                                | `yes` `no`                   | `qbt_optimise="yes"`                               |
 
 <Details summary="Cross arch options">
 	`armel` `armhf` `armv7` `aarch64`
@@ -93,92 +94,97 @@ The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to
 ```bash
  Here are a list of available options
 
-Use: -b or --build-directory Help: -h-b or --help-build-directory
-Use: -bt or --boost-version Help: -h-bt or --help-boost-version
-Use: -c or --cmake Help: -h-c or --help-cmake
-Use: -cd or --cache-directory Help: -h-cd or --help-cache-directory
-Use: -d or --debug Help: -h-d or --help-debug
-Use: -bs-p or --boot-strap-patches Help: -h-bs-p or --help-boot-strap-patches
-Use: -bs-c or --boot-strap-cmake Help: -h-bs-c or --help-boot-strap-cmake
-Use: -bs-r or --boot-strap-release Help: -h-bs-r or --help-boot-strap-release
-Use: -bs-ma or --boot-strap-multi-arch Help: -h-bs-ma or --help-boot-strap-multi-arch
-Use: -bs-a or --boot-strap-all Help: -h-bs-a or --help-boot-strap-all
-Use: -i or --icu Help: -h-i or --help-icu
-Use: -lm or --libtorrent-master Help: -h-lm or --help-libtorrent-master
-Use: -lt or --libtorrent-tag Help: -h-lt or --help-libtorrent-tag
-Use: -m or --master Help: -h-m or --help-master
-Use: -ma or --multi-arch Help: -h-ma or --help-multi-arch
-Use: -n or --no-delete Help: -h-n or --help-no-delete
-Use: -o or --optimize Help: -h-o or --help-optimize
-Use: -p or --proxy Help: -h-p or --help-proxy
-Use: -pr or --patch-repo Help: -h-pr or --help-patch-repo
-Use: -qm or --qbittorrent-master Help: -h-qm or --help-qbittorrent-master
-Use: -qt or --qbittorrent-tag Help: -h-qt or --help-qbittorrent-tag
-Use: -qtt or --qt-tag Help: -h-qtt or --help-qtt-tag
-Use: -sdu or --script-debug-urls Help: -h-sdu or --help-script-debug-urls
-Use: -si or --static-ish Help: -h-s or --help-strip
-Use: -s or --strip Help: -h-s or --help-strip
-Use: -wf or --workflow Help: -h-wf or --help-workflow
+ Use: -b     or --build-directory       Help: -h-b     or --help-build-directory
+ Use: -bt    or --boost-tag             Help: -h-bt    or --help-boost-version
+ Use: -c     or --cmake                 Help: -h-c     or --help-cmake
+ Use: -cd    or --cache-directory       Help: -h-cd    or --help-cache-directory
+ Use: -d     or --debug                 Help: -h-d     or --help-debug
+ Use: -bs-e  or --bootstrap-env         Help: -h-bs-e  or --help-bootstrap-env
+ Use: -bs-p  or --bootstrap-patches     Help: -h-bs-p  or --help-bootstrap-patches
+ Use: -bs-c  or --bootstrap-cmake       Help: -h-bs-c  or --help-bootstrap-cmake
+ Use: -bs-r  or --bootstrap-release     Help: -h-bs-r  or --help-bootstrap-release
+ Use: -bs-ma or --bootstrap-multi-arch  Help: -h-bs-ma or --help-bootstrap-multi-arch
+ Use: -bs-a  or --bootstrap-all         Help: -h-bs-a  or --help-bootstrap-all
+ Use: -i     or --icu                   Help: -h-i     or --help-icu
+ Use: -lm    or --libtorrent-master     Help: -h-lm    or --help-libtorrent-master
+ Use: -lt    or --libtorrent-tag        Help: -h-lt    or --help-libtorrent-tag
+ Use: -m     or --master                Help: -h-m     or --help-master
+ Use: -ma    or --multi-arch            Help: -h-ma    or --help-multi-arch
+ Use: -n     or --no-delete             Help: -h-n     or --help-no-delete
+ Use: -o     or --optimise              Help: -h-o     or --help-optimise
+ Use: -p     or --proxy                 Help: -h-p     or --help-proxy
+ Use: -pr    or --patch-repo            Help: -h-pr    or --help-patch-repo
+ Use: -q     or --qmake                 Help: -h-q     or --help-qmkae
+ Use: -qm    or --qbittorrent-master    Help: -h-qm    or --help-qbittorrent-master
+ Use: -qt    or --qbittorrent-tag       Help: -h-qt    or --help-qbittorrent-tag
+ Use: -qtt   or --qt-tag                Help: -h-qtt   or --help-qtt-tag
+ Use: -sdu   or --script-debug-urls     Help: -h-sdu   or --help-script-debug-urls
+ Use: -si    or --static-ish            Help: -h-s     or --help-strip
+ Use: -s     or --strip                 Help: -h-s     or --help-strip
+ Use: -wf    or --workflow              Help: -h-wf    or --help-workflow
 
-Module specific help - flags are used with the modules listed here.
+ Module specific help - flags are used with the modules listed here.
 
-Use: all or module-name Usage: ~/qbittorrent-nox-static.sh all -i
+ Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
 
-all ---------------- optional Recommended method to install all modules
-install ------------ optional Install the ~/qbt-build/completed/qbittorrent-nox binary
-zlib --------------- required Build zlib locally
-iconv -------------- required Build iconv locally
-icu ---------------- optional Build ICU locally
-openssl ------------ required Build openssl locally
-boost -------------- required Download, extract and build the boost library files
-libtorrent --------- required Build libtorrent locally
-double_conversion -- required A cmake + Qt6 build component on modern OS only.
-qtbase ------------- required Build qtbase locally
-qttools ------------ required Build qttools locally
-qbittorrent -------- required Build qbittorrent locally
+ all ---------------- optional Recommended method to install all modules
+ install ------------ optional Install the ~/qbt-build/completed/qbittorrent-nox binary
+ zlib --------------- required Build zlib locally
+ iconv -------------- required Build iconv locally
+ icu ---------------- optional Build ICU locally
+ openssl ------------ required Build openssl locally
+ boost -------------- required Download, extract and build the boost library files
+ libtorrent --------- required Build libtorrent locally
+ double_conversion -- required A cmake + Qt6 build component on modern OS only.
+ qtbase ------------- required Build qtbase locally
+ qttools ------------ required Build qttools locally
+ qbittorrent -------- required Build qbittorrent locally
 
-env help - supported exportable environment variables
+ env help - supported exportable environment variables
 
-export qbt_libtorrent_version="" -------- options 1.2 - 2.0
-export qbt_qt_version="" ---------------- options 5 - 5.15 - 6 - 6.2 - 6.3 and so on
-export qbt_build_tool="" ---------------- options qmake - cmake
-export qbt_cross_name="" ---------------- options x86_64 - aarch64 - armv7 - armhf
-export qbt_patches_url="" --------------- options userdocs/qbittorrent-nox-static.
-export qbt_libtorrent_tag="" ------------ options Takes a valid git tag or branch for libtorrent
-export qbt_qbittorrent_tag="" ----------- options Takes a valid git tag or branch for qbittorrent
-export qbt_boost_tag="" ----------------- options Takes a valid git tag or branch for boost
-export qbt_qt_tag="" -------------------- options Takes a valid git tag or branch for Qt
-export qbt_workflow_files="" ------------ options yes no - use qbt-workflow-files for dependencies
-export qbt_workflow_artifacts="" -------- options yes no - use qbt_workflow_artifacts for dependencies
-export qbt_cache_dir="" ----------------- options path empty - provide a path to a cache directory
-export qbt_libtorrent_master_jamfile="" - options yes no - use RC branch instead of release jamfile
-export qbt_optimise_strip="" ------------ options yes no - strip binaries - cannot be used with debug
-export qbt_build_debug="" --------------- options yes no - debug build - cannot be used with strip
-export qbt_standard="" ------------------ options 14 - 17 - 20 - 23 - c standard for gcc - for older build combos
-export qbt_static_ish="" ---------------- options yes no - libc linking - link dynamically to libc
+ export qbt_build_dir="" ----------------- options path - a valid path
+ export qbt_libtorrent_version="" -------- options 1.2 | 2.0
+ export qbt_qt_version="" ---------------- options 5 | 5.15 | 6 | 6.2 | 6.3 and so on
+ export qbt_build_tool="" ---------------- options qmake | cmake - The default if empty is cmake
+ export qbt_cross_name="" ---------------- options x86_64 | aarch64 | armv7 | armhf
+ export qbt_patches_url="" --------------- options userdocs/qbittorrent-nox-static
+ export qbt_libtorrent_tag="" ------------ options Takes a valid git tag or branch for libtorrent
+ export qbt_qbittorrent_tag="" ----------- options Takes a valid git tag or branch for qbittorrent
+ export qbt_boost_tag="" ----------------- options Takes a valid git tag or branch for boost
+ export qbt_qt_tag="" -------------------- options Takes a valid git tag or branch for Qt
+ export qbt_workflow_files="" ------------ options yes | no - use qbt-workflow-files for dependencies
+ export qbt_workflow_artifacts="" -------- options yes | no - use qbt_workflow_artifacts for dependencies
+ export qbt_cache_dir="" ----------------- options path | empty - provide a path to a cache directory
+ export qbt_libtorrent_master_jamfile="" - options yes | no - use RC branch instead of release jamfile
+ export qbt_optimise_strip="" ------------ options yes | no - strip binaries - cannot be used with debug
+ export qbt_build_debug="" --------------- options yes | no - debug build - cannot be used with strip
+ export qbt_standard="" ------------------ options 14 | 17 | 20 | 23 - c standard for gcc - OS dependendent
+ export qbt_static_ish="" ---------------- options yes | no - libc linking - link dynamically to host libc
 
-⬤ Default env settings
+ ⬤ Default env settings
 
-qbt_libtorrent_version="2.0"
-qbt_qt_version="6"
-qbt_build_tool="cmake"
-qbt_cross_name="default"
-qbt_patches_url="userdocs/qbittorrent-nox-static"
-qbt_skip_icu="yes"
-qbt_boost_tag="boost-1.86.0"
-qbt_libtorrent_tag="v2.0.10"
-qbt_qt_tag="v6.8.0"
-qbt_qbittorrent_tag="release-5.0.1"
-qbt_libtorrent_master_jamfile="no"
-qbt_workflow_files="no"
-qbt_workflow_artifacts="no"
-qbt_cache_dir=""
-qbt_optimise_strip="yes"
-qbt_build_debug="no"
-qbt_standard="17"
-qbt_static_ish="no"
+   qbt_build_dir="qbt-build"
+   qbt_libtorrent_version="2.0"
+   qbt_qt_version="6"
+   qbt_build_tool="cmake"
+   qbt_cross_name="default"
+   qbt_patches_url="userdocs/qbittorrent-nox-static"
+   qbt_skip_icu="yes"
+   qbt_boost_tag="boost-1.87.0"
+   qbt_libtorrent_tag="v2.0.10"
+   qbt_qt_tag="v6.8.1"
+   qbt_qbittorrent_tag="release-5.0.3"
+   qbt_libtorrent_master_jamfile="no"
+   qbt_workflow_files="no"
+   qbt_workflow_artifacts="no"
+   qbt_cache_dir=""
+   qbt_optimise_strip="yes"
+   qbt_build_debug="no"
+   qbt_standard="20"
+   qbt_static_ish="no"
+   qbt_optimise="no"
 
-````
+```
 </Details>
 :::
 
@@ -252,8 +258,6 @@ It's best to consider all individual modules listed below as being dependent on 
 Here are the list of supported modules:
 
 ```bash
-bison (Debian based only)
-gawk (Debian based only)
 glibc (Debian based only)
 zlib (default)
 iconv (default)

@@ -11,6 +11,8 @@ concurrency:
 jobs:
   sh-checker:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -28,6 +30,8 @@ jobs:
 
   zizmor-checker:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -51,6 +55,8 @@ jobs:
 
   editorconfig-checker:
     runs-on: ubuntu-24.04
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
         with:
@@ -68,4 +74,3 @@ jobs:
           printf '%b' "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
           # exit "${exit_code}"
-

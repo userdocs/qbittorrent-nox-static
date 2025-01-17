@@ -39,7 +39,7 @@ By passing `all` as the first argument, you can build everything based on the de
 ./qbittorrent-nox-static.sh all
 ```
 
-For example, to use `ICU` using `-i`, optimise for the host system CPU using `-o`, `-s` to strip the binary and build using libtorrent v1.2.19
+For example, to use `ICU` using `-i`, optimise for the host system CPU using `-o` to set `-march=native` and `-s` to strip the binary and build using libtorrent v1.2.19
 
 ```bash
 ./qbittorrent-nox-static.sh all -i -o -s -lt v1.2.19
@@ -48,5 +48,5 @@ For example, to use `ICU` using `-i`, optimise for the host system CPU using `-o
 Same as previous command but using `env` settings
 
 ```bash
-qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimise_strip="yes" qbt_optimize="-march=native" ./qbittorrent-nox-static.sh all
+qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimise_strip="yes" qbt_optimize="yes" ./qbittorrent-nox-static.sh all
 ```

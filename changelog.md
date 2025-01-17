@@ -1,3 +1,48 @@
+### v2.1.0 - 20/01/2025
+
+`qbt-nox-static.bash` will be a created alongside the `qbittorrent-nox-static.sh`.
+
+`qbt-nox-static.bash` ≥ `v2.1.0`
+
+`qbt-nox-static.bash` will start with `v2.1.0` and `qbittorrent-nox-static.sh` will be frozen at `v2.0.15`going forward. This is to avoid breaking anything by replacing `qbittorrent-nox-static.sh` with`qbt-nox-static.bash` and removing access to the old file. `v2.1.0` is not really changing the outcome but the behaviour of the script towards that outcome. So the least disruptive way is the opt in route. I also wanted to changed the extension from `sh` to `bash` as it is a bash script.
+
+There is feature parity between the two scripts as of this change. All major changes, fixes and tweaks are applied to both scripts with the exception of the reworked dependency and module installation logic which breaks expected behavior of the script.
+
+#### Main changes
+
+A reworked dependency and module installation logic, which has changed the default behaviour of the script.
+
+Reasoning: The script was designed to be run in a docker and needs `curl` and `git` to perform basic test functions. So it would automatically try to install all deps from a single array when run as root or with sudo to able to then do the basic interactions. This was not ideal behaviour as it would behave the same way on a host system whereas in a docker it didn't really matter. This required reworking hoe dependencies were checked, managed and installed.
+
+#### Changes unique to `qbt-nox-static.bash`
+
+- The script no longer tries to modify the host or create files if just called by it's name. It will do basic dependency checks and offer options to install what's needed.
+- It can now just install the required test dependencies or perform basic functions if they are already installed meaning the basic features and help functions are usable without installing the full suits of dependencies.
+- dependency specific modules new modules unique to this check. `update` | `install_test` | `install_core` | `bootstrap_deps`
+
+Changes applied to both `qbt-nox-static.bash` and `qbittorrent-nox-static.sh`
+
+- Removed build script support for buster, focal and jammy due to conflicts with updated builds flags and will support current releases only going forward.
+  - Builds are fully static so build on a modern OS to use on older systems.
+  - Or use Github by forking the repo and running the workflows. You don't need to build on the target.
+- Revised the optimisation and build flags system to be a more modern and useful, which breaks building on some older systems. Though this really only applies to debian hosts and the primary method is Alpine.
+- changed: optimise still just applies `march-native` on non crossbuilds but now you can export `CFLAGS` `CPPFLAGS` `CXXFLAGS` `LDFLAGS` in the main env and they will be appended to the builds.
+- fixed: optimise was not working as intended for being spelled inconsistently, optimise/optimize, so the checks for cross-building were not correct.
+- all build optimisation stuff moved to a unified function `_custom_flags` instead of being spread out across the script.
+- Alpine only - if building using native gcc on the host it will attempt to use `-flto` - does not do this on crossbuilding as it does not work.
+- General refactoring towards more consistent use of array data throughout the script with a preference towards associative arrays.
+- fixed: standards checking - checks are more targets to include os version names so as to avoid certain build bad combinations
+- new: a new flag `-bs-e` that dumps a template `.qbt_env` file with all env vars that are unset then exits.
+- crossbuild toolchains won't extract every time you run the script and will also now determine if you have the correct toolchains if you change the settings and not juts assume.
+- many consistency tweaks, minors bug fixes and streamlining of code.
+- credits: Borrowed some build flags from here [qbittorrent/docker-qbittorrent-nox](https://github.com/qbittorrent/docker-qbittorrent-nox/blob/main/Dockerfile#L59-L61)
+
+> For example: `release-5.0.3` on Debian Bullseye. Before it would have set `cxx20` and then failed when building qBittorrent. Now it won't try to build and give a warning whilst still allowing building older combos on that host.
+
+### v2.0.15 - 20/01/2025
+
+see `v2.1.0` changelog
+
 ### v2.0.14 - 31/12/2024
 
 fix: libtorrent `v1.2` and boost `1.86.0` check to not ignore `RC_1_2`
@@ -19,11 +64,11 @@ fix: changed `-bt | --boost-version` to `-bt | --boost-tag` for consistency. It 
 
 ### v2.0.11 - 13/10/2024
 
-Disable glib tests on zlib-ng https://github.com/userdocs/qbittorrent-nox-static/pull/173
+Disable glib tests on zlib-ng <https://github.com/userdocs/qbittorrent-nox-static/pull/173>
 
 Update contributor info
 
-minor changes - https://github.com/userdocs/qbittorrent-nox-static/commit/e4a674fa3832e0c0d6950539adac9d1d8d00d0e7
+minor changes - <https://github.com/userdocs/qbittorrent-nox-static/commit/e4a674fa3832e0c0d6950539adac9d1d8d00d0e7>
 
 ### v2.0.10 - 05/10/2024
 
@@ -37,7 +82,7 @@ Change default c++ standard used for newer build combinations from 23 to 20.
 
 Fixed a regression with `-o` where part the code was left in and duplicated after introducing a check for cross compilation, causing the positional parameters to be shifted twice, breaking things.
 
-fix - https://github.com/userdocs/qbittorrent-nox-static/commit/b51e1ef356fbdbd3f2f93f2b2a8a6279b99e5f22
+fix - <https://github.com/userdocs/qbittorrent-nox-static/commit/b51e1ef356fbdbd3f2f93f2b2a8a6279b99e5f22>
 
 ### v2.0.7 - 12-02-2024
 
@@ -48,11 +93,11 @@ fixed: associative arrays declared earlier and in a group to allow changing sett
 
 ### v2.0.6 - 2024-01-27
 
-New flag: `-si` / `--static-ish` for Debian, Ubuntu, and Alpine platforms. This flag disables LDFLAG static linking, allowing the OS libc to be dynamically linked.
+New flag: `-si` / `--static-ish` for Debian, Ubuntu, and Alpine platforms. This flag disables LDFLAGS static linking, allowing the OS `libc` to be dynamically linked.
 
 You cannot you this flag with cross compilation, only native host builds.
 
-Tests were added for ` static-ish` and `optimise` to check for bad combinations, exiting the script with a helpful reason when used in combination with cross compilation, as the build will fail.
+Tests were added for `static-ish` and `optimise` to check for bad combinations, exiting the script with a helpful reason when used in combination with cross compilation, as the build will fail.
 
 ### v2.0.5 - 23-01-2024
 
@@ -79,7 +124,7 @@ other minor tweaks and cosmetic changes
 
 Fixed a regression from the V2 update where the host arch for `zlib-ng` was incorrectly set to `x86_64`, regardless of the actual host arch, when building on a non `x86_64` host to the same target arch (not cross building).
 
-https://github.com/userdocs/qbittorrent-nox-static/issues/131
+<https://github.com/userdocs/qbittorrent-nox-static/issues/131>
 
 ### v2.0.2 - 26-05-2023
 
@@ -99,7 +144,7 @@ Alpine Crossbuild tools are 70% reduced in size.
 
 The script can now build for these arches using musl or debian though workflows and releases may not target them all yet.
 
-armel armhf armv7 aarch64 x86_64 x86 s390x powerpc ppc64el mips mispel mips64 mips64el riscv64
+armel armhf armv7 aarch64 x86_64 x86 s390x powerpc ppc64el mips mipsel mips64 mips64el riscv64
 
 v2 is is an overhaul that aims to be more sensibly coded and and use associative arrays to handle the URL data properly. Less obfuscated and consistent in how it uses this data.
 
