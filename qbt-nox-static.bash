@@ -106,6 +106,12 @@ os_version_id="$(get_os_info VERSION_ID)"                                       
 [[ "$(wc -w <<< "${os_version_id//\./ }")" -eq "2" ]] && alpine_min_version="310" # Account for variation in the versioning 3.1 or 3.1.0 to make sure the check works correctly
 [[ "${os_id}" =~ ^(alpine)$ ]] && os_version_codename="alpine"                    # If alpine, set the codename to alpine. We check for min v3.10 later with codenames.
 
+if [[ "${os_id}" =~ ^(debian|ubuntu)$ ]]; then
+	os_arch="$(dpkg --print-architecture)"
+elif [[ "${os_id}" =~ ^(alpine)$ ]]; then
+	os_arch="$(apk info --print-arch)"
+fi
+
 # Check against allowed codenames or if the codename is alpine version greater than 3.10
 if [[ ! "${os_version_codename}" =~ ^(alpine|bookworm|noble)$ ]] || [[ "${os_version_codename}" =~ ^(alpine)$ && "${os_version_id//\./}" -lt "${alpine_min_version:-3150}" ]]; then
 	printf '\n%b\n\n' " ${unicode_red_circle} ${color_yellow} This is not a supported OS. There is no reason to continue.${color_end}"
@@ -142,6 +148,7 @@ multi_arch_options["mipsel"]="mipsel"
 multi_arch_options["mips64"]="mips64"
 multi_arch_options["mips64el"]="mips64el"
 multi_arch_options["riscv64"]="riscv64"
+multi_arch_options["loongarch64"]="loongarch64"
 #######################################################################################################################################################
 # This function sets some default values we use but whose values can be overridden by certain flags or exported as variables before running the script
 #######################################################################################################################################################
@@ -1672,7 +1679,9 @@ _cmake() {
 _multi_arch() {
 	if [[ "${multi_arch_options[${qbt_cross_name:-default}]}" == "${qbt_cross_name}" ]]; then
 		if [[ "${os_id}" =~ ^(alpine|debian|ubuntu)$ ]]; then
-			[[ "${1}" != "bootstrap" ]] && printf '\n%b\n' " ${unicode_green_circle}${color_yellow_light} Using multiarch - arch: ${qbt_cross_name} host: ${os_id} target: ${qbt_cross_target}${color_end}"
+			if [[ "${1}" != "bootstrap" ]]; then
+				printf '\n%b\n' " ${unicode_green_circle}${text_bold} Using multiarch:${color_end} ${color_yellow_light}arch:${color_end} ${color_blue_light}${qbt_cross_name}${color_end} ${color_yellow_light}host:${color_end} ${color_blue_light}${os_arch} ${os_id}${color_end} ${color_yellow_light}target:${color_end} ${color_blue_light}${qbt_cross_name} ${qbt_cross_target}${color_end}"
+			fi
 			case "${qbt_cross_name}" in
 				armel)
 					case "${qbt_cross_target}" in
@@ -1919,7 +1928,7 @@ _multi_arch() {
 							qbt_zlib_arch="riscv64"
 							;;&
 						debian)
-							printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on and Alpine OS Host"
+							printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on an Alpine or Ubuntu OS Host"
 							exit 1
 							;;
 						ubuntu)
@@ -1930,6 +1939,30 @@ _multi_arch() {
 							cross_arch="riscv64"
 							qbt_cross_boost="gcc-riscv64"
 							qbt_cross_openssl="linux64-riscv64"
+							qbt_cross_qtbase="linux-g++-64"
+							;;
+					esac
+					;;
+				loongarch64)
+					case "${qbt_cross_target}" in
+						alpine)
+							if [[ "${qbt_qt_version}" == '6' ]]; then
+								cross_arch="loongarch64"
+								qbt_cross_host="loongarch64-linux-musl"
+								qbt_zlib_arch="loongarch64"
+							else
+								printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on and Alpine Host with qt6"
+								exit 1
+							fi
+							;;&
+						debian | ubuntu)
+							printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on and Alpine Host with qt6"
+							exit 1
+							;;&
+						*)
+							bitness="64"
+							qbt_cross_boost="gcc-loongarch64"
+							qbt_cross_openssl="linux64-loongarch64"
 							qbt_cross_qtbase="linux-g++-64"
 							;;
 					esac
@@ -2075,6 +2108,7 @@ _release_info() {
 		[[ "${multi_arch_options[${qbt_cross_name}]}" == mips64 ]] && printf '%s\n' "|   mips64    |    mips64-linux-musl     |   mips64    |                      --with-arch=mips3 --with-tune=mips64 --with-mips-plt --with-float=soft --with-abi=64                       |"
 		[[ "${multi_arch_options[${qbt_cross_name}]}" == mips64el ]] && printf '%s\n' "|  mips64el   |   mips64el-linux-musl    |   mips64    |                      --with-arch=mips3 --with-tune=mips64 --with-mips-plt --with-float=soft --with-abi=64                       |"
 		[[ "${multi_arch_options[${qbt_cross_name}]}" == riscv64 ]] && printf '%s\n' "|   riscv64   |    riscv64-linux-musl    |   rv64gc    |                                 --with-arch=rv64gc --with-abi=lp64d --enable-autolink-libatomic                                 |"
+		[[ "${multi_arch_options[${qbt_cross_name}]}" == loongarch64 ]] && printf '%s\n' "|   loongarch64   |    loongarch64-linux-musl    |   la64v1.0    |                                --with-arch=la64v1.0 --with-abi=lp64d                                 |"
 		printf '\n'
 	} >> "${release_info_dir}/qt${qt_version_short_array[0]}-${qbt_cross_name}-release.md"
 
