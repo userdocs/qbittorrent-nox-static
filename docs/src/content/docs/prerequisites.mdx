@@ -9,13 +9,13 @@ import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid,
 
 <Steps>
 
-1. Use Docker to avoid conflicts with the host system, especially with Qt. Docker is the recommended method.
+1. Use Docker - to avoid conflicts with the host system, especially with Qt. Docker is the recommended method.
 
-2. Use a supported distribution and version to build. You do not need to build on an older host to use these binaries there.
+2. Use Alpine - It is the main supported system and Debian is a testing and fallback. You do not need to build on an older host to use these binaries there.
 
-3. `sudo` - `root` is not required to run the script, but it is required to install the core dependencies.
+3. `sudo` - `root` is not required to run the script, but it is required to install the core dependencies if they are missing.
 
-4. Using additional flags and switches can add dependencies, like `-c` for cmake.
+4. Using additional flags and switches can add dependencies, like `-c` for cmake and `-cd` for cache dependencies.
 
 5. Executing the script with no arguments will only install the dependencies and configure the build environment.
 

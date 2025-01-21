@@ -50,3 +50,9 @@ Same as previous command but using `env` settings
 ```bash
 qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimise_strip="yes" qbt_optimize="yes" ./qbittorrent-nox-static.sh all
 ```
+
+For an older version of qBittorrent, you can specify the version using `-qt` and the libtorrent version using `-lt`
+
+```bash
+./qbittorrent-nox-static.sh all -q -qt release-4.1.9.1 -lt libtorrent-1_1_14 -bt boost-1.76.0
+```
