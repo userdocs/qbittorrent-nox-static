@@ -26,7 +26,7 @@ Some notes on the dockers method:
 - We use a subdirectory `qbt`, not your `$HOME` directory, to avoid `.bashrc` and `.profile` conflicts.
 - A subdirectory is automatically created, named `qbt` by the use of `-v $HOME/qbt:/root`
 - The default path will be `HOME/qbt` outside the docker container and `/root/qbt` inside it.
-- We use `-e "LANG=C.UTF-8"` with Debian based images to avoid some errors.
+- We use `-e "LANG=C.UTF-8"` with Debian based images to avoid some UTF errors.
 
 :::tip[env file]
 There are multiple ways to pass an env file when using Docker.

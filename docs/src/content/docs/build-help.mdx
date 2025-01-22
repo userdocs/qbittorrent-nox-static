@@ -4,18 +4,18 @@ description: Build Help
 ---
 
 import {
-    Advanced,
-    Charts,
-    Details,
-    Modal,
-    Steps,
-    Tabs,
-    TabItem,
-    Card,
-    CardGrid,
-    LinkCard,
-    Aside,
-    Icon,
+	Advanced,
+	Charts,
+	Details,
+	Modal,
+	Steps,
+	Tabs,
+	TabItem,
+	Card,
+	CardGrid,
+	LinkCard,
+	Aside,
+	Icon,
 } from "/src/components/global.jsx";
 
 Once the script has successfully configured the platform you can execute the help switch to see how it works and what options you have available to you.
@@ -23,6 +23,14 @@ Once the script has successfully configured the platform you can execute the hel
 ```bash
 ./qbittorrent-nox-static.sh -h
 ```
+
+## Order of preference
+
+The script will use the following order of preference when configuring the build environment:
+
+1. Command line flags
+2. `.qbt_env` file in the same directory as the script
+3. Exported `env` variables
 
 ## ENV settings
 
@@ -57,19 +65,37 @@ You can export these before you run the script to set them. The can be used for 
 | `qbt_static_ish`                | `no`                                | `yes` `no`                   | `qbt_static_ish="no"`                               |
 | `qbt_optimise`                  | `no`                                | `yes` `no`                   | `qbt_optimise="yes"`                               |
 
+## Build flags
+
+:::note
+Using the `qbt_optimise` will only add `-march=native` to the build flags, when not cross compiling.
+:::
+
+The script build is already optimised but if you really want to experiment you can use the following flags in the main `env` and they will be appended to the current build flags:
+
+```bash
+export CFLAGS=""
+export CPPFLAGS=""
+export CXXFLAGS=""
+export LDFLAGS=""
+```
+
+See the `_custom_flags` function in the script for more information.
+
 <Details summary="Cross arch options">
 	`armel` `armhf` `armv7` `aarch64`
 
-    `x86_64` `x86`
+	`x86` `x86_64`
 
-    `s390x`
+	`s390x`
 
-    `powerpc` `ppc64el`
+	`powerpc` `ppc64el`
 
-    `mips` `mipsel` `mips64` `mips64el`
+	`mips` `mipsel` `mips64` `mips64el`
 
-    `riscv64`
+    `loongarch64`
 
+	`riscv64`
 </Details>
 
 :::tip
@@ -85,7 +111,7 @@ If you set `qbt_build_tool=qmake` and `qbt_qt_version=5` you can build qBittorre
 All switches and flags have a supporting help option that will provide dynamic content where applicable.
 
 :::note
-The `--boot-strap-release` and `--boot-strap-multi-arch` options are specific to GitHub actions but if you read `--help-boot-strap-release` you can see how to trigger `aarch64|armv7` builds on your local system using Alpine/Debian/Ubuntu via docker.
+The `--bootstrap-release` and `--bootstrap-multi-arch` options are specific to GitHub actions but if you read `--help-bootstrap-release` you can see how to trigger `aarch64|armv7` builds on your local system using Alpine/Debian/Ubuntu via docker.
 :::
 
 :::tip[Script Help Options]

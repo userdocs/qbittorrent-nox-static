@@ -7,16 +7,20 @@ import { Advanced, BuildInfo, Charts, Details, Modal, Steps, Tabs, TabItem, Card
 
 ## What is it?
 
-`qbittorrent-nox-static.sh™`  was originally a simple, amateurish bash script, to build a static `qbittorrent-nox` binary for `x86_64`. The script has grown and evolved since then and now it's a complicated bash script.
+`qbittorrent-nox-static.sh™` was originally a simple, amateurish bash script, to build a static `qbittorrent-nox` binary for `x86_64`. The script has grown and evolved since then and now it's a complicated bash script.
+
+As of `01/2025`: `qbt-nox-static.bash™` is `v2.1.0` and `qbittorrent-nox-static.sh™` is `v2.0.15`. The former is a fork of the latter, from this version, with changes specific to the dependency handling, which in turn makes breaking changes to the default behaviour of the script. Combined with renaming the script to `.bash` from `.sh` as it is not a POSIX compliant script this would effectively have made `qbittorrent-nox-static.sh` unavailable for use.
+
+So the existence of the two is a transitional change and the `qbittorrent-nox-static.sh` will be deprecated in the future, though any non breaking changes will be backported to the original script.
 
 ### What does it do?
 
-It handles a lot of the nuanced complexity around building various different dependencies on two different host platforms, towards the same outcome, whilst targeting these architectures:
+It handles a lot of the nuanced complexity around building various different dependencies on two different host platforms, towards the same outcome and can target these architectures via crossbuilding:
 
 <Details summary=" target architectures">
 	`armel` `armhf` `armv7` `aarch64`
 
-	`x86_64` `x86`
+	`x86` `x86_64`
 
 	`s390x`
 
@@ -24,9 +28,10 @@ It handles a lot of the nuanced complexity around building various different dep
 
 	`mips` `mipsel` `mips64` `mips64el`
 
-	`riscv64` `loongarch64`
-</Details>
+    `loongarch64`
 
+	`riscv64`
+</Details>
 
 ⭐ On supported host build platforms the `qbittorrent-nox-static.sh` will perform these three main tasks via simple prompt:
 
@@ -40,7 +45,7 @@ It handles a lot of the nuanced complexity around building various different dep
 
 </Steps>
 
-The script is highly configurable and is capable of native and cross building. These more advanced configurations will be discussed later sections.
+The script is highly configurable and is capable of native and cross building. These more advanced configurations will be discussed later sections of the documentation.
 
 ### What is the outcome
 

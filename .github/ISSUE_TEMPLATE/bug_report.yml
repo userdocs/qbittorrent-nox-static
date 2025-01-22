@@ -1,0 +1,27 @@
+name: Bug Report
+description: An issue with the build script.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ### When to open an issue.
+
+        If you had an issue with the build script i.e. It failed to build or exited with an error.
+
+        Then please make sure you provide the following information:
+
+        - What Host are you building on? It should be Alpine but Debian based for script bugs is ok.
+        - What method to Build? If it's not Docker it should be.
+        - What build options you used? The relevant part of the log file from `qbt-build/logs`
+
+        ### When NOT to open an issue.
+
+        If you are having a problem with `qBittorrent` that is nothing to do with the build script.
+
+        - Read the docs https://userdocs.github.io/qbittorrent-nox-static/ for basic configuration and usage post build.
+        - If that does not help then open a discussion on the [GitHub Discussions](https://github.com/userdocs/qbittorrent-nox-static/discussions/new/choose) instead of an issue.
+        - Don't open an issue for generic application issues, only for build script issues.
+
+  - type: textarea
+    attributes:
+      label: "What's wrong?"
