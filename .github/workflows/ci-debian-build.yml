@@ -29,7 +29,7 @@ jobs:
     defaults:
       run:
         shell: bash
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
       matrix:
@@ -57,7 +57,7 @@ jobs:
       script_name: ${{ inputs.script_name }}
 
     container:
-      image: ${{ matrix.container_id }}:${{ matrix.container_codename }}
+      image: arm64v8/${{ matrix.container_id }}:${{ matrix.container_codename }}
       env: # container
         LANG: C.UTF-8
         LC_ALL: C.UTF-8
@@ -89,18 +89,23 @@ jobs:
         with:
           persist-credentials: false
 
-      - name: Bootstrap deps ${{ inputs.distinct_id }}
-        run: bash ${script_name} bootstrap_deps
+      - name: Bootstrap test tools ${{ inputs.distinct_id }}
+        run: bash ${script_name} update install_test
 
-      - name: Bootstrap build ${{ inputs.distinct_id }}
-        run: bash ${script_name} -bs-a
-
-      - name: Host - qBittorrent v5 transition ${{ inputs.distinct_id }}
+      - name: qBittorrent v5 transition ${{ inputs.distinct_id }}
         run: |
-          if [[ -f "${qbt_build_dir}/release_info/disable-qt5" ]]; then
+          if [[ -f "${qbt_build_dir}/release_info/disable-qt5" || -f "disable-qt5" ]]; then
               printf '%s\n' "disable_qt5=yes" >> $GITHUB_ENV
               printf '%s\n' "Found file: \`disable-qt5\` -> setting env: \`disable_qt5=yes\`" >> $GITHUB_STEP_SUMMARY
           fi
+
+      - name: Bootstrap core deps ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash ${script_name} install_core
+
+      - name: Bootstrap build ${{ inputs.distinct_id }}
+        if: env.disable_qt5 != 'yes'
+        run: bash ${script_name} -bs-a
 
       - name: glibc ${{ inputs.distinct_id }}
         if: env.disable_qt5 != 'yes'

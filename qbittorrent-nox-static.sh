@@ -73,7 +73,7 @@ _color_test() {
 		exit
 	else
 		echo "The terminal does not support color output."
-		exit 1
+		exit
 	fi
 }
 [[ "${1}" == "ctest" ]] && _color_test # ./scriptname.sh ctest
@@ -265,7 +265,7 @@ _set_default_values() {
 		if [[ "${os_id}" =~ ^(debian|ubuntu)$ ]]; then delete+=("glibc"); fi
 		if [[ "${qbt_cross_name}" != "default" ]]; then
 			printf '\n%b\n\n' " ${unicode_red_light_circle} You cannot use the ${color_blue_light}-si${color_end} flag with cross compilation${color_end}"
-			exit 1
+			exit
 		fi
 	fi
 
@@ -412,10 +412,14 @@ _set_cxx_standard() {
 _set_build_cons() {
 	if [[ "$(_qbittorrent_build_cons)" == "yes" && "${qbt_qt_version}" == "5" ]]; then
 		printf '\n%b\n\n' " ${text_blink}${unicode_red_light_circle}${color_end} ${color_yellow}qBittorrent ${color_magenta}${github_tag[qbittorrent]}${color_yellow} does not support ${color_red}Qt5${color_yellow}. Please use ${color_green}Qt6${color_yellow} or a qBittorrent ${color_green}v4${color_yellow} tag.${color_end}"
-		if [[ -d "${release_info_dir}" ]]; then touch "${release_info_dir}/disable-qt5"; fi # qbittorrent v5 transition - workflow specific
-		exit
+		exit_script="yes"
 	elif [[ "$(_qbittorrent_build_cons)" == "yes" && "$(_os_std_cons)" == "no" ]]; then
 		printf '\n%b\n\n' " ${text_blink}${unicode_red_light_circle}${color_end} ${color_yellow}qBittorrent ${color_magenta}${github_tag[qbittorrent]}${color_yellow} does not support less than ${color_red}c++20${color_yellow}. Please use an OS with a more modern compiler for v5${color_end}"
+		exit_script="yes"
+	fi
+
+	if [[ "${exit_script}" == "yes" ]]; then
+		if [[ -n "${GITHUB_REPOSITORY}" ]]; then touch disable-qt5; fi
 		if [[ -d "${release_info_dir}" ]]; then touch "${release_info_dir}/disable-qt5"; fi # qbittorrent v5 transition - workflow specific
 		exit
 	fi
@@ -1437,7 +1441,7 @@ _cmake() {
 
 		if [[ "${os_id}" =~ ^(alpine)$ ]]; then
 			if [[ "$("${qbt_install_dir}/bin/ninja" --version 2> /dev/null | sed 's/\.git//g')" != "${app_version[ninja]}" ]]; then
-				_curl "https://github.com/userdocs/qbt-ninja-build/releases/latest/download/ninja-$(apk info --print-arch)" -o "${qbt_install_dir}/bin/ninja"
+				_curl "https://github.com/userdocs/qbt-ninja-build/releases/latest/download/ninja-${os_arch}" -o "${qbt_install_dir}/bin/ninja"
 				_post_command ninja
 				chmod 700 "${qbt_install_dir}/bin/ninja"
 
@@ -1705,7 +1709,7 @@ _multi_arch() {
 							;;&
 						debian)
 							printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on an Alpine or Ubuntu OS Host"
-							exit 1
+							exit
 							;;
 						ubuntu)
 							qbt_cross_host="riscv64-linux-gnu"
@@ -1728,12 +1732,12 @@ _multi_arch() {
 								qbt_zlib_arch="loongarch64"
 							else
 								printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on and Alpine Host with qt6"
-								exit 1
+								exit
 							fi
 							;;&
 						debian | ubuntu)
 							printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on and Alpine Host with qt6"
-							exit 1
+							exit
 							;;&
 						*)
 							bitness="64"
@@ -1758,10 +1762,19 @@ _multi_arch() {
 				rm -f "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz"
 			fi
 
+			if [[ $os_arch == "aarch64" ]]; then
+				qbt_mcm_toolchain_prefix="aarch64"
+			elif [[ $os_arch == "x86_64" ]]; then
+				qbt_mcm_toolchain_prefix="x86_64"
+			else
+				printf '\n%b\n' " ${unicode_red_circle} We can only crossbuild from a x86_64 or aarch64 host"
+				exit
+			fi
+
 			if [[ "${qbt_cross_target}" =~ ^(alpine)$ ]]; then
 				if [[ "${1}" == 'bootstrap' || "${qbt_cache_dir_options}" == "bs" || ! -f "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz" ]]; then
-					printf '\n%b\n' " ${unicode_blue_light_circle} Downloading ${color_magenta_light}${qbt_cross_host}.tar.gz${color_end} cross tool chain - ${color_cyan_light}https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.xz${color_end}"
-					_curl --create-dirs "https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_cross_host}.tar.xz" -o "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz"
+					printf '\n%b\n' " ${unicode_blue_light_circle} Downloading ${color_magenta_light}${qbt_cross_host}.tar.gz${color_end} cross tool chain - ${color_cyan_light}https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_mcm_toolchain_prefix}-${qbt_cross_host}.tar.xz${color_end}"
+					_curl --create-dirs "https://github.com/userdocs/qbt-musl-cross-make/releases/latest/download/${qbt_mcm_toolchain_prefix}-${qbt_cross_host}.tar.xz" -o "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz"
 				fi
 
 				if [[ -f "${qbt_install_dir}/.active-toolchain-info" ]]; then
@@ -1800,7 +1813,7 @@ _multi_arch() {
 			return
 		else
 			printf '\n%b\n\n' " ${unicode_red_circle} Multiarch only works with Alpine Linux (native or docker)${color_end}"
-			exit 1
+			exit
 		fi
 	else
 		multi_openssl=("./config") # ${multi_openssl[@]}
@@ -1912,7 +1925,7 @@ while (("${#}")); do
 				shift 2
 			else
 				printf '\n%b\n\n' " ${unicode_red_circle} You must provide a directory path when using ${color_blue_light}-b${color_end}"
-				exit 1
+				exit
 			fi
 			;;
 		-bs-c | --bootstrap-cmake)
@@ -1964,7 +1977,7 @@ while (("${#}")); do
 					printf '%b\n' " ${unicode_blue_light_circle} ${arches}${color_end}"
 				done
 				printf '\n%b\n\n' " ${unicode_green_circle} Example usage:${color_blue_light} -ma aarch64${color_end}"
-				exit 1
+				exit
 			fi
 			;;
 		-p | --proxy)
@@ -1978,7 +1991,7 @@ while (("${#}")); do
 				shift 1
 			else
 				printf '\n%b\n\n' " ${unicode_red_light_circle} You cannot use the ${color_blue_light}-o${color_end} flag with cross compilation"
-				exit 1
+				exit
 			fi
 			;;
 		-q | --qmake)
@@ -2000,7 +2013,7 @@ while (("${#}")); do
 				shift
 			else
 				printf '\n%b\n\n' " ${unicode_red_light_circle} You cannot use the ${color_blue_light}-si${color_end} flag with cross compilation${color_end}"
-				exit 1
+				exit
 			fi
 			;;
 		-sdu | --script-debug-urls)
@@ -2067,7 +2080,7 @@ while (("${#}")); do
 					printf '%b\n' " ${unicode_blue_light_circle} ${arches}${color_end}"
 				done
 				printf '\n%b\n\n' " ${unicode_green_circle} Example usage:${color_blue_light} -ma aarch64${color_end}"
-				exit 1
+				exit
 			fi
 			;;
 		-bs-a | --bootstrap-all)
@@ -2200,7 +2213,7 @@ while (("${#}")); do
 					printf '\n%b\n' " ${unicode_red_circle} Please use a correct qt and build tool combination"
 					printf '\n%b\n' " ${unicode_green_circle} qt5 + qmake ${unicode_green_circle} qt6 + cmake ${unicode_red_circle} qt5 + cmake ${unicode_red_circle} qt6 + qmake"
 					_print_env
-					exit 1
+					exit
 				fi
 				shift 2
 			else
@@ -2532,7 +2545,7 @@ while (("${#}")); do
 			;;
 		-*) # unsupported flags
 			printf '\n%b\n\n' " ${unicode_red_circle} Error: Unsupported flag ${color_red_light}${1}${color_end} - use ${color_green_light}-h${color_end} or ${color_green_light}--help${color_end} to see the valid options${color_end}" >&2
-			exit 1
+			exit
 			;;
 		*) # preserve positional arguments
 			params2+=("${1}")
@@ -2848,7 +2861,7 @@ _qtbase() {
 	else
 		printf '\n%b\n' " ${unicode_red_circle} Please use a correct qt and build tool combination"
 		printf '\n%b\n\n' " ${unicode_green_circle} qt5 + qmake ${unicode_green_circle} qt6 + cmake ${unicode_red_circle} qt5 + cmake ${unicode_red_circle} qt6 + qmake"
-		exit 1
+		exit
 	fi
 }
 #######################################################################################################################################################
@@ -2878,7 +2891,7 @@ _qttools() {
 	else
 		printf '\n%b\n' " ${unicode_red_circle} Please use a correct qt and build tool combination"
 		printf '\n%b\n\n' " ${unicode_green_circle} qt5 + qmake ${unicode_green_circle} qt6 + cmake ${unicode_red_circle} qt5 + cmake ${unicode_red_circle} qt6 + qmake"
-		exit 1
+		exit
 	fi
 }
 #######################################################################################################################################################

@@ -56,15 +56,11 @@ on:
         type: choice
         options: ["1", "2", "3", "4", "5", "6", "7", "8", "9"]
 
-concurrency:
-  group: ${{ github.workflow }}
-  cancel-in-progress: true
-
 permissions: {}
 
 jobs:
   ci-debian-build:
-    if: always() && github.event.inputs.debian-build == 'true'
+    if: github.event.inputs.debian-build == 'true'
     concurrency:
       group: ci-debian-build
       cancel-in-progress: true
@@ -79,7 +75,7 @@ jobs:
       script_name: ${{ github.event.inputs.script_name }}
 
   ci-alpine-build:
-    if: always() && github.event.inputs.alpine-build == 'true'
+    if: github.event.inputs.alpine-build == 'true'
     concurrency:
       group: ci-alpine-build
       cancel-in-progress: true
@@ -97,7 +93,7 @@ jobs:
 
   ci-alpine-release:
     needs: [ci-alpine-build]
-    if: always() && github.event.inputs.release == 'true' && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
+    if: github.event.inputs.release == 'true' && contains(needs.*.result, 'success') && !contains(needs.*.result, 'failure') && !contains(needs.*.result, 'cancelled')
     concurrency:
       group: ci-alpine-release
       cancel-in-progress: true
@@ -115,7 +111,7 @@ jobs:
       cancel-in-progress: true
     permissions:
       actions: write
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     env:
       GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
       github_repo: "" # To use ci-auto-rerun-failed-jobs.yml hosted in a remote repository else default to the current repository. Requires PAT token AUTO_RERUN

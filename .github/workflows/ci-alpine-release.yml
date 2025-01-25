@@ -10,7 +10,7 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-arm
     strategy:
       fail-fast: false
       matrix:
@@ -36,7 +36,7 @@ jobs:
       - name: Pandoc - Bootstrap
         run: |
           pandoc_git_tag="$(git ls-remote -q -t --refs https://github.com/jgm/pandoc.git | awk '/tags\/[0-9]/{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
-          curl -sLo- "https://github.com/jgm/pandoc/releases/latest/download/pandoc-${pandoc_git_tag}-linux-amd64.tar.gz" | tar xzf - --strip-components 2 -C "$(pwd)" --exclude="share"
+          curl -sLo- "https://github.com/jgm/pandoc/releases/latest/download/pandoc-${pandoc_git_tag}-linux-$(dpkg --print-architecture).tar.gz" | tar xzf - --strip-components 2 -C "$(pwd)" --exclude="share"
 
       - name: Host - Download 1.2 qbittorrent-nox artifacts ${{ inputs.distinct_id }}
         uses: actions/download-artifact@v4
