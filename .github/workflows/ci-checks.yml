@@ -21,7 +21,7 @@ jobs:
       - name: Run the sh-checker
         uses: luizm/action-sh-checker@v0.9.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ github.token }}
           SHELLCHECK_OPTS: -e SC2034,SC1091 # It is possible to exclude some shellcheck warnings.
           SHFMT_OPTS: -ci -sr -i 0 # It is possible to pass arguments to shftm
         with:
