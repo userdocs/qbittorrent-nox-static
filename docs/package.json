@@ -12,7 +12,7 @@
 	"dependencies": {
 		"@astrojs/starlight": "^0.31.1",
 		"@expressive-code/plugin-collapsible-sections": "^0.40.0",
-		"astro": "^5.1.8",
+		"astro": "^5.2.5",
 		"expressive-code": "^0.40.0",
 		"gray-matter": "^4.0.3",
 		"sharp": "^0.32.5",
