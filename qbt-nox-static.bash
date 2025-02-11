@@ -533,7 +533,7 @@ _print_env() {
 #######################################################################################################################################################
 _semantic_version() {
 	local test_array
-	read -ra test_array < <(printf "%s" "${@//./ }")
+	read -ra test_array < <(printf "%s" "${@//./ }" | sed 's/[^0-9]//g')
 	printf "%d%03d%03d%03d" "${test_array[@]}"
 }
 #######################################################################################################################################################
@@ -1697,7 +1697,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="arm-linux-musleabi"
-							qbt_zlib_arch="armv5"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="arm-linux-gnueabi"
@@ -1716,7 +1715,6 @@ _multi_arch() {
 						alpine)
 							cross_arch="armhf"
 							qbt_cross_host="arm-linux-musleabihf"
-							qbt_zlib_arch="armv6"
 							;;&
 						debian | ubuntu)
 							cross_arch="armel"
@@ -1735,7 +1733,6 @@ _multi_arch() {
 						alpine)
 							cross_arch="armv7"
 							qbt_cross_host="armv7l-linux-musleabihf"
-							qbt_zlib_arch="armv7"
 							;;&
 						debian | ubuntu)
 							cross_arch="armhf"
@@ -1754,7 +1751,6 @@ _multi_arch() {
 						alpine)
 							cross_arch="aarch64"
 							qbt_cross_host="aarch64-linux-musl"
-							qbt_zlib_arch="aarch64"
 							;;&
 						debian | ubuntu)
 							cross_arch="arm64"
@@ -1773,7 +1769,6 @@ _multi_arch() {
 						alpine)
 							cross_arch="x86_64"
 							qbt_cross_host="x86_64-linux-musl"
-							qbt_zlib_arch="x86_64"
 							;;&
 						debian | ubuntu)
 							cross_arch="amd64"
@@ -1792,7 +1787,6 @@ _multi_arch() {
 						alpine)
 							cross_arch="x86"
 							qbt_cross_host="i686-linux-musl"
-							qbt_zlib_arch="i686"
 							;;&
 						debian | ubuntu)
 							cross_arch="i386"
@@ -1809,7 +1803,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="s390x-linux-musl"
-							qbt_zlib_arch="s390x"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="s390x-linux-gnu"
@@ -1827,7 +1820,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="powerpc-linux-musl"
-							qbt_zlib_arch="ppc"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="powerpc-linux-gnu"
@@ -1845,7 +1837,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="powerpc64le-linux-musl"
-							qbt_zlib_arch="ppc64el"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="powerpc64le-linux-gnu"
@@ -1863,7 +1854,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="mips-linux-musl"
-							qbt_zlib_arch="mips"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="mips-linux-gnu"
@@ -1881,7 +1871,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="mipsel-linux-musl"
-							qbt_zlib_arch="mipsel"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="mipsel-linux-gnu"
@@ -1899,7 +1888,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="mips64-linux-musl"
-							qbt_zlib_arch="mips64"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="mips64-linux-gnuabi64"
@@ -1917,7 +1905,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="mips64el-linux-musl"
-							qbt_zlib_arch="mips64el"
 							;;&
 						debian | ubuntu)
 							qbt_cross_host="mips64el-linux-gnuabi64"
@@ -1935,7 +1922,6 @@ _multi_arch() {
 					case "${qbt_cross_target}" in
 						alpine)
 							qbt_cross_host="riscv64-linux-musl"
-							qbt_zlib_arch="riscv64"
 							;;&
 						debian)
 							printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on an Alpine or Ubuntu OS Host"
@@ -1959,7 +1945,6 @@ _multi_arch() {
 							if [[ "${qbt_qt_version}" == '6' ]]; then
 								cross_arch="loongarch64"
 								qbt_cross_host="loongarch64-linux-musl"
-								qbt_zlib_arch="loongarch64"
 							else
 								printf '\n%b\n\n' " ${unicode_red_circle} The arch ${color_yellow_light}${qbt_cross_name}${color_end} can only be cross built on and Alpine Host with qt6"
 								exit
@@ -2833,8 +2818,6 @@ _glibc() {
 _zlib() {
 	if [[ "${qbt_build_tool}" == "cmake" ]]; then
 		mkdir -p "${qbt_install_dir}/graphs/${app_name}/${app_version["${app_name}"]}"
-		# force set some ARCH when using zlib-ng, cmake and musl-cross since it does not detect the arch correctly on Alpine.
-		# [[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && printf '%b\n' "\narchfound ${qbt_zlib_arch:-$(apk --print-arch)}" >> "${qbt_dl_folder_path}/cmake/detect-arch.c"
 		cmake -Wno-dev -Wno-deprecated --graphviz="${qbt_install_dir}/graphs/${app_name}/${app_version["${app_name}"]}/dep-graph.dot" -G Ninja -B build \
 			-D CMAKE_VERBOSE_MAKEFILE="${qbt_cmake_debug}" \
 			-D CMAKE_CXX_STANDARD="${qbt_standard}" \
@@ -2848,8 +2831,6 @@ _zlib() {
 		cmake --install build |& _tee -a "${qbt_install_dir}/logs/${app_name}.log"
 		dot -Tpng -o "${qbt_install_dir}/completed/${app_name}-graph.png" "${qbt_install_dir}/graphs/${app_name}/${app_version["${app_name}"]}/dep-graph.dot"
 	else
-		# force set some ARCH when using zlib-ng, configure and musl-cross since it does not detect the arch correctly on Alpine.
-		# [[ "${qbt_cross_target}" =~ ^(alpine)$ ]] && sed "s|  CFLAGS=\"-O2 \${CFLAGS}\"|  ARCH=${qbt_zlib_arch:-$(apk --print-arch)}\n  CFLAGS=\"-O2 \${CFLAGS}\"|g" -i "${qbt_dl_folder_path}/configure"
 		./configure --prefix="${qbt_install_dir}" --static --zlib-compat |& _tee "${qbt_install_dir}/logs/${app_name}.log"
 		make -j"$(nproc)" |& _tee -a "${qbt_install_dir}/logs/${app_name}.log"
 		_post_command build
