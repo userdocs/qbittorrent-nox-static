@@ -17,9 +17,10 @@ export default defineConfig({
 				Header: "./src/components/Header.astro",
 			},
 
-			social: {
-				github: "https://github.com/userdocs/qbittorrent-nox-static",
-			},
+			social: [
+				{ icon: 'github', label: 'GitHub', href: 'https://github.com/userdocs/qbittorrent-nox-static' },
+			],
+
 			customCss: [
 				// Relative path to your custom CSS file
 				"./src/styles/custom.css",
