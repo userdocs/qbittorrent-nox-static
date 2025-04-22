@@ -8,7 +8,7 @@
 #
 # @author - userdocs
 #
-# @contributors IceCodeNew Stanislas boredazfcuk AdvenT. guillaumedsde inochisa angristan xNihil0 Jercik
+# @contributors IceCodeNew Stanislas boredazfcuk AdvenT. guillaumedsde inochisa angristan xNihil0 Jercik voidtao
 #
 # https://github.com/userdocs/qbittorrent-nox-static/graphs/contributors
 #
