@@ -1011,15 +1011,15 @@ _custom_flags() {
 		qbt_security_flags+=" -fstrict-flex-arrays=3"
 	fi
 
-	if [[ "${qbt_cross_name}" == "x86_64" || "${os_arch}" =~ ^(amd64|x86_64)$ && "${qbt_cross_name}" = "default" ]]; then
-		qbt_security_flags+=" -fcf-protection=full"
-	fi
+	# if [[ "${qbt_cross_name}" == "x86_64" || "${os_arch}" =~ ^(amd64|x86_64)$ && "${qbt_cross_name}" = "default" ]]; then
+	# 	qbt_security_flags+=" -fcf-protection=full"
+	# fi
 
-	if [[ ! "${os_version_codename}" =~ ^(bookworm)$ ]]; then
-		if [[ "${qbt_cross_name}" == "aarch64" || "${os_arch}" =~ ^(arm64|aarch64)$ && "${qbt_cross_name}" = "default" ]]; then
-			qbt_security_flags+=" -mbranch-protection=standard"
-		fi
-	fi
+	# if [[ ! "${os_version_codename}" =~ ^(bookworm)$ ]]; then
+	# 	if [[ "${qbt_cross_name}" == "aarch64" || "${os_arch}" =~ ^(arm64|aarch64)$ && "${qbt_cross_name}" = "default" ]]; then
+	# 		qbt_security_flags+=" -mbranch-protection=standard"
+	# 	fi
+	# fi
 
 	if [[ "${os_id}" =~ ^(alpine)$ ]] && [[ -z "${qbt_cross_name}" || "${qbt_cross_name}" == "default" ]]; then
 		if [[ ! "${app_name}" =~ ^(openssl)$ ]]; then
