@@ -8,11 +8,11 @@ Only use then when not cross compiling
 
 ### v2.1.1 - 18/02/2025
 
-build flags tweaked using this infomration as a guide
-
-Hardening is preferred to performance
+build flags tweaked using this information as a guide:
 
 https://best.openssf.org/Compiler-Hardening-Guides/Compiler-Options-Hardening-Guide-for-C-and-C++.html#tldr-what-compiler-options-should-i-use
+
+Hardening is preferred over performance.
 
 ### v2.1.0 - 20/01/2025
 
