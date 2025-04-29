@@ -6,6 +6,14 @@ Don't used certain arch specific flags when cross compiling as they will not wor
 
 Only use then when not cross compiling
 
+### v2.1.1 - 18/02/2025
+
+build flags tweaked using this infomration as a guide
+
+Hardening is preferred to performance
+
+https://best.openssf.org/Compiler-Hardening-Guides/Compiler-Options-Hardening-Guide-for-C-and-C++.html#tldr-what-compiler-options-should-i-use
+
 ### v2.1.0 - 20/01/2025
 
 `qbt-nox-static.bash` will be a created alongside the `qbittorrent-nox-static.sh`.
