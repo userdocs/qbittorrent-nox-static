@@ -1,3 +1,11 @@
+### v2.1.2 - 29/04/2025
+
+build flags: `-fcf-protection=full` (`x86_64`) and `-mbranch-protection=standard` (`aarch64`)
+
+Don't used certain arch specific flags when cross compiling as they will not work with gcc 15 and were probably silently ignored by gcc 14 and previous.
+
+Only use then when not cross compiling
+
 ### v2.1.0 - 20/01/2025
 
 `qbt-nox-static.bash` will be a created alongside the `qbittorrent-nox-static.sh`.
