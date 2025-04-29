@@ -7,6 +7,7 @@ on:
     branches: [master, main]
     paths:
       - 'docs/**'
+      - 'changelog.md'
   # Allows you to run this workflow manually from the Actions tab on GitHub.
   workflow_dispatch:
 
