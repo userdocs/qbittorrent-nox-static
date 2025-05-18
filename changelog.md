@@ -1,3 +1,9 @@
+### v2.1.2 / v2.0.18 - 18/05/2025
+
+fix: `double_conversion` all versions - apply patch for increasing cmake bounds in `CMakeLists.txt` via this [patch](https://github.com/google/double-conversion/commit/0604b4c18815aadcf7f4b78dfa6bfcb91a634ed7)
+
+fix: `v2.0.18` only - `qbittorrent-nox-static.sh` glibc configure flags. An argument `--enable-cet` was missing from this when backporting changes from `qbt-nox-static.bash`
+
 ### v2.1.2 - 29/04/2025
 
 build flags: `-fcf-protection=full` (`x86_64`) and `-mbranch-protection=standard` (`aarch64`)
