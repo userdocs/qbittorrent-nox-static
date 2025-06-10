@@ -32,7 +32,7 @@ jobs:
       matrix:
         os_id: [alpine]
         os_version_id: [edge]
-        qbt_cross_name: ["armhf", "armv7", "aarch64", "x86_64", "x86"]
+        qbt_cross_name: ["armhf", "armv7", "aarch64", "riscv64", "x86_64", "x86"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         qbt_build_tool: ["", "qmake"]
         include:
