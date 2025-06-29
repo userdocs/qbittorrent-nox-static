@@ -1,3 +1,9 @@
+### v2.1.3 / v2.0.19 - 29/06/2025
+
+problem: when the `-lt` flag was used with libtorrent `v1.2` like `-lt v1.2.20` boost was not being defaulted `boost-1.86.0` as it does when setting the env equivalent causing a build error when libtorrent was built.
+
+fix: the flag now properly checks and sets boost to `boost-1.86.0` when libtorrent `v1.2` is being built via [e11d7d5](https://github.com/userdocs/qbittorrent-nox-static/commit/e11d7d51b5a0a6a99fcac6ae44c4603286e9a598)
+
 ### v2.1.2 / v2.0.18 - 18/05/2025
 
 fix: `double_conversion` all versions - apply patch for increasing cmake bounds in `CMakeLists.txt` via this [patch](https://github.com/google/double-conversion/commit/0604b4c18815aadcf7f4b78dfa6bfcb91a634ed7)
@@ -26,7 +32,7 @@ Hardening is preferred over performance.
 
 `qbt-nox-static.bash` ≥ `v2.1.0`
 
-`qbt-nox-static.bash` will start with `v2.1.0` and `qbittorrent-nox-static.sh` will be frozen at `v2.0.15`going forward. This is to avoid breaking anything by replacing `qbittorrent-nox-static.sh` with`qbt-nox-static.bash` and removing access to the old file. `v2.1.0` is not really changing the outcome but the behaviour of the script towards that outcome. So the least disruptive way is the opt in route. I also wanted to changed the extension from `sh` to `bash` as it is a bash script.
+`qbt-nox-static.bash` will start with `v2.1.0` and `qbittorrent-nox-static.sh` will be frozen at `v2.0.15` going forward. This is to avoid breaking anything by replacing `qbittorrent-nox-static.sh` with`qbt-nox-static.bash` and removing access to the old file. `v2.1.0` is not really changing the outcome but the behaviour of the script towards that outcome. So the least disruptive way is the opt in route. I also wanted to changed the extension from `sh` to `bash` as it is a bash script.
 
 There is feature parity between the two scripts as of this change. All major changes, fixes and tweaks are applied to both scripts with the exception of the reworked dependency and module installation logic which breaks expected behavior of the script.
 
@@ -68,8 +74,11 @@ see `v2.1.0` changelog
 ### v2.0.14 - 31/12/2024
 
 fix: libtorrent `v1.2` and boost `1.86.0` check to not ignore `RC_1_2`
+
 fix: the `_apply_patches` function was assuming the remote default branch name of `master` which made it fail the check. It now tests for the remote default branch of a patch repo and uses that.
+
 fix: boost source URL. jfrog source is just a problem. Script now defaults to github boost release and falls back to archives.boost.i, jfrog is purged.
+
 fix: Some typos
 
 ### v2.0.13 - 31/12/2024
@@ -109,8 +118,11 @@ fix - <https://github.com/userdocs/qbittorrent-nox-static/commit/b51e1ef356fbdbd
 ### v2.0.7 - 12-02-2024
 
 Added: a boost download function to combine some logic around fallback urls and minimise external calls.
+
 Added: a check to build combos for qt + cmake to prevent env files trying to build a known bad combo.
+
 fixed: modules check for whole word and not accept partial matches
+
 fixed: associative arrays declared earlier and in a group to allow changing settings via functions
 
 ### v2.0.6 - 2024-01-27
@@ -125,20 +137,21 @@ Tests were added for `static-ish` and `optimise` to check for bad combinations, 
 
 Codename: Copilot made me do it
 
-Improved readability of the colour variables used throughout the script.
-Some minor tweaks to OS detection
-Moved some things around or into their own functions and some error handling.
-Some changes to how cxx standard is handled and defined so the script will default to 23 when the conditions are met.
-minor bug fix - `qbt_libtorrent_version` displays correctly when using an RC github tag.
+- Improved readability of the colour variables used throughout the script.
+- Some minor tweaks to OS detection
+- Moved some things around or into their own functions and some error handling.
+- Some changes to how cxx standard is handled and defined so the script will default to 23 when the conditions are met.
+- minor bug fix - `qbt_libtorrent_version` displays correctly when using an RC github tag.
 
 Support for Ubuntu Noble added - Mantic removed as it's preferred to support LTS releases
 
-Ubuntu Focal - Jammy - Noble
-Debian Bullseye - Bookworm
+- Ubuntu Focal - Jammy - Noble
+- Debian Bullseye - Bookworm
 
 ### v2.0.4 - 16-01-2024
 
 Make sure the workflow override applies when using cached dependencies
+
 Allow patching from a remote raw git patch via URL - an file called `url` in the patch repo for the module version that contains a URL to the raw patch
 other minor tweaks and cosmetic changes
 
@@ -174,18 +187,18 @@ docs to be updated soon.
 
 A quick summary of main changes and features from v1.5.0 through vto 2.0.0
 
-No more bison or gawk building. They are OS dependencies now and need to be installed on the host.
-Alpine only - Increased multiarch target support, updated musl cross tools and optimised size.
-A caching mechanism for files to store and manage download dependencies to avoid re-downloading them across builds.
-Any valid boost tag can be provided including beta tags. It was not a tag based check before.
-Any valid qt tag can be provided including beta tags.
-patches system reworked to allow patching any module. Source code files can also be used from app_version/source
-Improved the way tags are checked and the changes applied to be more consistent throughout the script.
-Removed any trace of gnu.org for being a really unreliable source location.
-optimised multiarch configurations and multiarch various bug fixes.
-Alpine only - Ninja is now prebuilt instead of locally built.
-All url data can be viewed using the -sdu switch.
-Lots of small tweaks, removing code and simplifying code and rebuilding functions.
+- No more bison or gawk building. They are OS dependencies now and need to be installed on the host.
+- Alpine only - Increased multiarch target support, updated musl cross tools and optimised size.
+- A caching mechanism for files to store and manage download dependencies to avoid re-downloading them across builds.
+- Any valid boost tag can be provided including beta tags. It was not a tag based check before.
+- Any valid qt tag can be provided including beta tags.
+- patches system reworked to allow patching any module. Source code files can also be used from app_version/source
+- Improved the way tags are checked and the changes applied to be more consistent throughout the script.
+- Removed any trace of gnu.org for being a really unreliable source location.
+- optimised multiarch configurations and multiarch various bug fixes.
+- Alpine only - Ninja is now prebuilt instead of locally built.
+- All url data can be viewed using the -sdu switch.
+- Lots of small tweaks, removing code and simplifying code and rebuilding functions.
 
 ### v1.1.0 - 18-03-2023
 

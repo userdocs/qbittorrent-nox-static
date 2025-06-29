@@ -119,13 +119,35 @@ The build has 5 main dependencies tracked that will trigger a rebuild on an upda
 
 When a new build is triggered for updating `qBittorrent` or `Libtorrent` a new release will be generated as the release tags will be updated.
 
-Since I do not append revision info to tags `Qt` - `Boost` - `Openssl` builds will only update the existing release assets.
+Since I do not append revision info to tags `Qt` - `Boost` - `Openssl` or patched builds it will only update the existing release assets.
 
-To track these revisions you can use this command. All new releases start at a revision of `0` and increment by `1` per revised build.
+Revisions values are incremented in the `dependency-version.json` of the release. All new releases start at a revision of `0` and increment by `1` per revised build.
+
+### Tracking latest release revisions (Libtorrent v2.0)
+
+Simply use this command.
 
 ```bash
 jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json")
 ```
+
+### Tracking v2.0 and v1.2 releases independently
+
+There are times when the revision counts may differ between `v2.0` and `v1.2` builds as the `dependency-version.json` is unique to the release but has some shared values that won't change. In this case you need to track them as independent values unique to their release.
+
+To do this you start by getting the current release version value first, for example, getting the `v1.2` prerelease revision value.
+
+```bash
+release="$(jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json))"
+```
+
+Then get the revision from that specific release.
+
+```bash
+jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/download/${release}/dependency-version.json")
+```
+
+Now you have tracked the current revision of the latest release of the libtorrent v1.2 binary.
 
 ## Dependency json
 
