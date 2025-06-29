@@ -19,7 +19,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="2.0.18"
+script_version="2.0.19"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -2152,6 +2152,13 @@ while (("${#}")); do
 				[[ "${github_tag[libtorrent]}" =~ ^RC_ ]] && app_version[libtorrent]="RC_${app_version[libtorrent]//\./_}" # set back to RC_... so that release info has proper version context
 
 				_test_git_ouput "${github_tag[libtorrent]}" "libtorrent" "$2"
+
+				# If libtorrent v1.2 is used then set default boost tag to boost-1.86.0
+				if [[ "${qbt_libtorrent_version}" == "1.2" || "${github_tag[libtorrent]}" =~ ^(v1\.2\.|RC_1_2) ]]; then
+					github_tag[boost]="boost-1.86.0"
+					app_version[boost]="${github_tag[boost]#boost-}"
+					_boost_url
+				fi
 				shift 2
 			else
 				printf '\n%b\n\n' " ${unicode_red_circle} ${color_yellow_light}You must provide a tag for this switch:${color_end} ${color_blue_light}${1} TAG ${color_end}"
