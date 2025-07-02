@@ -1,45 +1,103 @@
-# qbittorrent-nox-static
+# qBittorrent-nox Static Builds
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/9817ad80d35c480aa9842b53001d55b0)](https://app.codacy.com/gh/userdocs/qbittorrent-nox-static?utm_source=github.com&utm_medium=referral&utm_content=userdocs/qbittorrent-nox-static&utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static/badge)](https://www.codefactor.io/repository/github/userdocs/qbittorrent-nox-static)
 [![CI](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/ci-main-reusable-caller.yml/badge.svg)](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/ci-main-reusable-caller.yml)
 
-## Summary
+Cross-platform static builds of qBittorrent-nox with the latest dependencies
 
-The `qbittorrent-nox-static` project is a `bash` build script that compiles a static `qbittorrent-nox` binary using the latest available dependencies from their source. These statically linked binaries can run on any matching CPU architecture and are not OS specific. This means you can run a `x86_64` Alpine edge build on any Linux based OS of like CentOS | Fedora | OpenSuse | Debian | Ubuntu and more.
-
-> [!TIP]
-> You don't need to use the script to access the binaries it creates, just use the [release tag](https://github.com/userdocs/qbittorrent-nox-static/tags) you need or [latest release page](https://github.com/userdocs/qbittorrent-nox-static/releases/latest)
-
-See here for how to [install the latest release](https://github.com/userdocs/qbittorrent-nox-static?tab=readme-ov-file#install-the-latest-release)
-
-## Linked Github repositories
-
-This build script uses and depends on some related repositories.
-
--   [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make)
--   [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files)
--   [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build)
--   [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds)
-
-## Documentation
+[📦 Latest Release](https://github.com/userdocs/qbittorrent-nox-static/releases/latest) • [📖 Documentation](https://userdocs.github.io/qbittorrent-nox-static/introduction/) • [🏷️ All Releases](https://github.com/userdocs/qbittorrent-nox-static/tags)
 
 > [!TIP]
-> Visit the [documentation](https://userdocs.github.io/qbittorrent-nox-static/introduction/) for in depth information on using this project and script usage.
+>
+> Docker: Use https://hotio.dev/containers/qbittorrent
+>
+> Libtorrent `v1.2` and `v2` static builds combined into a single docker image with vpn support.
 
-## WSL2
+## 🚀 Quick Start
+
+### Quick Install
+
+> [!NOTE]
+>
+> `qi.bash`: The quick installer supports Alpine or Debian like systems.
+
+Latest release using libtorrent `v2`
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qi.bash)
+```
+
+Latest release using libtorrent `v1.2`
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qi.bash) -lt v1
+```
+
+Using Libtorrent v1.2 and forcing the armv7 binary
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qi.bash) -lt v1 -fa armv7
+```
+
+Show the help section
+
+```bash
+bash <(curl -sL https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qi.bash) -h
+```
+
+You can now run it using this command:
+
+```bash
+~/bin/qbittorrent
+```
 
 > [!TIP]
-> These static builds can be used on WSL2 and accessed via `localhost:8080` using the download instructions below
+> Access the WebUI at `http://localhost:8080`
 
-## Install the latest release
+### What You Get
 
-> [!TIP]
-> For the most current build visit the [latest release page](https://github.com/userdocs/qbittorrent-nox-static/releases/latest)
+✅ **No installation hassles** - Single static binary
+✅ **Latest versions** - Always up-to-date dependencies
+✅ **Universal compatibility** - Runs on any Linux distro
+✅ **Multiple architectures** - Support for ARM devices too
 
-Or uses these commands for your arch:
+## 📋 Table of Contents
 
-### x86
+- [Overview](#-overview)
+- [Features](#-features)
+- [Installation](#-installation)
+- [Libtorrent Versions](#-libtorrent-versions)
+- [Version Management](#-version-management)
+- [Dependency Tracking](#-dependency-tracking)
+- [Build Attestation](#%EF%B8%8F-build-attestation)
+- [Related Projects](#-related-projects)
+- [WSL2 Support](#-wsl2-support)
+- [Documentation](#-documentation)
+
+## 🔍 Overview
+
+The `qbittorrent-nox-static` project provides a bash build script that compiles static `qbittorrent-nox` binaries using the latest available dependencies from their source. These statically linked binaries offer several advantages:
+
+- **Universal compatibility**: Run on any Linux distribution with matching CPU architecture
+- **No dependencies**: All required libraries are statically linked
+- **Latest versions**: Built with the most recent stable releases of all dependencies
+- **Multiple architectures**: Support for x86, x86_64, ARM variants
+
+## ✨ Features
+
+- 🔧 **Static compilation** - No external dependencies required
+- 🏗️ **Multi-architecture support** - x86, x86_64, armhf, armv7, aarch64
+- 📦 **Latest dependencies** - Always built with current stable versions
+- 🔄 **Automated builds** - CI/CD pipeline ensures fresh releases
+- 🛡️ **Build attestation** - Cryptographically signed provenance
+- 📊 **Version tracking** - JSON metadata for dependency versions
+
+## 📦 Installation
+
+Choose the command that matches your system architecture:
+
+### x86 (32-bit Intel/AMD)
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
@@ -47,7 +105,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-### x86_64
+### x86_64 (64-bit Intel/AMD)
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
@@ -55,7 +113,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-### armhf (armv6)
+### armhf (ARM v6 - Raspberry Pi 1/Zero)
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
@@ -63,7 +121,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-### armv7
+### armv7 (ARM v7 - Raspberry Pi 2/3/4 32-bit)
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
@@ -71,7 +129,7 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-### aarch64
+### aarch64 (ARM 64-bit - Raspberry Pi 3/4/5 64-bit)
 
 ```bash
 mkdir -p ~/bin && source ~/.profile
@@ -79,87 +137,87 @@ wget -qO ~/bin/qbittorrent-nox https://github.com/userdocs/qbittorrent-nox-stati
 chmod 700 ~/bin/qbittorrent-nox
 ```
 
-## Libtorrent versions
+## 🔧 Libtorrent Versions
 
 > [!IMPORTANT]
-> Libtorrent `v1.2` is currently the main branch supported by qBittorrent since a change with the release of [4.4.5](https://www.qbittorrent.org/news.php)
+> **Libtorrent v1.2** is currently the main branch supported by qBittorrent since the release of [4.4.5](https://www.qbittorrent.org/news.php). However, both v1.2 and v2.0 builds are provided.
 
-Libtorrent `v2.0` builds are still released as latest releases as it it does not really matter to this project as it always builds and releases for both `v1.2` and `v2.0`. See the next section for how to get the version you need via the latest release URL.
+This project automatically builds and releases binaries for both Libtorrent versions:
+
+- **Libtorrent v1.2**: Stable and widely supported (recommended)
+- **Libtorrent v2.0**: Latest features and improvements
 
 > [!TIP]
-> You can view the current latest and pre releases and tags here <https://github.com/userdocs/qbittorrent-nox-static/tags>
+> You can view all current releases and pre-releases at <https://github.com/userdocs/qbittorrent-nox-static/tags>
 
-## Getting the Version you want via the latest release URL
+## 🎯 Version Management
 
-Since this project builds and releases both v1.2 and v2.0 builds simultaneously we can use the commands below to always get the latest version of the related pre release via the latest release `dependency-version.json` asset.
+### Getting Version-Specific Releases
 
-Using this method it does not matter which version is the latest release or pre release as the commands will provide you the version specific info you need for the twinned latest/pre releases.
+Since this project builds both v1.2 and v2.0 simultaneously, you can target specific libtorrent versions using these commands:
 
-For Libtorrent `v1.2`
+#### Libtorrent v1.2 Release Info
 
 ```bash
 jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
 ```
 
-For Libtorrent `v2.0`
+#### Libtorrent v2.0 Release Info
 
 ```bash
 jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_2_0)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
 ```
 
-## Revisions
+### Build Revisions
 
-The build has 5 main dependencies tracked that will trigger a rebuild on an update being available.
+The build system tracks 5 main dependencies that trigger automatic rebuilds:
 
--   qBittorrent
--   Libtorrent
--   Qt
--   Boost
--   Openssl
+- qBittorrent
+- Libtorrent
+- Qt
+- Boost
+- OpenSSL
 
-When a new build is triggered for updating `qBittorrent` or `Libtorrent` a new release will be generated as the release tags will be updated.
+**Revision Tracking:**
 
-Since I do not append revision info to tags `Qt` - `Boost` - `Openssl` or patched builds it will only update the existing release assets.
+- New releases start at revision `0`
+- Incremented by `1` for each rebuild
+- Updates to Qt, Boost, or OpenSSL only update existing release assets
+- Updates to qBittorrent or Libtorrent create new releases
 
-Revisions values are incremented in the `dependency-version.json` of the release. All new releases start at a revision of `0` and increment by `1` per revised build.
-
-### Tracking latest release revisions (Libtorrent v2.0)
-
-Simply use this command.
+#### Check Latest Revision
 
 ```bash
 jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json")
 ```
 
-### Tracking v2.0 and v1.2 releases independently
+#### Track Specific Version Revisions
 
-There are times when the revision counts may differ between `v2.0` and `v1.2` builds as the `dependency-version.json` is unique to the release but has some shared values that won't change. In this case you need to track them as independent values unique to their release.
+For independent tracking of v1.2 and v2.0 revisions:
 
-To do this you start by getting the current release version value first, for example, getting the `v1.2` prerelease revision value.
+1. **Get the release tag:**
 
-```bash
-release="$(jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json))"
-```
+   ```bash
+   release="$(jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json))"
+   ```
 
-Then get the revision from that specific release.
+2. **Get the revision for that release:**
 
-```bash
-jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/download/${release}/dependency-version.json")
-```
+   ```bash
+   jq -r '.revision' < <(curl -sL "https://github.com/userdocs/qbittorrent-nox-static/releases/download/${release}/dependency-version.json")
+   ```
 
-Now you have tracked the current revision of the latest release of the libtorrent v1.2 binary.
+## 📊 Dependency Tracking
 
-## Dependency json
+Each release includes a `dependency-version.json` file that provides version information shared across latest and pre-releases. This helps overcome API limitations for consistent access to version data.
 
-From `release-4.4.5` each release contains a `dependency-version.json` file that provide some key version information for that is shared across the latest release and the twinned pre release. This helps to overcome some limitations of the API for consistently and directly accessing this information.
-
-Downloading the file like this:
+### Download Dependency Information
 
 ```bash
 curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json
 ```
 
-Will output a result like this:
+### Example Output
 
 ```json
 {
@@ -174,26 +232,22 @@ Will output a result like this:
 }
 ```
 
-As demonstrated above by using the latest release URL we can construct the tag of the twinned pre release and therefore the asset URL with no margin for error.
-
 > [!IMPORTANT]
-> From the release of qBittorrent v5 configure based builds will be unsupported and we will only be able to use cmake to build qBittorrent v5 onwards. All releases from that point on will drop Qt5 builds as at this point cmake,Qt6 and v5 should be the default and preferred build combination with Qt5 being a legacy dependency.
+> Starting with qBittorrent v5, configure-based builds will be unsupported. Only CMake builds will be available, with Qt6 as the default. Qt5 builds will be considered legacy and eventually dropped.
 
-## gh attestation verify
+## 🛡️ Build Attestation
 
-Binaries built from the release of release `release-5.0.0_v2.0.10` and `release-5.0.0_v1.2.19` revision `1` use [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance)
+Binaries built from `release-5.0.0_v2.0.10` and `release-5.0.0_v1.2.19` revision `1` onwards use [actions/attest-build-provenance](https://github.com/actions/attest-build-provenance) for cryptographic verification.
 
-Verify the integrity and provenance of an artifact using its associated cryptographically signed attestations.
+### Verify Binary Integrity
 
-https://cli.github.com/manual/gh_attestation_verify
-
-For example:
+You can verify the integrity and provenance of downloaded binaries using GitHub CLI:
 
 ```bash
 gh attestation verify x86_64-qbittorrent-nox -o userdocs
 ```
 
-Will give you this result for the `release-5.0.0_v2.0.10` revision `1` binary.
+### Example Verification Output
 
 ```bash
 Loaded digest sha256:a656ff57b03ee6218205d858679ea189246caaecbbcc38d4d2b57eb81d8e59bb for file://x86_64-qbittorrent-nox
@@ -204,3 +258,32 @@ sha256:a656ff57b03ee6218205d858679ea189246caaecbbcc38d4d2b57eb81d8e59bb was atte
 REPO                             PREDICATE_TYPE                  WORKFLOW
 userdocs/qbittorrent-nox-static  https://slsa.dev/provenance/v1  .github/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml@refs/heads/master
 ```
+
+For more information, visit the [GitHub CLI attestation documentation](https://cli.github.com/manual/gh_attestation_verify).
+
+## 🔗 Related Projects
+
+This build script depends on several related repositories:
+
+- [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make) - Cross-compilation toolchain
+- [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files) - CI/CD workflow templates
+- [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build) - Ninja build system integration
+- [qbt-host-deps](https://github.com/userdocs/qbt-host-deps) - Host dependency management
+- [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds) - CMake cross-build configurations
+
+## 💻 WSL2 Support
+
+> [!TIP]
+> These static builds work perfectly on WSL2! After installation, access the WebUI at `localhost:8080` from your Windows browser.
+
+The static nature of these builds makes them ideal for WSL2 environments where dependency management can be challenging.
+
+## 📖 Documentation
+
+> [!TIP]
+> For comprehensive documentation, visit the [project documentation](https://userdocs.github.io/qbittorrent-nox-static/introduction/) which covers:
+>
+> - Detailed build instructions
+> - Advanced configuration options
+> - Troubleshooting guides
+> - Contributing guidelines

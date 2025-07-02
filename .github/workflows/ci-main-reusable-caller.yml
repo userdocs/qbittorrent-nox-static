@@ -1,4 +1,3 @@
-# @credits https://github.com/c0re100/qBittorrent-Enhanced-Edition
 name: ci - main reusable caller
 
 on:
@@ -65,7 +64,9 @@ jobs:
       group: ci-debian-build
       cancel-in-progress: true
     permissions:
+      id-token: write
       contents: read
+      attestations: write
     uses: ./.github/workflows/ci-debian-build.yml
     with:
       distinct_id: ${{ github.event.inputs.distinct_id }}

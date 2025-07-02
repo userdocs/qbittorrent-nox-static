@@ -1,5 +1,35 @@
 repos:
-  - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.0.1
+  - repo: local
     hooks:
-    - id: zizmor
+      - id: make-scripts-executable
+        name: Make script files executable
+        entry: bash -c 'git add --chmod=+x qi.bash qbt-nox-static.bash qbittorrent-nox-static.sh'
+        language: system
+        files: '(qi\.bash|qbt-nox-static\.bash|qbittorrent-nox-static\.sh)$'
+        pass_filenames: false
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-yaml
+      - id: end-of-file-fixer
+        exclude: ^(docs/|patch/)
+      - id: trailing-whitespace
+      - id: check-shebang-scripts-are-executable
+
+  - repo: https://github.com/woodruffw/zizmor-pre-commit
+    rev: v1.11.0
+    hooks:
+      - id: zizmor
+
+  - repo: https://github.com/koalaman/shellcheck-precommit
+    rev: v0.10.0
+    hooks:
+      - id: shellcheck
+        args: ["--severity=warning"] # Optionally only show errors and warnings
+
+  - repo: https://github.com/pecigonzalo/pre-commit-shfmt
+    rev: v2.2.0
+    hooks:
+      - id: shell-fmt
+        args: ["-ci", "-sr", "-i", "0"]

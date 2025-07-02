@@ -441,7 +441,7 @@ a[tabindex="-1"] {
 }
 
 .tooltippy-link {
-    margin: 0 ;
+    margin: 0;
 }
 
 .tooltippy-div {
@@ -485,4 +485,46 @@ a[tabindex="-1"] {
 
 .sl-markdown-content details[open]>summary:not(:where(.not-content *)) {
     margin-bottom: 0;
+}
+
+/* Responsive fix for mobile card image alignment */
+@media (max-width: 600px) {
+
+    /* Clear floats after cards */
+    .float-container::after {
+        content: "";
+        display: table;
+        clear: both;
+    }
+
+    /* Image on left, 40% width */
+    .float-child.card-image {
+        float: left !important;
+        width: 40% !important;
+        max-width: 120px !important;
+        max-height: none !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    /* Text on right, 60% width */
+    .float-child.card-text {
+        float: right !important;
+        width: 60% !important;
+        padding-left: 10px !important;
+        margin: 0 !important;
+    }
+
+    /* Override fixed sizing and ensure fluid images */
+    .card-image,
+    .float-child.card-image img,
+    .card-image img {
+        width: 100% !important;
+        max-width: 120px !important;
+        height: auto !important;
+        display: block !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
 }

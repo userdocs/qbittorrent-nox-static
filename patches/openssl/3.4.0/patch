@@ -1,0 +1,15 @@
+diff --git a/include/crypto/riscv_arch.h b/include/crypto/riscv_arch.h
+index 4b3573f5a3..c0b94d1ca5 100644
+--- a/include/crypto/riscv_arch.h
++++ b/include/crypto/riscv_arch.h
+@@ -15,7 +15,10 @@
+
+ # if defined(OPENSSL_SYS_LINUX) && !defined(FIPS_MODULE)
+ #  if __has_include(<asm/hwprobe.h>)
+-#   define OSSL_RISCV_HWPROBE
++#   include <sys/syscall.h>
++#   ifdef __NR_riscv_hwprobe
++#    define OSSL_RISCV_HWPROBE
++#   endif
+ #  endif
+ # endif

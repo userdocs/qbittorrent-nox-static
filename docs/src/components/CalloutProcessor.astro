@@ -1,0 +1,84 @@
+---
+export interface Props {
+	content: string;
+}
+
+const { content } = Astro.props;
+
+function processCallouts(htmlContent: string): string {
+	// Define callout types and mapping
+	const CALLOUT_TYPES = "NOTE|TIP|WARNING|IMPORTANT|CAUTION";
+	const CALLOUT_MAP: Record<string, string> = {
+		NOTE: "note",
+		TIP: "tip",
+		WARNING: "caution",
+		IMPORTANT: "note",
+		CAUTION: "danger",
+	};
+
+	// Helper function to generate Starlight aside HTML
+	const createAside = (type: string, content: string): string => {
+		const starlightType = CALLOUT_MAP[type.toUpperCase()] ?? "note";
+		return `<div class="starlight-aside starlight-aside--${starlightType}"><p class="starlight-aside__title">${type}</p><div class="starlight-aside__content"><p>${content}</p></div></div>`;
+	};
+
+	// Helper function to clean HTML content
+	const cleanHtmlContent = (match: string): string =>
+		match
+			.replace(/<blockquote[^>]*>/gi, "")
+			.replace(/<\/blockquote>/gi, "")
+			.replace(
+				new RegExp(`<p>\\s*\\[!(${CALLOUT_TYPES})\\]\\s*<\\/p>`, "gi"),
+				"",
+			)
+			.replace(new RegExp(`\\[!(${CALLOUT_TYPES})\\]`, "gi"), "")
+			.replace(/<p>(.*?)<\/p>/gs, "$1 ")
+			.replace(/<(?!code|\/code)[^>]*>/g, "") // Preserve <code> tags
+			.replace(/\s+/g, " ")
+			.trim();
+
+	// Helper function to clean markdown content
+	const cleanMarkdownContent = (content: string): string =>
+		content
+			.split("\n")
+			.map((line: string) => line.replace(/^>\s*/, "").trim())
+			.filter((line: string) => line.length > 0)
+			.join(" ");
+
+	let processedContent = htmlContent;
+
+	// Process blockquote-based callouts
+	processedContent = processedContent.replace(
+		new RegExp(
+			`<blockquote[^>]*>[\\s\\S]*?\\[!(${CALLOUT_TYPES})\\][\\s\\S]*?<\\/blockquote>`,
+			"gi",
+		),
+		(match: string) => {
+			const typeMatch = match.match(
+				new RegExp(`\\[!(${CALLOUT_TYPES})\\]`, "i"),
+			);
+			const type = typeMatch?.[1] ?? "NOTE";
+			const cleanContent = cleanHtmlContent(match);
+			return createAside(type, cleanContent);
+		},
+	);
+
+	// Process markdown-style callouts
+	processedContent = processedContent.replace(
+		new RegExp(
+			`>\\s*\\[!(${CALLOUT_TYPES})\\]\\s*\\n((?:>\\s*.*(?:\\n|$))*)`,
+			"gim",
+		),
+		(match: string, type: string, content: string) => {
+			const cleanContent = cleanMarkdownContent(content);
+			return createAside(type, cleanContent);
+		},
+	);
+
+	return processedContent;
+}
+
+const processedContent = processCallouts(content);
+---
+
+<div set:html={processedContent} />

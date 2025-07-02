@@ -1,5 +1,6 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
+import CalloutProcessor from "../components/CalloutProcessor.astro";
 import * as myPost from "../../../changelog.md";
 
 const headings = myPost.getHeadings().map((heading) => ({
@@ -7,8 +8,10 @@ const headings = myPost.getHeadings().map((heading) => ({
 	slug: heading.slug,
 	text: heading.text,
 }));
+
+const content = await myPost.compiledContent();
 ---
 
 <StarlightPage frontmatter={{ title: "Script Change Log" }} headings={headings}>
-	<article set:html={myPost.compiledContent()} />
+	<CalloutProcessor content={content} />
 </StarlightPage>
