@@ -471,17 +471,33 @@ main() {
 	print_success "Installation complete: $install_path"
 
 	# Verify binary integrity (SHA256 + attestations)
-	verify_binary_integrity "$install_path" "$release_tag" "$arch"
+	local integrity_failed=false
+	if ! verify_binary_integrity "$install_path" "$release_tag" "$arch"; then
+		integrity_failed=true
+	fi
 
 	# Test binary
-	if "$install_path" --version > /dev/null 2>&1; then
+	local test_output test_exit_code binary_failed=false
+	test_output=$("$install_path" --version 2>&1)
+	test_exit_code=$?
+
+	if [[ $test_exit_code -eq 0 ]]; then
 		local version_info
-		version_info=$("$install_path" --version | head -1)
+		version_info=$(printf '%s' "$test_output" | head -1)
 		print_success "Binary test passed"
 		print_info "Version: $version_info"
 	else
-		print_warning "Binary test failed - the binary may not be compatible with your system"
-		print_warning "You may need to install additional dependencies"
+		binary_failed=true
+		print_warning "Binary test failed"
+		if [[ $test_output == *"Exec format error"* ]]; then
+			print_error "Architecture mismatch detected - wrong binary for your system"
+			print_info "Solution: Install qemu-user-static to run different architectures"
+			print_info "  - On Alpine: apk add qemu-user-static"
+			print_info "  - On Debian/Ubuntu: apt-get install qemu-user-static"
+		else
+			print_warning "The binary may not be compatible with your system"
+			print_info "Try: ldd $install_path (to check missing libraries)"
+		fi
 	fi
 
 	# PATH check
@@ -491,7 +507,18 @@ main() {
 		print_info 'Then run: source ~/.bashrc'
 	fi
 
-	print_success "Installation completed successfully!"
+	# Final status message
+	if [[ $integrity_failed == true ]] || [[ $binary_failed == true ]]; then
+		print_warning "Installation completed with errors!"
+		if [[ $binary_failed == true ]]; then
+			print_info "Binary test failed - the application may not work properly"
+		fi
+		if [[ $integrity_failed == true ]]; then
+			print_info "Integrity verification failed - consider re-downloading"
+		fi
+	else
+		print_success "Installation completed successfully!"
+	fi
 	print_info "Run with: qbittorrent-nox"
 }
 
