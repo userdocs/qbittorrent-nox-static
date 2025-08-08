@@ -1,5 +1,0 @@
-rules:
-  unpinned-uses: # https://woodruffw.github.io/zizmor/audits/#unpinned-uses
-    config:
-      policies:
-        "*": ref-pin
