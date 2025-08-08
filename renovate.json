@@ -14,8 +14,7 @@
     {
       "matchManagers": [
         "github-actions"
-      ],
-      "pinDigests": true
+      ]
     },
     {
       "matchManagers": [
