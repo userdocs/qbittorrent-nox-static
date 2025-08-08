@@ -14,7 +14,15 @@
     {
       "matchManagers": [
         "github-actions"
-      ]
+      ],
+      "rangeStrategy": "pin",
+      "semanticCommitType": "chore"
+    },
+    {
+      "matchPackageNames": [
+        "**"
+      ],
+      "rangeStrategy": "replace"
     },
     {
       "matchManagers": [
