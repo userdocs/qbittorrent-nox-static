@@ -1,6 +1,7 @@
 # Bash Scripting - All repos
 
 - use $BASH_SOURCE instead of $0
+- don't use uppercase variables for general scripting. Only use them for docker specific environment settings
 - avoid set -euo pipefail - instead focus on thorough testing, validation and error handling.
 - ideally error handling should be considered holistically but per function is acceptable.
 - changes and recommendations should be simple, modular, focused on the requirement of the prompt.

@@ -1,6 +1,14 @@
 repos:
   - repo: local
     hooks:
+      - id: pre-commit-autoupdate
+        name: Update pre-commit hooks
+        entry: pwsh -c "pre-commit autoupdate; git add .pre-commit-config.yaml"
+        language: system
+        pass_filenames: false
+
+  - repo: local
+    hooks:
       - id: make-scripts-executable
         name: Make script files executable
         entry: bash -c 'git add --chmod=+x qi.bash qbt-nox-static.bash qbittorrent-nox-static.sh'
@@ -23,7 +31,7 @@ repos:
       - id: zizmor
 
   - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+    rev: v0.11.0
     hooks:
       - id: shellcheck
         args: ["--severity=warning"] # Optionally only show errors and warnings
