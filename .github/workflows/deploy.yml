@@ -20,12 +20,12 @@ jobs:
       contents: read
     steps:
       - name: Checkout your repository using git
-        uses: actions/checkout@v4
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
         with:
           persist-credentials: false
 
       - name: Install, build, and upload your site
-        uses: withastro/action@v4
+        uses: withastro/action@063f85a3c9fc861a0a5e5a956225d9031177eff9 # v4
         with:
           path: ./docs
 
@@ -41,4 +41,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4
