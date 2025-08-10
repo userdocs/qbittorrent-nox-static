@@ -106,9 +106,9 @@ jobs:
           printf '%s\n\n' "DEBIAN_FRONTEND=noninteractive" >> env.custom
 
       - name: Host - Bootstrap qemu
-        uses: userdocs/actions/qemu@14953114cb6e6734621fcb56513a9b751476b60f # v1.0.0
+        uses: userdocs/actions/qemu@e74d179578ddcf1cd07cd9eefd0915f33a3bd600 # v1.0.1
 
-      - uses: userdocs/actions/qbt_docker@14953114cb6e6734621fcb56513a9b751476b60f # v1.0.0
+      - uses: userdocs/actions/qbt_docker@e74d179578ddcf1cd07cd9eefd0915f33a3bd600 # v1.0.1
         with:
             # if the env.custom file exists, it will be used to pass environment
             distinct_id: ${{ inputs.distinct_id }}
