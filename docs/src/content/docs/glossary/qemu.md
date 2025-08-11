@@ -7,7 +7,7 @@ hide_title: true
 
 ---
 
-We use [qemu-user-static](https://packages.ubuntu.com/lunar/qemu-user-static) and [binfmt-support](https://packages.ubuntu.com/lunar/binfmt-support) on the Github `ubuntu-latest` runners, from the [Lunar](https://releases.ubuntu.com/lunar) repo to overcome a bug in older versions.
+We use [qemu-user-static](https://packages.ubuntu.com/noble/qemu-user-static) and [binfmt-support](https://packages.ubuntu.com/noble/binfmt-support) on the Github `ubuntu-latest` runners
 
 For example, when cross compiling Qt6 you they want you to have a have a host version built first and then use loads of special cmake settings.
 

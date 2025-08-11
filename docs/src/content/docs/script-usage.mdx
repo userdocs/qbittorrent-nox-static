@@ -13,14 +13,16 @@ The guide will assume you are using docker, with example commands that are eithe
 Don't run this directly on the host system unless you know what you are doing. It's not recommended and the build will probably fail.
 :::
 
-<Details summary="What to expect">![](/qbittorrent-nox-static/docs_images/script_usage/first-run.png)</Details>
+<Details summary="First run - what to expect">![](/qbittorrent-nox-static/docs_images/script_usage/first-run.png)</Details>
+
+<Details summary="Bootstrapped - what to expect">![](/qbittorrent-nox-static/docs_images/script_usage/bootstrapped.png)</Details>
 
 ⭐ When you are familiar with the script you can do most builds you want with a one liner. It's pretty simple to use.
 
 ### Execute the script
 
 ```bash
-./qbittorrent-nox-static.sh
+./qbt-nox-static.bash
 ```
 
 :::note
@@ -30,29 +32,29 @@ Please see the [switches and flags summary](build-help/#switches-and-flags-summa
 The first thing you should do is to run the script with the `-h` flag to see the help output and the script defaults.
 
 ```bash
-./qbittorrent-nox-static.sh -h
+./qbt-nox-static.bash -h
 ```
 
 By passing `all` as the first argument, you can build everything based on the default settings.
 
 ```bash
-./qbittorrent-nox-static.sh all
+./qbt-nox-static.bash all
 ```
 
 For example, to use `ICU` using `-i`, optimise for the host system CPU using `-o` to set `-march=native` and `-s` to strip the binary and build using libtorrent v1.2.19
 
 ```bash
-./qbittorrent-nox-static.sh all -i -o -s -lt v1.2.19
+./qbt-nox-static.bash all -i -o -s -lt v1.2.19
 ```
 
 Same as previous command but using `env` settings
 
 ```bash
-qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimise_strip="yes" qbt_optimize="yes" ./qbittorrent-nox-static.sh all
+qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimise_strip="yes" qbt_optimize="yes" ./qbt-nox-static.bash all
 ```
 
 For an older version of qBittorrent, you can specify the version using `-qt` and the libtorrent version using `-lt`
 
 ```bash
-./qbittorrent-nox-static.sh all -q -qt release-4.1.9.1 -lt libtorrent-1_1_14 -bt boost-1.76.0
+./qbt-nox-static.bash all -q -qt release-4.1.9.1 -lt libtorrent-1_1_14 -bt boost-1.76.0
 ```

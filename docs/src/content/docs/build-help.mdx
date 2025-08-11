@@ -21,7 +21,7 @@ import {
 Once the script has successfully configured the platform you can execute the help switch to see how it works and what options you have available to you.
 
 ```bash
-./qbittorrent-nox-static.sh -h
+./qbt-nox-static.bash -h
 ```
 
 ## Order of preference
@@ -157,7 +157,7 @@ The `--bootstrap-release` and `--bootstrap-multi-arch` options are specific to G
 
  Module specific help - flags are used with the modules listed here.
 
- Use: all or module-name          Usage: ~/qbittorrent-nox-static.sh all -i
+ Use: all or module-name          Usage: ~/qbt-nox-static.bash all -i
 
  all ---------------- optional Recommended method to install all modules
  install ------------ optional Install the ~/qbt-build/completed/qbittorrent-nox binary
@@ -272,7 +272,7 @@ Add your patches there, for example.
 Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the default build directory `qbt-build/compelted`.
 
 ```bash
-./qbittorrent-nox-static.sh all
+./qbt-nox-static.bash all
 ```
 
 ## Build - modules (optional and mostly for debugging and testing)
@@ -284,7 +284,7 @@ It's best to consider all individual modules listed below as being dependent on 
 :::
 
 ```bash
-./qbittorrent-nox-static.sh module
+./qbt-nox-static.bash module
 ```
 
 Here are the list of supported modules:
@@ -326,5 +326,5 @@ The `-b` flag accepts both full `/opt` and relative `opt` paths.
 :::
 
 ```bash
-./qbittorrent-nox-static.sh all -b "/opt"
+./qbt-nox-static.bash all -b "/opt"
 ```

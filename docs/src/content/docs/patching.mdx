@@ -22,7 +22,7 @@ The script supports the automatic patching of all modules when building, providi
 Here is an example local directory structure that the script will use to apply patches to libtorrent `v1.2.19` and qBittorrent `release-5.0.3`
 
 <FileTree>
-- qbittorrent-nox-static.sh
+- qbt-nox-static.bash
 - qbt-build
   - patches
     - libtorrent/
@@ -40,7 +40,7 @@ Here is an example local directory structure that the script will use to apply p
 Use the help command to get more information
 
 ```bash
-./qbittorrent-nox-static.sh -h-pr
+./qbt-nox-static.bash -h-pr
 ```
 :::
 
@@ -83,13 +83,13 @@ When bootstrapping the script will create the required directory structure using
 In this example we will apply a real patch that can be used with this script from this pinned issue: https://github.com/userdocs/qbittorrent-nox-static/issues/149
 
 :::note
-We will assume you are in folder with the `qbittorrent-nox-static.sh` script.
+We will assume you are in folder with the `qbt-nox-static.bash` script.
 :::
 
 Step 1: Boot strap the patches directory
 
 ```bash
-qbittorrent-nox-static.sh -bs-p
+qbt-nox-static.bash -bs-p
 ```
 
 Step 2: Clone the qBittorrent repo targeting the specific tag we want to patch - `--branch release-5.0.3`
@@ -134,7 +134,7 @@ Some modules like libtorrent and qbittorrent have multiple tags that can be used
 Using the `-qt` and -`lt` switches here:
 
 ```bash
-~/qbittorrent-nox-static.sh -qt master -lt RC_2_0 -bs
+~/qbt-nox-static.bash -qt master -lt RC_2_0 -bs
 ```
 
 or
@@ -158,7 +158,7 @@ Only the env variables will persist between uses of the script.
 :::
 
 ```bash
-qbittorrent-nox-static.sh -qt master -lt RC_2_0 all
+qbt-nox-static.bash -qt master -lt RC_2_0 all
 ```
 
 ### Git based patching
@@ -187,7 +187,7 @@ patches/libtorrent/v1.2.12/patch
 
 The all you do is use the `pr` switch when using the script. The repo URL is abbreviated to your username and repo:
 
-`bash ~/qbittorrent-nox-static.sh all -pr username/repo`
+`bash ~/qbt-nox-static.bash all -pr username/repo`
 
 Then the patch file will be automatically matched to the tag used by the script and loaded.
 
