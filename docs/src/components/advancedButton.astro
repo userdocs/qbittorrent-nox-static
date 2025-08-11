@@ -1,13 +1,13 @@
 
 
-<!-- Early inline script to avoid flash: set the attribute before styles run -->
+<!-- Early inline script to avoid flash: set the attribute before styles run (default: basic/off) -->
 <script is:inline>
 	try {
 		const stored = localStorage.getItem('advanced');
-		const value = stored === 'false' ? 'false' : 'true';
+		const value = (stored === 'true' || stored === 'false') ? stored : 'false';
 		document.documentElement.dataset.advanced = value;
 	} catch {}
-	// Default is "true" (show advanced) when not set
+	// Default is "false" (basic mode) when not set
 </script>
 
 <!-- Hide the toggle until the state is applied to avoid visual flash -->
@@ -18,7 +18,7 @@
   	class="advanced-toggle"
   	id="advanced-switch"
   	role="switch"
-  	aria-checked="true"
+	aria-checked="false"
   	aria-label="Toggle advanced content"
   />
   <label for="advanced-switch" class="sr-only">Toggle advanced content</label>
@@ -28,10 +28,36 @@
 	const __initAdvancedToggle = () => {
 		const input = document.querySelector('[data-advanced-input]');
 		const wrapper = document.getElementById('advanced-toggle-wrapper');
-		const current = (() => {
-			try { return localStorage.getItem('advanced'); } catch { return null; }
-		})();
-		const isOn = current !== 'false';
+	// Initialize from dataset set above (default false)
+	const isOn = (document.documentElement.dataset.advanced || 'false') !== 'false';
+
+		// Build a registry of advanced blocks and their removable wrapper targets
+		/** @type {{ el: Element, target: Element, placeholder: Comment }[]} */
+		const registry = [];
+		const prepared = new WeakSet();
+		const isWhitespaceOnly = (node) => (node?.textContent || '').trim() === '';
+		const getWrapperCandidate = (el) => {
+			const p = el.parentElement;
+			if (!p) return null;
+			const tag = p.tagName;
+			// Collapse common markdown wrappers if they only contain Advanced
+			if (tag !== 'P' && tag !== 'DIV') return null;
+			const onlyChild = p.childElementCount === 1 && p.firstElementChild === el;
+			if (!onlyChild) return null;
+			if (!isWhitespaceOnly(p)) return null;
+			return p;
+		};
+		const prepareRegistry = () => {
+			const nodes = document.querySelectorAll('.advanced-title');
+			for (const el of nodes) {
+				if (prepared.has(el)) continue;
+				const wrap = getWrapperCandidate(el);
+				const target = wrap || el;
+				const placeholder = document.createComment('advanced:placeholder');
+				prepared.add(el);
+				registry.push({ el, target, placeholder });
+			}
+		};
 
 		// Keep tooltip text in sync with state; uses both native title and data-tooltip
 		const setTooltip = (on) => {
@@ -44,10 +70,16 @@
 		};
 
 				const applyVisibility = (on) => {
-				// Advanced content blocks
-				const blocks = document.querySelectorAll('.advanced-title');
-				for (const el of blocks) {
-					el.style.display = on ? '' : 'none';
+				// Advanced content blocks: remove or restore by swapping with placeholders
+				prepareRegistry();
+				if (on) {
+					for (const { target, placeholder } of registry) {
+						if (placeholder.parentNode) placeholder.replaceWith(target);
+					}
+				} else {
+					for (const { target, placeholder } of registry) {
+						if (target.parentNode) target.replaceWith(placeholder);
+					}
 				}
 					// Advanced-only TOC items (supports Shadow DOM and mobile dropdown)
 					const setLinks = (root) => {
@@ -163,7 +195,13 @@
 			const handler = () => {
 				const next = input.checked;
 				try { localStorage.setItem('advanced', next ? 'true' : 'false'); } catch {}
-				setState(next);
+				if (next) {
+					// Ensure dataset reflects the new mode, then reload to fully hydrate late content
+					document.documentElement.dataset.advanced = 'true';
+					window.location.reload();
+				} else {
+					setState(next);
+				}
 			};
 			input.addEventListener('change', handler);
 			input.addEventListener('click', handler, { passive: true });

@@ -16,10 +16,11 @@ const posts = import.meta.glob<GlossaryEntry>(
 		eager: true,
 	}
 );
-
-const regex = new RegExp(`${id}\\.md$|${id}\\.mdx$`);
-const [path, post] =
-	Object.entries(posts).find(([path]) => regex.test(path)) ?? [];
+// Escape user-provided id to avoid unintended regex behavior
+const escapeRegExp = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const safeId = escapeRegExp(String(id));
+const regex = new RegExp(`(?:${safeId})\\.(?:md|mdx)$`);
+const [, post] = Object.entries(posts).find(([p]) => regex.test(p)) ?? [];
 if (!post) throw new Error(`Glossary entry "${id}" not found`);
 
 // Extract content safely with type checking
@@ -28,13 +29,19 @@ try {
 	const content = await post.compiledContent();
 	htmlContent = String(content);
 } catch (e) {
-	throw new Error(`Failed to extract content for "${id}": ${e.message}`);
+	const msg = e instanceof Error ? e.message : String(e);
+	throw new Error(`Failed to extract content for "${id}": ${msg}`);
 }
 
 if (!htmlContent) throw new Error(`Empty content for "${id}"`);
 
-const htmlSplit = htmlContent.split("<hr>");
+// Split at any <hr> tag variant (e.g., <hr>, <hr/>, <hr ...>) case-insensitively
+const htmlSplit = htmlContent.split(/<hr[\s\S]*?>/i);
 if (!htmlSplit.length) throw new Error(`Invalid content format for "${id}"`);
+
+const primaryHtml = htmlSplit[0] ?? "";
+const moreHtml = htmlSplit[1] ?? "";
+const hasMore = Boolean(moreHtml && moreHtml.trim().length > 0);
 
 const basePath = `/${Astro.url.pathname.split("/")[1]}/`;
 const glossaryUrl = `${basePath}glossary/${id}`;
@@ -46,10 +53,19 @@ const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 	tabindex="0"
 	data-tippy-maxWidth="100"
 	data-unique-id={uniqueId}
-	data-html={`<div id="${uniqueId}-primary">${htmlSplit[0]}<hr color="#923458" class="glossary-separator"><div class="glossary-url-div" id="${uniqueId}-glossary-url">🟩 <a class="glossary-url" href=${glossaryUrl} target="_blank">Click here for the full Glossary entry</a></div></div>`}
-	data-html-more={htmlSplit[1]}
+	data-dialog-label={label}
+	data-has-more={String(hasMore)}
+	data-html={`<div id="${uniqueId}-primary">${primaryHtml}<hr color="#923458" class="glossary-separator"><div class="glossary-url-div" id="${uniqueId}-glossary-url">🟩 <a class="glossary-url" href=${glossaryUrl} target="_blank" rel="noopener noreferrer">Click here for the full Glossary entry</a></div></div>`}
+	data-html-more={moreHtml}
 >
-	<a class="glossary-url dialog-button-open" id={`${uniqueId}-open`}>{label}</a>
+	<a
+		class="glossary-url dialog-button-open"
+		id={`${uniqueId}-open`}
+		role="button"
+		tabindex="0"
+		aria-haspopup="dialog"
+		aria-controls={`${uniqueId}-dialog`}
+	>{label}</a>
 </my-modal>
 
 <script>
@@ -67,6 +83,8 @@ const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 			const glossaryUrl = `${uniqueId}-glossary-url`;
 			const html = this.dataset.html ?? "";
 			const htmlMore = this.dataset.htmlMore ?? "";
+			const hasMore = (this.dataset.hasMore ?? "false") === "true";
+			const dialogLabel = this.dataset.dialogLabel ?? "Glossary entry";
 
 			const body = document.querySelector("body");
 			if (!body) {
@@ -75,12 +93,12 @@ const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 
 			body.insertAdjacentHTML(
 				"beforeend",
-				`<dialog class="modal-dialog" id="${idDialog}">
+				`<dialog class="modal-dialog" id="${idDialog}" role="dialog" aria-modal="true" aria-label="${dialogLabel}">
                     <div class="dialog-content" id="${idContent}"></div>
                     <div class="dialog-button">
                         <div class="dialog-show-more" id="${showMore}" style="display: none"></div>
-                        <button class="dialog-button-close" id="${buttonClose}" type="reset">Close this Dialog</button>
-                        <button class="dialog-button-more" id="${buttonMore}" type="reset">Show more</button>
+						<button class="dialog-button-close" id="${buttonClose}" type="button">Close this Dialog</button>
+						<button class="dialog-button-more" id="${buttonMore}" type="button" aria-expanded="false">Show more</button>
                     </div>
                 </dialog>`
 			);
@@ -109,9 +127,29 @@ const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 				return;
 			}
 
+			// Hide the "Show more" button if there's no extra content
+			if (!hasMore && toggleMore) {
+				toggleMore.style.display = "none";
+			}
+
 			// Update button opens a modal dialog
 			openDialog.addEventListener("click", () => {
 				(dialog as HTMLDialogElement).showModal();
+				// Move focus into the dialog
+				const closeBtn = closeDialog as HTMLButtonElement;
+				// Save the element to restore focus on close
+				(dialog as any)._lastActiveElement = document.activeElement || null;
+				closeBtn?.focus();
+			});
+
+			// Open with keyboard (Enter/Space) for accessibility
+			openDialog.addEventListener("keydown", (event: KeyboardEvent) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					(dialog as HTMLDialogElement).showModal();
+					(dialog as any)._lastActiveElement = document.activeElement || null;
+					(closeDialog as HTMLButtonElement)?.focus();
+				}
 			});
 
 			// Form cancel button closes the dialog box
@@ -132,19 +170,8 @@ const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 				toggleDisplay(moreDialog);
 				toggleMore.innerHTML =
 					toggleMore.innerHTML === "Show less" ? "Show more" : "Show less";
-			});
-
-			// Close the dialog when clicked outside
-			window.addEventListener("click", (event) => {
-				if (event.target === dialog) {
-					(dialog as HTMLDialogElement).close();
-					if (moreDialog) {
-						moreDialog.style.display = "none";
-					}
-					if (dialogUrl) {
-						dialogUrl.style.display = "block";
-					}
-				}
+				const expanded = toggleMore.getAttribute("aria-expanded") === "true";
+				toggleMore.setAttribute("aria-expanded", expanded ? "false" : "true");
 			});
 
 			const resetContent = () => {
@@ -162,17 +189,26 @@ const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 				}
 				if (toggleMore) {
 					toggleMore.innerHTML = "Show more";
+					toggleMore.setAttribute("aria-expanded", "false");
 				}
 			};
 
 			const handleClose = () => {
 				resetContent();
 				(dialog as HTMLDialogElement).close();
+				// Restore focus to the trigger, if possible
+				const last = (dialog as any)._lastActiveElement as Element | null;
+				if (last && "focus" in last) {
+					(last as HTMLElement).focus();
+				} else {
+					(openDialog as HTMLElement)?.focus();
+				}
 			};
 
 			// Update all close handlers
 			closeDialog.addEventListener("click", handleClose);
 
+			// Close the dialog when clicked on the backdrop
 			window.addEventListener("click", (event) => {
 				if (event.target === dialog) {
 					handleClose();
@@ -180,9 +216,14 @@ const uniqueId = `modal-${id}-${crypto.randomUUID().slice(0, 6)}`;
 			});
 
 			document.addEventListener("keydown", (event) => {
-				if (event.key === "Escape" && dialog.open) {
+				if (event.key === "Escape" && (dialog as HTMLDialogElement).open) {
 					handleClose();
 				}
+			});
+
+			// Keep dialog state consistent if closed by other means
+			(dialog as HTMLDialogElement).addEventListener("close", () => {
+				resetContent();
 			});
 		}
 	}
