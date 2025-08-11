@@ -10,20 +10,24 @@
 	// Default is "true" (show advanced) when not set
 </script>
 
-<input
-	data-advanced-input
-	type="checkbox"
-	class="advanced-toggle"
-	id="advanced-switch"
-	role="switch"
-	aria-checked="true"
-	aria-label="Toggle advanced content"
-/>
-<label for="advanced-switch" class="sr-only">Toggle advanced content</label>
+<!-- Hide the toggle until the state is applied to avoid visual flash -->
+<div id="advanced-toggle-wrapper" hidden aria-hidden="true">
+  <input
+  	data-advanced-input
+  	type="checkbox"
+  	class="advanced-toggle"
+  	id="advanced-switch"
+  	role="switch"
+  	aria-checked="true"
+  	aria-label="Toggle advanced content"
+  />
+  <label for="advanced-switch" class="sr-only">Toggle advanced content</label>
+</div>
 
 <script is:inline>
 	const __initAdvancedToggle = () => {
 		const input = document.querySelector('[data-advanced-input]');
+		const wrapper = document.getElementById('advanced-toggle-wrapper');
 		const current = (() => {
 			try { return localStorage.getItem('advanced'); } catch { return null; }
 		})();
@@ -148,6 +152,13 @@
 
 		setState(isOn);
 
+		// Reveal the toggle only after the correct state is applied
+		if (wrapper) {
+			wrapper.hidden = false;
+			wrapper.removeAttribute('aria-hidden');
+			wrapper.classList.add('fade-in');
+		}
+
 		if (input) {
 			const handler = () => {
 				const next = input.checked;
@@ -180,7 +191,14 @@
 		border: 0;
 	}
 
+	/* Fade-in for the toggle wrapper once state is known */
+	#advanced-toggle-wrapper { opacity: 0; }
+	#advanced-toggle-wrapper.fade-in { animation: advToggleFade .2s ease-out forwards; }
+	@keyframes advToggleFade { to { opacity: 1; } }
+
 	/* Global visibility rules driven by the data attribute */
+	html:not([data-advanced]) .advanced-title { display: none !important; }
+	html:not([data-advanced]) .advanced-only  { display: none !important; }
 	html[data-advanced="false"] .advanced-title { display: none !important; }
 	html[data-advanced="false"] .advanced-only  { display: none !important; }
 
