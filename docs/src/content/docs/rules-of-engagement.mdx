@@ -1,0 +1,58 @@
+---
+title: Rule of engagement
+hide_title: true
+---
+
+import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+
+⭐ The rules of engagement are:
+
+<Steps>
+
+1. ### Use Docker
+
+    - Docker is the recommended method to build using the script.
+    - This will avoid many potential issues and conflicts with the host system, especially with Qt.
+
+2. ### Use Alpine
+
+    - It is the main supported system and Debian is testing and fallback.
+    - You do not need to build on an older host to use these binaries there.
+
+3. ### Privileges
+
+    - `sudo` - `root`  are not required to run the script.
+    - They are required to install the core dependencies if they are missing
+
+4. ### Additional flags and switches
+
+    - can add dependencies on demand that will need to be installed.
+    - like `-c` for cmake and `-cd` for cache dependencies.
+    - the script will require you to install these on demand.
+    - Using `.qbt_env` or setting variables before running the script will do this automatically.
+
+5. ### Passing no arguments
+
+        :::tip
+        `qbt-nox-static.bash` is the recommended build script
+        :::
+
+    - `qbt-nox-static.bash` - will make no changes and instead provide information on what you need to do.
+    - `qbittorrent-nox-static.sh` - will automatically install the required dependencies and configure the build environment.
+
+6. ### Nothing is built until...
+
+    - you provide the `all` or a specific module name as a positional parameter to the script.
+    - applies to both `qbt-nox-static.bash` and `qbittorrent-nox-static.sh`
+
+7. ### Use the help.
+
+    - Use `bash ~/qbittorrent-nox-static.sh -h` to see the help.
+    - applies to both `qbt-nox-static.bash` and `qbittorrent-nox-static.sh`
+
+8. ### fork the repo
+
+    - build on Github using Github Actions to create your own custom releases.
+    - The easiest way to get custom builds for your needs.
+
+</Steps>
