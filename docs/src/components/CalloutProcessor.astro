@@ -1,84 +1,82 @@
 ---
-export interface Props {
-	content: string;
-}
+export interface Props { content: string }
 
 const { content } = Astro.props;
 
-function processCallouts(htmlContent: string): string {
-	// Define callout types and mapping
-	const CALLOUT_TYPES = "NOTE|TIP|WARNING|IMPORTANT|CAUTION";
-	const CALLOUT_MAP: Record<string, string> = {
-		NOTE: "note",
-		TIP: "tip",
-		WARNING: "caution",
-		IMPORTANT: "note",
-		CAUTION: "danger",
-	};
+// Precompiled constants & regexes (outside function to avoid reallocation per render)
+const CALLOUT_TYPES = ["NOTE", "TIP", "WARNING", "IMPORTANT", "CAUTION"] as const;
+type CalloutType = typeof CALLOUT_TYPES[number];
+const CALLOUT_TYPE_PATTERN = CALLOUT_TYPES.join("|");
+const CALLOUT_MARKER_RE = new RegExp(`\\[!(${CALLOUT_TYPE_PATTERN})\\]`, "i");
+const BLOCKQUOTE_RE = new RegExp(`<blockquote[^>]*>([\\s\\S]*?)<\\/blockquote>`, "gi");
+// Markdown pattern: > [!TYPE]\n> line ... (stops at first blank or non > line)
+const MD_CALLOUT_RE = new RegExp(
+	`(^|\n)>\\s*\\[!(${CALLOUT_TYPE_PATTERN})\\]\\s*\n((?:>.*(?:\n|$))+)(?=\n[^>]|")?`,
+	"gi"
+);
 
-	// Helper function to generate Starlight aside HTML
-	const createAside = (type: string, content: string): string => {
-		const starlightType = CALLOUT_MAP[type.toUpperCase()] ?? "note";
-		return `<div class="starlight-aside starlight-aside--${starlightType}"><p class="starlight-aside__title">${type}</p><div class="starlight-aside__content"><p>${content}</p></div></div>`;
-	};
+// Mapping to starlight aside variants
+const CALLOUT_MAP: Record<string, string> = {
+	NOTE: "note",
+	TIP: "tip",
+	WARNING: "caution",
+	IMPORTANT: "note",
+	CAUTION: "danger",
+};
 
-	// Helper function to clean HTML content
-	const cleanHtmlContent = (match: string): string =>
-		match
-			.replace(/<blockquote[^>]*>/gi, "")
-			.replace(/<\/blockquote>/gi, "")
-			.replace(
-				new RegExp(`<p>\\s*\\[!(${CALLOUT_TYPES})\\]\\s*<\\/p>`, "gi"),
-				"",
-			)
-			.replace(new RegExp(`\\[!(${CALLOUT_TYPES})\\]`, "gi"), "")
-			.replace(/<p>(.*?)<\/p>/gs, "$1 ")
-			.replace(/<(?!code|\/code)[^>]*>/g, "") // Preserve <code> tags
-			.replace(/\s+/g, " ")
-			.trim();
-
-	// Helper function to clean markdown content
-	const cleanMarkdownContent = (content: string): string =>
-		content
-			.split("\n")
-			.map((line: string) => line.replace(/^>\s*/, "").trim())
-			.filter((line: string) => line.length > 0)
-			.join(" ");
-
-	let processedContent = htmlContent;
-
-	// Process blockquote-based callouts
-	processedContent = processedContent.replace(
-		new RegExp(
-			`<blockquote[^>]*>[\\s\\S]*?\\[!(${CALLOUT_TYPES})\\][\\s\\S]*?<\\/blockquote>`,
-			"gi",
-		),
-		(match: string) => {
-			const typeMatch = match.match(
-				new RegExp(`\\[!(${CALLOUT_TYPES})\\]`, "i"),
-			);
-			const type = typeMatch?.[1] ?? "NOTE";
-			const cleanContent = cleanHtmlContent(match);
-			return createAside(type, cleanContent);
-		},
-	);
-
-	// Process markdown-style callouts
-	processedContent = processedContent.replace(
-		new RegExp(
-			`>\\s*\\[!(${CALLOUT_TYPES})\\]\\s*\\n((?:>\\s*.*(?:\\n|$))*)`,
-			"gim",
-		),
-		(match: string, type: string, content: string) => {
-			const cleanContent = cleanMarkdownContent(content);
-			return createAside(type, cleanContent);
-		},
-	);
-
-	return processedContent;
+function createAside(rawType: string, innerHtml: string): string {
+	const type = (rawType || "NOTE").toUpperCase() as CalloutType;
+	const variant = CALLOUT_MAP[type] ?? "note";
+	// Avoid double-wrapping if already processed
+	if (/starlight-aside__title/i.test(innerHtml)) return innerHtml;
+	return `<div class="starlight-aside starlight-aside--${variant}" role="note" aria-label="${type} callout"><p class="starlight-aside__title">${type}</p><div class="starlight-aside__content">${innerHtml}</div></div>`;
 }
 
-const processedContent = processCallouts(content);
+function stripFirstMarkerLine(block: string): { type: string; html: string } {
+	const markerLineRe = new RegExp(`^\\s*(?:<p>)?\\s*\\[!(${CALLOUT_TYPE_PATTERN})\\]\\s*(?:<\\/p>)?\\s*`, "i");
+	const match = block.match(CALLOUT_MARKER_RE);
+	const type = match?.[1] || "NOTE";
+	const html = block.replace(markerLineRe, "").trim();
+	return { type, html };
+}
+
+function processBlockquoteCallouts(src: string): string {
+	return src.replace(BLOCKQUOTE_RE, (full, inner) => {
+		if (!CALLOUT_MARKER_RE.test(inner)) return full; // leave normal blockquotes
+		const { type, html } = stripFirstMarkerLine(inner);
+		return createAside(type, html);
+	});
+}
+
+function processMarkdownCallouts(src: string): string {
+	return src.replace(MD_CALLOUT_RE, (full, _lead, type, lines) => {
+		// Remove leading ">" markers & blank lines
+			const cleaned = lines
+				.split(/\n/)
+				.map((l: string) => l.replace(/^>\s?/, ""))
+				.filter((l: string) => l.trim().length > 0)
+				.join("\n");
+		return `\n${createAside(type, cleaned)}\n`;
+	});
+}
+
+function processCallouts(htmlContent: string): string {
+	if (!htmlContent || typeof htmlContent !== "string") return htmlContent;
+	// Quick escape if no markers
+	if (!CALLOUT_MARKER_RE.test(htmlContent)) return htmlContent;
+	let out = htmlContent;
+	out = processBlockquoteCallouts(out);
+	out = processMarkdownCallouts(out);
+	return out;
+}
+
+let processedContent: string;
+try {
+	processedContent = processCallouts(content);
+} catch (e) {
+	// Fail open: render original content if processing breaks
+	processedContent = content;
+}
 ---
 
 <div set:html={processedContent} />

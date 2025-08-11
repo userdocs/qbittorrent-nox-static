@@ -192,19 +192,24 @@
 		}
 
 		if (input) {
+			let _reloading = false;
 			const handler = () => {
 				const next = input.checked;
 				try { localStorage.setItem('advanced', next ? 'true' : 'false'); } catch {}
-				if (next) {
-					// Ensure dataset reflects the new mode, then reload to fully hydrate late content
+				if (next) { // turning ON advanced
+					if (_reloading) return; // guard against duplicate events
+					_reloading = true;
+					// Reflect state for a11y just before navigation
+					input.setAttribute('aria-checked', 'true');
 					document.documentElement.dataset.advanced = 'true';
+					// Full reload to allow late-hydrated components to render in advanced mode without manual refresh
 					window.location.reload();
 				} else {
 					setState(next);
 				}
 			};
+			// 'change' covers user interaction; avoid also listening to 'click' to prevent double firing
 			input.addEventListener('change', handler);
-			input.addEventListener('click', handler, { passive: true });
 		}
 	};
 
