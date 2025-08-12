@@ -1,7 +1,7 @@
 // https://docs.renovatebot.com/config-presets/#github-hosted-presets
 // https://docs.renovatebot.com/config-presets/#github
 {
-  'extends': [
-    'github>userdocs/renovate:default.json5'
+  "extends": [
+    "github>userdocs/renovate:default.json"
   ]
 }
