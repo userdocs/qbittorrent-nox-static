@@ -18,9 +18,9 @@ For faster build times you can consider a paid service like <Modal id="buildjet"
 If you want to self host you need to be able to meet these conditions on your host in order to use the script.
 
 🟩 Supported host build platforms
-    - Debian: `Bookworm`
-    - Ubuntu: `Noble`
-    - Alpine: `3.15` or greater
+    - Debian: `trixie`
+    - Ubuntu: `noble`
+    - Alpine: `3.18` or greater
 
 🟩 Build environment
     - <Modal id="docker" label="Docker"/> via a shell like <Modal id="bash" label="Bash"/> or <Modal id="powershell" label="Powershell"/>
@@ -30,19 +30,16 @@ If you want to self host you need to be able to meet these conditions on your ho
       - Via <Modal id="docker-desktop" label="Docker Desktop"/> ✅ (recommended method)
       - Docker installed in <Modal id="wsl2" label="WSL2"/> image ✅ (alternative recommendation)
 
-
 🟩 Bash Shell script
     - This is 100% a modern bash shell script and it requires having access to bash to run it.
-
 
 🟧 Host permissions
 
     - The script needs to install some system dependencies in order to proceed and if you do not have permission or access to do this or no access to docker to use a container you must find a more suitable host environment.
 
-
 🟥 Qt6 requirements
 
-    - If you build using Qt6 you will need to have these dependencies installed on the host, <Modal id="qemu" label="qemu and binmtfs"/>
+    - If you build using Qt6 you will need to have these dependencies installed on the host (not inside the docker), <Modal id="qemu" label="qemu and binmtfs"/>
 
 <Tabs>
 <TabItem value="Debian based Linux" label="debian">

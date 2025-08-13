@@ -1,3 +1,19 @@
+### v2.2.1 / v2.0.21 - 13/08/2025
+
+Debian support bumped to trixie
+
+Debian crossbuild now supports riscv64
+
+`cmake`/`ninja` no longer installed via external builds for any support OS. Related code and arguments removed.
+
+They are only installed via `apt` for Debian based and `apk` for Alpine.
+
+The reason the external tools existed was to overcome issues with outdated or missing stable release packages.
+
+This not be an issue since `trixie` `cmake` is `3.31` or newer and `ninja-build` was reintroduced as an Alpine package some time ago. There was no specific benefit to using them other than enabling building.
+
+This makes the `qbt-cmake-ninja-crossbuilds` and `qbt-ninja-build` redundant as the script no longer depends on them.
+
 ### v2.2.0 / v2.0.20 - 26/07/2025
 
 Context: As the qbt-musl-cross-make toolchains were being revised to properly apply `-static-pie` patches, some issues needed to be resolved that resulted in a rework of some things.
@@ -21,8 +37,6 @@ ___
 
 > [!NOTE]
 > `qbt_host_deps` will always be mirrored to the latest release version.
-
-
 
 A lot of general refactoring, formatting and minor bug fixes.
 

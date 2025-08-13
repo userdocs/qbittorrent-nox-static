@@ -267,9 +267,7 @@ This build script depends on several related repositories:
 
 - [qbt-musl-cross-make](https://github.com/userdocs/qbt-musl-cross-make) - Cross-compilation toolchain
 - [qbt-workflow-files](https://github.com/userdocs/qbt-workflow-files) - CI/CD workflow templates
-- [qbt-ninja-build](https://github.com/userdocs/qbt-ninja-build) - Ninja build system integration
 - [qbt-host-deps](https://github.com/userdocs/qbt-host-deps) - Host dependency management
-- [qbt-cmake-ninja-crossbuilds](https://github.com/userdocs/qbt-cmake-ninja-crossbuilds) - CMake cross-build configurations
 
 ## 💻 WSL2 Support
 

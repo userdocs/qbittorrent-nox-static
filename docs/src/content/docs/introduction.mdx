@@ -3,21 +3,49 @@ title: Introduction
 description: Introduction
 ---
 
-import { Advanced, BuildInfo, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+import { Advanced, BuildInfoIntroduction, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, ScriptVersions } from "/src/components/global.jsx"
 
 ## What is it?
 
 `qbt-nox-static.bash™` was originally a simple, amateurish bash script, to build a static `qbittorrent-nox` binary for `x86_64`. The script has grown and evolved since then and now it's a complicated bash script.
 
 :::note
-`qbt-nox-static.bash™` is `v2.2.0` and `qbittorrent-nox-static.sh™` is `v2.0.20`. The former is a fork of the latter, from this version, with changes specific to the dependency handling, which in turn makes breaking changes to the default behavior of the script. Combined with renaming the script to `.bash` from `.sh` as it is not a POSIX compliant script this would effectively have made `qbt-nox-static.bash` unavailable for use.
+<ScriptVersions/>
+
+The former is a fork of the latter, from this version, with changes specific to the dependency handling, which in turn makes breaking changes to the default behavior of the script. Combined with renaming the script to `.bash` from `.sh` as it is not a POSIX compliant script this would effectively have made `qbittorrent-nox-static.sh` unavailable for use.
 
 So the existence of the two is a transitional change and the `qbt-nox-static.bash` will be deprecated in the future, though any non breaking changes will be backported to the original script.
 :::
 
-### What does it do?
+### How are they different?
 
-It handles a lot of the nuanced complexity around building various different dependencies on two different host platforms, towards the same outcome and can target these architectures via crossbuilding:
+`qbittorrent-nox-static.sh` (legacy)
+
+When the script runs it will attempt to automatically install the host dependencies if it can. It does this with no user input. This is because it was designed to be used in a docker and not a normal host.
+
+If the host env if pre-configured this produces the desired result but if the user does not understand this and runs the script it will just be confusing to see it installing lots of things with no context.
+
+The logic of this is done using [bash indexed arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html).
+
+`qbt-nox-static.bash` (current)
+
+When the script runs it will only detect dependencies offer options to proceed. It does nothing unless specifically asked and in a modular way.
+
+With the minimum test dependencies installed, `git`,`bash` and `curl` it can perform most dynamic help functions and testing required to configure the script before installing the core dependencies.
+
+This makes sense when you consider you don't need to install host gcc to cross build, something which the script handled automatically when configured to cross build.
+
+The logic of this is done using [bash associative arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html).
+
+### What does it mean to you?
+
+The documentation will be focused on `qbt-nox-static.bash` as it is the more sane behaving script with a better user experience.
+
+The binary outcome should be identical for both. You should use `qbt-nox-static.bash` but if you understand how it works and are using docker, `.qbt_env` or a pre-configured environment, `qbittorrent-nox-static.sh` will do the same thing.
+
+## What does it do?
+
+It handles a lot of the nuanced complexity around building various different dependencies on two different host platforms, towards the same outcome and can target these architectures via cross building:
 
 <Details summary=" target architectures">
 	`armel` `armhf` `armv7` `aarch64`
@@ -49,11 +77,11 @@ It handles a lot of the nuanced complexity around building various different dep
 
 The script is highly configurable and is capable of native and cross building. These more advanced configurations will be discussed later sections of the documentation.
 
-### What is the outcome
+## What is the outcome
 
 ⭐ Here is an example successful default build profile:
 
-<BuildInfo/>
+<BuildInfo_i/>
 
 <Tabs>
 <TabItem label="Debian and Ubuntu Linux">

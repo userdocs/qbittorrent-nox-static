@@ -32,22 +32,22 @@ jobs:
       matrix:
         runs_on: ["ubuntu-24.04", "ubuntu-24.04-arm"]
         os_id: ["debian", "ubuntu"]
-        os_version_id: ["bookworm", "noble"]
+        os_version_id: ["trixie", "noble"]
         qbt_cross_name: ["default", "aarch64", "x86_64", "riscv64"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         qbt_build_tool: [""]
         qbt_qt_version: ["6"]
         exclude:
           - os_id: "debian"
-            qbt_cross_name: "riscv64"
-          - os_id: "debian"
             os_version_id: "noble"
           - os_id: "ubuntu"
-            os_version_id: "bookworm"
+            os_version_id: "trixie"
+
           - runs_on: "ubuntu-24.04"
             qbt_cross_name: "x86_64"
           - runs_on: "ubuntu-24.04-arm"
             qbt_cross_name: "aarch64"
+
         include:
           - runs_on: "ubuntu-24.04"
             host_name: "x86_64"

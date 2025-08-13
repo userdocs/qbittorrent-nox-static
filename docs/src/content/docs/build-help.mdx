@@ -3,20 +3,7 @@ title: Build Help
 description: Build Help
 ---
 
-import {
-	Advanced,
-	Charts,
-	Details,
-	Modal,
-	Steps,
-	Tabs,
-	TabItem,
-	Card,
-	CardGrid,
-	LinkCard,
-	Aside,
-	Icon,
-} from "/src/components/global.jsx";
+import { Advanced, BuildInfoBuildHelp, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, ScriptVersions } from "/src/components/global.jsx"
 
 Once the script has successfully configured the platform you can execute the help switch to see how it works and what options you have available to you.
 
@@ -28,9 +15,11 @@ Once the script has successfully configured the platform you can execute the hel
 
 The script will use the following order of preference when configuring the build environment:
 
-1. Command line flags
+<Steps>
+1.  Command line flags
 2. `.qbt_env` file in the same directory as the script
-3. Exported `env` variables
+3.  Exported `env` variables
+</Steps>
 
 ## ENV settings
 
@@ -42,28 +31,7 @@ The script has some `env` settings that can trigger certain behaviour without th
 
 You can export these before you run the script to set them. The can be used for docker builds or local builds and work in the `.qbt_env` file.
 
-| Build variable                  | Default if unset                    | Options                      | example usage                                       |
-| ------------------------------- | ----------------------------------- | ---------------------------- | --------------------------------------------------- |
-| `qbt_build_dir`                 | `qbt-build`                         | Any valid path               | `qbt_build_dir="~/custom"`                          |
-| `qbt_libtorrent_version`        | `2.0`                               | `1.2` `2.0`                  | `qbt_libtorrent_version="2.0"`                      |
-| `qbt_qt_version`                | `6`                                 | `5.12` `5.15` `6.3` `6.3.1`  | `qbt_qt_version="6"`                                |
-| `qbt_build_tool`                | `cmake`                             | `cmake` `qmake`              | `qbt_build_tool="cmake"`                            |
-| `qbt_cross_name`                | empty = `unset` (default to OS gcc) | See Cross arch options below | `qbt_cross_name="aarch64"`                          |
-| `qbt_patches_url`               | `username/repo`                     | `username/repo`              | `qbt_patches_url="userdocs/qbittorrent-nox-static"` |
-| `qbt_skip_icu`                  | `yes`                               | `yes` `no`                   | `qbt_skip_icu="yes"`                                |
-| `qbt_boost_tag`                 | latest github stable release or tag | Any valid git tag            | `qbt_boost_tag="boost-1.86.0"`                      |
-| `qbt_libtorrent_tag`            | latest github stable release or tag | Any valid git tag            | `qbt_libtorrent_tag="v2.0.10"`                      |
-| `qbt_qt_tag`                    | latest github stable release or tag | Any valid git tag            | `qbt_qt_tag="v6.8.0"`                               |
-| `qbt_qbittorrent_tag`           | latest github stable release or tag | Any valid git tag            | `qbt_qbittorrent_tag="release-5.0.1"`               |
-| `qbt_libtorrent_master_jamfile` | `no`                                | `yes` `no`                   | `qbt_libtorrent_master_jamfile="no"`                |
-| `qbt_workflow_files`            | `no`                                | `yes` `no`                   | `qbt_workflow_files="no"`                           |
-| `qbt_workflow_artifacts`        | `no`                                | `yes` `no`                   | `qbt_workflow_artifacts="no"`                       |
-| `qbt_cache_dir`                 | empty = `unset`                     | Path: relative or full       | `qbt_cache_dir=""`                                  |
-| `qbt_optimise_strip`            | `yes`                               | `yes` `no`                   | `qbt_optimise_strip="yes"`                          |
-| `qbt_build_debug`               | `no`                                | `yes` `no`                   | `qbt_build_debug="no"`                              |
-| `qbt_standard`                  | `20`                                | `14` `17` `20` `23`          | `qbt_standard="20"`                                 |
-| `qbt_static_ish`                | `no`                                | `yes` `no`                   | `qbt_static_ish="no"`                               |
-| `qbt_optimise`                  | `no`                                | `yes` `no`                   | `qbt_optimise="yes"`                               |
+<BuildInfo_b/>
 
 ## Build flags
 
@@ -132,6 +100,7 @@ The `--bootstrap-release` and `--bootstrap-multi-arch` options are specific to G
  Use: -cd    or --cache-directory       Help: -h-cd    or --help-cache-directory
  Use: -d     or --debug                 Help: -h-d     or --help-debug
  Use: -bs-e  or --bootstrap-env         Help: -h-bs-e  or --help-bootstrap-env
+ Use: -bs-ef or --bootstrap-env-full    Help: -h-bs-ef or --help-bootstrap-env-full
  Use: -bs-p  or --bootstrap-patches     Help: -h-bs-p  or --help-bootstrap-patches
  Use: -bs-c  or --bootstrap-cmake       Help: -h-bs-c  or --help-bootstrap-cmake
  Use: -bs-r  or --bootstrap-release     Help: -h-bs-r  or --help-bootstrap-release
@@ -146,7 +115,7 @@ The `--bootstrap-release` and `--bootstrap-multi-arch` options are specific to G
  Use: -o     or --optimise              Help: -h-o     or --help-optimise
  Use: -p     or --proxy                 Help: -h-p     or --help-proxy
  Use: -pr    or --patch-repo            Help: -h-pr    or --help-patch-repo
- Use: -q     or --qmake                 Help: -h-q     or --help-qmkae
+ Use: -q     or --qmake                 Help: -h-q     or --help-qmake
  Use: -qm    or --qbittorrent-master    Help: -h-qm    or --help-qbittorrent-master
  Use: -qt    or --qbittorrent-tag       Help: -h-qt    or --help-qbittorrent-tag
  Use: -qtt   or --qt-tag                Help: -h-qtt   or --help-qtt-tag
@@ -185,37 +154,39 @@ The `--bootstrap-release` and `--bootstrap-multi-arch` options are specific to G
  export qbt_boost_tag="" ----------------- options Takes a valid git tag or branch for boost
  export qbt_qt_tag="" -------------------- options Takes a valid git tag or branch for Qt
  export qbt_workflow_files="" ------------ options yes | no - use qbt-workflow-files for dependencies
- export qbt_workflow_artifacts="" -------- options yes | no - use qbt_workflow_artifacts for dependencies
  export qbt_cache_dir="" ----------------- options path | empty - provide a path to a cache directory
  export qbt_libtorrent_master_jamfile="" - options yes | no - use RC branch instead of release jamfile
  export qbt_optimise_strip="" ------------ options yes | no - strip binaries - cannot be used with debug
  export qbt_build_debug="" --------------- options yes | no - debug build - cannot be used with strip
- export qbt_standard="" ------------------ options 14 | 17 | 20 | 23 - c standard for gcc - OS dependendent
+ export qbt_standard="" ------------------ options 14 | 17 | 20 | 23 - c standard for gcc - OS dependent
  export qbt_static_ish="" ---------------- options yes | no - libc linking - link dynamically to host libc
 
  ⬤ Default env settings
 
-   qbt_build_dir="qbt-build"
+   qbt_zlib_type="zlib"
+   qbt_skip_icu="yes"
+   qbt_boost_tag="boost-1.88.0"
    qbt_libtorrent_version="2.0"
+   qbt_libtorrent_tag="v2.0.11"
+   qbt_libtorrent_master_jamfile="no"
    qbt_qt_version="6"
+   qbt_qt_tag="v6.9.1"
+   qbt_qbittorrent_tag="release-5.1.2"
+   qbt_build_dir="qbt-build"
    qbt_build_tool="cmake"
    qbt_cross_name="default"
+   qbt_mcm_url="userdocs/qbt-musl-cross-make"
    qbt_patches_url="userdocs/qbittorrent-nox-static"
-   qbt_skip_icu="yes"
-   qbt_boost_tag="boost-1.87.0"
-   qbt_libtorrent_tag="v2.0.10"
-   qbt_qt_tag="v6.8.1"
-   qbt_qbittorrent_tag="release-5.0.3"
-   qbt_libtorrent_master_jamfile="no"
    qbt_workflow_files="no"
-   qbt_workflow_artifacts="no"
    qbt_cache_dir=""
    qbt_optimise_strip="yes"
    qbt_build_debug="no"
    qbt_standard="20"
    qbt_static_ish="no"
    qbt_optimise="no"
-
+   qbt_with_qemu="yes"
+   qbt_host_deps="no"
+   qbt_host_deps_repo="userdocs/qbt-host-deps"
 ```
 </Details>
 :::

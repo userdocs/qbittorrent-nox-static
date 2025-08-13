@@ -53,7 +53,7 @@ docker run -it -w /root -p 8080:8080 -v ~/qbt:/root alpine:edge /bin/ash -c 'apk
 If you need to download the script use this command
 
 ```bash
-curl -sLo qbt-nox-static.bash git.io/qbstatic && chmod +x qbt-nox-static.bash
+curl -sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
 ```
 
 </TabItem>
@@ -61,7 +61,7 @@ curl -sLo qbt-nox-static.bash git.io/qbstatic && chmod +x qbt-nox-static.bash
 <TabItem value="Debian Linux" label="Debian">
 
 :::note[tags]
-You use `debian:bookworm` `debian:latest` or a supported tag
+You use `debian:trixie` `debian:latest` or a supported tag
 :::
 
 To bootstrap the container:
@@ -73,7 +73,7 @@ docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root debian:lat
 If you need to download the script use this command
 
 ```bash
-curl -sLo qbt-nox-static.bash git.io/qbstatic && chmod +x qbt-nox-static.bash
+curl --sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
 ```
 
 </TabItem>
@@ -92,7 +92,7 @@ docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root ubuntu:lat
 If you need to download the script use this command
 
 ```bash
-curl -sLo qbt-nox-static.bash git.io/qbstatic && chmod +x qbt-nox-static.bash
+curl -sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
 ```
 
 </TabItem>
