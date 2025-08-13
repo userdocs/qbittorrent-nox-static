@@ -26,7 +26,7 @@ repos:
       - id: check-shebang-scripts-are-executable
 
   - repo: https://github.com/woodruffw/zizmor-pre-commit
-    rev: v1.11.0
+    rev: v1.12.0
     hooks:
       - id: zizmor
 
