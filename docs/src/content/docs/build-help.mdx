@@ -16,22 +16,34 @@ Once the script has successfully configured the platform you can execute the hel
 The script will use the following order of preference when configuring the build environment:
 
 <Steps>
-1.  Command line flags
+1.  Command line flags provided to the script
 2. `.qbt_env` file in the same directory as the script
-3.  Exported `env` variables
+3.  Exported `env` variables, these will overridden by `.qbt_env`
 </Steps>
+
+:::tip
+There are two flags related to bootstrapping the `.qbt_env`
+
+The first can be run at anytime regardless of the missing dependencies. It creates `.qbt_env` with empty values
+
+`./qbt-nox-static.bash -bs-e` or `--bootstrap-env`
+
+The second can be run once test dependencies are installed. It creates a `.qbt_env` with values populated by defaults or flag settings.
+
+`./qbt-nox-static.bash -bs-ef` or `--bootstrap-env-full`
+:::
 
 ## ENV settings
 
-The script has some `env` settings that can trigger certain behaviour without the need to pass flags to the script.
+The script has some `env` settings that can trigger certain behavior without the need to pass flags to the script.
 
 :::tip
 `export` the variables listed below when you use them in your local env.
-:::
 
 You can export these before you run the script to set them. The can be used for docker builds or local builds and work in the `.qbt_env` file.
+:::
 
-<BuildInfo_b/>
+<BuildInfoBuildHelp/>
 
 ## Build flags
 
@@ -39,7 +51,7 @@ You can export these before you run the script to set them. The can be used for 
 Using the `qbt_optimise` will only add `-march=native` to the build flags, when not cross compiling.
 :::
 
-The script build is already optimised but if you really want to experiment you can use the following flags in the main `env` and they will be appended to the current build flags:
+The script build is already optimised but if you really want to experiment you can use the following flags in the host `env` or `.qbt_env` and they will be appended to the current build flags:
 
 ```bash
 export CFLAGS=""

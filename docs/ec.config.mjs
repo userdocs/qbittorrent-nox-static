@@ -1,45 +1,18 @@
 import { pluginCollapsibleSections } from "@expressive-code/plugin-collapsible-sections";
 import { ExpressiveCodeTheme } from "@astrojs/starlight/expressive-code";
-import fs from "node:fs";
-import path from "node:path";
+import { readFileSync } from "node:fs";
 
-// Define allowed paths relative to project root
-const ALLOWED_PATHS = ["src/themes/expressive-code"];
-
-function readFileSyncSafe(url) {
-	if (url.protocol !== "file:") {
-		throw new Error("Invalid URL protocol");
-	}
-
-	// Convert URL to filesystem path and normalize
-	const filePath = path.normalize(url.pathname);
-
-	// Ensure path is within allowed directories
-	const isAllowed = ALLOWED_PATHS.some((allowedPath) =>
-		filePath.includes(path.normalize(allowedPath))
-	);
-
-	if (!isAllowed) {
-		throw new Error("Access to this directory is not allowed");
-	}
-
-	return fs.readFileSync(url, "utf-8");
-}
-
-const jsoncStringLight = readFileSyncSafe(
-	new URL(
-		"./src/themes/expressive-code/Snazzy-Light-color-theme.json",
-		import.meta.url
-	)
+// Load theme files as raw strings (supports JSON with comments/trailing commas)
+const jsoncStringLight = readFileSync(
+	"./src/themes/expressive-code/Snazzy-Light-color-theme.json",
+	"utf-8"
+);
+const jsoncStringDark = readFileSync(
+	"./src/themes/expressive-code/aura-soft-dark-soft-text-color-theme.json",
+	"utf-8"
 );
 
-const jsoncStringDark = readFileSyncSafe(
-	new URL(
-		"./src/themes/expressive-code/aura-soft-dark-soft-text-color-theme.json",
-		import.meta.url
-	)
-);
-
+// Create themes from raw JSONC strings
 const darkMode = ExpressiveCodeTheme.fromJSONString(jsoncStringDark);
 const lightMode = ExpressiveCodeTheme.fromJSONString(jsoncStringLight);
 

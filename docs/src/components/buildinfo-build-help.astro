@@ -1,11 +1,42 @@
 ---
+import { Aside } from "@astrojs/starlight/components";
+
 const response = await fetch(
 	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json",
 );
 
 const data = await response.json();
 
-const rows = [
+// Mark which variables are considered advanced; others are treated as basic
+const ADVANCED_VARS = new Set([
+	"qbt_zlib_type",
+	"qbt_skip_icu",
+	"qbt_boost_tag",
+	"qbt_libtorrent_tag",
+	"qbt_libtorrent_master_jamfile",
+	"qbt_qt_version",
+	"qbt_qt_tag",
+	"qbt_build_dir",
+	"qbt_build_tool",
+	"qbt_mcm_url",
+	"qbt_patches_url",
+	"qbt_workflow_files",
+	"qbt_cache_dir",
+	"qbt_optimise_strip",
+	"qbt_build_debug",
+	"qbt_standard",
+	"qbt_static_ish",
+	"qbt_optimise",
+	"qbt_with_qemu",
+	"qbt_host_deps_repo",
+]);
+type Row = {
+	variable: string;
+	defaultVal: string;
+	optionsTokens: string[];
+	example: string;
+};
+const rows: Row[] = [
 	{
 		variable: "qbt_zlib_type",
 		defaultVal: "zlib",
@@ -20,9 +51,9 @@ const rows = [
 	},
 	{
 		variable: "qbt_boost_tag",
-		defaultVal: `boost-${data.boost || "1.88.0"}`,
+		defaultVal: `boost-${data.boost || "1.89.0"}`,
 		optionsTokens: ["Any valid git tag"],
-		example: 'qbt_boost_tag="boost-1.86.0"',
+		example: `qbt_boost_tag="boost-${data.boost || "1.89.0"}"`,
 	},
 	{
 		variable: "qbt_libtorrent_version",
@@ -34,7 +65,7 @@ const rows = [
 		variable: "qbt_libtorrent_tag",
 		defaultVal: `v${data.libtorrent_2_0 || "2.0.11"}`,
 		optionsTokens: ["Any valid git tag"],
-		example: 'qbt_libtorrent_tag="v2.0.10"',
+		example: `qbt_libtorrent_tag="v${data.libtorrent_2_0 || "2.0.11"}"`,
 	},
 	{
 		variable: "qbt_libtorrent_master_jamfile",
@@ -52,13 +83,13 @@ const rows = [
 		variable: "qbt_qt_tag",
 		defaultVal: `v${data.qt6 || "v6.9.1"}`,
 		optionsTokens: ["Any valid git tag"],
-		example: 'qbt_qt_tag="v6.8.0"',
+		example: `qbt_qt_tag="v${data.qt6 || "v6.9.1"}"`,
 	},
 	{
 		variable: "qbt_qbittorrent_tag",
 		defaultVal: `release-${data.qbittorrent || "5.1.2"}`,
 		optionsTokens: ["Any valid git tag"],
-		example: 'qbt_qbittorrent_tag="release-5.1.2"',
+		example: `qbt_qbittorrent_tag="release-${data.qbittorrent || "5.1.2"}"`,
 	},
 	{
 		variable: "qbt_build_dir",
@@ -81,13 +112,13 @@ const rows = [
 	{
 		variable: "qbt_mcm_url",
 		defaultVal: "userdocs/qbt-musl-cross-make",
-		optionsTokens: [],
+		optionsTokens: ["n/a for general use"],
 		example: 'qbt_mcm_url="userdocs/qbt-musl-cross-make"',
 	},
 	{
 		variable: "qbt_patches_url",
 		defaultVal: "userdocs/qbittorrent-nox-static",
-		optionsTokens: [],
+		optionsTokens: ["n/a for general use"],
 		example: 'qbt_patches_url="userdocs/qbittorrent-nox-static"',
 	},
 	{
@@ -99,7 +130,7 @@ const rows = [
 	{
 		variable: "qbt_cache_dir",
 		defaultVal: "empty = unset",
-		optionsTokens: [],
+		optionsTokens: ["relative folder name or full path path"],
 		example: 'qbt_cache_dir="cache"',
 	},
 	{
@@ -111,7 +142,7 @@ const rows = [
 	{
 		variable: "qbt_build_debug",
 		defaultVal: "no",
-		optionsTokens: [],
+		optionsTokens: ["yes", "no"],
 		example: 'qbt_build_debug="no"',
 	},
 	{
@@ -123,7 +154,7 @@ const rows = [
 	{
 		variable: "qbt_static_ish",
 		defaultVal: "no",
-		optionsTokens: [],
+		optionsTokens: ["yes", "no"],
 		example: 'qbt_static_ish="no"',
 	},
 	{
@@ -141,46 +172,234 @@ const rows = [
 	{
 		variable: "qbt_host_deps_repo",
 		defaultVal: "userdocs/qbt-host-deps",
-		optionsTokens: [],
+		optionsTokens: ["n/a for general use"],
 		example: "qbt_host_deps_repo=userdocs/qbt-host-deps",
 	},
 ];
 ---
 
-<table>
-	<thead>
-		<tr>
-			<th>Build variable</th>
-			<th>Default if unset</th>
-			<th>Options</th>
-			<th>example usage</th>
-		</tr>
-	</thead>
-	<tbody>
-		{
-			rows.map((r) => (
-				<tr>
-					<td>
-						<code>{r.variable}</code>
-					</td>
-					<td>
-						<code>{r.defaultVal}</code>
-					</td>
-					<td>
-						{Array.isArray(r.optionsTokens) && r.optionsTokens.length
-							? r.optionsTokens.map((opt, i) => (
-									<Fragment>
-										<code>{opt}</code>
-										{i < r.optionsTokens.length - 1 ? " " : ""}
-									</Fragment>
-								))
-							: ""}
-					</td>
-					<td>
-						<code>{r.example}</code>
-					</td>
-				</tr>
-			))
+<style>
+	/* Container */
+	.view-toggle {
+		margin: 1rem 0 0.75rem;
+		display: flex;
+		gap: 0.75rem;
+		align-items: center;
+	}
+	/* Nice looking segmented toggle switch */
+	.view-toggle .switch {
+		position: relative;
+		display: inline-block;
+		min-width: 12rem; /* enough for both labels */
+		height: 2.25rem;
+	}
+	.view-toggle .switch input {
+		opacity: 0;
+		width: 0;
+		height: 0;
+		position: absolute;
+	}
+	.view-toggle .slider {
+		position: absolute;
+		inset: 0;
+		border-radius: 999px;
+		background: var(--sl-color-bg, #fff);
+		border: 1px solid var(--sl-color-hairline, rgba(0, 0, 0, 0.12));
+		box-shadow: 0 1px 1px rgba(0, 0, 0, 0.04);
+		overflow: hidden; /* prevent text from leaking outside rounded border */
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		font: inherit;
+		font-size: 0.9rem;
+	}
+	.view-toggle .slider .label {
+		text-align: center;
+		user-select: none;
+		position: relative;
+		z-index: 2; /* keep text above highlight */
+		color: var(--sl-color-text);
+		transition: color 0.2s ease;
+		padding: 0 0.6rem; /* breathing room from edges */
+		white-space: nowrap; /* keep words on one line */
+	}
+	/* Sliding highlight */
+	.view-toggle .slider::before {
+		content: "";
+		position: absolute;
+		top: 3px;
+		left: 3px; /* 3px gap on the left */
+		width: calc(50% - 6px); /* leaves 3px gap at center and edges */
+		height: calc(100% - 6px);
+		border-radius: 999px;
+		background: var(--sl-color-accent-soft, rgba(0, 0, 0, 0.06));
+		border: 1px solid var(--sl-color-hairline, rgba(0, 0, 0, 0.12));
+		box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.02);
+		transition: left 0.2s ease; /* animate position, not transform */
+		z-index: 1;
+	}
+	/* Checked state moves highlight to the right and dims left label */
+	.view-toggle .switch input:checked + .slider::before {
+		left: calc(50% + 3px); /* 3px gap on the right */
+	}
+	.view-toggle .switch input:not(:checked) + .slider .label-on {
+		opacity: 0.7;
+	}
+	.view-toggle .switch input:checked + .slider .label-off {
+		opacity: 0.7;
+	}
+	/* Focus ring for accessibility */
+	.view-toggle .switch input:focus-visible + .slider {
+		outline: 2px solid
+			color-mix(in oklab, var(--sl-color-accent, #4f46e5) 60%, transparent);
+		outline-offset: 2px;
+	}
+	.view-toggle .switch input:checked + .slider::after {
+		content: attr(data-on);
+		color: var(--sl-color-text);
+	}
+	/* Focus ring for accessibility */
+	.view-toggle .switch input:focus + .slider {
+		outline: 2px solid
+			color-mix(in oklab, var(--sl-color-accent, #4f46e5) 60%, transparent);
+		outline-offset: 2px;
+	}
+
+	/* Table filtering */
+	#buildinfo[data-view="basic"] tr[data-level="advanced"] {
+		display: none;
+	}
+
+	.badge {
+		font-size: 0.75rem;
+		padding: 0.05rem 0.35rem;
+		border: 1px solid var(--sl-color-text-accent);
+		border-radius: 0.25rem;
+		opacity: 0.8;
+	}
+
+	/* Advanced warning show/hide only; visual style comes from Starlight */
+	.adv-warning {
+		margin: 0.25rem 0 0.75rem;
+	}
+	.basic-info {
+		margin: 0.25rem 0 0.75rem;
+	}
+
+	/* Show/hide asides based on toggle state on the container */
+	.view-toggle[data-view="basic"] ~ .adv-warning {
+		display: none;
+	}
+	.view-toggle[data-view="advanced"] ~ .adv-warning {
+		display: block;
+	}
+	.view-toggle[data-view="basic"] ~ .basic-info {
+		display: block;
+	}
+	.view-toggle[data-view="advanced"] ~ .basic-info {
+		display: none;
+	}
+</style>
+
+<div
+	class="view-toggle"
+	aria-label="View mode selector"
+	role="toolbar"
+	aria-controls="buildinfo"
+>
+	<strong>View:</strong>
+	<label class="switch">
+		<input id="viewToggle" type="checkbox" aria-label="Toggle advanced view" />
+		<span class="slider">
+			<span class="label label-off">Basic</span>
+			<span class="label label-on">Advanced</span>
+		</span>
+	</label>
+</div>
+
+<div class="basic-info">
+	<Aside type="note" icon="starlight">
+		This view shows the most important settings for most users' needs.
+		<br />
+		Switch to Advanced to see and all env options.
+	</Aside>
+</div>
+
+<div class="adv-warning">
+	<Aside type="caution" icon="starlight">
+		You don't need to configure most of these. The defaults are correct and
+		should probably be left alone.
+		<br />
+		This view shows all the script env settings and you only need to modify them
+		if you understand what it does.
+	</Aside>
+</div>
+
+<script>
+	(function () {
+		const container = document.getElementById("buildinfo");
+		const toggleWrap = document.querySelector(".view-toggle");
+		const el = document.getElementById("viewToggle");
+		const toggle = el instanceof HTMLInputElement ? el : null;
+		const saved =
+			(typeof localStorage !== "undefined" &&
+				localStorage.getItem("buildinfo-view")) ||
+			"basic";
+		if (container) container.dataset.view = saved;
+		if (toggleWrap) (toggleWrap as HTMLElement).dataset.view = saved;
+		if (toggle) {
+			// checked = advanced
+			toggle.checked = saved === "advanced";
+			toggle.addEventListener("change", () => {
+				const val = toggle.checked ? "advanced" : "basic";
+				if (container) container.dataset.view = val;
+				if (toggleWrap) (toggleWrap as HTMLElement).dataset.view = val;
+				try {
+					localStorage.setItem("buildinfo-view", val);
+				} catch {
+					/* ignore */
+				}
+			});
 		}
-	</tbody>
-</table>
+	})();
+</script>
+
+<div id="buildinfo" data-view="basic">
+	<table>
+		<thead>
+			<tr>
+				<th>Build variable</th>
+				<th>Default if unset</th>
+				<th>Options</th>
+				<th>example usage</th>
+			</tr>
+		</thead>
+		<tbody>
+			{
+				rows.map((r) => (
+					<tr data-level={ADVANCED_VARS.has(r.variable) ? "advanced" : "basic"}>
+						<td>
+							<code>{r.variable}</code>
+						</td>
+						<td>
+							<code>{r.defaultVal}</code>
+						</td>
+						<td>
+							{Array.isArray(r.optionsTokens) && r.optionsTokens.length
+								? r.optionsTokens.map((opt, i) => (
+										<Fragment>
+											<code>{opt}</code>
+											{i < r.optionsTokens.length - 1 ? " " : ""}
+										</Fragment>
+									))
+								: ""}
+						</td>
+						<td>
+							<code>{r.example}</code>
+						</td>
+					</tr>
+				))
+			}
+		</tbody>
+	</table>
+</div>

@@ -33,7 +33,7 @@ export default defineConfig({
 						{
 							label: "Introduction",
 							link: "/introduction",
-                        },
+						},
 						{
 							label: "Rules of Engagement",
 							link: "/rules-of-engagement",
