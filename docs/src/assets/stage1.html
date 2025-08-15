@@ -1,0 +1,85 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aura Output</title>
+<style>
+/* ===== Aura Dark (Soft Text) ===== */
+:root {
+  --bg: #15141b;           /* editor.background */
+  --fg: #bdbdbd;           /* editor.foreground */
+  --black: #15141b;        --red: #c55858;        --green: #54c59f;
+  --yellow: #c7a06f;       --blue: #8464c6;       --magenta: #54c59f;
+  --cyan: #8464c6;         --white: #b4b4b4;
+  --bblack: #2d2d2d;       --bred: #c7a06f;       --bgreen: #8464c6;
+  --byellow: #c7a06f;      --bblue: #8464c6;      --bmagenta: #54c59f;
+  --bcyan: #54c59f;        --bwhite: #bdbdbd;
+}
+
+/* ===== Light mode placeholder palette ===== */
+[data-theme="light"] {
+  --bg: #fdfdfd;
+  --fg: #1e1e1e;
+  --black: #000000;        --red: #c01c28;        --green: #26a269;
+  --yellow: #a2734c;       --blue: #12488b;       --magenta: #a347ba;
+  --cyan: #2aa1b3;         --white: #d0cfcc;
+  --bblack: #555753;       --bred: #f66151;       --bgreen: #33d17a;
+  --byellow: #e9ad0c;      --bblue: #3584e4;      --bmagenta: #c061cb;
+  --bcyan: #33c7de;        --bwhite: #ffffff;
+}
+
+.aura-terminal {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: monospace;
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+.aura-terminal span { all: unset; }
+</style>
+</head><body>
+<div class="aura-terminal">
+ <span style="filter: contrast(70%) brightness(140%);color:blue;">⬤</span> <span style="font-weight:bold;">Checking: </span><span style="font-weight:bold;filter: contrast(70%) brightness(140%);color:red;">available privileges</span>
+
+ <span style="color:green;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:red;">root</span>
+ <span style="color:red;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:red;">sudo</span>
+
+ <span style="filter: contrast(70%) brightness(140%);color:blue;">⬤</span> <span style="font-weight:bold;">Checking: </span><span style="font-weight:bold;color:olive;">test</span>
+
+ <span style="color:green;">⬤</span> <span style="color:olive;">bash</span>
+ <span style="color:red;">⬤</span> <span style="color:olive;">curl</span>
+ <span style="color:red;">⬤</span> <span style="color:olive;">git</span>
+
+ <span style="filter: contrast(70%) brightness(140%);color:blue;">⬤</span> <span style="font-weight:bold;">Checking: </span><span style="font-weight:bold;color:purple;">core</span>
+
+ <span style="color:red;">⬤</span> <span style="color:purple;">autoconf</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">automake</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">build-base</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">cmake</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">curl</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">git</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">graphviz</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">libtool</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">linux-headers</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">ninja-build</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">ninja-is-really-ninja</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">perl</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">pkgconf</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">py3-numpy</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">py3-numpy-dev</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">python3</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">python3-dev</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">re2c</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">ttf-freefont</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">xz</span>
+
+ <span style="color:blue;">⬤</span> <span style="color:blue;">Info:</span> /workspace/qbt-nox-static.bash
+
+ <span style="color:blue;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:blue;">qbt-nox-static.bash</span> <span style="color:olive;">install_test</span> ------ installs minimum required tools to run tests
+ <span style="color:blue;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:blue;">qbt-nox-static.bash</span> <span style="color:purple;">install_core</span> ------ installs required build tools to use script
+ <span style="color:blue;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:blue;">qbt-nox-static.bash</span> <span style="filter: contrast(70%) brightness(140%);color:green;">bootstrap_deps</span> ---- <span style="color:olive;">install_test</span> + <span style="color:purple;">install_core</span>
+
+ <span style="color:red;">⬤</span> <span style="color:olive;">Warning:</span> Missing required <span style="color:purple;">test_tools</span>
+
+ <span style="color:red;">⬤</span> <span style="color:olive;">Warning:</span> Missing required components of <span style="color:purple;">install_core</span>
+
+</div></body></html>

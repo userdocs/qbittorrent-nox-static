@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import starlightImageZoom from "starlight-image-zoom";
+import starlightGitHubAlerts from "starlight-github-alerts";
 
 // https://astro.build/config
 export default defineConfig({
@@ -8,7 +9,7 @@ export default defineConfig({
 	base: "/qbittorrent-nox-static",
 	integrations: [
 		starlight({
-			plugins: [starlightImageZoom()],
+			plugins: [starlightImageZoom(), starlightGitHubAlerts()],
 			title: "qbittorrent-nox-static",
 			logo: {
 				src: "./public/logo-static.svg",

@@ -31,8 +31,8 @@ jobs:
       fail-fast: false
       matrix:
         runs_on: ["ubuntu-24.04-arm"]
-        os_id: [alpine]
-        os_version_id: [edge]
+        os_id: ["alpine"]
+        os_version_id: ["edge"]
         qbt_cross_name: ["armhf", "armv7", "aarch64", "riscv64", "x86_64", "x86"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         qbt_build_tool: [""]
@@ -45,7 +45,6 @@ jobs:
 
     env:
       qbt_build_dir: "qbt-build"
-      container_name: "multiarch"
       script_name: ${{ inputs.script_name }}
       set_skip_icu: ${{ inputs.icu }}
       set_workflow_files: ${{ inputs.workflow-files }}
@@ -54,6 +53,7 @@ jobs:
       set_qbt_with_qemu: "" # default is yes
       set_qbt_host_deps: "" # default is no
       set_qbt_host_deps_repo: "" # default is userdocs/qbt-host-deps
+      workspace: ${{ github.workspace }}
 
     steps:
       - name: Checkout ${{ inputs.distinct_id }}
@@ -106,78 +106,77 @@ jobs:
           printf '%s\n\n' "DEBIAN_FRONTEND=noninteractive" >> env.custom
 
       - name: Host - Bootstrap qemu
-        uses: userdocs/actions/qemu@e74d179578ddcf1cd07cd9eefd0915f33a3bd600 # v1.0.1
-
-      - uses: userdocs/actions/qbt_docker@e74d179578ddcf1cd07cd9eefd0915f33a3bd600 # v1.0.1
+        uses: userdocs/actions/qemu@e8f57bd585c7bb6dcce011694d6772bab657abca # v1.0.7
         with:
-            # if the env.custom file exists, it will be used to pass environment
-            distinct_id: ${{ inputs.distinct_id }}
-            use_host_env: "false"
-            container_name: ${{ env.container_name }}
+          target_arch: ${{ matrix.qbt_cross_name }}
+
+      - name: Host - Bootstrap docker container
+        uses: userdocs/actions/qbt_docker@e8f57bd585c7bb6dcce011694d6772bab657abca # v1.0.7
+        with:
             os_id: ${{ matrix.os_id }}
             os_version_id: ${{ matrix.os_version_id }}
-            custom_docker_commands: ""
-            additional_alpine_apps: "bash curl git"
-            additional_debian_apps: "bash curl git"
+            additional_apps: "curl git"
 
       - name: Host - patches ${{ inputs.distinct_id }}
         if: hashFiles('patches/**') != ''
-        run: mkdir -p ${qbt_build_dir}/patches && cp -rf patches/* ${qbt_build_dir}/patches/
+        run: mkdir -p "${qbt_build_dir}/patches" && cp -rf patches/* "${qbt_build_dir}/patches/"
 
       - name: Docker - bootstrap_deps ${{ inputs.distinct_id }}
         if: inputs.script_name == 'qbt-nox-static.bash'
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} bootstrap_deps
+        run: docker exec "${container_name}" bash "${script_name}" bootstrap_deps
 
       - name: Docker - Bootstrap build ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} -bs-a
+        run: docker exec "${container_name}" bash "${script_name}" -bs-a
 
       - name: Docker - glibc ${{ inputs.distinct_id }}
         if : matrix.os_id != 'alpine'
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} glibc
+        run: docker exec "${container_name}" bash "${script_name}" glibc
 
       - name: Docker - zlib ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} zlib
+        run: docker exec "${container_name}" bash "${script_name}" zlib
 
       - name: Docker - iconv ${{ inputs.distinct_id }}
         if: matrix.qbt_libtorrent_version == '1.2'
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} iconv
+        run: docker exec "${container_name}" bash "${script_name}" iconv
 
       - name: Docker - icu ${{ inputs.distinct_id }}
         if: env.set_skip_icu == 'no'
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} icu
+        run: docker exec "${container_name}" bash "${script_name}" icu
 
       - name: Docker - openssl ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} openssl
+        run: docker exec "${container_name}" bash "${script_name}" openssl
 
       - name: Docker - boost ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} boost
+        run: docker exec "${container_name}" bash "${script_name}" boost
 
       - name: Docker - libtorrent ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} libtorrent
+        run: docker exec "${container_name}" bash "${script_name}" libtorrent
 
-      - name: Docker - double_conversion ${{ inputs.distinct_id }}
-        if: matrix.qbt_build_tool == ''
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} double_conversion
+      # - name: Docker - double_conversion ${{ inputs.distinct_id }}
+      #   if: matrix.qbt_build_tool == ''
+      #   run: docker exec "${container_name}" bash "${script_name}" double_conversion
 
       - name: Docker - qtbase ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} qtbase
+        run: docker exec "${container_name}" bash "${script_name}" qtbase
 
       - name: Docker - qttools ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} qttools
+        run: docker exec "${container_name}" bash "${script_name}" qttools
 
       - name: Docker - qbittorrent ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh ${container_name} bash ${script_name} qbittorrent
+        run: docker exec "${container_name}" bash "${script_name}" qbittorrent
 
       - name: Docker - Set release asset name ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh -w /home/gh/${qbt_build_dir}/completed ${container_name} mv -f qbittorrent-nox ${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox
+        run: docker exec -w ${wd}/${qbt_build_dir}/completed "${container_name}" mv -f qbittorrent-nox "${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox"
 
       - name: Generate artifact attestation  ${{ inputs.distinct_id }}
-        uses: actions/attest-build-provenance@e8998f949152b193b063cb0ec769d69d929409be # v2.4.0
+        uses: actions/attest-build-provenance@977bb373ede98d70efdf65b84cb5f73e068dcc2a # v3.0.0
         with:
           subject-path: "${{ env.qbt_build_dir }}/completed/${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}qbittorrent-nox"
 
       - name: Docker - Release Info ${{ inputs.distinct_id }}
-        run: docker exec -u gh:gh -w /home/gh/${qbt_build_dir}/release_info ${container_name} bash -c 'mv *.md *.json '/home/gh/${qbt_build_dir}/completed''
+        working-directory: "${{ env.workspace }}/${{ env.qbt_build_dir }}/release_info"
+        run: |
+          mv *.md *.json "${workspace}/${qbt_build_dir}/completed"
 
       - name: Host - Upload libtorrent-v${{ matrix.qbt_libtorrent_version }}-qbittorrent-nox and release info artifact ${{ inputs.distinct_id }}
         if: success()
@@ -197,7 +196,7 @@ jobs:
 
       # - name: Host - Upload build dir on error or cancel
       #   if: ( cancelled() || failure() )
-      #   uses: actions/upload-artifact@v4
+      #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       #   with:
       #     name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-logs"
       #     path: "${{ env.qbt_build_dir }}"

@@ -1,17 +1,17 @@
 ---
 import { Code } from "@astrojs/starlight/components";
 const response = await fetch(
-	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json"
+	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json",
 );
 
 const data = await response.json();
 
-const codeblock = `qBittorrent ${data.qbittorrent || "4.6.3"} was built with the following libraries:
-Qt: ${data.qt6 || "6.6.2"}
-Libtorrent: ${data.libtorrent_2_0 || "2.0.10"}
-Boost: ${data.boost || "1.84.0"}
-OpenSSL: ${data.openssl || "3.2.1"}
-zlib: ${data.zlib || "1.3.2"}-motley`;
+const codeblock = `qBittorrent ${data.qbittorrent || "5.1.2"} was built with the following libraries:
+Qt: ${data.qt6 || "6.9.1"}
+Libtorrent: ${data.libtorrent_2_0 || "2.0.11"}
+Boost: ${data.boost || "1.89.0"}
+OpenSSL: ${data.openssl || "3.5.2"}
+zlib: ${data.zlib || "1.3.1.1"}-motley`;
 
 // {
 //   "glibc_2_31": "2.31",
