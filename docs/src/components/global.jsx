@@ -6,8 +6,41 @@ import Modal from "/src/components/modal.astro";
 import BuildInfoIntroduction from "/src/components/buildinfo-introduction.astro";
 import BuildInfoBuildHelp from "/src/components/buildinfo-build-help.astro";
 import PatchInfo from "/src/components/patchinfo.astro";
+import ScriptInfo from "/src/components/script-info.astro";
 import ScriptVersions from "/src/components/scriptversions.astro";
 
-import { Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, FileTree } from "@astrojs/starlight/components";
+import {
+	Aside,
+	Badge,
+	Card,
+	CardGrid,
+	FileTree,
+	Icon,
+	LinkCard,
+	Steps,
+	TabItem,
+	Tabs
+} from "@astrojs/starlight/components";
 
-export { Advanced, BuildInfoIntroduction, BuildInfoBuildHelp, Charts, Details, GithubActions, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, PatchInfo, FileTree, ScriptVersions };
+export {
+	Advanced,
+	Aside,
+	Badge,
+	BuildInfoBuildHelp,
+	BuildInfoIntroduction,
+	Card,
+	CardGrid,
+	Charts,
+	Details,
+	FileTree,
+	GithubActions,
+	Icon,
+	LinkCard,
+	Modal,
+	PatchInfo,
+	ScriptInfo,
+	ScriptVersions,
+	Steps,
+	TabItem,
+	Tabs
+};

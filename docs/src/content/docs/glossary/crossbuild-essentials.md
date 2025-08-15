@@ -7,20 +7,12 @@ hide_title: true
 
 ---
 
-When building on supported Debian based hosts we use the official crossbuild-essential tool chains that are made specifically for cross compiling on these host operating systems.
+When building on supported Debian based hosts we use the official `crossbuild-essential` tool chains that are made specifically for cross compiling on these host operating systems.
 
-On the modern distros like Bullseye and Jammy there is a wide range of supported cross build targets available.
-
-:::caution
-Only Bullseye and Jammy onwards have the full range of support we need to match the Alpine host options.
-:::
+On the modern distros like Trixie and Noble there is a wide range of supported cross build targets available.
 
 Please look a the links below to see which options are available for which platform and release.
 
-[Debian cross build essential toolchains](https://packages.debian.org/search?keywords=crossbuild-essential-&searchon=names)
+[Debian cross build essential toolchains](https://packages.debian.org/search?suite=trixie&searchon=names&keywords=crossbuild-essential)
 
-[Ubuntu cross build essential toolchains](https://packages.ubuntu.com/search?keywords=crossbuild-essential-&searchon=names)
-
-:::note
-Ubuntu provides one additional package over Debian - `crossbuild-essential-riscv64`
-:::
+[Ubuntu cross build essential toolchains](https://packages.ubuntu.com/search?suite=noble&searchon=names&keywords=crossbuild-essential)

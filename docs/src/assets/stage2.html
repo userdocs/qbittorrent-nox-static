@@ -1,0 +1,117 @@
+<!doctype html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aura Output</title>
+<style>
+/* ===== Aura Dark (Soft Text) ===== */
+:root {
+  --bg: #15141b;           /* editor.background */
+  --fg: #bdbdbd;           /* editor.foreground */
+  --black: #15141b;        --red: #c55858;        --green: #54c59f;
+  --yellow: #c7a06f;       --blue: #8464c6;       --magenta: #54c59f;
+  --cyan: #8464c6;         --white: #b4b4b4;
+  --bblack: #2d2d2d;       --bred: #c7a06f;       --bgreen: #8464c6;
+  --byellow: #c7a06f;      --bblue: #8464c6;      --bmagenta: #54c59f;
+  --bcyan: #54c59f;        --bwhite: #bdbdbd;
+}
+
+/* ===== Light mode placeholder palette ===== */
+[data-theme="light"] {
+  --bg: #fdfdfd;
+  --fg: #1e1e1e;
+  --black: #000000;        --red: #c01c28;        --green: #26a269;
+  --yellow: #a2734c;       --blue: #12488b;       --magenta: #a347ba;
+  --cyan: #2aa1b3;         --white: #d0cfcc;
+  --bblack: #555753;       --bred: #f66151;       --bgreen: #33d17a;
+  --byellow: #e9ad0c;      --bblue: #3584e4;      --bmagenta: #c061cb;
+  --bcyan: #33c7de;        --bwhite: #ffffff;
+}
+
+.aura-terminal {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: monospace;
+  padding: 1rem;
+  overflow-x: auto;
+  white-space: pre;
+}
+.aura-terminal span { all: unset; }
+</style>
+</head><body>
+<div class="aura-terminal">
+ <span style="filter: contrast(70%) brightness(140%);color:blue;">⬤</span> <span style="font-weight:bold;">Checking: </span><span style="font-weight:bold;filter: contrast(70%) brightness(140%);color:red;">available privileges</span>
+
+ <span style="color:green;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:red;">root</span>
+ <span style="color:red;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:red;">sudo</span>
+
+ <span style="filter: contrast(70%) brightness(140%);color:blue;">⬤</span> <span style="font-weight:bold;">Checking: </span><span style="font-weight:bold;color:olive;">test</span>
+
+ <span style="color:green;">⬤</span> <span style="color:olive;">bash</span>
+ <span style="color:green;">⬤</span> <span style="color:olive;">curl</span>
+ <span style="color:green;">⬤</span> <span style="color:olive;">git</span>
+
+ <span style="filter: contrast(70%) brightness(140%);color:blue;">⬤</span> <span style="font-weight:bold;">Checking: </span><span style="font-weight:bold;color:purple;">core</span>
+
+ <span style="color:red;">⬤</span> <span style="color:purple;">autoconf</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">automake</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">build-base</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">cmake</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">graphviz</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">libtool</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">linux-headers</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">ninja-build</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">ninja-is-really-ninja</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">perl</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">pkgconf</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">py3-numpy</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">py3-numpy-dev</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">python3</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">python3-dev</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">re2c</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">ttf-freefont</span>
+ <span style="color:red;">⬤</span> <span style="color:purple;">xz</span>
+
+ <span style="color:blue;">⬤</span> <span style="color:blue;">Info:</span> /workspace/qbt-nox-static.bash
+
+ <span style="color:blue;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:blue;">qbt-nox-static.bash</span> <span style="color:purple;">install_core</span> ------ installs required build tools to use script
+ <span style="color:blue;">⬤</span> <span style="filter: contrast(70%) brightness(140%);color:blue;">qbt-nox-static.bash</span> <span style="filter: contrast(70%) brightness(140%);color:green;">bootstrap_deps</span> ---- <span style="color:olive;">install_test</span> + <span style="color:purple;">install_core</span>
+
+ <span style="color:red;">⬤</span> <span style="color:olive;">Warning:</span> Missing required components of <span style="color:purple;">install_core</span>
+
+ <span style="color:green;">⬤</span> Test URL = <span style="color:green;">passed</span>
+
+ <span style="color:green;">⬤</span> Script version: <span style="filter: contrast(70%) brightness(140%);color:green;">2.2.2</span>
+
+ <span style="color:olive;">⬤</span><span style="font-weight:bold;"> Below is a list of supported modules:</span>
+
+ <span style="color:purple;">⬤</span><span style="filter: contrast(70%) brightness(140%);color:purple;"> all zlib openssl boost libtorrent qtbase qttools qbittorrent</span>
+
+ <span style="color:olive;">⬤</span> Default env settings
+
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_zlib_type=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">zlib</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_skip_icu=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">yes</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_boost_tag=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">boost-1.89.0</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_libtorrent_version=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">2.0</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_libtorrent_tag=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">v2.0.11</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_libtorrent_master_jamfile=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">no</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_qt_version=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">6</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_qt_tag=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">v6.9.1</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_qbittorrent_tag=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">release-5.1.2</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_build_dir=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">qbt-build</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_build_tool=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">cmake</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_cross_name=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">default</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_mcm_url=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">userdocs/qbt-musl-cross-make</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_patches_url=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">userdocs/qbittorrent-nox-static</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_workflow_files=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">no</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_cache_dir=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;"></span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_optimise_strip=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">yes</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_build_debug=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">no</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_standard=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">20</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_static_ish=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">no</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_optimise=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">no</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_with_qemu=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">yes</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_host_deps=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">no</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_host_deps_repo=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">userdocs/qbt-host-deps</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_legacy_mode=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">no</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+ <span style="filter: contrast(70%) brightness(140%);color:olive;">  qbt_advanced_view=&quot;</span><span style="filter: contrast(70%) brightness(140%);color:green;">yes</span><span style="filter: contrast(70%) brightness(140%);color:olive;">&quot;</span>
+
+</div></body></html>

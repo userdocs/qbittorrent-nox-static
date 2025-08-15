@@ -3,81 +3,152 @@ title: Introduction
 description: Introduction
 ---
 
-import { Advanced, BuildInfoIntroduction, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, ScriptVersions } from "/src/components/global.jsx"
+import {
+	Advanced,
+	Aside,
+	Badge,
+	BuildInfoIntroduction,
+	Card,
+	CardGrid,
+	Charts,
+	Details,
+	Icon,
+	LinkCard,
+	Modal,
+	ScriptVersions,
+	Steps,
+	TabItem,
+	Tabs
+} from "/src/components/global.jsx";
 
 ## What is it?
 
-`qbt-nox-static.bash™` was originally a simple, amateurish bash script, to build a static `qbittorrent-nox` binary for `x86_64`. The script has grown and evolved since then and now it's a complicated bash script.
+<div style="margin: 0.5rem 0 1.25rem;">
+	<ScriptVersions />
+</div>
 
-:::note
-<ScriptVersions/>
+`qbt-nox-static.bash™` was originally a simple, amateurish bash script to build a static `qbittorrent-nox` binary for `x86_64`. The script has grown and evolved since then and now it's complicated, amateurish bash script.
 
-The former is a fork of the latter, from this version, with changes specific to the dependency handling, which in turn makes breaking changes to the default behavior of the script. Combined with renaming the script to `.bash` from `.sh` as it is not a POSIX compliant script this would effectively have made `qbittorrent-nox-static.sh` unavailable for use.
+### Why are there two scripts?
 
-So the existence of the two is a transitional change and the `qbt-nox-static.bash` will be deprecated in the future, though any non breaking changes will be backported to the original script.
+`qbittorrent-nox-static.sh` and `qbt-nox-static.bash`
+
+The former is a fork of the latter, with the following significant changes:
+
+- Dependency and data handling logic were heavily modified to allow more modular use of the script.
+- Breaking changes to the default behavior of the script that would affect existing setups using it.
+- Renaming the script to `.bash` from `.sh` as it is not a POSIX-compliant script.
+- Combined, these changes would have effectively made `qbittorrent-nox-static.sh` unavailable for use.
+- Changes were backported to `qbittorrent-nox-static.sh` during the transition to prevent disruption.
+
+The transition is complete, and all these changes have been merged into `qbittorrent-nox-static.sh`, so they are effectively the same script with a minor difference in default configuration.
+
+`qbittorrent-nox-static.sh` has `qbt_legacy_mode="yes"` to emulate the original behavior of the script to facilitate transition with no breaking changes.
+
+Moving forward, the recommended script is `qbt-nox-static.bash`, but essentially all that matters is the setting of `qbt_legacy_mode="yes"` to determine default behavior.
+
+### Script differences?
+
+<Tabs>
+<TabItem label="qbt-nox-static.bash">
+
+<div style="margin: 0.5rem 0 0.25rem;">
+<Badge text="Current" variant="success" /><span style="display:inline-block; width:10px;"></span><Badge text="Recommended" variant="tip" />
+</div>
+
+Default behavior: `qbt_legacy_mode="no"`
+
+When the script is run with no arguments, it will only detect dependencies and offer options required to proceed toward building a binary.
+
+```bash
+ ⬤ qbt.bash install_test ------ installs the minimum required tools to run tests
+ ⬤ qbt.bash install_core ------ installs the required build tools to use the script
+ ⬤ qbt.bash bootstrap_deps ---- install_test + install_core
+```
+
+It will not do anything else unless prompted to do so and the required dependencies are present.
+
+:::tip
+With the minimum test dependencies installed — `git`, `bash`, and `curl` — it can perform most dynamic help functions and testing required to configure the script before installing the core dependencies.
 :::
 
-### How are they different?
+This allows configuration to be done before installing core dependencies when the script is used interactively.
 
-`qbittorrent-nox-static.sh` (legacy)
+This makes sense when you consider you don't need to install host `gcc` to cross-build, something the script handles automatically when configured to cross-build.
 
-When the script runs it will attempt to automatically install the host dependencies if it can. It does this with no user input. This is because it was designed to be used in a docker and not a normal host.
+</TabItem>
+<TabItem label="qbittorrent-nox-static.sh">
 
-If the host env if pre-configured this produces the desired result but if the user does not understand this and runs the script it will just be confusing to see it installing lots of things with no context.
+<div style="margin: 0.5rem 0 1.25rem;">
+<Badge text="Legacy" variant="caution" /> <span style="display:inline-block; width:10px;"></span><Badge text="Caution" variant="danger" />
+</div>
 
-The logic of this is done using [bash indexed arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html).
+Default behavior: `qbt_legacy_mode="yes"`
 
-`qbt-nox-static.bash` (current)
+- When the script is run with no arguments and the required privileges are available it will attempt to automatically install the host dependencies if it can. It does this with no user input.
+- When arguments are set that create dependency changes, the script will install them automatically when run.
 
-When the script runs it will only detect dependencies offer options to proceed. It does nothing unless specifically asked and in a modular way.
+Reason for this behavior:
 
-With the minimum test dependencies installed, `git`,`bash` and `curl` it can perform most dynamic help functions and testing required to configure the script before installing the core dependencies.
+- It was designed to be used in a Docker container as root, not on a normal host, and interactive options came later.
+- It was mainly used with GitHub workflows.
 
-This makes sense when you consider you don't need to install host gcc to cross build, something which the script handled automatically when configured to cross build.
+Concerns:
 
-The logic of this is done using [bash associative arrays](https://www.gnu.org/software/bash/manual/html_node/Arrays.html).
+- It means the environment needs to be configured correctly or commands passed before it is run for the first time to avoid unnecessary dependency installation.
+- The behavior of installing dependencies without user interaction is undesirable.
+- It was not clear to the end user what was happening without the required context.
+
+If the host environment is pre-configured, this produces the desired result, but if the user does not understand this and runs the script, it will be confusing to see it installing many packages with no context.
+
+</TabItem>
+</Tabs>
 
 ### What does it mean to you?
 
-The documentation will be focused on `qbt-nox-static.bash` as it is the more sane behaving script with a better user experience.
+The documentation will be focused on `qbt-nox-static.bash` as it is the better-behaved script with a better user experience.
 
-The binary outcome should be identical for both. You should use `qbt-nox-static.bash` but if you understand how it works and are using docker, `.qbt_env` or a pre-configured environment, `qbittorrent-nox-static.sh` will do the same thing.
+:::note
+The binary outcome should be identical for both. You should use `qbt-nox-static.bash`, but if you understand how it works and are using Docker, `.qbt_env`, or a pre-configured environment, `qbittorrent-nox-static.sh` will do the same thing.
+:::
 
 ## What does it do?
 
-It handles a lot of the nuanced complexity around building various different dependencies on two different host platforms, towards the same outcome and can target these architectures via cross building:
+It handles a lot of the nuanced complexity around building various dependencies on two different host platforms toward the same outcome and can target these architectures via cross-building:
 
-<Details summary=" target architectures">
-	`armel` `armhf` `armv7` `aarch64`
+Cross-building is done by <Modal id="musl-cross-make" label="Musl Cross Make"/> on Alpine and <Modal id="crossbuild-essentials" label="Crossbuild Essentials"/> on Debian-based.
 
-	`x86` `x86_64`
+<Details summary="target architectures">
+    `armel` `armhf` `armv7` `aarch64`
 
-	`s390x`
+    `x86` `x86_64`
 
-	`powerpc` `ppc64el`
+    `s390x`
 
-	`mips` `mipsel` `mips64` `mips64el`
+    `powerpc` `ppc64el`
+
+    `mips` `mipsel` `mips64` `mips64el`
 
     `loongarch64`
 
-	`riscv64`
+    `riscv64`
 </Details>
 
-⭐ On supported host build platforms the `qbt-nox-static.bash` will perform these three main tasks via simple prompt:
+⭐ On supported host build platforms, the `qbt-nox-static.bash` will perform these three main tasks via a simple prompt:
 
 <Steps>
 
-1. Update the system and install the core build dependencies, based on activated options - Requires `root` or `sudo` privileges if any dependencies are missing.
+1. Update the system and install the core build dependencies, based on activated options — requires `root` or `sudo` privileges if any dependencies are missing.
 
 2. Download all dependencies locally and build `qbittorrent-nox` with no special privileges required.
 
-3. Build a fully static and portable `qbittorrent-nox` binary which built using the latest version of all supported dependencies.
+3. Build a fully static and portable `qbittorrent-nox` binary using the latest versions of all supported dependencies.
 
 </Steps>
 
-The script is highly configurable and is capable of native and cross building. These more advanced configurations will be discussed later sections of the documentation.
+The script is highly configurable and is capable of native and cross-building. These more advanced configurations will be discussed in later sections of the documentation.
 
-## What is the outcome
+## What is the outcome?
 
 ⭐ Here is an example successful default build profile:
 
@@ -122,8 +193,8 @@ statically linked
 
 ### How do I use it?
 
-The script can be downloaded locally and run on a supported host or via docker. It has a comprehensive help section built in, available via the `-h` flag, that explains all options and demonstrates dynamic command choices. The best thing to do is read the script installation and usage sections to understand the key features and how to user them.
+The script can be downloaded locally and run on a supported host or via Docker. It has a comprehensive built-in help section, available via the `-h` flag, that explains all options and demonstrates dynamic command choices. The best thing to do is to read the script installation and usage sections to understand the key features and how to use them.
 
 :::tip[The hard part is done.]
-You always have a easy method available to you to build your own releases, simply by forking the repo and using the available workflows. How to do this will be shown in the <Modal id="github-actions" label="Github Actions"/> sections later on. You can build locally or fork the repo and build and release using CI where the git repo acts as a local environment to the script.
+You always have an easy method available to build your own releases — simply fork the repository and use the available workflows. How to do this will be shown in the <Modal id="github-actions" label="GitHub Actions"/> sections later on. You can build locally or fork the repository, and build and release using CI, where the Git repository acts as a local environment for the script.
 :::

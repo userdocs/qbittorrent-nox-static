@@ -1,0 +1,22 @@
+name: send_to_usrdx_s
+
+on:
+  push:
+    branches: [ main, master ]
+    paths:
+      - 'qbittorrent-nox-static.sh'
+      - 'qbt-nox-static.bash'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  send_to_usrdx_s:
+    runs-on: ubuntu-24.04-arm
+
+    steps:
+    - name: Trigger grab_files workflow in usrdx/s
+      env:
+        GH_TOKEN: ${{ secrets.USRDX_S }}
+        GH_HOST: github.com
+      run: gh workflow run grab_files.yaml --repo usrdx/s

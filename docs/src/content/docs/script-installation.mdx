@@ -29,11 +29,15 @@ Some notes on the dockers method:
 - We use `-e "LANG=C.UTF-8"` with Debian based images to avoid some UTF errors.
 
 :::tip[env file]
+You do not need to configure the env while bootstrapping the container. It can be done after via the `.qbt_env` file or exporting them.
+
 There are multiple ways to pass an env file when using Docker.
 
 - You can use the `--env-file` switch when creating the docker and provide a file with your [envs](/qbittorrent-nox-static/build-help#env-settings).
 - If a `.qbt_env` file is found in the same directory as the script, it will be used automatically.
 - Using ENV in a dockerfile is also possible.
+
+The easist method is the `.qbt_env` as the script has support flags for this purpose.
 :::
 
 </TabItem>
@@ -53,7 +57,7 @@ docker run -it -w /root -p 8080:8080 -v ~/qbt:/root alpine:edge /bin/ash -c 'apk
 If you need to download the script use this command
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
+curl -sLO usrdx.github.io/s/qbt.bash && chmod +x qbt.bash
 ```
 
 </TabItem>
@@ -73,7 +77,7 @@ docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root debian:lat
 If you need to download the script use this command
 
 ```bash
-curl --sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
+curl -sLO usrdx.github.io/s/qbt.bash && chmod +x qbt.bash
 ```
 
 </TabItem>
@@ -92,7 +96,7 @@ docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root ubuntu:lat
 If you need to download the script use this command
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
+curl -sLO usrdx.github.io/s/qbt.bash && chmod +x qbt.bash
 ```
 
 </TabItem>

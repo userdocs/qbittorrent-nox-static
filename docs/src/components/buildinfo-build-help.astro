@@ -28,7 +28,9 @@ const ADVANCED_VARS = new Set([
 	"qbt_static_ish",
 	"qbt_optimise",
 	"qbt_with_qemu",
+	"qbt_host_deps",
 	"qbt_host_deps_repo",
+	"qbt_legacy_mode",
 ]);
 type Row = {
 	variable: string;
@@ -170,10 +172,28 @@ const rows: Row[] = [
 		example: 'qbt_with_qemu="yes"',
 	},
 	{
+		variable: "qbt_host_deps",
+		defaultVal: "yes",
+		optionsTokens: ["yes", "no"],
+		example: 'qbt_host_deps="no"',
+	},
+	{
 		variable: "qbt_host_deps_repo",
 		defaultVal: "userdocs/qbt-host-deps",
 		optionsTokens: ["n/a for general use"],
 		example: "qbt_host_deps_repo=userdocs/qbt-host-deps",
+	},
+	{
+		variable: "qbt_legacy_mode",
+		defaultVal: "yes",
+		optionsTokens: ["yes", "no"],
+		example: 'qbt_legacy_mode="no"',
+	},
+	{
+		variable: "qbt_advanced_view",
+		defaultVal: "yes",
+		optionsTokens: ["yes", "no"],
+		example: 'qbt_advanced_view="no"',
 	},
 ];
 ---

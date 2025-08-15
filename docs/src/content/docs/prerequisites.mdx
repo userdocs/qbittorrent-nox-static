@@ -36,10 +36,20 @@ If you want to self host you need to be able to meet these conditions on your ho
 🟧 Host permissions
 
     - The script needs to install some system dependencies in order to proceed and if you do not have permission or access to do this or no access to docker to use a container you must find a more suitable host environment.
+	- You can simply [fork the repo on Github](/qbittorrent-nox-static/github-actions) and create your own releases if you have no access to a suitable build host
 
-🟥 Qt6 requirements
+🟥 Emulation requirements for cross building
 
-    - If you build using Qt6 you will need to have these dependencies installed on the host (not inside the docker), <Modal id="qemu" label="qemu and binmtfs"/>
+    - `icu` `qtbase` and `qttools` requires `qemu` emulation to be available by default in order to cross build them.
+	- This was reworked in script version `v2.2.2` and now the user has more choice of how to build.
+	- Two env vars specific to dealing with this were introduced
+	- `qbt_with_qemu` - this defaults to `yes` but if set to `no` if will enable `_host_deps` version of the modules that need a host version to be build before they can cross build.
+		- this means longer build times as these modules are essentially built twice.
+	- `qbt_host_deps` - defaults to `no` but if set to yes it will not build locally but instead pull in prebuilt host deps for the these modules avoiding the need to build them locally.
+		- They are built and sourced from here https://github.com/userdocs/qbt-host-deps
+		- This make build time equivalent to using `qemu` without the requirement of having `qemu`
+
+	If you build using Qt6 you will need to have these dependencies installed on the host (not inside the docker), <Modal id="qemu" label="qemu and binmtfs"/>
 
 <Tabs>
 <TabItem value="Debian based Linux" label="debian">
