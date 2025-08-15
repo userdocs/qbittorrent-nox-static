@@ -57,10 +57,10 @@ You can now run it using this command:
 
 ### What You Get
 
-✅ **No installation hassles** - Single static binary
-✅ **Latest versions** - Always up-to-date dependencies
-✅ **Universal compatibility** - Runs on any Linux distro
-✅ **Multiple architectures** - Support for ARM devices too
+- ✅ **No installation hassles** - Single static binary
+- ✅ **Latest versions** - Always up-to-date dependencies
+- ✅ **Universal compatibility** - Runs on any Linux distro
+- ✅ **Multiple architectures** - Support for ARM devices too
 
 ## 📋 Table of Contents
 

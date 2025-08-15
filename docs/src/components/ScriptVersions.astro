@@ -1,0 +1,67 @@
+---
+import fs from "node:fs/promises";
+import { Badge } from "@astrojs/starlight/components";
+
+type Props = {
+	// Render mode:
+	// - "sentence": badge + human-friendly text
+	// - "values": just the version string
+	mode?: "sentence" | "values";
+	// Optional script filename at repo root (e.g., "qbt-nox-static.bash", "qi.bash").
+	file?: string;
+	// Optional label for the badge in "sentence" mode.
+	label?: string;
+	// Optional prefix before the version (default: "v"). Use "" to disable.
+	prefix?: string;
+};
+
+const {
+	mode = "sentence",
+	file = "qbt-nox-static.bash",
+	label = "Latest version",
+	prefix = "v",
+} = Astro.props as Props;
+
+async function readVersion(relPath: string): Promise<string> {
+	try {
+		// Build a file URL relative to this component's location
+		const url = new URL(relPath, import.meta.url);
+		const content = await fs.readFile(url, "utf8");
+		// More robust match: allow spaces and single/double quotes
+		const match = content.match(
+			/(?:^|\n)\s*script_version\s*=\s*(["'])([^"']+)\1/,
+		);
+		return match?.[2] ?? "unknown";
+	} catch {
+		return "unknown";
+	}
+}
+
+// Scripts live at the repository root; this component is at docs/src/components/
+// So we traverse up three directories to reach the repo root.
+const version = await readVersion(`../../../${file}`);
+const isKnown = version !== "unknown";
+const normalizedVersion = typeof version === "string" ? version.trim() : "";
+const displayVersion = isKnown
+	? prefix === ""
+		? normalizedVersion
+		: `${prefix}${normalizedVersion}`
+	: "unknown";
+---
+
+<>
+	{
+		mode === "values" ? (
+			<code title={`source: ${file}`}>{displayVersion}</code>
+		) : (
+			<>
+				<Badge
+					text={isKnown ? label : "Version unavailable"}
+					variant={isKnown ? "success" : "caution"}
+				/>
+				<span style="display:inline-block; width:10px;" />
+				<code title={`source: ${file}`}>{displayVersion}</code>
+			</>
+		)
+	}
+</>

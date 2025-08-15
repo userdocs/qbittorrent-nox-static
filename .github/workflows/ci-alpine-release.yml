@@ -56,10 +56,13 @@ jobs:
         env:
           lt_version: ${{ matrix.qbt_libtorrent_version }}
         run: |
-          revision="$(jq -r .revision ${lt_version}/*-dependency-version.json | sort -nr | head -n1)"
-          boost="$(jq -r .boost ${lt_version}/*-dependency-version.json | head -n1)"
+          shopt -s nullglob
 
-          for dependency_version_json in ${lt_version}/*-dependency-version.json; do
+          revision="$(jq -r .revision "${lt_version}"/*-dependency-version.json | sort -nr | head -n1)"
+          boost="$(jq -r .boost "${lt_version}"/*-dependency-version.json | head -n1)"
+
+          # this need to check both 1.2 and 2.0 folders to merge the libtorrent versions in the dependency-version.json
+          for dependency_version_json in {1.2,2.0}/*-dependency-version.json; do
             if [[ -f ${dependency_version_json} ]]; then
               sed -r 's/"boost": (.*)/BOOST_PLACEHOLDER/g' -i "${dependency_version_json}"
               sed -r 's/"revision": (.*)/REVISION_PLACEHOLDER/g' -i "${dependency_version_json}"
@@ -67,7 +70,8 @@ jobs:
             fi
           done
 
-          for release_md in ${lt_version}/*-release.md; do
+          # This file only needs to merge info specific to the libtorrent matrix running it.
+          for release_md in "${lt_version}"/*-release.md; do
             if [[ -f ${release_md} ]]; then
               sed -r 's/^\|(.*)revision(.*)\|(.*)\|$/REVISION_PLACEHOLDER/g' -i "${release_md}"
               release_md+=("${release_md}")
@@ -93,7 +97,7 @@ jobs:
         run: printf '%s\n' "release_title=$(cat ${{ matrix.qbt_libtorrent_version }}/title.md)" >> $GITHUB_ENV
 
       - name: Host- Create release - tag - assets ${{ inputs.distinct_id }}
-        uses: ncipollo/release-action@bcfe5470707e8832e12347755757cec0eb3c22af # v1.18.0
+        uses: ncipollo/release-action@1c89adf39833729d8f85a31ccbc451b078733c80 # v1.19.1
         with:
           prerelease: "${{ matrix.preview_release }}"
           artifacts: "${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox,dependency-version.json"

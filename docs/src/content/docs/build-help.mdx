@@ -3,12 +3,34 @@ title: Build Help
 description: Build Help
 ---
 
-import { Advanced, BuildInfoBuildHelp, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, ScriptVersions } from "/src/components/global.jsx"
+import {
+	AdvancedMarkdown,
+	Aside,
+	BuildConfigTool,
+	Badge,
+	BuildinfoIntroduction,
+	BuildinfoBuildHelp,
+	Card,
+	CardGrid,
+	Charts,
+	Details,
+	FileTree,
+	GithubActions,
+	Icon,
+	LinkCard,
+	Modal,
+	Patchinfo,
+	Scriptinfo,
+	ScriptVersions,
+	Steps,
+	TabItem,
+	Tabs
+} from "/src/components/global.jsx"
 
 Once the script has successfully configured the platform you can execute the help switch to see how it works and what options you have available to you.
 
 ```bash
-./qbt-nox-static.bash -h
+./qbt.bash -h
 ```
 
 ## Order of preference
@@ -26,11 +48,11 @@ There are two flags related to bootstrapping the `.qbt_env`
 
 The first can be run at anytime regardless of the missing dependencies. It creates `.qbt_env` with empty values
 
-`./qbt-nox-static.bash -bs-e` or `--bootstrap-env`
+`./qbt.bash -bs-e` or `--bootstrap-env`
 
 The second can be run once test dependencies are installed. It creates a `.qbt_env` with values populated by defaults or flag settings.
 
-`./qbt-nox-static.bash -bs-ef` or `--bootstrap-env-full`
+`./qbt.bash -bs-ef` or `--bootstrap-env-full`
 :::
 
 ## ENV settings
@@ -43,7 +65,7 @@ The script has some `env` settings that can trigger certain behavior without the
 You can export these before you run the script to set them. The can be used for docker builds or local builds and work in the `.qbt_env` file.
 :::
 
-<BuildInfoBuildHelp/>
+<BuildinfoBuildHelp/>
 
 ## Build flags
 
@@ -138,7 +160,7 @@ The `--bootstrap-release` and `--bootstrap-multi-arch` options are specific to G
 
  Module specific help - flags are used with the modules listed here.
 
- Use: all or module-name          Usage: ~/qbt-nox-static.bash all -i
+ Use: all or module-name          Usage: ~/qbt.bash all -i
 
  all ---------------- optional Recommended method to install all modules
  install ------------ optional Install the ~/qbt-build/completed/qbittorrent-nox binary
@@ -148,7 +170,6 @@ The `--bootstrap-release` and `--bootstrap-multi-arch` options are specific to G
  openssl ------------ required Build openssl locally
  boost -------------- required Download, extract and build the boost library files
  libtorrent --------- required Build libtorrent locally
- double_conversion -- required A cmake + Qt6 build component on modern OS only.
  qtbase ------------- required Build qtbase locally
  qttools ------------ required Build qttools locally
  qbittorrent -------- required Build qbittorrent locally
@@ -252,10 +273,10 @@ Add your patches there, for example.
 
 ## Build - default profile
 
-Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the default build directory `qbt-build/compelted`.
+Install all default modules (ICU is skipped) and build `qbittorrent-nox` to the default build directory `qbt-build/completed`.
 
 ```bash
-./qbt-nox-static.bash all
+./qbt.bash all
 ```
 
 ## Build - modules (optional and mostly for debugging and testing)
@@ -267,7 +288,7 @@ It's best to consider all individual modules listed below as being dependent on 
 :::
 
 ```bash
-./qbt-nox-static.bash module
+./qbt.bash module
 ```
 
 Here are the list of supported modules:
@@ -275,11 +296,10 @@ Here are the list of supported modules:
 ```bash
 glibc (Debian based only)
 zlib (default)
-iconv (default)
+iconv (default libtorrent v1.2 only)
 icu (optional)
 openssl (default)
 boost (default)
-double_conversion (default for Qt6 on a modern OS - Bullseye / Jammy)
 qtbase (default)
 qttools (default)
 libtorrent (default)
@@ -309,5 +329,5 @@ The `-b` flag accepts both full `/opt` and relative `opt` paths.
 :::
 
 ```bash
-./qbt-nox-static.bash all -b "/opt"
+./qbt.bash all -b "/opt"
 ```

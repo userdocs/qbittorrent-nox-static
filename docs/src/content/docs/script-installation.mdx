@@ -3,7 +3,29 @@ title: Script Installation
 description: Script Installation
 ---
 
-import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+import {
+	AdvancedMarkdown,
+	Aside,
+	BuildConfigTool,
+	Badge,
+	BuildinfoIntroduction,
+	BuildinfoBuildHelp,
+	Card,
+	CardGrid,
+	Charts,
+	Details,
+	FileTree,
+	GithubActions,
+	Icon,
+	LinkCard,
+	Modal,
+	Patchinfo,
+	Scriptinfo,
+	ScriptVersions,
+	Steps,
+	TabItem,
+	Tabs
+} from "/src/components/global.jsx"
 
 :::note[Host environment]
 The recommended build platform is Alpine Linux and the supported build method is via docker. It will just make things easier.
@@ -17,8 +39,10 @@ If you cannot or don't want to use docker, you can use the [Github Actions](/qbi
 
 ## Bootstrapping the container
 
-<Tabs>
-<TabItem value="Notes" label="Notes">
+<Tabs syncKey="installation-method">
+<TabItem value="notes" label="Notes">
+
+<div id="notes"></div>
 
 Some notes on the dockers method:
 
@@ -29,16 +53,22 @@ Some notes on the dockers method:
 - We use `-e "LANG=C.UTF-8"` with Debian based images to avoid some UTF errors.
 
 :::tip[env file]
+You do not need to configure the env while bootstrapping the container. It can be done after via the `.qbt_env` file or exporting them.
+
 There are multiple ways to pass an env file when using Docker.
 
 - You can use the `--env-file` switch when creating the docker and provide a file with your [envs](/qbittorrent-nox-static/build-help#env-settings).
 - If a `.qbt_env` file is found in the same directory as the script, it will be used automatically.
 - Using ENV in a dockerfile is also possible.
+
+The easist method is the `.qbt_env` as the script has support flags for this purpose.
 :::
 
 </TabItem>
 
-<TabItem value="Alpine Linux" label="Alpine">
+<TabItem value="alpine" label="Alpine">
+
+<div id="alpine"></div>
 
 :::note[tags]
 You use `alpine:edge` `alpine:latest`
@@ -53,12 +83,14 @@ docker run -it -w /root -p 8080:8080 -v ~/qbt:/root alpine:edge /bin/ash -c 'apk
 If you need to download the script use this command
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
+curl -sLO usrdx.github.io/s/qbt.bash && chmod +x qbt.bash
 ```
 
 </TabItem>
 
-<TabItem value="Debian Linux" label="Debian">
+<TabItem value="debian" label="Debian">
+
+<div id="debian"></div>
 
 :::note[tags]
 You use `debian:trixie` `debian:latest` or a supported tag
@@ -73,11 +105,13 @@ docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root debian:lat
 If you need to download the script use this command
 
 ```bash
-curl --sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
+curl -sLO usrdx.github.io/s/qbt.bash && chmod +x qbt.bash
 ```
 
 </TabItem>
-<TabItem value="Ubuntu Linux" label="Ubuntu">
+<TabItem value="ubuntu" label="Ubuntu">
+
+<div id="ubuntu"></div>
 
 :::note[tags]
 You use `ubuntu:noble` `ubuntu:latest`
@@ -92,8 +126,16 @@ docker run -it -w /root -p 8080:8080 -e "LANG=C.UTF-8" -v ~/qbt:/root ubuntu:lat
 If you need to download the script use this command
 
 ```bash
-curl -sLO https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/qbt-nox-static.bash && chmod +x qbt-nox-static.bash
+curl -sLO usrdx.github.io/s/qbt.bash && chmod +x qbt.bash
 ```
+
+</TabItem>
+
+<TabItem value="build-helper" label="Build helper">
+
+<div id="build-helper"></div>
+
+<BuildConfigTool />
 
 </TabItem>
 </Tabs>

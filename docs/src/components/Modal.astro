@@ -1,0 +1,428 @@
+---
+import { loadGlossaryEntry, generateUniqueId, GlossaryError } from '../utils/modal-utils';
+
+interface Props {
+	id: string;
+	label: string;
+	class?: string;
+}
+
+const { id, label, class: className } = Astro.props;
+
+let primaryHtml = "";
+let moreHtml = "";
+let hasMore = false;
+let uniqueId = "";
+let glossaryUrl = "";
+let errorMessage = "";
+
+try {
+	const result = await loadGlossaryEntry(id);
+	primaryHtml = result.primaryHtml;
+	moreHtml = result.moreHtml;
+	hasMore = result.hasMore;
+	uniqueId = generateUniqueId(id);
+	const basePath = `/${Astro.url.pathname.split("/")[1]}/`;
+	glossaryUrl = `${basePath}glossary/${id}`;
+} catch (error) {
+	errorMessage = error instanceof GlossaryError
+		? `Glossary Error (${error.code}): ${error.message}`
+		: `Failed to load modal content: ${error instanceof Error ? error.message : String(error)}`;
+
+	console.error('Modal component error:', errorMessage);
+}
+---
+
+{errorMessage ? (
+	<div class={`modal-error ${className ?? ''}`} role="alert">
+		<span class="modal-error-label">{label}</span>
+		<span class="modal-error-message" title={import.meta.env.DEV ? errorMessage : undefined}>
+			{import.meta.env.DEV ? errorMessage : `Unable to load glossary entry for "${label}"`}
+		</span>
+	</div>
+) : (
+	<my-modal
+		class={`modal-dialog-button ${className ?? ''}`}
+		tabindex="0"
+		data-tippy-maxWidth="100"
+		data-unique-id={uniqueId}
+		data-dialog-label={label}
+		data-has-more={String(hasMore)}
+		data-html={`<div id="${uniqueId}-primary">${primaryHtml}<hr class="glossary-separator"><div class="glossary-url-div" id="${uniqueId}-glossary-url">🟩 <a class="glossary-url" href=${glossaryUrl} target="_blank" rel="noopener noreferrer">Click here for the full Glossary entry</a></div></div>`}
+		data-html-more={moreHtml}
+	>
+		<a
+			class="glossary-url dialog-button-open"
+			id={`${uniqueId}-open`}
+			role="button"
+			tabindex="0"
+			aria-haspopup="dialog"
+			aria-controls={`${uniqueId}-dialog`}
+			aria-label={`Open glossary entry for ${label}`}
+		>{label}</a>
+	</my-modal>
+)}
+
+<script>
+	class MyModal extends HTMLElement {
+		private dialog: HTMLDialogElement | null = null;
+		private openButton: HTMLButtonElement | null = null;
+		private closeButton: HTMLButtonElement | null = null;
+		private toggleButton: HTMLButtonElement | null = null;
+		private lastActiveElement: Element | null = null;
+
+		constructor() {
+			super();
+			this.initializeModal();
+		}
+
+		private initializeModal(): void {
+			const uniqueId = this.dataset.uniqueId;
+			if (!uniqueId) {
+				console.error('Modal: uniqueId is required');
+				return;
+			}
+
+			const idPrimary = `${uniqueId}-primary`;
+			const idDialog = `${uniqueId}-dialog`;
+			const idContent = `${uniqueId}-content`;
+			const buttonId = `${uniqueId}-open`;
+			const buttonClose = `${uniqueId}-close`;
+			const buttonMore = `${uniqueId}-more`;
+			const showMore = `${uniqueId}-show-more`;
+			const glossaryUrl = `${uniqueId}-glossary-url`;
+			const html = this.dataset.html ?? "";
+			const htmlMore = this.dataset.htmlMore ?? "";
+			const hasMore = (this.dataset.hasMore ?? "false") === "true";
+			const dialogLabel = this.dataset.dialogLabel ?? "Glossary entry";
+
+			const body = document.body;
+			if (!body) {
+				console.error('Modal: document.body not available');
+				return;
+			}
+
+			body.insertAdjacentHTML(
+				"beforeend",
+				`<dialog class="modal-dialog" id="${idDialog}" role="dialog" aria-modal="true" aria-label="${dialogLabel}">
+                    <div class="dialog-content" id="${idContent}"></div>
+                    <div class="dialog-button">
+                        <div class="dialog-show-more" id="${showMore}" style="display: none"></div>
+						<button class="dialog-button-close" id="${buttonClose}" type="button">Close this Dialog</button>
+						<button class="dialog-button-more" id="${buttonMore}" type="button" aria-expanded="false">Show more</button>
+                    </div>
+                </dialog>`
+			);
+
+			const dialogDiv = document.getElementById(idContent);
+			const dialogMoreDiv = document.getElementById(showMore);
+
+			if (dialogDiv) {
+				dialogDiv.innerHTML = html;
+			}
+
+			if (dialogMoreDiv) {
+				dialogMoreDiv.innerHTML = htmlMore;
+			}
+
+			const primary = document.getElementById(idPrimary);
+			this.dialog = document.getElementById(idDialog) as HTMLDialogElement;
+			this.openButton = document.getElementById(buttonId) as HTMLButtonElement;
+			this.closeButton = document.getElementById(buttonClose) as HTMLButtonElement;
+			this.toggleButton = document.getElementById(buttonMore) as HTMLButtonElement;
+			const moreDialog = document.getElementById(showMore);
+			const dialogUrl = document.getElementById(glossaryUrl);
+
+			if (!this.openButton || !this.closeButton || !this.dialog) {
+				console.error('Modal: Required elements not found');
+				return;
+			}
+
+			// Hide the "Show more" button if there's no extra content
+			if (!hasMore && this.toggleButton) {
+				this.toggleButton.style.display = "none";
+			}
+
+			// Update button opens a modal dialog
+			this.openButton.addEventListener("click", () => this.openModal());
+
+			// Open with keyboard (Enter/Space) for accessibility
+			this.openButton.addEventListener("keydown", (event: KeyboardEvent) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					this.openModal();
+				}
+			});
+
+			// Form cancel button closes the dialog box
+			this.closeButton.addEventListener("click", () => this.closeModal());
+
+			this.toggleButton?.addEventListener("click", () => {
+				this.toggleDisplay(primary);
+				this.toggleDisplay(dialogUrl);
+				this.toggleDisplay(moreDialog);
+				if (this.toggleButton) {
+					this.toggleButton.innerHTML =
+						this.toggleButton.innerHTML === "Show less" ? "Show more" : "Show less";
+					const expanded = this.toggleButton.getAttribute("aria-expanded") === "true";
+					this.toggleButton.setAttribute("aria-expanded", expanded ? "false" : "true");
+				}
+			});
+
+			const resetContent = () => {
+				if (dialogDiv) {
+					dialogDiv.style.display = "block";
+				}
+				if (moreDialog) {
+					moreDialog.style.display = "none";
+				}
+				if (dialogUrl) {
+					dialogUrl.style.display = "block";
+				}
+				if (primary) {
+					primary.style.display = "block";
+				}
+				if (this.toggleButton) {
+					this.toggleButton.innerHTML = "Show more";
+					this.toggleButton.setAttribute("aria-expanded", "false");
+				}
+			};
+
+			const handleClose = () => {
+				resetContent();
+				this.closeModal();
+			};
+
+			// Update all close handlers
+			this.closeButton.addEventListener("click", handleClose);
+
+			// Close the dialog when clicked on the backdrop
+			window.addEventListener("click", (event) => {
+				if (event.target === this.dialog) {
+					handleClose();
+				}
+			});
+
+			document.addEventListener("keydown", (event) => {
+				if (event.key === "Escape" && this.dialog?.open) {
+					handleClose();
+				}
+			});
+
+			// Keep dialog state consistent if closed by other means
+			this.dialog.addEventListener("close", () => {
+				resetContent();
+			});
+		}
+
+		private openModal(): void {
+			if (!this.dialog || !this.closeButton) return;
+
+			this.lastActiveElement = document.activeElement;
+			this.dialog.showModal();
+			this.manageFocus(this.dialog);
+		}
+
+		private closeModal(): void {
+			if (!this.dialog) return;
+
+			this.dialog.close();
+			this.restoreFocus();
+		}
+
+		private manageFocus(element: HTMLElement): void {
+			const focusableElements = element.querySelectorAll(
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+			);
+
+			if (focusableElements.length > 0) {
+				(focusableElements[0] as HTMLElement).focus();
+			} else if (this.closeButton) {
+				this.closeButton.focus();
+			}
+		}
+
+		private restoreFocus(): void {
+			if (this.lastActiveElement && "focus" in this.lastActiveElement) {
+				(this.lastActiveElement as HTMLElement).focus();
+			} else if (this.openButton) {
+				this.openButton.focus();
+			}
+			this.lastActiveElement = null;
+		}
+
+		private toggleDisplay(element: HTMLElement | null): void {
+			if (element) {
+				element.style.display =
+					element.style.display === "none" ? "block" : "none";
+			}
+		}
+	}
+	customElements.define("my-modal", MyModal);
+</script>
+
+<style is:global>
+	:root {
+		/* Dark mode default colors */
+		--modal-border-color: #c866d1;
+		--modal-border-width: 2px;
+		--modal-border-radius: 5px;
+		--modal-backdrop-blur: 3px;
+		--modal-backdrop-opacity: 0.5;
+		--modal-separator-color: #c866d1;
+		--modal-min-width: 400px;
+		--modal-line-height: 20px;
+		--modal-padding: 10px;
+	}
+
+	:root[data-theme="light"] {
+		/* Light mode overrides */
+		--modal-border-color: rgb(146, 52, 88);
+		--modal-separator-color: rgb(146, 52, 88);
+	}
+
+	.glossary-separator {
+		border: none !important;
+		border-top: 1px solid var(--modal-separator-color) !important;
+		background-color: var(--modal-separator-color) !important;
+		height: 1px !important;
+		margin: -10px 0px 0px 0px;
+	}
+
+	.glossary-url {
+		margin: 0px 0px 0px 0px;
+		color: var(--url-colour, blue) !important;
+	}
+
+	.glossary-url-div {
+		margin: var(--modal-padding) 0px 0px 0px;
+	}
+
+	.glossary-url:hover {
+		color: var(--url-colour-hover, darkblue) !important;
+		cursor: pointer;
+	}
+
+	.modal-dialog {
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		max-width: 100%;
+		min-width: var(--modal-min-width);
+		height: max-content;
+		border: var(--modal-border-width) solid var(--modal-border-color);
+		line-height: var(--modal-line-height);
+		border-radius: var(--modal-border-radius);
+	}
+
+	.dialog-button {
+		float: none !important;
+		padding-top: var(--modal-padding) !important;
+		padding-bottom: 0px !important;
+	}
+
+	.dialog-button-close {
+		width: 49% !important;
+		float: left !important;
+		border: var(--modal-border-width) solid var(--modal-border-color);
+		padding: var(--modal-padding);
+		border-radius: var(--modal-border-radius);
+		background: transparent;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.dialog-button-more {
+		width: 49% !important;
+		float: right !important;
+		border: var(--modal-border-width) solid var(--modal-border-color);
+		padding: var(--modal-padding);
+		border-radius: var(--modal-border-radius);
+		background: transparent;
+		cursor: pointer;
+		transition: all 0.2s ease;
+	}
+
+	.dialog-button-close:hover,
+	.dialog-button-more:hover {
+		background-color: var(--modal-border-color);
+		color: white;
+	}
+
+	.dialog-content {
+		padding: 0px !important;
+		margin-bottom: 0px !important;
+		white-space: pre-wrap !important;
+	}
+
+	.dialog-show-more {
+		padding-bottom: var(--modal-padding) !important;
+		margin-top: calc(-1 * var(--modal-padding) * 3) !important;
+		white-space: pre-wrap !important;
+	}
+
+	.dialog-button-open {
+		border-radius: calc(var(--modal-border-radius) / 2) !important;
+		color: var(--modal-url-color, var(--modal-border-color)) !important;
+		padding: 0px 2px 2px 2px !important;
+		background-color: var(--modal-url-bg-color, transparent) !important;
+		text-decoration: none;
+		transition: all 0.2s ease;
+	}
+
+	.dialog-button-open:hover {
+		background-color: var(--modal-url-bg-hv-color, var(--modal-border-color)) !important;
+		color: var(--modal-url-hover-color, white) !important;
+		text-decoration: none;
+	}
+
+	.dialog-button-open:focus {
+		outline: 2px solid var(--modal-border-color);
+		outline-offset: 2px;
+	}
+
+	dialog.modal-dialog::backdrop {
+		background-color: rgba(0, 0, 0, var(--modal-backdrop-opacity));
+		backdrop-filter: blur(var(--modal-backdrop-blur));
+	}
+
+	.modal-error {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0.25rem 0.5rem;
+		background-color: #fef2f2;
+		color: #dc2626;
+		border: 1px solid #fecaca;
+		border-radius: var(--modal-border-radius);
+		font-size: 0.875rem;
+	}
+
+	.modal-error-label {
+		font-weight: 600;
+	}
+
+	.modal-error-message {
+		font-style: italic;
+		opacity: 0.8;
+	}
+
+	@media (max-width: 640px) {
+		.modal-dialog {
+			--modal-min-width: 90vw;
+			max-width: 95vw;
+			margin: 1rem;
+		}
+
+		.dialog-button-close,
+		.dialog-button-more {
+			width: 100% !important;
+			float: none !important;
+			margin-bottom: 0.5rem;
+		}
+
+		.dialog-button-more {
+			margin-bottom: 0;
+		}
+	}
+</style>

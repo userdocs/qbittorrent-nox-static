@@ -1,13 +1,48 @@
-import Advanced from "/src/components/advancedMarkdown.astro";
-import Charts from "/src/components/charts.astro";
-import Details from "/src/components/details.astro";
-import GithubActions from "/src/components/github-actions.astro";
-import Modal from "/src/components/modal.astro";
-import BuildInfoIntroduction from "/src/components/buildinfo-introduction.astro";
-import BuildInfoBuildHelp from "/src/components/buildinfo-build-help.astro";
-import PatchInfo from "/src/components/patchinfo.astro";
-import ScriptVersions from "/src/components/scriptversions.astro";
+import AdvancedMarkdown from "/src/components/AdvancedMarkdown.astro";
+import Charts from "/src/components/Charts.astro";
+import Details from "/src/components/Details.astro";
+import GithubActions from "/src/components/GithubActions.astro";
+import Modal from "/src/components/Modal.astro";
+import BuildConfigTool from "/src/components/BuildConfigTool.astro";
+import BuildinfoIntroduction from "/src/components/BuildinfoIntroduction.astro";
+import BuildinfoBuildHelp from "/src/components/BuildinfoBuildHelp.astro";
+import Patchinfo from "/src/components/Patchinfo.astro";
+import Scriptinfo from "/src/components/Scriptinfo.astro";
+import ScriptVersions from "/src/components/ScriptVersions.astro";
 
-import { Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, FileTree } from "@astrojs/starlight/components";
+import {
+	Aside,
+	Badge,
+	Card,
+	CardGrid,
+	FileTree,
+	Icon,
+	LinkCard,
+	Steps,
+	TabItem,
+	Tabs
+} from "@astrojs/starlight/components";
 
-export { Advanced, BuildInfoIntroduction, BuildInfoBuildHelp, Charts, Details, GithubActions, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon, PatchInfo, FileTree, ScriptVersions };
+export {
+	AdvancedMarkdown,
+	Aside,
+	BuildConfigTool,
+	Badge,
+	BuildinfoIntroduction,
+	BuildinfoBuildHelp,
+	Card,
+	CardGrid,
+	Charts,
+	Details,
+	FileTree,
+	GithubActions,
+	Icon,
+	LinkCard,
+	Modal,
+	Patchinfo,
+	Scriptinfo,
+	ScriptVersions,
+	Steps,
+	TabItem,
+	Tabs
+};

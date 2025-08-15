@@ -10,11 +10,14 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/check": "^0.9.4",
     "@astrojs/starlight": "^0.35.2",
     "@expressive-code/plugin-collapsible-sections": "^0.41.3",
-    "astro": "^5.6.1",
+    "astro": "^5.13.5",
     "sharp": "^0.34.2",
-    "starlight-image-zoom": "^0.13.0"
+    "starlight-github-alerts": "^0.1.0",
+    "starlight-image-zoom": "^0.13.0",
+    "typescript": "^5.9.2"
   },
   "devDependencies": {
     "sass-embedded": "^1.90.0"

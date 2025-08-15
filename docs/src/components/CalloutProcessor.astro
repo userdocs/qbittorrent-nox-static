@@ -11,7 +11,7 @@ const CALLOUT_MARKER_RE = new RegExp(`\\[!(${CALLOUT_TYPE_PATTERN})\\]`, "i");
 const BLOCKQUOTE_RE = new RegExp(`<blockquote[^>]*>([\\s\\S]*?)<\\/blockquote>`, "gi");
 // Markdown pattern: > [!TYPE]\n> line ... (stops at first blank or non > line)
 const MD_CALLOUT_RE = new RegExp(
-	`(^|\n)>\\s*\\[!(${CALLOUT_TYPE_PATTERN})\\]\\s*\n((?:>.*(?:\n|$))+)(?=\n[^>]|")?`,
+	`(^|\n)>\\s*\\[!(${CALLOUT_TYPE_PATTERN})\\]\\s*\n((?:>.*(?:\n|$))+)(?=\n[^>]|$)?`,
 	"gi"
 );
 
