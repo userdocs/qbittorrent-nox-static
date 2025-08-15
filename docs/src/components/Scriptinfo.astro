@@ -1,0 +1,149 @@
+---
+const { class: className, id, summary, stage } = Astro.props;
+
+import Stage1 from "/src/assets/stage1.html?raw";
+import Stage2 from "/src/assets/stage2.html?raw";
+import Stage3 from "/src/assets/stage3.html?raw";
+
+// Select the appropriate stage content
+let stageContent;
+switch (stage?.toLowerCase()) {
+	case "stage1":
+		stageContent = Stage1;
+		break;
+	case "stage2":
+		stageContent = Stage2;
+		break;
+	case "stage3":
+		stageContent = Stage3;
+		break;
+	default:
+		stageContent = Stage3;
+}
+---
+
+<div>
+	<details class={className}>
+		<summary>{summary}</summary>
+		<div class="theme-adaptive" id={id} set:html={stageContent} />
+	</details>
+</div>
+
+<script>
+	// Theme detection and adaptation for terminal output
+	function updateThemeMode() {
+		const themeAdaptive = document.querySelectorAll(".theme-adaptive");
+		const isDark =
+			document.documentElement.getAttribute("data-theme") === "dark";
+
+		themeAdaptive.forEach((element) => {
+			if (isDark) {
+				element.classList.add("dark");
+				element.classList.remove("light");
+			} else {
+				element.classList.add("light");
+				element.classList.remove("dark");
+			}
+		});
+	}
+
+	// Initial theme setup
+	document.addEventListener("DOMContentLoaded", updateThemeMode);
+
+	// Watch for theme changes
+	const observer = new MutationObserver(updateThemeMode);
+	observer.observe(document.documentElement, {
+		attributes: true,
+		attributeFilter: ["data-theme"],
+	});
+
+	// Also listen for Starlight theme toggle events
+	document.addEventListener("starlight:theme-changed", updateThemeMode);
+</script>
+
+<style>
+	details {
+		background-color: var(--details-2) !important;
+		border-left: 2px solid var(--details-2);
+		border-bottom: 2px solid var(--details-2);
+	}
+
+	details summary {
+		background-color: var(--details-1) !important;
+		padding: 10px 0px 10px 15px;
+		margin-bottom: 0px;
+	}
+
+	details div {
+		background-color: var(--details-1) !important;
+		margin-top: 2px !important;
+		padding: 5px;
+	}
+
+	details[open] div {
+		animation: details 0.5s cubic-bezier(0.785, 0.135, 0.15, 0.86);
+	}
+
+	@keyframes details {
+		0% {
+			opacity: 0;
+			transform: translateY(-1vw);
+		}
+
+		100% {
+			opacity: 1;
+			margin-left: 0px;
+		}
+	}
+
+	/* Theme-adaptive terminal output styles */
+	.theme-adaptive :global(.qbt-terminal-output) {
+		transition:
+			background-color 0.3s ease,
+			color 0.3s ease;
+	}
+
+	/* Dark mode (default) - terminal dark theme */
+	.theme-adaptive.dark :global(.qbt-terminal-output) {
+		background: #0f111a !important;
+		color: #d9e0ee !important;
+		border: 1px solid #2a2d3a;
+	}
+
+	/* Light mode - terminal light theme */
+	.theme-adaptive.light :global(.qbt-terminal-output) {
+		background: #fafafa !important;
+		color: #2e3440 !important;
+		border: 1px solid #e5e5e5;
+	}
+
+	/* Light mode color adjustments for terminal spans */
+	.theme-adaptive.light
+		:global(.qbt-terminal-output span[style*="color:purple"]) {
+		color: #8e44ad !important;
+	}
+
+	.theme-adaptive.light
+		:global(.qbt-terminal-output span[style*="color:blue"]) {
+		color: #2980b9 !important;
+	}
+
+	.theme-adaptive.light :global(.qbt-terminal-output span[style*="color:red"]) {
+		color: #e74c3c !important;
+	}
+
+	.theme-adaptive.light
+		:global(.qbt-terminal-output span[style*="color:green"]) {
+		color: #27ae60 !important;
+	}
+
+	.theme-adaptive.light
+		:global(.qbt-terminal-output span[style*="color:olive"]) {
+		color: #795548 !important;
+	}
+
+	/* Light mode adjustments for filtered elements */
+	.theme-adaptive.light :global(.qbt-terminal-output span[style*="filter:"]) {
+		filter: contrast(90%) brightness(70%) !important;
+	}
+</style>

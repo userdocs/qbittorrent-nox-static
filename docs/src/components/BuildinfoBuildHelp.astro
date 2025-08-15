@@ -2,7 +2,7 @@
 import { Aside } from "@astrojs/starlight/components";
 
 const response = await fetch(
-	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json",
+	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json"
 );
 
 const data = await response.json();
@@ -28,6 +28,7 @@ const ADVANCED_VARS = new Set([
 	"qbt_static_ish",
 	"qbt_optimise",
 	"qbt_with_qemu",
+	"qbt_host_deps",
 	"qbt_host_deps_repo",
 ]);
 type Row = {
@@ -170,10 +171,28 @@ const rows: Row[] = [
 		example: 'qbt_with_qemu="yes"',
 	},
 	{
+		variable: "qbt_host_deps",
+		defaultVal: "no",
+		optionsTokens: ["yes", "no"],
+		example: 'qbt_host_deps="no"',
+	},
+	{
 		variable: "qbt_host_deps_repo",
 		defaultVal: "userdocs/qbt-host-deps",
 		optionsTokens: ["n/a for general use"],
 		example: "qbt_host_deps_repo=userdocs/qbt-host-deps",
+	},
+	{
+		variable: "qbt_legacy_mode",
+		defaultVal: "no",
+		optionsTokens: ["yes", "no"],
+		example: 'qbt_legacy_mode="yes"',
+	},
+	{
+		variable: "qbt_advanced_view",
+		defaultVal: "yes",
+		optionsTokens: ["yes", "no"],
+		example: 'qbt_advanced_view="no"',
 	},
 ];
 ---

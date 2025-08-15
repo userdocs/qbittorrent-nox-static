@@ -3,7 +3,29 @@ title: Script Usage
 hide_title: true
 ---
 
-import { Advanced, Charts, Details, Modal, Steps, Tabs, TabItem, Card, CardGrid, LinkCard, Aside, Icon } from "/src/components/global.jsx"
+import {
+	AdvancedMarkdown,
+	Aside,
+	BuildConfigTool,
+	Badge,
+	BuildinfoIntroduction,
+	BuildinfoBuildHelp,
+	Card,
+	CardGrid,
+	Charts,
+	Details,
+	FileTree,
+	GithubActions,
+	Icon,
+	LinkCard,
+	Modal,
+	Patchinfo,
+	Scriptinfo,
+	ScriptVersions,
+	Steps,
+	TabItem,
+	Tabs
+} from "/src/components/global.jsx"
 
 :::caution[Assumptions]
 The guide will assume you are using docker, with example commands that are either one liners or from within the container.
@@ -13,16 +35,23 @@ The guide will assume you are using docker, with example commands that are eithe
 Don't run this directly on the host system unless you know what you are doing. It's not recommended and the build will probably fail.
 :::
 
-<Details summary="First run - what to expect">![](/qbittorrent-nox-static/docs_images/script_usage/first-run.png)</Details>
+<Scriptinfo class="Stage1" id="Stage1" summary="First run - what to expect" stage="Stage1" />
+<Scriptinfo class="Stage2" id="Stage2" summary="Test features - what to expect" stage="Stage2" />
+<Scriptinfo class="Stage3" id="Stage3" summary="Bootstrapped - what to expect" stage="Stage3" />
 
-<Details summary="Bootstrapped - what to expect">![](/qbittorrent-nox-static/docs_images/script_usage/bootstrapped.png)</Details>
 
 ⭐ When you are familiar with the script you can do most builds you want with a one liner. It's pretty simple to use.
 
 ### Execute the script
 
+:::caution[A reminder]
+If you have a `.qbt_env` in the same folder as the script it will override any custom env settings you provide.
+
+Using flags will override your `.qbt_env`
+:::
+
 ```bash
-./qbt-nox-static.bash
+./qbt.bash
 ```
 
 :::note
@@ -32,29 +61,33 @@ Please see the [switches and flags summary](build-help/#switches-and-flags-summa
 The first thing you should do is to run the script with the `-h` flag to see the help output and the script defaults.
 
 ```bash
-./qbt-nox-static.bash -h
+./qbt.bash -h
 ```
 
 By passing `all` as the first argument, you can build everything based on the default settings.
 
 ```bash
-./qbt-nox-static.bash all
+./qbt.bash all
 ```
 
-For example, to use `ICU` using `-i`, optimise for the host system CPU using `-o` to set `-march=native` and `-s` to strip the binary and build using libtorrent v1.2.19
+For example of using custom settings,
+
+- to use `ICU` using `-i`
+- optimise for the host system CPU using `-o` to set `-march=native`
+- build using libtorrent v1.2.19
 
 ```bash
-./qbt-nox-static.bash all -i -o -s -lt v1.2.19
+./qbt.bash all -i -o -s -lt v1.2.19
 ```
 
 Same as previous command but using `env` settings
 
 ```bash
-qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimise_strip="yes" qbt_optimize="yes" ./qbt-nox-static.bash all
+qbt_libtorrent_tag="v1.2.19" qbt_skip_icu="yes" qbt_optimize="yes" ./qbt.bash all
 ```
 
 For an older version of qBittorrent, you can specify the version using `-qt` and the libtorrent version using `-lt`
 
 ```bash
-./qbt-nox-static.bash all -q -qt release-4.1.9.1 -lt libtorrent-1_1_14 -bt boost-1.76.0
+./qbt.bash all -q -qt release-4.1.9.1 -lt libtorrent-1_1_14 -bt boost-1.76.0
 ```

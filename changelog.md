@@ -1,4 +1,31 @@
-### v2.2.1 / v2.0.21 - 13/08/2025
+### v2.2.2 - 30/08/2025
+
+`qbt-nox-static.bash` was fully merged into `qbittorrent-nox-static.sh` so that the scripts no longer have significantly different code approaches to the same outcomes.
+
+To maintain expected behavior I only needed to make a small adjustment to the script to make it behave the same way without having to support two versions fo the same script.
+
+This essentially completes the transition from the legacy script to the current without any breaking changes.
+
+fixed:
+
+- install binary function was not working correctly and has been updated.
+- fixed building glibc in debug mode due to incorrect flags
+- fixed glibc utf-8 warning when building qbittorrent. install the locale C.UTF-8 from glibc source dir
+- fix alpine version check properly compare versions.
+- fixed boost version check that was creating a malformed url for github and beta releases.
+
+updated:
+
+- apply patches function is more capable now.
+  - source folder has top priority
+  - local patch files has next priority
+  - you can now have multiple patch/diff files in the dir as well as a url file.
+  - They will be merged into a single file called `patch` and applied.
+  - remote that third priority and will mirror the remote to the local dir when it is treated as a local patch files.
+- Download file and folder functions tweaked.
+- Set -a removed.
+
+### v2.2.1 - 13/08/2025
 
 Debian support bumped to trixie
 
@@ -14,7 +41,7 @@ This not be an issue since `trixie` `cmake` is `3.31` or newer and `ninja-build`
 
 This makes the `qbt-cmake-ninja-crossbuilds` and `qbt-ninja-build` redundant as the script no longer depends on them.
 
-### v2.2.0 / v2.0.20 - 26/07/2025
+### v2.2.0 - 26/07/2025
 
 Context: As the qbt-musl-cross-make toolchains were being revised to properly apply `-static-pie` patches, some issues needed to be resolved that resulted in a rework of some things.
 
@@ -44,13 +71,13 @@ More consistent use if build flags and when the are applied.
 More consistent debug triggering so all parts are built in debug mode.
 caching behavior tweaked - use workflow files when it can.
 
-### v2.1.3 / v2.0.19 - 29/06/2025
+### v2.1.3 - 29/06/2025
 
 problem: when the `-lt` flag was used with libtorrent `v1.2` like `-lt v1.2.20` boost was not being defaulted to `boost-1.86.0` as it does when setting the env equivalent, causing a build error when libtorrent was built.
 
 fix: the flag now properly checks and sets boost to `boost-1.86.0` when libtorrent `v1.2` is being built via [e11d7d5](https://github.com/userdocs/qbittorrent-nox-static/commit/e11d7d51b5a0a6a99fcac6ae44c4603286e9a598)
 
-### v2.1.2 / v2.0.18 - 18/05/2025
+### v2.1.2 - 18/05/2025
 
 fix: `double_conversion` all versions - apply patch for increasing cmake bounds in `CMakeLists.txt` via this [patch](https://github.com/google/double-conversion/commit/0604b4c18815aadcf7f4b78dfa6bfcb91a634ed7)
 

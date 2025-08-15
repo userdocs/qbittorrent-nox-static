@@ -1,0 +1,1937 @@
+---
+import { Tabs, TabItem } from "@astrojs/starlight/components";
+
+// Add Highlight.js for syntax highlighting
+
+const response = await fetch(
+	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json"
+);
+
+const data = await response.json();
+
+// Build configuration options
+type ConfigOption = {
+	variable: string;
+	label: string;
+	description: string;
+	defaultVal: string;
+	options: Array<{ value: string; label: string; description?: string }>;
+	category: "basic" | "advanced";
+	type: "select" | "boolean" | "text";
+	allowCustom?: boolean;
+};
+
+const configOptions: ConfigOption[] = [
+	{
+		variable: "qbt_docker_base",
+		label: "Docker Base Image",
+		description: "The base docker image for the build environment",
+		defaultVal: "alpine:latest",
+		options: [
+			{
+				value: "alpine:edge",
+				label: "Alpine Edge",
+				description: "alpine:edge",
+			},
+			{
+				value: "alpine:latest",
+				label: "alpine:latest",
+				description: "alpine:latest (recommended)",
+			},
+			{
+				value: "ubuntu:latest",
+				label: "ubuntu:latest",
+				description: "ubuntu:latest",
+			},
+			{
+				value: "debian:latest",
+				label: "debian:latest",
+				description: "debian:latest",
+			},
+		],
+		category: "basic",
+		type: "select",
+	},
+	{
+		variable: "qbt_libtorrent_version",
+		label: "Libtorrent Version",
+		description: "The libtorrent version to use - 1.2 or 2.0",
+		defaultVal: "2.0",
+		options: [
+			{
+				value: "1.2",
+				label: "1.2 (Legacy)",
+				description: "Older stable version",
+			},
+			{
+				value: "2.0",
+				label: "2.0",
+				description: "Latest stable version",
+			},
+		],
+		category: "basic",
+		type: "select",
+	},
+	{
+		variable: "qbt_cross_name",
+		label: "Target Architecture",
+		description: "Cross-compilation target architecture",
+		defaultVal: "",
+		options: [
+			{
+				value: "",
+				label: "Native",
+				description: "Build for host system",
+			},
+			{
+				value: "aarch64",
+				label: "aarch64",
+				description: "64-bit ARM architecture",
+			},
+			{
+				value: "armhf",
+				label: "armhf",
+				description: "32-bit ARM with hard float",
+			},
+			{
+				value: "armv7",
+				label: "armv7",
+				description: "32-bit ARM version 7",
+			},
+			{
+				value: "x86_64",
+				label: "x86_64",
+				description: "64-bit Intel/AMD",
+			},
+			{
+				value: "x86",
+				label: "x86",
+				description: "32-bit Intel/AMD",
+			},
+		],
+		category: "basic",
+		type: "select",
+	},
+	{
+		variable: "qbt_qbittorrent_tag",
+		label: "qBittorrent Tag",
+		description: "qBittorrent git tag to use",
+		defaultVal: `release-${data.qbittorrent || "5.1.2"}`,
+		options: [
+			{
+				value: `release-${data.qbittorrent || "5.1.2"}`,
+				label: `release-${data.qbittorrent || "5.1.2"}`,
+				description: "Current default version",
+			},
+			{
+				value: "release-5.1.1",
+				label: "release-5.1.1",
+				description: "Previous stable version",
+			},
+			{
+				value: "release-5.0.2",
+				label: "release-5.0.2",
+				description: "Older stable version",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter a custom git tag",
+			},
+		],
+		category: "basic",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_legacy_mode",
+		label: "Legacy Mode",
+		description: "Enable legacy build compatibility mode",
+		defaultVal: "no",
+		options: [
+			{
+				value: "yes",
+				label: "Yes",
+				description: "Enable legacy compatibility",
+			},
+			{ value: "no", label: "No", description: "Disable legacy mode" },
+		],
+		category: "basic",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_advanced_view",
+		label: "Advanced View",
+		description: "Show advanced (all) build env options",
+		defaultVal: "yes",
+		options: [
+			{ value: "yes", label: "Yes", description: "Show all options" },
+			{ value: "no", label: "No", description: "Show basic options only" },
+		],
+		category: "basic",
+		type: "boolean",
+	},
+	// Advanced options - in buildinfo-build-help.astro order
+	{
+		variable: "qbt_zlib_type",
+		label: "Zlib Implementation",
+		description: "Choose zlib implementation",
+		defaultVal: "zlib",
+		options: [
+			{
+				value: "zlib",
+				label: "zlib",
+				description: "Standard zlib implementation",
+			},
+			{
+				value: "zlib-ng",
+				label: "zlib-ng",
+				description: "High performance zlib replacement",
+			},
+		],
+		category: "advanced",
+		type: "select",
+	},
+	{
+		variable: "qbt_skip_icu",
+		label: "Skip ICU",
+		description: "Skip International Components for Unicode",
+		defaultVal: "yes",
+		options: [
+			{
+				value: "yes",
+				label: "Yes",
+				description: "Skip ICU for smaller builds",
+			},
+			{ value: "no", label: "No", description: "Include ICU support" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_boost_tag",
+		label: "Boost Tag",
+		description: "Specific Boost library git tag to use",
+		defaultVal: `boost-${data.boost || "1.89.0"}`,
+		options: [
+			{
+				value: `boost-${data.boost || "1.89.0"}`,
+				label: `boost-${data.boost || "1.89.0"}`,
+				description: "Current default version",
+			},
+			{
+				value: "boost-1.88.0",
+				label: "boost-1.88.0",
+				description: "Previous stable version",
+			},
+			{
+				value: "boost-1.87.0",
+				label: "boost-1.87.0",
+				description: "Older stable version",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter a custom git tag",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_libtorrent_tag",
+		label: "Libtorrent Tag",
+		description: "Specific libtorrent git tag to use",
+		defaultVal: `v${data.libtorrent_2_0 || "2.0.11"}`,
+		options: [
+			{
+				value: `v${data.libtorrent_2_0 || "2.0.11"}`,
+				label: `v${data.libtorrent_2_0 || "2.0.11"}`,
+				description: "Current default version",
+			},
+			{
+				value: "v2.0.10",
+				label: "v2.0.10",
+				description: "Previous stable version",
+			},
+			{ value: "v1.2.19", label: "v1.2.19", description: "Legacy 1.2 series" },
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter a custom git tag",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_libtorrent_master_jamfile",
+		label: "Use Master Jamfile",
+		description: "Use libtorrent master branch jamfile",
+		defaultVal: "no",
+		options: [
+			{ value: "no", label: "No", description: "Use stable jamfile" },
+			{ value: "yes", label: "Yes", description: "Use master branch jamfile" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_qt_version",
+		label: "Qt Version",
+		description: "Select Qt version for the GUI framework",
+		defaultVal: "6",
+		options: [
+			{ value: "5.12", label: "Qt 5.12", description: "Older LTS version" },
+			{ value: "5.15", label: "Qt 5.15", description: "Current LTS version" },
+			{ value: "6.3", label: "Qt 6.3", description: "Qt 6 LTS" },
+			{ value: "6.3.1", label: "Qt 6.3.1", description: "Qt 6 patch version" },
+			{
+				value: "6",
+				label: "Qt 6",
+				description: "Latest Qt 6 version",
+			},
+		],
+		category: "advanced",
+		type: "select",
+	},
+	{
+		variable: "qbt_qt_tag",
+		label: "Qt Tag",
+		description: "Specific Qt git tag to use",
+		defaultVal: `v${data.qt6 || "6.9.1"}`,
+		options: [
+			{
+				value: `v${data.qt6 || "6.9.1"}`,
+				label: `v${data.qt6 || "6.9.1"}`,
+				description: "Current default version",
+			},
+			{
+				value: "v6.8.1",
+				label: "v6.8.1",
+				description: "Previous stable version",
+			},
+			{ value: "v5.15.17", label: "v5.15.17", description: "Qt 5 LTS version" },
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter a custom git tag",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_workflow_files",
+		label: "Use Workflow Files",
+		description: "Use workflow dependency files",
+		defaultVal: "no",
+		options: [
+			{ value: "no", label: "No", description: "Don't use workflow files" },
+			{
+				value: "yes",
+				label: "Yes",
+				description: "Use workflow dependency files",
+			},
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_build_debug",
+		label: "Debug Build",
+		description:
+			"Build with debug information - overrides strip binary options",
+		defaultVal: "no",
+		options: [
+			{ value: "no", label: "No", description: "Release build" },
+			{ value: "yes", label: "Yes", description: "Debug build with symbols" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_standard",
+		label: "C++ Standard",
+		description: "C++ language standard version",
+		defaultVal: "20",
+		options: [
+			{ value: "14", label: "C++14", description: "C++14 standard" },
+			{ value: "17", label: "C++17", description: "C++17 standard" },
+			{ value: "20", label: "C++20", description: "C++20 standard" },
+			{ value: "23", label: "C++23", description: "C++23 standard" },
+		],
+		category: "advanced",
+		type: "select",
+	},
+	{
+		variable: "qbt_optimise",
+		label: "Optimizations",
+		description: "Enable additional compiler optimizations",
+		defaultVal: "no",
+		options: [
+			{
+				value: "no",
+				label: "No",
+				description: "Standard optimizations",
+			},
+			{ value: "yes", label: "Yes", description: "Aggressive optimizations" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_with_qemu",
+		label: "Use QEMU",
+		description: "Use QEMU for cross-compilation testing",
+		defaultVal: "yes",
+		options: [
+			{
+				value: "yes",
+				label: "Yes",
+				description: "Enable QEMU support",
+			},
+			{ value: "no", label: "No", description: "Disable QEMU" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_host_deps",
+		label: "Host Dependencies",
+		description: "Build host dependencies",
+		defaultVal: "no",
+		options: [
+			{ value: "yes", label: "Yes", description: "Build host dependencies" },
+			{ value: "no", label: "No", description: "Skip host dependencies" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+];
+
+const basicOptions = configOptions.filter((opt) => opt.category === "basic");
+const advancedOptions = configOptions.filter(
+	(opt) => opt.category === "advanced"
+);
+---
+
+<style>
+	.build-config {
+		border: 1px solid var(--code-inline-border);
+		border-radius: 0.375rem;
+		padding: 1rem;
+		margin: 1rem 0;
+		background: var(--details-1);
+		box-shadow: var(--shadow-md);
+	}
+
+	.config-header {
+		display: flex;
+		align-items: center;
+		gap: 0.75rem;
+		margin-bottom: 1rem;
+		padding-bottom: 0.75rem;
+		border-bottom: 1px solid var(--code-inline-border);
+	}
+
+	.config-header h2 {
+		color: var(--sl-color-white);
+		font-size: 1.25rem;
+	}
+
+	.view-toggle {
+		display: flex;
+		gap: 0.75rem;
+		align-items: center;
+	}
+
+	.view-toggle strong {
+		color: var(--sl-color-white);
+	}
+
+	.view-toggle .switch {
+		position: relative;
+		display: inline-block;
+		min-width: 12rem;
+		height: 2.25rem;
+	}
+
+	.view-toggle .switch input {
+		opacity: 0;
+		width: 0;
+		height: 0;
+		position: absolute;
+	}
+
+	.view-toggle .slider {
+		position: absolute;
+		inset: 0;
+		border-radius: 999px;
+		background: var(--details-3);
+		border: 1px solid var(--code-inline-border);
+		box-shadow: var(--shadow-sm);
+		overflow: hidden;
+		display: grid;
+		grid-template-columns: 1fr 1fr;
+		align-items: center;
+		font: inherit;
+		font-size: 0.9rem;
+	}
+
+	.view-toggle .slider .label {
+		text-align: center;
+		user-select: none;
+		position: relative;
+		z-index: 2;
+		color: var(--sl-color-white);
+		transition: var(--transition-fast);
+		padding: 0 0.6rem;
+		white-space: nowrap;
+	}
+
+	.view-toggle .slider::before {
+		content: "";
+		position: absolute;
+		top: 3px;
+		left: 3px;
+		width: calc(50% - 6px);
+		height: calc(100% - 6px);
+		border-radius: 999px;
+		background: var(--sl-button-bg-primary);
+		border: 1px solid var(--code-inline-border);
+		transition: var(--transition-normal);
+		z-index: 1;
+	}
+
+	.view-toggle .switch input:checked + .slider::before {
+		left: calc(50% + 3px);
+	}
+
+	.view-toggle .switch input:not(:checked) + .slider .label-on {
+		opacity: 0.7;
+	}
+
+	.view-toggle .switch input:checked + .slider .label-off {
+		opacity: 0.7;
+	}
+
+	.config-section {
+		margin-bottom: 1rem;
+	}
+
+	.config-section h3 {
+		margin: 0 0 0.5rem 0;
+		color: var(--sl-color-white);
+		font-size: 1rem;
+		font-weight: 600;
+	}
+
+	.config-options {
+		display: grid;
+		grid-template-columns: 1fr;
+		gap: 1rem;
+		counter-reset: option-counter;
+		max-width: 1000px;
+	}
+
+	.config-option {
+		display: grid;
+		grid-template-columns: 1fr auto auto 2fr;
+		align-items: center;
+		justify-items: start;
+		gap: 1rem;
+		padding: 0rem;
+		padding-left: 1rem;
+		padding-right: 1rem;
+		background: var(--details-3);
+		border: 1px solid var(--code-inline-border);
+		border-radius: 8px;
+		transition: var(--transition-fast);
+		counter-increment: option-counter;
+		min-height: 60px;
+		text-align: left;
+	}
+
+	.config-option:hover {
+		background: var(--details-2);
+		transform: translateY(-1px);
+		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	}
+
+	.option-info {
+		display: flex;
+		flex-direction: column;
+		min-width: 0;
+	}
+
+	.option-info h4 {
+		margin: 0 0 0.25rem 0;
+		font-size: 0.9rem;
+		color: var(--sl-color-white);
+		font-weight: 600;
+		line-height: 1.3;
+	}
+
+	.option-control {
+		display: contents;
+	}
+
+	.option-control select {
+		padding: 0.625rem 0.75rem;
+		border: 1px solid var(--code-inline-border);
+		border-radius: 6px;
+		background: var(--sl-color-bg);
+		color: var(--sl-color-white);
+		font-size: 0.85rem;
+		font-weight: 500;
+		transition: var(--transition-fast);
+		min-width: 200px;
+		cursor: pointer;
+		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+		text-align: left;
+		text-align-last: left;
+		height: 2.5rem;
+		box-sizing: border-box;
+	}
+
+	.option-control select:hover {
+		border-color: var(--sl-color-accent);
+		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+	}
+
+	.option-control select:focus {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+		border-color: var(--sl-color-accent);
+	}
+
+	div.status-led {
+		width: 8px !important;
+		height: 8px !important;
+		border-radius: 50% !important;
+		flex-shrink: 0 !important;
+		transition: all 0.2s ease !important;
+		border: none !important;
+		position: relative !important;
+		display: inline-block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+		margin: 0 !important;
+		padding: 0 !important;
+		background-color: #10b981 !important;
+		min-width: 8px !important;
+		min-height: 8px !important;
+		max-width: 8px !important;
+		max-height: 8px !important;
+		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+	}
+
+	div.status-led.default {
+		background-color: #10b981 !important;
+		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+	}
+
+	div.status-led.modified {
+		background-color: #f59e0b !important;
+		box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
+	}
+
+	.status-indicator {
+		display: flex;
+		align-items: center;
+		justify-content: flex-start;
+		gap: 0.5rem;
+		padding: 0.375rem 0.625rem;
+		border-radius: 20px;
+		font-size: 0.75rem;
+		font-weight: 500;
+		white-space: nowrap;
+		min-width: 80px;
+		text-align: left;
+		height: 2rem;
+	}
+
+	.status-label {
+		color: var(--sl-color-gray-2);
+		text-transform: uppercase;
+		letter-spacing: 0.025em;
+	}
+
+	.option-control select:focus {
+		outline: 2px solid var(--code-inline-border);
+		outline-offset: 1px;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.option-control select:hover {
+		background: var(--details-1);
+	}
+
+	.option-control select:disabled {
+		opacity: 0.6;
+		cursor: not-allowed;
+		background: var(--details-1);
+	}
+
+	.option-control select:disabled:hover {
+		background: var(--details-1);
+	}
+
+	.option-explanation {
+		color: var(--sl-color-gray-2);
+		font-size: 0.8rem;
+		line-height: 1.4;
+		padding: 0.5rem 0.75rem;
+		background: var(--details-2);
+		border-radius: 6px;
+		border-left: 3px solid var(--sl-color-accent-soft);
+		margin: 0;
+	}
+
+	.custom-input {
+		width: 100%;
+		height: 2.5rem;
+		min-width: 200px;
+		padding: 10px;
+		border: 1px solid var(--sl-color-accent);
+		border-radius: 4px;
+		background: var(--sl-color-bg);
+		color: var(--sl-color-white);
+		font-size: 0.8rem;
+		font-weight: 500;
+		line-height: 1.4;
+		transition: var(--transition-fast);
+		box-sizing: border-box;
+		margin: 0;
+		outline: none;
+	}
+
+	.custom-input input:focus {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+		border-color: var(--sl-color-accent);
+	}
+
+	.custom-input input::placeholder {
+		color: var(--sl-color-gray-3);
+		opacity: 0.7;
+	}
+
+	.advanced-section {
+		display: none;
+	}
+
+	.build-config[data-view="advanced"] .advanced-section {
+		display: block;
+	}
+
+	/* Hide Docker Base Image option by default */
+	.config-option[data-docker-only="true"] {
+		display: none;
+	}
+
+	/* Show Docker Base Image option when on Docker tabs */
+	.build-config[data-docker-tab="true"] .config-option[data-docker-only="true"] {
+		display: grid;
+	}
+
+	.output-section {
+		margin-top: 1.5rem;
+		padding-top: 1rem;
+		border-top: 1px solid var(--code-inline-border);
+	}
+
+	.output-section h3 {
+		margin: 0 0 0.5rem 0;
+		color: var(--sl-color-white);
+		font-size: 1rem;
+	}
+
+	.output-section p {
+		color: var(--sl-color-gray-2);
+		font-size: 0.85rem;
+		margin-bottom: 0.75rem;
+	}
+
+	.command-output-wrapper {
+		position: relative;
+		margin: 1rem 0;
+	}
+
+	.command-output-wrapper pre {
+		margin: 0;
+		padding: 1rem;
+		border-radius: 0.5rem;
+		overflow-x: auto;
+		background-color: var(--code-inline-background) !important;
+		border: 1px solid var(--code-inline-border) !important;
+		font-family: var(--sl-font-mono);
+		font-size: 0.9rem;
+		line-height: 1.5;
+		color: var(--code-inline-color);
+		white-space: pre-wrap;
+		word-break: break-all;
+		box-shadow: var(--shadow-md);
+	}
+
+	.command-output-wrapper pre code {
+		background: none !important;
+		padding: 0 !important;
+		font-family: inherit;
+		font-size: inherit;
+		color: inherit;
+	}
+
+	.copy-button {
+		position: absolute;
+		top: 0.75rem;
+		right: 0.75rem;
+		padding: 0.375rem 0.75rem;
+		background: var(--details-3);
+		color: var(--sl-color-white);
+		border: 1px solid var(--code-inline-border);
+		border-radius: 0.375rem;
+		font-size: 0.8rem;
+		cursor: pointer;
+		transition: var(--transition-fast);
+		z-index: 10;
+		font-weight: 500;
+	}
+
+	.copy-button:hover {
+		background: var(--details-2);
+		box-shadow: var(--shadow-sm);
+	}
+
+	.copy-button:active {
+		transform: scale(0.95);
+	}
+
+	.reset-button {
+		padding: 0.5rem 1rem;
+		background: var(--details-3);
+		color: var(--sl-color-white);
+		border: 1px solid var(--code-inline-border);
+		border-radius: 999px;
+		cursor: pointer;
+		font-size: 0.9rem;
+		transition: var(--transition-fast);
+		font-weight: 500;
+		height: 2.25rem;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin: auto;
+		margin-left: 0px;
+	}
+
+	.reset-button:hover {
+		background: var(--details-2);
+		box-shadow: var(--shadow-sm);
+	}
+
+	/* Override Starlight margin rules */
+	.build-config .config-option,
+	.build-config .status-indicator,
+	.build-config select {
+		margin-top: 0 !important;
+		margin-bottom: 0 !important;
+	}
+
+	/* Mobile responsive */
+	@media (max-width: 768px) {
+		.build-config {
+			margin: 0.5rem 0;
+			padding: 0.75rem;
+		}
+
+		.config-header {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 1rem;
+		}
+
+		.view-toggle {
+			justify-content: center;
+		}
+
+		.reset-button {
+			align-self: center;
+			margin: 0;
+		}
+
+		.config-options {
+			grid-template-columns: 1fr;
+			gap: 0.75rem;
+		}
+
+		.config-option {
+			grid-template-columns: 1fr;
+			gap: 0.5rem;
+			padding: 0.75rem;
+		}
+
+		/* Ensure Docker-only options work properly on mobile */
+		.config-option[data-docker-only="true"] {
+			display: none;
+		}
+
+		.build-config[data-docker-tab="true"] .config-option[data-docker-only="true"] {
+			display: grid;
+			grid-template-columns: 1fr;
+		}
+
+		.option-info h4 {
+			font-size: 0.9rem;
+		}
+
+		.option-control select {
+			width: 100%;
+			min-width: unset;
+		}
+
+		.status-indicator {
+			justify-self: start;
+			min-width: 70px;
+		}
+
+		.option-explanation {
+			grid-column: 1 / -1;
+			margin-top: 0.25rem;
+		}
+
+		.custom-input {
+			min-width: unset;
+		}
+
+		.view-toggle .switch {
+			min-width: 10rem;
+		}
+
+		.command-output-wrapper {
+			margin: 0.5rem 0;
+		}
+
+		.command-output-wrapper pre {
+			padding: 0.75rem;
+			font-size: 0.8rem;
+		}
+
+		.copy-button {
+			top: 0.5rem;
+			right: 0.5rem;
+			padding: 0.25rem 0.5rem;
+			font-size: 0.75rem;
+		}
+	}
+</style>
+
+<!-- Prism.js - Theme-aware loading -->
+<script is:inline>
+	// Load and manage Prism theme switching
+	(function() {
+		let currentPrismLink = null;
+
+		function loadPrismTheme(isLight = false) {
+			// Remove existing Prism theme
+			if (currentPrismLink) {
+				currentPrismLink.remove();
+			}
+
+			// Create new theme link
+			currentPrismLink = document.createElement('link');
+			currentPrismLink.rel = 'stylesheet';
+			currentPrismLink.id = 'prism-theme';
+			currentPrismLink.href = isLight
+				? 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism.min.css'
+				: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-dark.min.css';
+			document.head.appendChild(currentPrismLink);
+		}
+
+		// Initial theme load
+		const initialTheme = document.documentElement.getAttribute('data-theme');
+		loadPrismTheme(initialTheme === 'light');
+
+		// Watch for theme changes
+		const observer = new MutationObserver((mutations) => {
+			mutations.forEach((mutation) => {
+				if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
+					const newTheme = document.documentElement.getAttribute('data-theme');
+					loadPrismTheme(newTheme === 'light');
+
+					// Re-highlight after theme change
+					setTimeout(() => {
+						if (typeof window.Prism !== 'undefined') {
+							window.Prism.highlightAll();
+						}
+					}, 100);
+				}
+			});
+		});
+
+		observer.observe(document.documentElement, {
+			attributes: true,
+			attributeFilter: ['data-theme']
+		});
+	})();
+</script>
+
+<script
+	is:inline
+	src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/prism.min.js"
+></script>
+<script
+	is:inline
+	src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-bash.min.js"
+></script>
+<script
+	is:inline
+	src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-docker.min.js"
+></script>
+
+<div class="build-config" id="buildConfig" data-view="basic">
+	<div class="config-header">
+		<div class="view-toggle">
+			<label class="switch">
+				<input
+					id="configViewToggle"
+					type="checkbox"
+					aria-label="Toggle expert settings"
+				/>
+				<span class="slider">
+					<span class="label label-off">Basic</span>
+					<span class="label label-on">Expert</span>
+				</span>
+			</label>
+		</div>
+
+		<button class="reset-button" id="resetButton">Reset</button>
+	</div>
+
+	<div class="config-section">
+		<div class="config-options">
+			{
+				basicOptions.map((option) => (
+					<div class="config-option" data-docker-only={option.variable === "qbt_docker_base" ? "true" : undefined}>
+						<div class="option-info">
+							<h4>{option.label}</h4>
+						</div>
+						<div class="option-control">
+							<div class="status-indicator">
+								<div
+									class="status-led default"
+									data-variable={option.variable}
+									style="width: 8px !important; height: 8px !important; background-color: #10b981 !important; border-radius: 50% !important; display: inline-block !important; border: none !important; flex-shrink: 0 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;"
+								/>
+								<span class="status-label" data-variable={option.variable}>
+									Default
+								</span>
+							</div>
+							<select
+								id={`config_${option.variable}`}
+								data-variable={option.variable}
+								data-default={option.defaultVal}
+							>
+								{option.options.map((opt) => (
+									<option
+										value={opt.value}
+										selected={opt.value === option.defaultVal}
+									>
+										{opt.label}
+									</option>
+								))}
+							</select>
+						</div>
+						<div class="option-explanation">
+							<p id={`description_${option.variable}`}>{option.description}</p>
+							{option.allowCustom && (
+								<input
+									class="custom-input"
+									type="text"
+									placeholder={`Enter custom ${option.label.toLowerCase()}`}
+									id={`custom_input_${option.variable}`}
+									style="display: none;"
+								/>
+							)}
+						</div>
+					</div>
+				))
+			}
+		</div>
+	</div>
+
+	<div class="config-section advanced-section">
+		<div class="config-options">
+			{
+				advancedOptions.map((option) => (
+					<div class="config-option">
+						<div class="option-info">
+							<h4>{option.label}</h4>
+						</div>
+						<div class="option-control">
+							<div class="status-indicator">
+								<div
+									class="status-led default"
+									data-variable={option.variable}
+									style="width: 8px !important; height: 8px !important; background-color: #10b981 !important; border-radius: 50% !important; display: inline-block !important; border: none !important; flex-shrink: 0 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;"
+								/>
+								<span class="status-label" data-variable={option.variable}>
+									Default
+								</span>
+							</div>
+							<select
+								id={`config_${option.variable}`}
+								data-variable={option.variable}
+								data-default={option.defaultVal}
+							>
+								{option.options.map((opt) => (
+									<option
+										value={opt.value}
+										selected={opt.value === option.defaultVal}
+									>
+										{opt.label}
+									</option>
+								))}
+							</select>
+						</div>
+						<div class="option-explanation">
+							<p id={`description_${option.variable}`}>{option.description}</p>
+							{option.allowCustom && (
+								<input
+									class="custom-input"
+									type="text"
+									placeholder={`Enter custom ${option.label.toLowerCase()}`}
+									id={`custom_input_${option.variable}`}
+									style="display: none;"
+								/>
+							)}
+						</div>
+					</div>
+				))
+			}
+		</div>
+	</div>
+
+	<div class="output-section">
+		<Tabs syncKey="command-type">
+			<TabItem label="Native (Remote)" icon="rocket">
+				<div class="command-output-wrapper">
+					<button class="copy-button" id="copyButton">Copy</button>
+					<div id="codeBlock">
+						<pre class="language-bash" id="commandOutput"></pre>
+					</div>
+				</div>
+			</TabItem>
+			<TabItem label="Native (Local)" icon="document">
+				<div class="command-output-wrapper">
+					<button class="copy-button" id="copyButtonLocal">Copy</button>
+					<div id="codeBlockLocal">
+						<pre class="language-bash" id="localCommandOutput"></pre>
+					</div>
+				</div>
+			</TabItem>
+			<TabItem label="Docker (Remote)" icon="external">
+				<div class="command-output-wrapper">
+					<button class="copy-button" id="copyButtonDocker">Copy</button>
+					<div id="codeBlockDocker">
+						<pre class="language-bash" id="dockerCommandOutput"></pre>
+					</div>
+				</div>
+			</TabItem>
+			<TabItem label="Docker (Local)" icon="laptop">
+				<div class="command-output-wrapper">
+					<button class="copy-button" id="copyButtonDockerLocal">Copy</button>
+					<div id="codeBlockDockerLocal">
+						<pre class="language-bash" id="dockerLocalCommandOutput"></pre>
+					</div>
+				</div>
+			</TabItem>
+			<TabItem label="Dockerfile" icon="seti:docker">
+				<div class="command-output-wrapper">
+					<button class="copy-button" id="copyButtonDockerfile">Copy</button>
+					<div id="codeBlockDockerfile">
+						<pre class="language-docker" id="dockerfileOutput"></pre>
+					</div>
+				</div>
+			</TabItem>
+		</Tabs>
+	</div>
+</div>
+
+<script>
+	// Declare Prism global for TypeScript
+	declare global {
+		interface Window {
+			Prism: {
+				highlightAll(): void;
+				highlightElement(element: Element): void;
+			};
+		}
+	}
+
+	(function () {
+		// Safe DOM element queries with null checks
+		const container = document.getElementById(
+			"buildConfig"
+		) as HTMLDivElement | null;
+		const viewToggle = document.getElementById(
+			"configViewToggle"
+		) as HTMLInputElement | null;
+		const resetButton = document.getElementById(
+			"resetButton"
+		) as HTMLButtonElement | null;
+
+		// Copy buttons
+		const copyButtons = {
+			native: document.getElementById("copyButton") as HTMLButtonElement | null,
+			local: document.getElementById(
+				"copyButtonLocal"
+			) as HTMLButtonElement | null,
+			docker: document.getElementById(
+				"copyButtonDocker"
+			) as HTMLButtonElement | null,
+			dockerLocal: document.getElementById(
+				"copyButtonDockerLocal"
+			) as HTMLButtonElement | null,
+			dockerfile: document.getElementById(
+				"copyButtonDockerfile"
+			) as HTMLButtonElement | null,
+		};
+
+		// Command output elements
+		const outputs = {
+			native: document.getElementById("commandOutput") as HTMLPreElement | null,
+			local: document.getElementById(
+				"localCommandOutput"
+			) as HTMLPreElement | null,
+			docker: document.getElementById(
+				"dockerCommandOutput"
+			) as HTMLPreElement | null,
+			dockerLocal: document.getElementById(
+				"dockerLocalCommandOutput"
+			) as HTMLPreElement | null,
+			dockerfile: document.getElementById(
+				"dockerfileOutput"
+			) as HTMLPreElement | null,
+		};
+
+		const selects = document.querySelectorAll(
+			"select[data-variable]"
+		) as NodeListOf<HTMLSelectElement>;
+
+		// Load saved view preference
+		const savedView = localStorage.getItem("buildconfig-view") || "basic";
+		if (container) container.dataset.view = savedView;
+		if (viewToggle) {
+			viewToggle.checked = savedView === "advanced";
+			viewToggle.addEventListener("change", () => {
+				const view = viewToggle.checked ? "advanced" : "basic";
+				if (container) container.dataset.view = view;
+				localStorage.setItem("buildconfig-view", view);
+			});
+		}
+
+		// Generate command functions
+		function generateNativeCommand() {
+			// Determine if legacy mode is enabled
+			const legacyModeSelect = document.getElementById(
+				"config_qbt_legacy_mode"
+			) as HTMLSelectElement | null;
+
+			if (!legacyModeSelect) {
+				console.log("Legacy mode select not found, DOM may not be ready");
+				return "bash <(curl -sL usrdx.github.io/s/qbt.bash) bootstrap_deps all";
+			}
+
+			console.log("Legacy mode select element:", legacyModeSelect);
+			console.log("Legacy mode select value:", legacyModeSelect?.value);
+			console.log(
+				"All selects found:",
+				document.querySelectorAll("select[data-variable]").length
+			);
+
+			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
+			const isLegacyMode = legacyModeValue === "yes";
+
+			console.log(
+				"Legacy mode value:",
+				legacyModeValue,
+				"isLegacyMode:",
+				isLegacyMode
+			);
+
+			// Set base command based on legacy mode
+			const baseCommand = isLegacyMode
+				? "bash <(curl -sL usrdx.github.io/s/qbt.bash) all"
+				: "bash <(curl -sL usrdx.github.io/s/qbt.bash) bootstrap_deps all";
+
+			console.log("Selected base command:", baseCommand);
+
+			const envVars: string[] = [];
+
+			selects.forEach((select) => {
+				const variable = select.dataset.variable;
+				const defaultValue = select.dataset.default;
+				const currentValue = getSelectValue(select);
+
+				// Skip invalid or Docker-specific variables for native builds
+				if (!variable || variable === "qbt_docker_base") {
+					return;
+				}
+
+				// Only include variables that differ from default and are not empty
+				if (
+					currentValue !== defaultValue &&
+					currentValue !== "" &&
+					currentValue !== "custom" &&
+					currentValue.trim() !== ""
+				) {
+					envVars.push(`${variable}="${currentValue}"`);
+				}
+			});
+
+			console.log("Environment variables:", envVars);
+
+			if (envVars.length === 0) {
+				console.log("No env vars, returning base command:", baseCommand);
+				return baseCommand;
+			}
+
+			// Format with line breaks using backslashes
+			const envVarsFormatted = envVars
+				.map((envVar) => `${envVar} \\`)
+				.join("\n");
+			const finalCommand = `${envVarsFormatted}\n${baseCommand}`;
+			console.log("Final command with env vars:", finalCommand);
+			return finalCommand;
+		}
+
+		function generateLocalCommand() {
+			// Determine if legacy mode is enabled
+			const legacyModeSelect = document.getElementById(
+				"config_qbt_legacy_mode"
+			) as HTMLSelectElement | null;
+			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
+			const isLegacyMode = legacyModeValue === "yes";
+
+			console.log(
+				"Local - Legacy mode value:",
+				legacyModeValue,
+				"isLegacyMode:",
+				isLegacyMode
+			);
+
+			// Set base command based on legacy mode
+			const baseCommand = isLegacyMode
+				? "./qbt.bash all"
+				: "./qbt.bash bootstrap_deps all";
+
+			const envVars: string[] = [];
+
+			selects.forEach((select) => {
+				const variable = select.dataset.variable;
+				const defaultValue = select.dataset.default;
+				const currentValue = getSelectValue(select);
+
+				// Skip invalid or Docker-specific variables for native builds
+				if (!variable || variable === "qbt_docker_base") {
+					return;
+				}
+
+				// Only include variables that differ from default and are not empty
+				if (
+					currentValue !== defaultValue &&
+					currentValue !== "" &&
+					currentValue !== "custom" &&
+					currentValue.trim() !== ""
+				) {
+					envVars.push(`${variable}="${currentValue}"`);
+				}
+			});
+
+			if (envVars.length === 0) {
+				return baseCommand;
+			}
+
+			// Format with line breaks using backslashes
+			const envVarsFormatted = envVars
+				.map((envVar) => `${envVar} \\`)
+				.join("\n");
+			return `${envVarsFormatted}\n${baseCommand}`;
+		}
+
+		function generateDockerCommand() {
+			// Determine if legacy mode is enabled
+			const legacyModeSelect = document.getElementById(
+				"config_qbt_legacy_mode"
+			) as HTMLSelectElement | null;
+			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
+			const isLegacyMode = legacyModeValue === "yes";
+
+			// Set script command based on legacy mode
+			const scriptCommand = isLegacyMode
+				? "bash <(curl -sL usrdx.github.io/s/qbt.bash) all"
+				: "bash <(curl -sL usrdx.github.io/s/qbt.bash) bootstrap_deps all";
+
+			const envVars: string[] = [];
+			let baseImage = "alpine:edge";
+			let packageManager = "apk update && apk add bash git curl";
+			let shell = "/bin/ash";
+
+			selects.forEach((select) => {
+				const variable = select.dataset.variable;
+				const defaultValue = select.dataset.default;
+				const currentValue = getSelectValue(select);
+
+				// Handle base image selection
+				if (variable === "qbt_docker_base") {
+					baseImage = currentValue || defaultValue || "";
+					// Set appropriate package manager based on distro
+					if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
+						packageManager = `LANG="C.UTF-8" \\
+\tLANGUAGE="C.UTF-8" \\
+\tLC_ALL="C.UTF-8" \\
+\tDEBIAN_FRONTEND=noninteractive \\
+\tapt-get update && \\
+\tapt-get install -y git curl`;
+						shell = "/bin/bash";
+					} else {
+						packageManager = "apk update && apk add bash git curl";
+					}
+					return; // Don't include this in env vars
+				}
+
+				// Only include variables that differ from default and are not empty
+				if (
+					currentValue !== defaultValue &&
+					currentValue !== "" &&
+					currentValue !== "custom"
+				) {
+					envVars.push(`${variable}="${currentValue}"`);
+				}
+			});
+
+			if (envVars.length === 0) {
+				return `docker run -it -w /root \\
+\t-p 8080:8080 \\
+\t-v ~/qbt:/root \\
+\t${baseImage} ${shell} -c \\
+\t'${packageManager} && \\
+\t${scriptCommand}'`;
+			}
+
+			// Insert env vars before the bash command within the docker command
+			const envVarsFormatted = envVars
+				.map((envVar) => `\t${envVar} \\`)
+				.join("\n");
+			return `docker run -it -w /root \\
+\t-p 8080:8080 \\
+\t-v ~/qbt:/root \\
+\t${baseImage} ${shell} -c \\
+\t'${packageManager} && \\
+${envVarsFormatted}
+\t${scriptCommand}'`;
+		}
+
+		function generateDockerLocalCommand() {
+			// Determine if legacy mode is enabled
+			const legacyModeSelect = document.getElementById(
+				"config_qbt_legacy_mode"
+			) as HTMLSelectElement | null;
+			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
+			const isLegacyMode = legacyModeValue === "yes";
+
+			// Set script command based on legacy mode
+			const scriptCommand = isLegacyMode
+				? "./qbt.bash all"
+				: "./qbt.bash bootstrap_deps all";
+
+			const envVars: string[] = [];
+			let baseImage = "alpine:edge";
+			let packageManager = "apk update && apk add bash git curl";
+			let shell = "/bin/ash";
+
+			selects.forEach((select) => {
+				const variable = select.dataset.variable;
+				const defaultValue = select.dataset.default;
+				const currentValue = getSelectValue(select);
+
+				// Handle base image selection
+				if (variable === "qbt_docker_base") {
+					baseImage = currentValue || defaultValue || "";
+					// Set appropriate package manager based on distro
+					if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
+						packageManager = `LANG="C.UTF-8" \\
+\tLANGUAGE="C.UTF-8" \\
+\tLC_ALL="C.UTF-8" \\
+\tDEBIAN_FRONTEND=noninteractive \\
+\tapt-get update && \\
+\tapt-get install -y git curl`;
+						shell = "/bin/bash";
+					} else {
+						packageManager = "apk update && apk add bash git curl";
+					}
+					return; // Don't include this in env vars
+				}
+
+				// Only include variables that differ from default and are not empty
+				if (
+					currentValue !== defaultValue &&
+					currentValue !== "" &&
+					currentValue !== "custom"
+				) {
+					envVars.push(`${variable}="${currentValue}"`);
+				}
+			});
+
+			if (envVars.length === 0) {
+				return `docker run -it -w /root \\
+\t-p 8080:8080 \\
+\t-v ~/qbt:/root \\
+\t-v ./qbt.bash:/root/qbt.bash \\
+\t${baseImage} ${shell} -c \\
+\t'${packageManager} && \\
+\t${scriptCommand}'`;
+			}
+
+			// Insert env vars before the bash command within the docker command
+			const envVarsFormatted = envVars
+				.map((envVar) => `\t${envVar} \\`)
+				.join("\n");
+			return `docker run -it -w /root \\
+\t-p 8080:8080 \\
+\t-v ~/qbt:/root \\
+\t-v ./qbt.bash:/root/qbt.bash \\
+\t${baseImage} ${shell} -c \\
+\t'${packageManager} && \\
+${envVarsFormatted}
+\t${scriptCommand}'`;
+		}
+
+		// Generate Dockerfile content
+		function generateDockerfile(): string {
+			// Determine if legacy mode is enabled
+			const legacyModeSelect = document.getElementById(
+				"config_qbt_legacy_mode"
+			) as HTMLSelectElement | null;
+			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
+			const isLegacyMode = legacyModeValue === "yes";
+
+			const envVars: string[] = [];
+			let baseImage = "alpine:edge";
+			let packageManager = "apk update && apk add bash git curl";
+
+			selects.forEach((select) => {
+				const variable = select.dataset.variable;
+				const defaultValue = select.dataset.default;
+				const currentValue = getSelectValue(select);
+
+				// Handle base image selection
+				if (variable === "qbt_docker_base") {
+					baseImage = currentValue || defaultValue || "";
+					// Set appropriate package manager based on distro
+					if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
+						packageManager = "apt-get update && apt-get install -y git curl";
+					} else {
+						packageManager = "apk update && apk add bash git curl";
+					}
+					return; // Don't include this in env vars
+				}
+
+				// Only include variables that differ from default and are not empty
+				if (
+					currentValue !== defaultValue &&
+					currentValue !== "" &&
+					currentValue !== "custom"
+				) {
+					envVars.push(`${variable}="${currentValue}"`);
+				}
+			});
+
+			// Add Debian-specific environment variables if needed
+			const debianEnvs =
+				baseImage.includes("ubuntu") || baseImage.includes("debian")
+					? `# Set locale and package manager environment
+ENV LANG="C.UTF-8" \\
+    LANGUAGE="C.UTF-8" \\
+    LC_ALL="C.UTF-8" \\
+    DEBIAN_FRONTEND=noninteractive
+
+`
+					: "";
+
+			const baseDockerfile = `FROM ${baseImage}
+
+${debianEnvs}# Install dependencies
+RUN ${packageManager}
+
+# Download and install qbt build script
+RUN curl -sL usrdx.github.io/s/qbt.bash -o /usr/local/bin/qbt.bash && \\
+    chmod +x /usr/local/bin/qbt.bash
+
+# Set working directory
+WORKDIR /root
+
+# Expose port
+EXPOSE 8080`;
+
+			const envSection =
+				envVars.length > 0
+					? "\n\n# Set environment variables\nENV " +
+						envVars
+							.map((env, index) =>
+								index === envVars.length - 1 ? env : env + " \\"
+							)
+							.join("\n    ")
+					: "";
+
+			// Set CMD based on legacy mode
+			const commandSection = isLegacyMode
+				? `
+
+# Run qbittorrent build script
+CMD ["qbt.bash", "all"]`
+				: `
+
+# Run qbittorrent build script
+CMD ["qbt.bash", "bootstrap_deps", "all"]`;
+
+			return baseDockerfile + envSection + commandSection;
+		}
+
+		// Update command outputs with proper null checks
+		function updateCommands(): void {
+			const commands = {
+				native: generateNativeCommand(),
+				local: generateLocalCommand(),
+				docker: generateDockerCommand(),
+				dockerLocal: generateDockerLocalCommand(),
+				dockerfile: generateDockerfile(),
+			};
+
+			// Update each output element safely
+			Object.entries(outputs).forEach(([key, element]) => {
+				if (element && commands[key as keyof typeof commands]) {
+					element.textContent = commands[key as keyof typeof commands];
+					// Apply syntax highlighting if Prism is available
+					if (
+						typeof window.Prism !== "undefined" &&
+						window.Prism.highlightElement
+					) {
+						window.Prism.highlightElement(element);
+					}
+				}
+			});
+		}
+
+		// Update LED status indicators with proper typing and null checks
+		function updateLEDs(): void {
+			selects.forEach((select) => {
+				const variable = select.dataset.variable;
+				const defaultValue = select.dataset.default;
+				const currentValue = getSelectValue(select);
+
+				if (!variable || defaultValue === undefined) return;
+
+				const led = document.querySelector(
+					`.status-led[data-variable="${variable}"]`
+				) as HTMLDivElement | null;
+				const label = document.querySelector(
+					`.status-label[data-variable="${variable}"]`
+				) as HTMLSpanElement | null;
+
+				if (led) {
+					const isDefault =
+						select.value === defaultValue && currentValue === defaultValue;
+
+					// Update LED appearance
+					led.className = isDefault
+						? "status-led default"
+						: "status-led modified";
+					led.style.backgroundColor = isDefault ? "#10b981" : "#f59e0b";
+					led.style.boxShadow = isDefault
+						? "0 0 0 2px rgba(16, 185, 129, 0.2)"
+						: "0 0 0 2px rgba(245, 158, 11, 0.2)";
+
+					// Update label text
+					if (label) {
+						label.textContent = isDefault ? "Default" : "Modified";
+					}
+				}
+			});
+		}
+
+		// Handle custom input toggling and values
+		function handleCustomInput(select: HTMLSelectElement): void {
+			const variable = select.dataset.variable;
+			const customInput = document.getElementById(
+				`custom_input_${variable}`
+			) as HTMLInputElement | null;
+			const descriptionP = document.getElementById(
+				`description_${variable}`
+			) as HTMLParagraphElement | null;
+
+			if (customInput) {
+				if (select.value === "custom") {
+					// Hide description and show custom input
+					if (descriptionP) descriptionP.style.display = "none";
+					customInput.style.display = "block";
+					customInput.focus();
+				} else {
+					// Show description and hide custom input
+					if (descriptionP) descriptionP.style.display = "block";
+					customInput.style.display = "none";
+					customInput.value = "";
+				}
+			}
+		}
+
+		// Get the actual value for a select (either selected option or custom input)
+		function getSelectValue(select: HTMLSelectElement): string {
+			if (select.value === "custom") {
+				const variable = select.dataset.variable;
+				const customInput = document.getElementById(
+					`custom_input_${variable}`
+				) as HTMLInputElement | null;
+				return customInput?.value.trim() || "";
+			}
+			return select.value;
+		}
+
+		// Add event listeners to all selects
+		selects.forEach((select) => {
+			select.addEventListener("change", (event) => {
+				const target = event.target as HTMLSelectElement;
+				console.log(
+					`Change detected on ${select.dataset.variable}: ${target.value}`
+				);
+
+				handleCustomInput(target);
+				handleDependencies(target);
+				updateCommands();
+				updateLEDs();
+			});
+		});
+
+		// Add event listeners to custom inputs (with delay to ensure DOM is ready)
+		setTimeout(() => {
+			document.querySelectorAll('[id^="custom_input_"]').forEach((input) => {
+				input.addEventListener("input", () => {
+					updateCommands();
+					updateLEDs();
+					// Re-apply syntax highlighting after command update
+					setTimeout(() => {
+						if (typeof window.Prism !== "undefined") {
+							window.Prism.highlightAll();
+						}
+					}, 50);
+				});
+			});
+		}, 100);
+
+		// Handle dependencies between options with proper typing
+		function handleDependencies(changedSelect: HTMLSelectElement): void {
+			const variable = changedSelect.dataset.variable;
+
+			// If qbt_cross_name is changed to non-default, disable static build
+			if (variable === "qbt_cross_name") {
+				const staticSelect = document.querySelector(
+					'[data-variable="qbt_static_ish"]'
+				) as HTMLSelectElement | null;
+
+				if (staticSelect) {
+					const currentValue = getSelectValue(changedSelect);
+					const isCrossCompilation = currentValue !== "";
+
+					if (isCrossCompilation) {
+						// Cross compilation selected, force static to "no"
+						staticSelect.value = "no";
+						staticSelect.disabled = true;
+						staticSelect.style.opacity = "0.6";
+						staticSelect.style.cursor = "not-allowed";
+					} else {
+						// Native build selected, re-enable static option
+						staticSelect.disabled = false;
+						staticSelect.style.opacity = "1";
+						staticSelect.style.cursor = "pointer";
+					}
+				}
+			}
+		}
+
+		// Reset button functionality
+		if (resetButton) {
+			resetButton.addEventListener("click", () => {
+				console.log("Reset button clicked");
+
+				// Reset view to basic
+				if (container) container.dataset.view = "basic";
+				if (viewToggle) {
+					viewToggle.checked = false;
+					localStorage.setItem("buildconfig-view", "basic");
+				}
+
+				selects.forEach((select) => {
+					const defaultValue = select.dataset.default || "";
+					console.log(
+						`Resetting ${select.dataset.variable} to ${defaultValue}`
+					);
+					select.value = defaultValue;
+					// Re-enable any disabled selects
+					select.disabled = false;
+					select.style.opacity = "1";
+					select.style.cursor = "pointer";
+
+					// Hide custom inputs and clear their values
+					const variable = select.dataset.variable;
+					const customInput = document.getElementById(
+						`custom_input_${variable}`
+					) as HTMLInputElement | null;
+					const descriptionP = document.getElementById(
+						`description_${variable}`
+					) as HTMLParagraphElement | null;
+
+					if (customInput) {
+						customInput.style.display = "none";
+						customInput.value = "";
+					}
+					if (descriptionP) descriptionP.style.display = "block";
+				});
+				updateCommands();
+				updateLEDs();
+				// Re-apply syntax highlighting after reset
+				setTimeout(() => {
+					if (typeof window.Prism !== "undefined") {
+						window.Prism.highlightAll();
+					}
+				}, 50);
+			});
+		}
+
+		// Generic copy functionality with proper error handling
+		async function copyToClipboard(
+			text: string,
+			button: HTMLButtonElement
+		): Promise<void> {
+			try {
+				await navigator.clipboard.writeText(text);
+				button.textContent = "Copied!";
+				setTimeout(() => {
+					button.textContent = "Copy";
+				}, 2000);
+			} catch (err) {
+				// Clipboard API not supported
+				button.textContent = "Copy failed";
+				setTimeout(() => {
+					button.textContent = "Copy";
+				}, 2000);
+				console.warn("Clipboard API not supported", err);
+			}
+		}
+
+		// Setup copy button event listeners
+		Object.entries(copyButtons).forEach(([key, button]) => {
+			if (button && outputs[key as keyof typeof outputs]) {
+				button.addEventListener("click", async () => {
+					const output = outputs[key as keyof typeof outputs];
+					if (output?.textContent) {
+						await copyToClipboard(output.textContent, button);
+					}
+				});
+			}
+		});
+
+		// Wait for Prism.js to load, then initialize
+		function initializeHighlighting() {
+			if (typeof window.Prism !== "undefined") {
+				console.log("Prism.js loaded, initializing...");
+				// First populate with default commands
+				updateCommands();
+				// Then apply syntax highlighting
+				setTimeout(() => {
+					window.Prism.highlightAll();
+				}, 50);
+			} else {
+				console.log("Prism.js not yet loaded, retrying...");
+				setTimeout(initializeHighlighting, 100);
+			}
+		}
+
+		// Initialize everything after DOM is ready
+		function initializeWhenReady() {
+			const legacySelect = document.getElementById("config_qbt_legacy_mode");
+			if (!legacySelect) {
+				console.log("DOM not ready, waiting...");
+				setTimeout(initializeWhenReady, 100);
+				return;
+			}
+
+			console.log("DOM ready, initializing LEDs and commands");
+			updateLEDs();
+			initializeHighlighting();
+		}
+
+		// Handle tab switching to show/hide Docker-specific options
+		function handleTabVisibility() {
+			function updateDockerVisibility(tabText: string) {
+				if (container) {
+					const isDockerTab = tabText.includes('docker') || tabText.includes('dockerfile');
+					container.dataset.dockerTab = isDockerTab ? 'true' : 'false';
+				}
+			}
+
+			// Find Starlight tab buttons and add click listeners
+			function attachTabListeners() {
+				const tabButtons = document.querySelectorAll('[role="tab"]');
+
+				tabButtons.forEach((tab) => {
+					// Remove existing listener to prevent duplicates
+					tab.removeEventListener('click', handleTabClick);
+					tab.addEventListener('click', handleTabClick);
+				});
+			}
+
+			function handleTabClick(e: Event) {
+				const target = e.target as HTMLElement;
+				const tabText = target.textContent?.toLowerCase() || '';
+				updateDockerVisibility(tabText);
+			}
+
+			// Use MutationObserver to detect when tabs are added/changed dynamically
+			const observer = new MutationObserver((mutations) => {
+				mutations.forEach((mutation) => {
+					if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+						// Re-attach listeners when new tab elements are added
+						setTimeout(attachTabListeners, 50);
+					}
+				});
+			});
+
+			// Initial setup
+			if (container) {
+				container.dataset.dockerTab = 'false';
+
+				// Attach initial listeners
+				attachTabListeners();
+
+				// Start observing for dynamic tab changes
+				const tabsContainer = document.querySelector('.starlight-tabs');
+				if (tabsContainer) {
+					observer.observe(tabsContainer, {
+						childList: true,
+						subtree: true
+					});
+				}
+			}
+		}
+
+		setTimeout(() => {
+			initializeWhenReady();
+			handleTabVisibility();
+		}, 200);
+	})();
+</script>
