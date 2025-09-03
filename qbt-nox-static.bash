@@ -1750,13 +1750,15 @@ _apply_patches() {
 
 		# Process local patches - never overwrites/updates files, only user does this
 		_process_local_patches() {
-			# Always start fresh with patch file
-			true > "${patch_file}"
 			local has_content=false
+			local temp_patch="${patch_file}.tmp"
+
+			# Start fresh with temp file
+			true > "${temp_patch}"
 
 			# Step 1: Check if main patch file exists (highest priority for base)
 			if [[ -f "${patch_dir}/patch" && -s "${patch_dir}/patch" ]]; then
-				cat "${patch_dir}/patch" > "${patch_file}"
+				cat "${patch_dir}/patch" > "${temp_patch}"
 				has_content=true
 			fi
 
@@ -1767,11 +1769,11 @@ _apply_patches() {
 
 				if _curl "${patch_url}" -o "${tmp_patch}"; then
 					if [[ ${has_content} == true ]]; then
-						printf '\n\n# Merged from URL: %s\n' "${patch_url}" >> "${patch_file}"
+						printf '\n\n# Merged from URL: %s\n' "${patch_url}" >> "${temp_patch}"
 					else
-						printf '# Downloaded from URL: %s\n' "${patch_url}" > "${patch_file}"
+						printf '# Downloaded from URL: %s\n' "${patch_url}" > "${temp_patch}"
 					fi
-					cat "${tmp_patch}" >> "${patch_file}"
+					cat "${tmp_patch}" >> "${temp_patch}"
 					rm -f "${tmp_patch}"
 					has_content=true
 				else
@@ -1789,17 +1791,23 @@ _apply_patches() {
 			if [[ ${#additional_patches[@]} -gt 0 ]]; then
 				for patch_src in "${additional_patches[@]}"; do
 					if [[ ${has_content} == true ]]; then
-						printf '\n\n# Merged from: %s\n' "${patch_src##*/}" >> "${patch_file}"
+						printf '\n\n# Merged from: %s\n' "${patch_src##*/}" >> "${temp_patch}"
 					else
-						printf '# From: %s\n' "${patch_src##*/}" > "${patch_file}"
+						printf '# From: %s\n' "${patch_src##*/}" > "${temp_patch}"
 						has_content=true
 					fi
-					cat "${patch_src}" >> "${patch_file}"
+					cat "${patch_src}" >> "${temp_patch}"
 				done
 			fi
 
-			# Final validation
-			[[ ${has_content} == true && -s ${patch_file} ]]
+			# Final validation and atomic move
+			if [[ ${has_content} == true && -s ${temp_patch} ]]; then
+				mv "${temp_patch}" "${patch_file}"
+				return 0
+			else
+				rm -f "${temp_patch}"
+				return 1
+			fi
 		}
 
 		# Download remote patches function
@@ -1812,6 +1820,12 @@ _apply_patches() {
 
 			local qbt_patches_url_branch
 			qbt_patches_url_branch="$(_git_git ls-remote -q --symref "https://github.com/${qbt_patches_url}" HEAD | awk '/^ref:/{sub("refs/heads/", "", $2); print $2}')"
+
+			# Validate branch name for security (allow alphanumeric, dash, underscore, dot)
+			if [[ ! ${qbt_patches_url_branch} =~ ^[a-zA-Z0-9._-]+$ ]]; then
+				printf '%b\n' " ${unicode_red_circle} Invalid branch name detected: ${qbt_patches_url_branch}"
+				return 1
+			fi
 			local remote_base="https://raw.githubusercontent.com/${qbt_patches_url}/${qbt_patches_url_branch}/patches/${app_name}/${app_version[${app_name}]}"
 			local api_url="https://api.github.com/repos/${qbt_patches_url}/contents/patches/${app_name}/${app_version[${app_name}]}"
 			local downloaded=false
@@ -1821,7 +1835,7 @@ _apply_patches() {
 				local dir_api_url="${1}"
 				local local_path="${2}"
 				local temp_json
-				temp_json="${patch_dir}/temp_listing_$(basename "${local_path}").json"
+				temp_json="${patch_dir}/temp_listing_$$_$(basename "${local_path}").json"
 
 				if _curl "${dir_api_url}" -o "${temp_json}" 2> /dev/null; then
 					# Parse JSON to extract entries
@@ -1835,6 +1849,13 @@ _apply_patches() {
 					mapfile -t names < <(printf '%s\n' "${name_matches}" | sed 's/.*"name"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
 					mapfile -t types < <(printf '%s\n' "${type_matches}" | sed 's/.*"type"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
 					mapfile -t urls < <(printf '%s\n' "${url_matches}" | sed 's/.*"download_url"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
+
+					# Validate array lengths match before processing
+					if [[ ${#names[@]} -ne ${#types[@]} ]] || [[ ${#names[@]} -ne ${#urls[@]} ]]; then
+						printf '%b\n' " ${unicode_yellow_circle} Array length mismatch in JSON parsing, skipping"
+						rm -f "${temp_json}"
+						return 1
+					fi
 
 					# Process each entry
 					for i in "${!names[@]}"; do
@@ -1889,17 +1910,26 @@ _apply_patches() {
 			else
 				method="patch"
 			fi
-			printf '%b\n\n' " ${unicode_red_circle} Applying: ${color_cyan_light}${1##*/}${color_end} using ${color_yellow_light}${method}${color_end}"
+			printf '\n%b\n\n' " ${unicode_green_circle} Applying: ${color_cyan_light}${1##*/}${color_end} using ${color_yellow_light}${method}${color_end}"
 			if [[ ${method} == "git" ]] && git -C "${qbt_dl_folder_path}" apply --check "${1}" &> /dev/null; then
-				git -C "${qbt_dl_folder_path}" apply "${1}"
+				if git -C "${qbt_dl_folder_path}" apply "${1}"; then
+					printf '\n%b\n\n' " ${unicode_green_circle} Patch applied successfully using git"
+				else
+					printf '\n%b\n\n' " ${unicode_red_circle} Failed to apply patch using git"
+					return 1
+				fi
 			else
 				_pushd "${qbt_dl_folder_path}"
-				patch -p1 < "${1}"
+				if patch -p1 < "${1}"; then
+					printf '\n%b\n\n' " ${unicode_green_circle} Patch applied successfully using patch"
+				else
+					printf '\n%b\n\n' " ${unicode_red_circle} Failed to apply patch using patch"
+					_popd
+					return 1
+				fi
 				_popd
 			fi
 		}
-
-		[[ ${source_default[${app_name}]} == "folder" && ! -d "${qbt_cache_dir}/${app_name}" ]] && printf '\n'
 
 		# Method 1: Source directory method (highest priority)
 		if [[ -d "${patch_dir}/source" && -n "$(ls -A "${patch_dir}/source" 2> /dev/null)" ]]; then
@@ -1938,7 +1968,7 @@ _apply_patches() {
 			elif [[ -f "${patch_dir}/Jamfile" ]]; then
 				cp -f "${patch_dir}/Jamfile" "${jamfile_dest}"
 			else
-				local remote_jamfile="https://raw.githubusercontent.com/${qbt_patches_url}/${qbt_patches_url_branch:-main}/patches/${app_name}/${app_version[${app_name}]}/Jamfile"
+				local remote_jamfile="https://raw.githubusercontent.com/${qbt_patches_url}/${qbt_patches_url_branch}/patches/${app_name}/${app_version[${app_name}]}/Jamfile"
 				_curl "${remote_jamfile}" -o "${jamfile_dest}" 2> /dev/null
 			fi
 		fi
@@ -2075,7 +2105,7 @@ _download_folder() {
 	# Force clean clone if patches are detected
 	if [[ -f ${patch_file} && -s ${patch_file} ]] || [[ -f "${patch_dir}/url" ]] || [[ -d "${patch_dir}/source" && -n "$(ls -A "${patch_dir}/source" 2> /dev/null)" ]]; then
 		needs_clean_clone=true
-		[[ -d ${qbt_dl_folder_path} ]] && printf '%b\n' " ${unicode_yellow_circle} Forcing clean clone due to patches"
+		[[ -d ${qbt_dl_folder_path} ]] && printf '\n%b\n' " ${unicode_yellow_circle} Forcing clean clone due to patches"
 	fi
 
 	# Remove the source files in the build directory if present before we download or copy them again
@@ -2261,7 +2291,7 @@ _download_file() {
 			rm -rf "${qbt_install_dir:?}/${archive_dir_name}" "${qbt_install_dir}/${app_name}.tar.xz"
 		elif [[ ${needs_clean_extract} == true ]]; then
 			# Clean up without archive validation when forcing clean extract
-			[[ ${needs_clean_extract} == true ]] && printf '%b\n' " ${unicode_yellow_circle} Forcing clean extraction due to patches"
+			[[ ${needs_clean_extract} == true ]] && printf '\n%b\n' " ${unicode_yellow_circle} Forcing clean extraction due to patches"
 		elif [[ -f ${qbt_dl_file_path} ]]; then
 			_error_tag "${app_name}" "Failed to safely extract archive directory name from ${qbt_dl_file_path}"
 		fi
