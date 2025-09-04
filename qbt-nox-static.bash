@@ -1709,44 +1709,25 @@ _apply_patches() {
 		patch_dir="${qbt_install_dir}/patches/${app_name}/${app_version[${app_name}]}"
 		patch_file="${patch_dir}/patch"
 
-		# Helper function to check if patch_dir has valid patch files (non-zero bytes)
-		_has_valid_patch_files() {
-			local dir="${1}"
-			[[ ! -d ${dir} ]] && return 1
-
-			# Check for valid patch files: patch, url, *.patch, *.diff
-			local found_valid=false
-
-			# Check main patch file
-			[[ -f "${dir}/patch" && -s "${dir}/patch" ]] && found_valid=true
-
-			# Check url file
-			[[ -f "${dir}/url" && -s "${dir}/url" ]] && found_valid=true
-
-			# Check *.patch and *.diff files
-			for file in "${dir}"/*.{patch,diff}; do
-				[[ -f ${file} && -s ${file} ]] && found_valid=true && break
-			done
-
-			[[ ${found_valid} == true ]]
-		}
-
-		# Helper function to check if patch_dir exists but is empty or has only 0-byte files
-		_is_patch_dir_empty() {
-			local dir="${1}"
-			[[ ! -d ${dir} ]] && return 0 # Non-existent = empty
-
-			# Directory exists, check if it has any non-zero files we care about
-			local has_content=false
+		# Helper function to check patch directory status
+		_check_patch_files() {
+			local dir="${1}" mode="${2:-has_valid}"
+			[[ ! -d ${dir} ]] && { [[ ${mode} == "is_empty" ]] && return 0 || return 1; }
 
 			# Check for any valid patch files
 			for file in "${dir}/patch" "${dir}/url" "${dir}"/*.{patch,diff}; do
-				[[ -f ${file} && -s ${file} ]] && has_content=true && break
+				if [[ -f ${file} && -s ${file} ]]; then
+					[[ ${mode} == "has_valid" ]] && return 0 || return 1
+				fi
 			done
 
-			# Return 0 (true) if empty, 1 (false) if has content
-			[[ ${has_content} == false ]]
+			# No valid files found
+			[[ ${mode} == "is_empty" ]] && return 0 || return 1
 		}
+
+		# Wrapper functions for clarity
+		_has_valid_patch_files() { _check_patch_files "${1}" "has_valid"; }
+		_is_patch_dir_empty() { _check_patch_files "${1}" "is_empty"; }
 
 		# Process local patches - never overwrites/updates files, only user does this
 		_process_local_patches() {
@@ -1768,18 +1749,13 @@ _apply_patches() {
 				patch_url="$(< "${patch_dir}/url")"
 
 				if _curl "${patch_url}" -o "${tmp_patch}"; then
-					if [[ ${has_content} == true ]]; then
-						printf '\n\n# Merged from URL: %s\n' "${patch_url}" >> "${temp_patch}"
-					else
-						printf '# Downloaded from URL: %s\n' "${patch_url}" > "${temp_patch}"
-					fi
+					[[ ${has_content} == true ]] && printf '\n\n# Merged from URL: %s\n' "${patch_url}" >> "${temp_patch}" || printf '# Downloaded from URL: %s\n' "${patch_url}" > "${temp_patch}"
 					cat "${tmp_patch}" >> "${temp_patch}"
-					rm -f "${tmp_patch}"
 					has_content=true
 				else
 					printf '%b\n' " ${unicode_yellow_circle} Failed to download from URL: ${patch_url}"
-					rm -f "${tmp_patch}"
 				fi
+				rm -f "${tmp_patch}"
 			fi
 
 			# Step 3: Merge any *.patch or *.diff files last
@@ -1788,17 +1764,15 @@ _apply_patches() {
 				[[ -f ${patch_src} && -s ${patch_src} && ${patch_src} != "${patch_file}" ]] && additional_patches+=("${patch_src}")
 			done
 
-			if [[ ${#additional_patches[@]} -gt 0 ]]; then
-				for patch_src in "${additional_patches[@]}"; do
-					if [[ ${has_content} == true ]]; then
-						printf '\n\n# Merged from: %s\n' "${patch_src##*/}" >> "${temp_patch}"
-					else
-						printf '# From: %s\n' "${patch_src##*/}" > "${temp_patch}"
-						has_content=true
-					fi
-					cat "${patch_src}" >> "${temp_patch}"
-				done
-			fi
+			for patch_src in "${additional_patches[@]}"; do
+				if [[ ${has_content} == true ]]; then
+					printf '\n\n# Merged from: %s\n' "${patch_src##*/}" >> "${temp_patch}"
+				else
+					printf '# From: %s\n' "${patch_src##*/}" > "${temp_patch}"
+					has_content=true
+				fi
+				cat "${patch_src}" >> "${temp_patch}"
+			done
 
 			# Final validation and atomic move
 			if [[ ${has_content} == true && -s ${temp_patch} ]]; then

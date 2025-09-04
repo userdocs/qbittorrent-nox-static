@@ -29,33 +29,53 @@ import {
 
 ### Patching summary
 
-The script supports the automatic patching of all modules when building, providing the prerequisite conditions are met. In summary it works like this:
+The script supports automatic patching of all modules during build with a sophisticated three-method priority system. The patching system works hierarchically to ensure maximum flexibility:
 
-- The script will look for a patch file, url file or sources directory in the `patches` sub directory of the build directory.
-- If none are found, then the script will check the default online patch directory `userdocs/qbittorrent-nox-static` for a patch or url file to apply (ignoring source files)
-- It will compare tag versions of the activated modules and if a match is found it will use an existing local patch or download and apply the patch.
-- Order of priorities:
-  - local - patch file
-  - local - patch url
-  - local - sources directory
-  - remote - patch file
-  - remote - patch url
+#### Patching Methods (Priority Order)
+
+**Method 1: Source Directory (Highest Priority)**
+- Complete source file replacement via `patches/{module}/{version}/source/` directory
+- Files are directly copied to the build directory, overwriting existing files
+- Most flexible method for extensive modifications
+
+**Method 2: Patch Files (Local)**
+- Traditional unified diff patches applied via `git apply` or `patch` command
+- Multiple patch sources supported with intelligent merging:
+  - `patch` file (primary patch)
+  - `url` file (downloads and merges remote patches)
+  - `*.patch` and `*.diff` files (merged in alphabetical order)
+- Auto-detects git repositories and uses appropriate patching method
+
+**Method 3: Remote Patches (Fallback)**
+- Downloads patches from remote GitHub repositories when local patches are empty/missing
+- Uses GitHub API for comprehensive directory structure downloads
+- Supports both individual files and complete directory trees
+- Validates branch names for security
 
 Here is an example local directory structure that the script will use to apply patches to libtorrent `v1.2.19` and qBittorrent `release-5.0.3`
 
 <FileTree>
 - qbt-nox-static.bash
-- qbt-build
-  - patches
+- qbt-build/
+  - patches/
     - libtorrent/
-	  - v1.2.19
-	    - patch
-		- Jamfile
-		- sources/
-	- qbittorrent/
-	  - 5.0.3
-		- patch
-		- sources/src/webui/webui.cpp
+      - v1.2.19/
+        - patch                    # Primary patch file
+        - url                      # URL to download remote patch
+        - 01.patch                 # Additional patch file
+        - 02.diff                  # Additional diff file
+        - source/                  # Source directory (highest priority)
+          - include/
+          - src/
+    - qbittorrent/
+      - 5.0.3/
+        - patch                    # Primary patch file
+        - url                      # URL to download remote patch
+        - custom.patch             # Additional patch file
+        - source/                  # Source directory (highest priority)
+          - src/
+            - webui/
+              - webui.cpp          # Modified source file
 </FileTree>
 
 :::tip
@@ -66,10 +86,30 @@ Use the help command to get more information
 ```
 :::
 
-:::note
-The default remote patch repo if `userdocs/qbittorrent-nox-static` will only store critical patches required to build successfully or apply security fixes.
+#### Patch Processing Details
 
-There are no customisations or additional patches stored in the default repo. If it applies a remote patch consider that patch essnetial.
+**Multi-Patch Merging:**
+- When multiple patches exist, they are intelligently merged into a single unified patch
+- Merge order: `patch` file → `url` download → `*.patch`/`*.diff` files (alphabetical)
+- Each merged patch is labeled with its source for debugging
+- Temporary atomic operations prevent corruption during merging
+
+**Smart Patch Application:**
+- Auto-detects if source directory contains a git repository
+- Uses `git apply` for git repositories (with validation via `--check`)
+- Falls back to traditional `patch -p1` for non-git sources
+- Comprehensive error handling and status reporting
+
+**Remote Patch Security:**
+- Branch name validation using regex `^[a-zA-Z0-9._-]+$`
+- GitHub API integration with proper error handling
+- Recursive directory download with JSON parsing validation
+- Automatic cleanup of zero-byte failed downloads
+
+:::note
+The default remote patch repository `userdocs/qbittorrent-nox-static` stores only critical patches required for successful builds or security fixes.
+
+No customizations or optional patches are stored in the default repository. Any applied remote patch should be considered essential.
 :::
 
 ### Boot strapping
@@ -100,54 +140,95 @@ When bootstrapping the script will create the required directory structure using
 
 <Patchinfo/>
 
-## Local patching via example
+## Local patching examples
 
-In this example we will apply a real patch that can be used with this script from this pinned issue: https://github.com/userdocs/qbittorrent-nox-static/issues/149
+### Method 1: Source Directory Method (Recommended)
+
+This is the most flexible method for extensive modifications. Instead of creating patches, you directly modify source files:
 
 :::note
 We will assume you are in folder with the `qbt-nox-static.bash` script.
 :::
 
-Step 1: Boot strap the patches directory
-
+**Step 1:** Bootstrap the patches directory
 ```bash
-qbt.bash -bs-p
+./qbt.bash -bs-p
 ```
 
-Step 2: Clone the qBittorrent repo targeting the specific tag we want to patch - `--branch release-5.0.3`
-
+**Step 2:** Clone the target repository with the specific version
 ```bash
 git clone --branch release-5.0.3 --depth 1 https://github.com/qbittorrent/qBittorrent.git
 ```
 
-Step 3: Copy the file that we need to edit to our home directory.
-
+**Step 3:** Copy the entire source tree to your patch directory
 ```bash
+cp -r qBittorrent/* qbt-build/patches/qbittorrent/5.0.3/source/
+```
+
+**Step 4:** Edit files directly in the source directory
+```bash
+# Edit the file you need to modify
+nano qbt-build/patches/qbittorrent/5.0.3/source/src/webui/webui.cpp
+```
+
+**Step 5:** Build with your modifications
+```bash
+./qbt.bash all
+```
+
+The script will automatically detect the `source` directory and copy all files to the build location, overwriting the original source.
+
+### Method 2: Traditional Patch File Method
+
+For smaller, targeted changes, traditional patch files are more efficient:
+
+**Step 1:** Bootstrap and prepare source
+```bash
+./qbt.bash -bs-p
+git clone --branch release-5.0.3 --depth 1 https://github.com/qbittorrent/qBittorrent.git
+```
+
+**Step 2:** Make a backup and edit the file
+```bash
+cp qBittorrent/src/webui/webui.cpp webui.cpp.orig
 cp qBittorrent/src/webui/webui.cpp webui.cpp
+# Edit webui.cpp with your changes
+nano webui.cpp
 ```
 
-Step 4: Now edit the `~/webui.cpp` as per this [example of the applied patch](https://github.com/userdocs/qbittorrent-nox-static-test/blob/9b48000c7faa8baabbab57b733eceb20431d5d77/patches/qbittorrent/5.0.3/source/src/webui/webui.cpp#L41-L75)
+**Step 3:** Create the patch file
+```bash
+diff -Naru webui.cpp.orig webui.cpp > qbt-build/patches/qbittorrent/5.0.3/patch
+```
 
-Step 5: Once you have finished making your changes you can create a patch file using this command
+**Step 4:** Build with the patch
+```bash
+./qbt.bash all
+```
+
+### Method 3: Multiple Patch Files
+
+The script supports merging multiple patch files automatically:
 
 ```bash
-diff -Naru qBittorrent/src/webui/webui.cpp webui.cpp > ~/patch
+# Place multiple patches in the patch directory
+echo "patch content 1" > qbt-build/patches/qbittorrent/5.0.3/01-feature-a.patch
+echo "patch content 2" > qbt-build/patches/qbittorrent/5.0.3/02-feature-b.patch
+echo "patch content 3" > qbt-build/patches/qbittorrent/5.0.3/99-final-fixes.diff
 ```
 
-You will now have a `patch` file that looks like this: [qbittorrent/5.0.3/patch](https://github.com/userdocs/qbittorrent-nox-static-test/blob/main/patches/qbittorrent/5.0.3/patch)
+The script will merge all `*.patch` and `*.diff` files in alphabetical order into a single unified patch.
 
-Step 6:
+### Method 4: URL-based Patches
 
-The directory structure that will be created will look like this:
-
-
-Place your patch file named `patch` inside the relevant directories. So it would look something like this:
+Download and apply patches from remote URLs:
 
 ```bash
-qbt-build/patches/qbittorrent/5.0.3/patch
+# Create a URL file pointing to a remote patch
+echo "https://github.com/qbittorrent/qBittorrent/pull/18271.patch" > qbt-build/patches/qbittorrent/5.0.3/url
 ```
 
-Then the patch file will be automatically matched to the tag used by the script and loaded.
+The script will download and apply the patch automatically during build.
 
 ### Using custom github tags
 
@@ -183,16 +264,24 @@ Only the env variables will persist between uses of the script.
 qbt.bash -qt master -lt RC_2_0 all
 ```
 
-### Git based patching
+### Remote GitHub-based patching
 
-Instead of a local patch you can use github hosted patch files. Your patches need to be hosted in the root of the repo like this:
+The script can automatically download patches from GitHub repositories using the `-pr` switch or `qbt_patches_url` environment variable.
+
+#### Repository Structure
+
+Your patches need to be hosted in a GitHub repository with this structure:
 
 <Tabs>
   <TabItem value="qbittorrent" label="qbittorrent" default>
 
 ```bash
 patches/qbittorrent/master/patch
+patches/qbittorrent/master/url
+patches/qbittorrent/master/01-custom.patch
+patches/qbittorrent/master/source/src/webui/webui.cpp
 patches/qbittorrent/4.5.0/patch
+patches/qbittorrent/4.5.0/source/
 ```
 
   </TabItem>
@@ -200,18 +289,38 @@ patches/qbittorrent/4.5.0/patch
 
 ```bash
 patches/libtorrent/RC_2_0/patch
+patches/libtorrent/RC_2_0/source/include/
 patches/libtorrent/RC_1_2/patch
-patches/libtorrent/v1.2.12/patch
+patches/libtorrent/v1.2.12/url
 ```
 
   </TabItem>
 </Tabs>
 
-The all you do is use the `pr` switch when using the script. The repo URL is abbreviated to your username and repo:
+#### Using Remote Patches
 
-`bash ~/qbt.bash all -pr username/repo`
+**Method 1:** Command line switch
+```bash
+./qbt.bash all -pr username/repository
+```
 
-Then the patch file will be automatically matched to the tag used by the script and loaded.
+**Method 2:** Environment variable
+```bash
+export qbt_patches_url="username/repository"
+./qbt.bash all
+```
+
+#### Advanced Remote Patch Features
+
+**Recursive Directory Downloads:** The script uses GitHub API to recursively download entire directory structures, including nested `source/` directories and multiple patch files.
+
+**Comprehensive File Support:** Downloads all patch-related files:
+- `patch` files (primary patches)
+- `url` files (for chained remote patches)
+- `*.patch` and `*.diff` files
+- Complete `source/` directory trees
+
+**Fallback System:** If GitHub API fails, the script falls back to downloading common patch filenames directly.
 
 ### How to make a patch
 
@@ -263,12 +372,63 @@ https://github.com/qbittorrent/qBittorrent/commit/c924904308e806db6e1b321da18c1f
 
 You can download these using `curl` or `wget` and use these as patches in custom builds.
 
+## Troubleshooting and Best Practices
+
+### Debug Information
+
+The script provides detailed output during patch application:
+- **Method Selection:** Shows which patching method is being used
+- **File Merging:** Labels each merged patch with its source
+- **Application Status:** Reports success/failure of patch operations
+- **Git Detection:** Indicates whether git apply or traditional patch is used
+
+### Best Practices
+
+**Patch Organization:**
+- Use descriptive filenames for multiple patches (e.g., `01-security-fix.patch`, `02-performance.patch`)
+- Keep patches atomic - one logical change per patch file
+- Test patches individually before combining
+
+**Source Directory Method:**
+- Only include modified files to minimize disk usage
+- Maintain directory structure matching the original source
+- Consider using git to track your modifications in the source directory
+
+**Remote Patch Security:**
+- Always review remote patches before applying
+- Use trusted repositories for remote patches
+- Consider forking and hosting your own patch repositories
+
+**Version Management:**
+- Keep patches aligned with specific module versions
+- Test patches when updating module versions
+- Document patch purposes and compatibility
+
+### Common Issues
+
+**Patch Application Failures:**
+- Check patch format (unified diff with `-Naru` options)
+- Verify patch applies to correct source version
+- Ensure proper line endings (Unix LF, not Windows CRLF)
+
+**Remote Download Issues:**
+- Verify GitHub repository structure matches expected format
+- Check network connectivity and GitHub API limits
+- Use local patches as fallback for critical builds
+
 ### Cache folder based patching
 
-The cache folder system is essentially an offline dependency system that allows you to store source files for modules that you want to patch.
+The cache folder system serves as an offline dependency system for storing and modifying source files:
 
-This allows the cached folder system to serve as a way patch modules. Source folders are stored in the cache folder and they are copied over to the build directory when the script is run.
+**Advantages:**
+- Persistent modifications across builds
+- Version-specific source storage via git checkout
+- More flexible than patch directory method
+- Allows comprehensive source tree modifications
 
-This means you can edit the source files in the cache folder and they will be copied over to the build directory when the script is run.
+**Usage:**
+1. Enable cache folder system in script configuration
+2. Modify source files directly in cached directories
+3. Files are automatically copied to build directory during compilation
 
-This method is similar to the `source` directory method but it is more flexible and allows you to store multiple versions of the source files via checking out a specific tag or branch.
+This method complements the patch system and provides another layer of source customization flexibility.

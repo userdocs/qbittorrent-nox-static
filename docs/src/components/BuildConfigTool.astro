@@ -84,6 +84,57 @@ const configOptions: ConfigOption[] = [
 		allowCustom: true,
 	},
 	{
+		variable: "qbt_docker_volume",
+		label: "Docker Volume Mapping",
+		description: "Volume mapping for Docker container (host:container format)",
+		defaultVal: "~/qbt:/root",
+		options: [
+			{
+				value: "~/qbt:/root",
+				label: "~/qbt:/root",
+				description: "Default volume mapping to home directory",
+			},
+			{
+				value: "./qbt:/root",
+				label: "./qbt:/root",
+				description: "Current directory volume mapping",
+			},
+			{
+				value: "/tmp/qbt:/root",
+				label: "/tmp/qbt:/root",
+				description: "Temporary directory volume mapping",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter custom volume mapping",
+			},
+		],
+		category: "basic",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_docker_user",
+		label: "Docker User",
+		description: "User to run the container as",
+		defaultVal: "root",
+		options: [
+			{
+				value: "root",
+				label: "root",
+				description: "Run as root user (default)",
+			},
+			{
+				value: "username",
+				label: "username (1000:1000)",
+				description: "Run as username user with sudo access",
+			},
+		],
+		category: "basic",
+		type: "select",
+	},
+	{
 		variable: "qbt_libtorrent_version",
 		label: "Libtorrent Version",
 		description: "The libtorrent version to use - 1.2 or 2.0",
@@ -153,16 +204,6 @@ const configOptions: ConfigOption[] = [
 				value: `release-${data.qbittorrent || "5.1.2"}`,
 				label: `release-${data.qbittorrent || "5.1.2"}`,
 				description: "Current default version",
-			},
-			{
-				value: "release-5.1.1",
-				label: "release-5.1.1",
-				description: "Previous stable version",
-			},
-			{
-				value: "release-5.0.2",
-				label: "release-5.0.2",
-				description: "Older stable version",
 			},
 			{
 				value: "custom",
@@ -251,16 +292,6 @@ const configOptions: ConfigOption[] = [
 				description: "Current default version",
 			},
 			{
-				value: "boost-1.88.0",
-				label: "boost-1.88.0",
-				description: "Previous stable version",
-			},
-			{
-				value: "boost-1.87.0",
-				label: "boost-1.87.0",
-				description: "Older stable version",
-			},
-			{
 				value: "custom",
 				label: "Custom...",
 				description: "Enter a custom git tag",
@@ -282,11 +313,10 @@ const configOptions: ConfigOption[] = [
 				description: "Current default version",
 			},
 			{
-				value: "v2.0.10",
-				label: "v2.0.10",
-				description: "Previous stable version",
+				value: `v${data.libtorrent_1_2 || "v1.2.20"}`,
+				label: `v${data.libtorrent_1_2 || "v1.2.20"}`,
+				description: "Latest 1.2 series",
 			},
-			{ value: "v1.2.19", label: "v1.2.19", description: "Legacy 1.2 series" },
 			{
 				value: "custom",
 				label: "Custom...",
@@ -315,10 +345,7 @@ const configOptions: ConfigOption[] = [
 		description: "Select Qt version for the GUI framework",
 		defaultVal: "6",
 		options: [
-			{ value: "5.12", label: "Qt 5.12", description: "Older LTS version" },
-			{ value: "5.15", label: "Qt 5.15", description: "Current LTS version" },
-			{ value: "6.3", label: "Qt 6.3", description: "Qt 6 LTS" },
-			{ value: "6.3.1", label: "Qt 6.3.1", description: "Qt 6 patch version" },
+			{ value: "5", label: "Qt 5", description: "Current LTS version" },
 			{
 				value: "6",
 				label: "Qt 6",
@@ -340,11 +367,10 @@ const configOptions: ConfigOption[] = [
 				description: "Current default version",
 			},
 			{
-				value: "v6.8.1",
-				label: "v6.8.1",
-				description: "Previous stable version",
+				value: `v${data.qt5 || "v5.15.17"}`,
+				label: `v${data.qt5 || "v5.15.17"}`,
+				description: "Qt 5 LTS version",
 			},
-			{ value: "v5.15.17", label: "v5.15.17", description: "Qt 5 LTS version" },
 			{
 				value: "custom",
 				label: "Custom...",
@@ -442,12 +468,178 @@ const configOptions: ConfigOption[] = [
 		category: "advanced",
 		type: "boolean",
 	},
+	{
+		variable: "qbt_build_dir",
+		label: "Build Directory",
+		description: "Directory name for build files",
+		defaultVal: "qbt-build",
+		options: [
+			{
+				value: "qbt-build",
+				label: "qbt-build",
+				description: "Default build directory",
+			},
+			{
+				value: "build",
+				label: "build",
+				description: "Standard build directory",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter custom build directory",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_build_tool",
+		label: "Build Tool",
+		description: "Build system to use",
+		defaultVal: "cmake",
+		options: [
+			{ value: "cmake", label: "CMake", description: "Use CMake build system" },
+			{ value: "qmake", label: "QMake", description: "Use QMake build system" },
+		],
+		category: "advanced",
+		type: "select",
+	},
+	{
+		variable: "qbt_mcm_url",
+		label: "Musl Cross Make URL",
+		description: "GitHub repository for musl cross make toolchain",
+		defaultVal: "userdocs/qbt-musl-cross-make",
+		options: [
+			{
+				value: "userdocs/qbt-musl-cross-make",
+				label: "userdocs/qbt-musl-cross-make",
+				description: "Default repository",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter custom repository",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_patches_url",
+		label: "Patches URL",
+		description: "GitHub repository for patches",
+		defaultVal: "userdocs/qbittorrent-nox-static",
+		options: [
+			{
+				value: "userdocs/qbittorrent-nox-static",
+				label: "userdocs/qbittorrent-nox-static",
+				description: "Default patches repository",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter custom patches repository",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_cache_dir",
+		label: "Cache Directory",
+		description: "Directory for build cache (empty for no cache)",
+		defaultVal: "",
+		options: [
+			{ value: "", label: "None", description: "No cache directory" },
+			{ value: ".cache", label: ".cache", description: "Use .cache directory" },
+			{
+				value: "/tmp/qbt-cache",
+				label: "/tmp/qbt-cache",
+				description: "Use /tmp cache",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter custom cache directory",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_optimise_strip",
+		label: "Optimize Strip",
+		description: "Strip debug symbols for smaller binaries",
+		defaultVal: "yes",
+		options: [
+			{ value: "yes", label: "Yes", description: "Strip debug symbols" },
+			{ value: "no", label: "No", description: "Keep debug symbols" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_static_ish",
+		label: "Static-ish Build",
+		description: "Build with static-ish linking",
+		defaultVal: "no",
+		options: [
+			{ value: "yes", label: "Yes", description: "Enable static-ish build" },
+			{ value: "no", label: "No", description: "Standard dynamic linking" },
+		],
+		category: "advanced",
+		type: "boolean",
+	},
+	{
+		variable: "qbt_host_deps_repo",
+		label: "Host Dependencies Repository",
+		description: "GitHub repository for host dependencies",
+		defaultVal: "userdocs/qbt-host-deps",
+		options: [
+			{
+				value: "userdocs/qbt-host-deps",
+				label: "userdocs/qbt-host-deps",
+				description: "Default host deps repository",
+			},
+			{
+				value: "custom",
+				label: "Custom...",
+				description: "Enter custom host deps repository",
+			},
+		],
+		category: "advanced",
+		type: "select",
+		allowCustom: true,
+	},
 ];
 
 const basicOptions = configOptions.filter((opt) => opt.category === "basic");
 const advancedOptions = configOptions.filter(
 	(opt) => opt.category === "advanced"
 );
+
+const renderConfigOption = (option: ConfigOption, isBasic = true) => {
+	const dockerAttrs =
+		isBasic &&
+		(option.variable === "qbt_docker_base" ||
+			option.variable === "qbt_docker_port" ||
+			option.variable === "qbt_docker_volume" ||
+			option.variable === "qbt_docker_user")
+			? { "data-docker-only": "true" }
+			: {};
+
+	const volumeAttrs =
+		option.variable === "qbt_docker_volume"
+			? { "data-docker-volume": "true" }
+			: {};
+
+	return { ...dockerAttrs, ...volumeAttrs };
+};
 ---
 
 <style>
@@ -571,7 +763,7 @@ const advancedOptions = configOptions.filter(
 
 	.config-option {
 		display: grid;
-		grid-template-columns: 1fr auto auto 2fr;
+		grid-template-columns: 1fr auto 2fr;
 		align-items: center;
 		justify-items: start;
 		gap: 1rem;
@@ -585,6 +777,7 @@ const advancedOptions = configOptions.filter(
 		counter-increment: option-counter;
 		min-height: 60px;
 		text-align: left;
+		position: relative;
 	}
 
 	.config-option:hover {
@@ -621,12 +814,18 @@ const advancedOptions = configOptions.filter(
 		font-weight: 500;
 		transition: var(--transition-fast);
 		min-width: 200px;
+		max-width: 300px;
+		width: 200px;
 		cursor: pointer;
 		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 		text-align: left;
 		text-align-last: left;
 		height: 2.5rem;
 		box-sizing: border-box;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		justify-self: start;
 	}
 
 	.option-control select:hover {
@@ -640,33 +839,43 @@ const advancedOptions = configOptions.filter(
 		border-color: var(--sl-color-accent);
 	}
 
-	div.status-led {
+	.status-led {
 		width: 8px !important;
 		height: 8px !important;
 		border-radius: 50% !important;
 		flex-shrink: 0 !important;
 		transition: all 0.2s ease !important;
 		border: none !important;
-		position: relative !important;
 		display: inline-block !important;
-		visibility: visible !important;
-		opacity: 1 !important;
+		background-color: #10b981 !important;
+		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
 		margin: 0 !important;
 		padding: 0 !important;
-		background-color: #10b981 !important;
+		position: relative !important;
+		visibility: visible !important;
+		opacity: 1 !important;
 		min-width: 8px !important;
 		min-height: 8px !important;
 		max-width: 8px !important;
 		max-height: 8px !important;
-		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+		z-index: 10 !important;
 	}
 
-	div.status-led.default {
-		background-color: #10b981 !important;
-		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;
+	/* Force LEDs to be visible even in hidden containers */
+	.config-option .status-led {
+		display: inline-block !important;
+		visibility: visible !important;
+		opacity: 1 !important;
 	}
 
-	div.status-led.modified {
+	/* Ensure status indicator container is visible */
+	.status-indicator {
+		display: flex !important;
+		visibility: visible !important;
+		opacity: 1 !important;
+	}
+
+	.status-led.modified {
 		background-color: #f59e0b !important;
 		box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2) !important;
 	}
@@ -674,42 +883,29 @@ const advancedOptions = configOptions.filter(
 	.status-indicator {
 		display: flex;
 		align-items: center;
-		justify-content: flex-start;
+		justify-content: flex-end;
 		gap: 0.5rem;
 		padding: 0.375rem 0.625rem;
 		border-radius: 20px;
 		font-size: 0.75rem;
 		font-weight: 500;
 		white-space: nowrap;
-		min-width: 80px;
-		text-align: left;
+		width: auto;
+		text-align: right;
 		height: 2rem;
+		box-sizing: border-box;
+		position: absolute;
+		right: 1rem;
+		top: 50%;
+		transform: translateY(-50%);
+		z-index: 10;
 	}
 
 	.status-label {
 		color: var(--sl-color-gray-2);
 		text-transform: uppercase;
 		letter-spacing: 0.025em;
-	}
-
-	.option-control select:focus {
-		outline: 2px solid var(--code-inline-border);
-		outline-offset: 1px;
-		box-shadow: var(--shadow-sm);
-	}
-
-	.option-control select:hover {
-		background: var(--details-1);
-	}
-
-	.option-control select:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-		background: var(--details-1);
-	}
-
-	.option-control select:disabled:hover {
-		background: var(--details-1);
+		white-space: nowrap;
 	}
 
 	.option-explanation {
@@ -760,14 +956,27 @@ const advancedOptions = configOptions.filter(
 		display: block;
 	}
 
-	/* Hide Docker Base Image option by default */
+	/* Show Docker Base Image option by default (changed approach) */
 	.config-option[data-docker-only="true"] {
+		display: grid;
+	}
+
+	/* Hide Docker Base Image option only when explicitly on non-Docker tabs */
+	.build-config[data-docker-tab="false"]
+		.config-option[data-docker-only="true"] {
 		display: none;
 	}
 
-	/* Show Docker Base Image option when on Docker tabs */
-	.build-config[data-docker-tab="true"] .config-option[data-docker-only="true"] {
-		display: grid;
+	/* Simple fix: keep LEDs visible even when parent containers are hidden */
+	.status-led {
+		position: relative !important;
+		z-index: 1000 !important;
+	}
+
+	/* Hide Docker volume option when on Dockerfile tab */
+	.build-config[data-dockerfile-tab="true"]
+		.config-option[data-docker-volume="true"] {
+		display: none;
 	}
 
 	.output-section {
@@ -911,9 +1120,16 @@ const advancedOptions = configOptions.filter(
 			display: none;
 		}
 
-		.build-config[data-docker-tab="true"] .config-option[data-docker-only="true"] {
+		.build-config[data-docker-tab="true"]
+			.config-option[data-docker-only="true"] {
 			display: grid;
 			grid-template-columns: 1fr;
+		}
+
+		/* Hide Docker volume option when on Dockerfile tab on mobile */
+		.build-config[data-dockerfile-tab="true"]
+			.config-option[data-docker-volume="true"] {
+			display: none;
 		}
 
 		.option-info h4 {
@@ -964,7 +1180,7 @@ const advancedOptions = configOptions.filter(
 <!-- Prism.js - Theme-aware loading -->
 <script is:inline>
 	// Load and manage Prism theme switching
-	(function() {
+	(function () {
 		let currentPrismLink = null;
 
 		function loadPrismTheme(isLight = false) {
@@ -974,29 +1190,32 @@ const advancedOptions = configOptions.filter(
 			}
 
 			// Create new theme link
-			currentPrismLink = document.createElement('link');
-			currentPrismLink.rel = 'stylesheet';
-			currentPrismLink.id = 'prism-theme';
+			currentPrismLink = document.createElement("link");
+			currentPrismLink.rel = "stylesheet";
+			currentPrismLink.id = "prism-theme";
 			currentPrismLink.href = isLight
-				? 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism.min.css'
-				: 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-dark.min.css';
+				? "https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism.min.css"
+				: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-dark.min.css";
 			document.head.appendChild(currentPrismLink);
 		}
 
 		// Initial theme load
-		const initialTheme = document.documentElement.getAttribute('data-theme');
-		loadPrismTheme(initialTheme === 'light');
+		const initialTheme = document.documentElement.getAttribute("data-theme");
+		loadPrismTheme(initialTheme === "light");
 
 		// Watch for theme changes
 		const observer = new MutationObserver((mutations) => {
 			mutations.forEach((mutation) => {
-				if (mutation.type === 'attributes' && mutation.attributeName === 'data-theme') {
-					const newTheme = document.documentElement.getAttribute('data-theme');
-					loadPrismTheme(newTheme === 'light');
+				if (
+					mutation.type === "attributes" &&
+					mutation.attributeName === "data-theme"
+				) {
+					const newTheme = document.documentElement.getAttribute("data-theme");
+					loadPrismTheme(newTheme === "light");
 
 					// Re-highlight after theme change
 					setTimeout(() => {
-						if (typeof window.Prism !== 'undefined') {
+						if (typeof window.Prism !== "undefined") {
 							window.Prism.highlightAll();
 						}
 					}, 100);
@@ -1006,7 +1225,7 @@ const advancedOptions = configOptions.filter(
 
 		observer.observe(document.documentElement, {
 			attributes: true,
-			attributeFilter: ['data-theme']
+			attributeFilter: ["data-theme"],
 		});
 	})();
 </script>
@@ -1043,109 +1262,69 @@ const advancedOptions = configOptions.filter(
 		<button class="reset-button" id="resetButton">Reset</button>
 	</div>
 
-	<div class="config-section">
-		<div class="config-options">
-			{
-				basicOptions.map((option) => (
-					<div class="config-option" data-docker-only={option.variable === "qbt_docker_base" || option.variable === "qbt_docker_port" ? "true" : undefined}>
-						<div class="option-info">
-							<h4>{option.label}</h4>
-						</div>
-						<div class="option-control">
-							<div class="status-indicator">
-								<div
-									class="status-led default"
-									data-variable={option.variable}
-									style="width: 8px !important; height: 8px !important; background-color: #10b981 !important; border-radius: 50% !important; display: inline-block !important; border: none !important; flex-shrink: 0 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;"
-								/>
-								<span class="status-label" data-variable={option.variable}>
-									Default
-								</span>
-							</div>
-							<select
-								id={`config_${option.variable}`}
-								data-variable={option.variable}
-								data-default={option.defaultVal}
-							>
-								{option.options.map((opt) => (
-									<option
-										value={opt.value}
-										selected={opt.value === option.defaultVal}
+	{
+		[
+			{ options: basicOptions, section: "config-section" },
+			{ options: advancedOptions, section: "config-section advanced-section" },
+		].map(({ options, section }) => (
+			<div class={section}>
+				<div class="config-options">
+					{options.map((option) => {
+						const attrs = renderConfigOption(
+							option,
+							section === "config-section"
+						);
+						return (
+							<div class="config-option" {...attrs}>
+								<div class="option-info">
+									<h4>{option.label}</h4>
+								</div>
+								<div class="option-control">
+									<div class="status-indicator">
+										<div
+											class="status-led default"
+											data-variable={option.variable}
+										/>
+										<span class="status-label" data-variable={option.variable}>
+											Default
+										</span>
+									</div>
+									<select
+										id={`config_${option.variable}`}
+										data-variable={option.variable}
+										data-default={option.defaultVal}
 									>
-										{opt.label}
-									</option>
-								))}
-							</select>
-						</div>
-						<div class="option-explanation">
-							<p id={`description_${option.variable}`}>{option.description}</p>
-							{option.allowCustom && (
-								<input
-									class="custom-input"
-									type="text"
-									placeholder={`Enter custom ${option.label.toLowerCase()}`}
-									id={`custom_input_${option.variable}`}
-									style="display: none;"
-								/>
-							)}
-						</div>
-					</div>
-				))
-			}
-		</div>
-	</div>
-
-	<div class="config-section advanced-section">
-		<div class="config-options">
-			{
-				advancedOptions.map((option) => (
-					<div class="config-option">
-						<div class="option-info">
-							<h4>{option.label}</h4>
-						</div>
-						<div class="option-control">
-							<div class="status-indicator">
-								<div
-									class="status-led default"
-									data-variable={option.variable}
-									style="width: 8px !important; height: 8px !important; background-color: #10b981 !important; border-radius: 50% !important; display: inline-block !important; border: none !important; flex-shrink: 0 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2) !important;"
-								/>
-								<span class="status-label" data-variable={option.variable}>
-									Default
-								</span>
+										{option.options.map((opt) => (
+											<option
+												value={opt.value}
+												selected={opt.value === option.defaultVal}
+											>
+												{opt.label}
+											</option>
+										))}
+									</select>
+								</div>
+								<div class="option-explanation">
+									<p id={`description_${option.variable}`}>
+										{option.description}
+									</p>
+									{option.allowCustom && (
+										<input
+											class="custom-input"
+											type="text"
+											placeholder={`Enter custom ${option.label.toLowerCase()}`}
+											id={`custom_input_${option.variable}`}
+											style="display: none;"
+										/>
+									)}
+								</div>
 							</div>
-							<select
-								id={`config_${option.variable}`}
-								data-variable={option.variable}
-								data-default={option.defaultVal}
-							>
-								{option.options.map((opt) => (
-									<option
-										value={opt.value}
-										selected={opt.value === option.defaultVal}
-									>
-										{opt.label}
-									</option>
-								))}
-							</select>
-						</div>
-						<div class="option-explanation">
-							<p id={`description_${option.variable}`}>{option.description}</p>
-							{option.allowCustom && (
-								<input
-									class="custom-input"
-									type="text"
-									placeholder={`Enter custom ${option.label.toLowerCase()}`}
-									id={`custom_input_${option.variable}`}
-									style="display: none;"
-								/>
-							)}
-						</div>
-					</div>
-				))
-			}
-		</div>
-	</div>
+						);
+					})}
+				</div>
+			</div>
+		))
+	}
 
 	<div class="output-section">
 		<Tabs syncKey="command-type">
@@ -1205,6 +1384,20 @@ const advancedOptions = configOptions.filter(
 	}
 
 	(function () {
+		// Storage for separate Docker and Dockerfile settings (declared at top level)
+		const dockerSettings = {
+			port: "",
+			customPort: "",
+			volume: "",
+			customVolume: "",
+		};
+		const dockerfileSettings = {
+			port: "",
+			customPort: "",
+			volume: "",
+			customVolume: "",
+		};
+
 		// Safe DOM element queries with null checks
 		const container = document.getElementById(
 			"buildConfig"
@@ -1215,6 +1408,586 @@ const advancedOptions = configOptions.filter(
 		const resetButton = document.getElementById(
 			"resetButton"
 		) as HTMLButtonElement | null;
+
+		// Universal tab detection - try multiple approaches
+		function updateDockerTabVisibility() {
+			if (!container) return;
+
+			let isDockerTab = true; // Default to true (show Docker options)
+			let isDockerfileTab = false;
+			let detectionSource = "default";
+
+			// Method 1: Look for any tabs anywhere in the document
+			const allTabs = document.querySelectorAll('[role="tab"]');
+			const allPanels = document.querySelectorAll('[role="tabpanel"]');
+			console.log(
+				`Found ${allTabs.length} total tabs and ${allPanels.length} total panels on page`
+			);
+
+			if (allTabs.length > 0) {
+				// Find the active tab, but skip page-level navigation tabs
+				let activeTab = null;
+				const selectedTabs = document.querySelectorAll(
+					'[role="tab"][aria-selected="true"]'
+				);
+
+				// Look for a tab that contains Docker/Dockerfile/Native text
+				for (const tab of selectedTabs) {
+					const tabText = (tab.textContent || "").trim().toLowerCase();
+					console.log(`Checking selected tab: "${tabText}"`);
+
+					// Skip page-level tabs (Notes, Alpine, Debian, Ubuntu, Build helper)
+					if (
+						tabText === "notes" ||
+						tabText === "alpine" ||
+						tabText === "debian" ||
+						tabText === "ubuntu" ||
+						tabText === "build helper"
+					) {
+						console.log(`Skipping page-level tab: "${tabText}"`);
+						continue;
+					}
+
+					// This looks like a component-level tab
+					activeTab = tab;
+					console.log(`Found component tab: "${tabText}"`);
+					break;
+				}
+
+				if (activeTab) {
+					const tabText = (activeTab.textContent || "").trim().toLowerCase();
+					console.log(`Active component tab: "${tabText}"`);
+					detectionSource = "aria-selected";
+
+					isDockerTab =
+						tabText.includes("docker") || tabText.includes("dockerfile");
+					isDockerfileTab = tabText.includes("dockerfile");
+				} else {
+					console.log(
+						"No component-level tabs found with aria-selected=true, trying visible panel method"
+					);
+
+					// Check for visible panel
+					const visiblePanel = document.querySelector(
+						'[role="tabpanel"]:not([hidden])'
+					);
+					if (visiblePanel) {
+						const tabId = visiblePanel.getAttribute("aria-labelledby");
+						if (tabId) {
+							const tab = document.getElementById(tabId);
+							if (tab) {
+								const tabText = (tab.textContent || "").trim().toLowerCase();
+								console.log(`Active tab via visible panel: "${tabText}"`);
+
+								// Skip page-level tabs here too
+								if (
+									!(
+										tabText === "notes" ||
+										tabText === "alpine" ||
+										tabText === "debian" ||
+										tabText === "ubuntu" ||
+										tabText === "build helper"
+									)
+								) {
+									detectionSource = "visible-panel";
+									isDockerTab =
+										tabText.includes("docker") ||
+										tabText.includes("dockerfile");
+									isDockerfileTab = tabText.includes("dockerfile");
+								}
+							}
+						}
+					} else {
+						console.log("No visible panel found, listing all tabs:");
+
+						// List all tabs for debugging
+						allTabs.forEach((tab, i) => {
+							const text = (tab.textContent || "").trim();
+							const selected = tab.getAttribute("aria-selected");
+							console.log(`Tab ${i}: "${text}" (aria-selected: ${selected})`);
+						});
+					}
+				}
+			}
+
+			// Set attributes
+			container.dataset.dockerTab = isDockerTab ? "true" : "false";
+			container.dataset.dockerfileTab = isDockerfileTab ? "true" : "false";
+
+			// Update port options for Dockerfile tab
+			updatePortOptions(isDockerfileTab);
+
+			// Restore volume settings for the detected tab context
+			restoreVolumeSettings(isDockerfileTab);
+
+			console.log(
+				`Detection: ${detectionSource}, docker=${isDockerTab}, dockerfile=${isDockerfileTab}`
+			);
+		}
+
+		// Extended detection with more attempts and longer delays
+		updateDockerTabVisibility();
+
+		setTimeout(() => updateDockerTabVisibility(), 100);
+		setTimeout(() => updateDockerTabVisibility(), 300);
+		setTimeout(() => updateDockerTabVisibility(), 1000);
+		setTimeout(() => updateDockerTabVisibility(), 2000);
+		setTimeout(() => updateDockerTabVisibility(), 3000);
+
+		// Also look for alternative selectors
+		function tryAlternativeDetection() {
+			console.log("Trying alternative tab detection methods...");
+
+			// Try different possible selectors for the tabs container
+			const selectors = [
+				".starlight-tabs",
+				'[data-astro-source-loc*="Tabs"]',
+				".tabs",
+				"astro-tabs",
+				'[role="tablist"]',
+			];
+
+			for (const selector of selectors) {
+				const container = document.querySelector(selector);
+				if (container) {
+					console.log(`Found tabs container with selector: ${selector}`);
+					const tabs = container.querySelectorAll('[role="tab"]');
+					const panels = container.querySelectorAll('[role="tabpanel"]');
+					console.log(`Found ${tabs.length} tabs and ${panels.length} panels`);
+
+					if (tabs.length > 0) {
+						tabs.forEach((tab, i) => {
+							const text = (tab.textContent || "").trim();
+							const selected = tab.getAttribute("aria-selected");
+							console.log(`Tab ${i}: "${text}" (aria-selected: ${selected})`);
+						});
+					}
+					break;
+				}
+			}
+		}
+
+		setTimeout(() => tryAlternativeDetection(), 1500);
+
+		// Browser navigation
+		window.addEventListener("popstate", () => {
+			console.log("Browser navigation detected");
+			setTimeout(() => updateDockerTabVisibility(), 100);
+		});
+
+		// Settings objects now declared at top of script
+
+		// Save port settings immediately when they change
+		function savePortSettings() {
+			const portSelect = document.getElementById(
+				"config_qbt_docker_port"
+			) as HTMLSelectElement | null;
+			const customInput = document.getElementById(
+				"custom_input_qbt_docker_port"
+			) as HTMLInputElement | null;
+
+			if (!portSelect || !container) return;
+
+			const currentValue = portSelect.value;
+			const currentCustomValue = customInput?.value || "";
+			const isCurrentlyDockerfile = container.dataset.dockerfileTab === "true";
+
+			savePortSettingsExplicit(
+				isCurrentlyDockerfile,
+				currentValue,
+				currentCustomValue
+			);
+		}
+
+		function savePortSettingsExplicit(
+			isDockerfileTab: boolean,
+			portValue?: string,
+			customValue?: string
+		) {
+			const portSelect = document.getElementById(
+				"config_qbt_docker_port"
+			) as HTMLSelectElement | null;
+			const customInput = document.getElementById(
+				"custom_input_qbt_docker_port"
+			) as HTMLInputElement | null;
+
+			if (!portSelect) return;
+
+			const currentValue = portValue || portSelect.value;
+			const currentCustomValue = customValue || customInput?.value || "";
+
+			console.log(
+				`Saving port settings: isDockerfile=${isDockerfileTab}, port=${currentValue}, custom=${currentCustomValue}`
+			);
+
+			if (isDockerfileTab) {
+				dockerfileSettings.port = currentValue;
+				dockerfileSettings.customPort = currentCustomValue;
+			} else {
+				dockerSettings.port = currentValue;
+				dockerSettings.customPort = currentCustomValue;
+			}
+		}
+
+		// Move updatePortOptions to global scope so it can be called early
+		function updatePortOptions(isDockerfileTab: boolean) {
+			const portSelect = document.getElementById(
+				"config_qbt_docker_port"
+			) as HTMLSelectElement | null;
+			const customInput = document.getElementById(
+				"custom_input_qbt_docker_port"
+			) as HTMLInputElement | null;
+
+			if (!portSelect) {
+				console.log(
+					"Port select element not found, skipping updatePortOptions"
+				);
+				return;
+			}
+
+			console.log(
+				`updatePortOptions called with isDockerfileTab: ${isDockerfileTab}`
+			);
+			console.log(
+				`Current container dockerfileTab: ${container?.dataset.dockerfileTab}`
+			);
+			console.log(`Current port select value: ${portSelect.value}`);
+
+			// Save the current value for reference (but don't save to settings - already done in updateDockerVisibility)
+			const currentValueBeforeSwitch = portSelect.value;
+			const currentCustomValueBeforeSwitch = customInput?.value || "";
+
+			console.log(
+				`Values before switch: port=${currentValueBeforeSwitch}, custom=${currentCustomValueBeforeSwitch}`
+			);
+
+			// Store original options if not already stored
+			if (!portSelect.dataset.originalOptions) {
+				portSelect.dataset.originalOptions = portSelect.innerHTML;
+			}
+
+			if (isDockerfileTab) {
+				console.log("Setting Dockerfile port options (container ports only)");
+
+				// Get custom input element for Dockerfile context
+				const dockerfileCustomInput = document.getElementById(
+					"custom_input_qbt_docker_port"
+				) as HTMLInputElement | null;
+
+				// Show only container ports for Dockerfile
+				portSelect.innerHTML = `
+					<option value="8080">8080 (Default)</option>
+					<option value="8081">8081</option>
+					<option value="9090">9090</option>
+					<option value="custom">Custom...</option>
+				`;
+
+				// Determine what value to use for Dockerfile
+				let dockerfileValue = "";
+
+				// Priority 1: Use saved Dockerfile settings if available
+				if (dockerfileSettings.port && dockerfileSettings.port !== "") {
+					dockerfileValue = dockerfileSettings.port;
+					console.log(`Using saved Dockerfile port: ${dockerfileValue}`);
+
+					const option = portSelect.querySelector(
+						`option[value="${dockerfileValue}"]`
+					);
+					if (option) {
+						portSelect.value = dockerfileValue;
+						if (
+							dockerfileValue === "custom" &&
+							dockerfileSettings.customPort &&
+							dockerfileCustomInput
+						) {
+							dockerfileCustomInput.value = dockerfileSettings.customPort;
+						}
+					} else {
+						// Saved value is invalid, fall back to extraction
+						dockerfileValue = "";
+					}
+				}
+
+				// Priority 2: If no saved settings or invalid, extract from current Docker value
+				if (!dockerfileValue) {
+					console.log(
+						`No saved Dockerfile settings, extracting from Docker value: ${currentValueBeforeSwitch}`
+					);
+
+					// Try to extract container port from Docker mapping (e.g., "8080:8080" -> "8080")
+					if (
+						currentValueBeforeSwitch &&
+						currentValueBeforeSwitch.includes(":")
+					) {
+						const containerPort = currentValueBeforeSwitch.split(":")[1];
+						const containerPortOption = portSelect.querySelector(
+							`option[value="${containerPort}"]`
+						);
+
+						if (containerPortOption) {
+							portSelect.value = containerPort;
+							console.log(
+								`Extracted container port from mapping: ${currentValueBeforeSwitch} -> ${containerPort}`
+							);
+						} else {
+							portSelect.value = "8080";
+							console.log("Container port not in options, using default: 8080");
+						}
+					} else if (currentValueBeforeSwitch) {
+						// Current value is already a container port, check if it's valid for Dockerfile
+						const compatibleOption = portSelect.querySelector(
+							`option[value="${currentValueBeforeSwitch}"]`
+						);
+						if (compatibleOption) {
+							portSelect.value = currentValueBeforeSwitch;
+							console.log(
+								`Preserved compatible container port: ${currentValueBeforeSwitch}`
+							);
+						} else {
+							portSelect.value = "8080";
+							console.log("Container port not compatible, using default: 8080");
+						}
+					} else {
+						// No current value, use default
+						portSelect.value = "8080";
+						console.log("No current value, using default: 8080");
+					}
+				}
+				console.log(`Final Dockerfile port select value: ${portSelect.value}`);
+
+				// Store original default value and set new default for Dockerfile context
+				if (!portSelect.dataset.originalDefault) {
+					portSelect.dataset.originalDefault = portSelect.dataset.default || "";
+				}
+				portSelect.dataset.default = "8080";
+
+				// Update custom input placeholder for Dockerfile context
+				if (dockerfileCustomInput) {
+					dockerfileCustomInput.placeholder =
+						"Enter container port (e.g., 3000)";
+				}
+				// Update the label text to reflect container port only
+				const labelElement = portSelect
+					.closest(".config-option")
+					?.querySelector("h4");
+				if (labelElement) {
+					labelElement.dataset.originalText =
+						labelElement.dataset.originalText || labelElement.textContent || "";
+					labelElement.textContent = "Container Port";
+				}
+			} else {
+				console.log("Setting Docker/Native port options (port mappings)");
+
+				// Get custom input element for Docker context
+				const dockerCustomInput = document.getElementById(
+					"custom_input_qbt_docker_port"
+				) as HTMLInputElement | null;
+
+				// Restore original port mapping options
+				portSelect.innerHTML =
+					portSelect.dataset.originalOptions || portSelect.innerHTML;
+
+				// Determine what value to use for Docker
+				let dockerValue = "";
+
+				// Priority 1: Use saved Docker settings if available
+				if (dockerSettings.port && dockerSettings.port !== "") {
+					dockerValue = dockerSettings.port;
+					console.log(`Using saved Docker port: ${dockerValue}`);
+
+					const option = portSelect.querySelector(
+						`option[value="${dockerValue}"]`
+					);
+					if (option) {
+						portSelect.value = dockerValue;
+						if (
+							dockerValue === "custom" &&
+							dockerSettings.customPort &&
+							dockerCustomInput
+						) {
+							dockerCustomInput.value = dockerSettings.customPort;
+						}
+					} else {
+						// Saved value is invalid, fall back to conversion
+						dockerValue = "";
+					}
+				}
+
+				// Priority 2: If no saved settings or invalid, convert from current Dockerfile value
+				if (!dockerValue) {
+					console.log(
+						`No saved Docker settings, converting from Dockerfile value: ${currentValueBeforeSwitch}`
+					);
+
+					// Try to convert container port to Docker mapping (e.g., "8080" -> "8080:8080")
+					if (
+						currentValueBeforeSwitch &&
+						!currentValueBeforeSwitch.includes(":")
+					) {
+						const mappingValue = `${currentValueBeforeSwitch}:${currentValueBeforeSwitch}`;
+						const mappingOption = portSelect.querySelector(
+							`option[value="${mappingValue}"]`
+						);
+
+						if (mappingOption) {
+							portSelect.value = mappingValue;
+							console.log(
+								`Created port mapping from container port: ${currentValueBeforeSwitch} -> ${mappingValue}`
+							);
+						} else {
+							// Find default option
+							const defaultOption =
+								portSelect.querySelector("option[selected]") ||
+								portSelect.querySelector("option");
+							if (defaultOption) {
+								portSelect.value = defaultOption.getAttribute("value") || "";
+								console.log(
+									"Container port mapping not found, using default Docker mapping"
+								);
+							}
+						}
+					} else if (currentValueBeforeSwitch) {
+						// Current value is already a mapping, check if it's valid for Docker
+						const compatibleOption = portSelect.querySelector(
+							`option[value="${currentValueBeforeSwitch}"]`
+						);
+						if (compatibleOption) {
+							portSelect.value = currentValueBeforeSwitch;
+							console.log(
+								`Preserved compatible Docker mapping: ${currentValueBeforeSwitch}`
+							);
+						} else {
+							// Find default option
+							const defaultOption =
+								portSelect.querySelector("option[selected]") ||
+								portSelect.querySelector("option");
+							if (defaultOption) {
+								portSelect.value = defaultOption.getAttribute("value") || "";
+								console.log("Docker mapping not compatible, using default");
+							}
+						}
+					} else {
+						// No current value, use default
+						const defaultOption =
+							portSelect.querySelector("option[selected]") ||
+							portSelect.querySelector("option");
+						if (defaultOption) {
+							portSelect.value = defaultOption.getAttribute("value") || "";
+							console.log("No current value, using default Docker mapping");
+						}
+					}
+				}
+				console.log(`Final Docker port select value: ${portSelect.value}`);
+
+				// Restore original default value
+				if (portSelect.dataset.originalDefault) {
+					portSelect.dataset.default = portSelect.dataset.originalDefault;
+				}
+
+				// Restore custom input placeholder for port mapping context
+				if (dockerCustomInput) {
+					dockerCustomInput.placeholder = "Enter custom port mapping";
+				}
+
+				// Restore original label text
+				const labelElement = portSelect
+					.closest(".config-option")
+					?.querySelector("h4");
+				if (labelElement && labelElement.dataset.originalText) {
+					labelElement.textContent = labelElement.dataset.originalText;
+				}
+			}
+
+			// Trigger change event to update commands
+			portSelect.dispatchEvent(new Event("change", { bubbles: true }));
+		}
+
+		// Save volume settings immediately when they change
+		function saveVolumeSettings() {
+			const volumeSelect = document.getElementById(
+				"config_qbt_docker_volume"
+			) as HTMLSelectElement | null;
+			const customVolumeInput = document.getElementById(
+				"custom_input_qbt_docker_volume"
+			) as HTMLInputElement | null;
+
+			if (!volumeSelect || !container) return;
+
+			const currentValue = volumeSelect.value;
+			const currentCustomValue = customVolumeInput?.value || "";
+			const isCurrentlyDockerfile = container.dataset.dockerfileTab === "true";
+
+			saveVolumeSettingsExplicit(
+				isCurrentlyDockerfile,
+				currentValue,
+				currentCustomValue
+			);
+		}
+
+		function saveVolumeSettingsExplicit(
+			isDockerfileTab: boolean,
+			volumeValue?: string,
+			customValue?: string
+		) {
+			const volumeSelect = document.getElementById(
+				"config_qbt_docker_volume"
+			) as HTMLSelectElement | null;
+			const customVolumeInput = document.getElementById(
+				"custom_input_qbt_docker_volume"
+			) as HTMLInputElement | null;
+
+			if (!volumeSelect) return;
+
+			const currentValue = volumeValue || volumeSelect.value;
+			const currentCustomValue = customValue || customVolumeInput?.value || "";
+
+			console.log(
+				`Saving volume settings: isDockerfile=${isDockerfileTab}, volume=${currentValue}, custom=${currentCustomValue}`
+			);
+
+			if (isDockerfileTab) {
+				dockerfileSettings.volume = currentValue;
+				dockerfileSettings.customVolume = currentCustomValue;
+			} else {
+				dockerSettings.volume = currentValue;
+				dockerSettings.customVolume = currentCustomValue;
+			}
+		}
+
+		function restoreVolumeSettings(isDockerfileTab: boolean) {
+			const volumeSelect = document.getElementById(
+				"config_qbt_docker_volume"
+			) as HTMLSelectElement | null;
+			const customVolumeInput = document.getElementById(
+				"custom_input_qbt_docker_volume"
+			) as HTMLInputElement | null;
+
+			if (!volumeSelect) return;
+
+			const settings = isDockerfileTab ? dockerfileSettings : dockerSettings;
+			const contextName = isDockerfileTab ? "Dockerfile" : "Docker";
+
+			if (settings.volume && settings.volume !== "") {
+				const option = volumeSelect.querySelector(
+					`option[value="${settings.volume}"]`
+				);
+
+				if (option) {
+					volumeSelect.value = settings.volume;
+					console.log(
+						`Restored saved ${contextName} volume: ${settings.volume}`
+					);
+				} else if (settings.volume === "custom" && settings.customVolume) {
+					volumeSelect.value = "custom";
+					if (customVolumeInput) {
+						customVolumeInput.value = settings.customVolume;
+					}
+					console.log(
+						`Restored saved custom ${contextName} volume: ${settings.customVolume}`
+					);
+				}
+			}
+		}
 
 		// Copy buttons
 		const copyButtons = {
@@ -1266,133 +2039,77 @@ const advancedOptions = configOptions.filter(
 			});
 		}
 
-		// Generate command functions
-		function generateNativeCommand() {
-			// Determine if legacy mode is enabled
+		// Helper functions
+		function isLegacyMode(): boolean {
 			const legacyModeSelect = document.getElementById(
 				"config_qbt_legacy_mode"
 			) as HTMLSelectElement | null;
-
-			if (!legacyModeSelect) {
-				console.log("Legacy mode select not found, DOM may not be ready");
-				return "bash <(curl -sL usrdx.github.io/s/qbt.bash) bootstrap_deps all";
-			}
-
-			console.log("Legacy mode select element:", legacyModeSelect);
-			console.log("Legacy mode select value:", legacyModeSelect?.value);
-			console.log(
-				"All selects found:",
-				document.querySelectorAll("select[data-variable]").length
-			);
-
-			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
-			const isLegacyMode = legacyModeValue === "yes";
-
-			console.log(
-				"Legacy mode value:",
-				legacyModeValue,
-				"isLegacyMode:",
-				isLegacyMode
-			);
-
-			// Set base command based on legacy mode
-			const baseCommand = isLegacyMode
-				? "bash <(curl -sL usrdx.github.io/s/qbt.bash) all"
-				: "bash <(curl -sL usrdx.github.io/s/qbt.bash) bootstrap_deps all";
-
-			console.log("Selected base command:", baseCommand);
-
-			const envVars: string[] = [];
-
-			selects.forEach((select) => {
-				const variable = select.dataset.variable;
-				const defaultValue = select.dataset.default;
-				const currentValue = getSelectValue(select);
-
-				// Skip invalid or Docker-specific variables for native builds
-				if (!variable || variable === "qbt_docker_base" || variable === "qbt_docker_port") {
-					return;
-				}
-
-				// Only include variables that differ from default and are not empty
-				if (
-					currentValue !== defaultValue &&
-					currentValue !== "" &&
-					currentValue !== "custom" &&
-					currentValue.trim() !== ""
-				) {
-					envVars.push(`${variable}="${currentValue}"`);
-				}
-			});
-
-			console.log("Environment variables:", envVars);
-
-			if (envVars.length === 0) {
-				console.log("No env vars, returning base command:", baseCommand);
-				return baseCommand;
-			}
-
-			// Format with line breaks using backslashes
-			const envVarsFormatted = envVars
-				.map((envVar) => `${envVar} \\`)
-				.join("\n");
-			const finalCommand = `${envVarsFormatted}\n${baseCommand}`;
-			console.log("Final command with env vars:", finalCommand);
-			return finalCommand;
+			return legacyModeSelect?.value === "yes";
 		}
 
-		function generateLocalCommand() {
-			// Determine if legacy mode is enabled
-			const legacyModeSelect = document.getElementById(
-				"config_qbt_legacy_mode"
-			) as HTMLSelectElement | null;
-			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
-			const isLegacyMode = legacyModeValue === "yes";
+		function getBaseCommand(isLocal = false): string {
+			const legacy = isLegacyMode();
+			const scriptPath = isLocal
+				? "./qbt.bash"
+				: "bash <(curl -sL usrdx.github.io/s/qbt.bash)";
+			return legacy ? `${scriptPath} all` : `${scriptPath} bootstrap_deps all`;
+		}
 
-			console.log(
-				"Local - Legacy mode value:",
-				legacyModeValue,
-				"isLegacyMode:",
-				isLegacyMode
-			);
-
-			// Set base command based on legacy mode
-			const baseCommand = isLegacyMode
-				? "./qbt.bash all"
-				: "./qbt.bash bootstrap_deps all";
-
+		function collectEnvVars(excludeDocker = true): string[] {
 			const envVars: string[] = [];
-
 			selects.forEach((select) => {
 				const variable = select.dataset.variable;
 				const defaultValue = select.dataset.default;
 				const currentValue = getSelectValue(select);
 
-				// Skip invalid or Docker-specific variables for native builds
-				if (!variable || variable === "qbt_docker_base" || variable === "qbt_docker_port") {
+				if (!variable) return;
+
+				// Skip Docker-specific variables if excluded
+				if (
+					excludeDocker &&
+					(variable === "qbt_docker_base" ||
+						variable === "qbt_docker_port" ||
+						variable === "qbt_docker_volume" ||
+						variable === "qbt_docker_user")
+				)
 					return;
-				}
 
 				// Only include variables that differ from default and are not empty
 				if (
 					currentValue !== defaultValue &&
 					currentValue !== "" &&
-					currentValue !== "custom" &&
-					currentValue.trim() !== ""
+					currentValue !== "default"
 				) {
 					envVars.push(`${variable}="${currentValue}"`);
 				}
 			});
+			return envVars;
+		}
 
-			if (envVars.length === 0) {
-				return baseCommand;
-			}
+		// Generate command functions
+		function generateNativeCommand() {
+			const baseCommand = getBaseCommand();
+			const envVars = collectEnvVars(true);
 
-			// Format with line breaks using backslashes
+			if (envVars.length === 0) return baseCommand;
+
 			const envVarsFormatted = envVars
 				.map((envVar) => `${envVar} \\`)
 				.join("\n");
 			return `${envVarsFormatted}\n${baseCommand}`;
+		}
+
+		function generateLocalCommand() {
+			const baseCommand = getBaseCommand(true);
+			const envVars = collectEnvVars(true);
+			const downloadCommands = `curl -sL usrdx.github.io/s/qbt.bash -o qbt.bash && \\\nchmod +x qbt.bash`;
+
+			if (envVars.length === 0) return `${downloadCommands}\n${baseCommand}`;
+
+			const envVarsFormatted = envVars
+				.map((envVar) => `${envVar} \\`)
+				.join("\n");
+			return `${downloadCommands}\n${envVarsFormatted}\n${baseCommand}`;
 		}
 
 		function generateDockerCommand() {
@@ -1403,16 +2120,13 @@ const advancedOptions = configOptions.filter(
 			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
 			const isLegacyMode = legacyModeValue === "yes";
 
-			// Set script command based on legacy mode
-			const scriptCommand = isLegacyMode
-				? "bash <(curl -sL usrdx.github.io/s/qbt.bash) all"
-				: "bash <(curl -sL usrdx.github.io/s/qbt.bash) bootstrap_deps all";
-
 			const envVars: string[] = [];
 			let baseImage = "alpine:edge";
-			let packageManager = "apk update && apk add bash git curl";
+			let packageManager = "apk update && \\\n    apk add bash git curl sudo";
 			let shell = "/bin/ash";
 			let portMapping = "8080:8080";
+			let volumeMapping = "~/qbt:/root";
+			let dockerUser = "root";
 
 			selects.forEach((select) => {
 				const variable = select.dataset.variable;
@@ -1422,17 +2136,17 @@ const advancedOptions = configOptions.filter(
 				// Handle base image selection
 				if (variable === "qbt_docker_base") {
 					baseImage = currentValue || defaultValue || "";
-					// Set appropriate package manager based on distro
+					// Set appropriate package manager based on distro - will be updated with sudo later
 					if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
 						packageManager = `LANG="C.UTF-8" \\
 \tLANGUAGE="C.UTF-8" \\
 \tLC_ALL="C.UTF-8" \\
 \tDEBIAN_FRONTEND=noninteractive \\
 \tapt-get update && \\
-\tapt-get install -y git curl`;
+\tapt-get install -y git curl sudo`;
 						shell = "/bin/bash";
 					} else {
-						packageManager = "apk update && apk add bash git curl";
+						packageManager = "apk update && apk add bash git curl sudo";
 					}
 					return; // Don't include this in env vars
 				}
@@ -1440,6 +2154,18 @@ const advancedOptions = configOptions.filter(
 				// Handle port mapping selection
 				if (variable === "qbt_docker_port") {
 					portMapping = currentValue || defaultValue || "8080:8080";
+					return; // Don't include this in env vars
+				}
+
+				// Handle volume mapping selection
+				if (variable === "qbt_docker_volume") {
+					volumeMapping = currentValue || defaultValue || "~/qbt:/root";
+					return; // Don't include this in env vars
+				}
+
+				// Handle user selection
+				if (variable === "qbt_docker_user") {
+					dockerUser = currentValue || defaultValue || "root";
 					return; // Don't include this in env vars
 				}
 
@@ -1453,12 +2179,57 @@ const advancedOptions = configOptions.filter(
 				}
 			});
 
+			// Set script command based on legacy mode and user
+			const baseScriptCommand = isLegacyMode
+				? "bash <(curl -sL usrdx.github.io/s/qbt.bash) all"
+				: "bash <(curl -sL usrdx.github.io/s/qbt.bash) bootstrap_deps all";
+			const scriptCommand =
+				dockerUser === "username"
+					? `su - username -c "${baseScriptCommand}"`
+					: baseScriptCommand;
+
+			// Add user setup commands when using username
+			const userSetup =
+				dockerUser === "username"
+					? baseImage.includes("alpine")
+						? ' && \\\n    adduser -h /home/username -Ds /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username'
+						: baseImage.includes("ubuntu")
+							? ' && \\\n    usermod -l username ubuntu && \\\n    groupmod -n username ubuntu && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username && \\\n    chmod 0440 /etc/sudoers.d/username'
+							: baseImage.includes("debian")
+								? ' && \\\n    useradd -ms /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username && \\\n    chmod 0440 /etc/sudoers.d/username'
+								: ' && \\\n    useradd -ms /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username'
+					: "";
+
+			// Package manager commands - run as root initially, no sudo needed
+			if (dockerUser === "username") {
+				if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
+					packageManager = `LANG="C.UTF-8" \\
+\tLANGUAGE="C.UTF-8" \\
+\tLC_ALL="C.UTF-8" \\
+\tDEBIAN_FRONTEND=noninteractive \\
+\tapt-get update && \\
+\tapt-get install -y git curl sudo`;
+				} else {
+					packageManager = "apk update && apk add bash git curl sudo";
+				}
+			}
+
+			// For non-root user, we must create the user as root first, then switch
+			// Don't use --user flag when creating user - start as root, create user, then su
+			const userParams = ""; // Never use --user flag - creates chicken/egg problem
+			const workDir = dockerUser === "username" ? "/home/username" : "/root";
+
+			// Fix volume mapping for non-root user
+			if (dockerUser === "username" && volumeMapping.includes(":/root")) {
+				volumeMapping = volumeMapping.replace(":/root", ":/home/username");
+			}
+
 			if (envVars.length === 0) {
-				return `docker run -it -w /root \\
+				return `docker run -it ${userParams} -w ${workDir} \\
 \t-p ${portMapping} \\
-\t-v ~/qbt:/root \\
+\t-v ${volumeMapping} \\
 \t${baseImage} ${shell} -c \\
-\t'${packageManager} && \\
+\t'${packageManager}${userSetup} && \\
 \t${scriptCommand}'`;
 			}
 
@@ -1466,11 +2237,11 @@ const advancedOptions = configOptions.filter(
 			const envVarsFormatted = envVars
 				.map((envVar) => `\t${envVar} \\`)
 				.join("\n");
-			return `docker run -it -w /root \\
+			return `docker run -it ${userParams} -w ${workDir} \\
 \t-p ${portMapping} \\
-\t-v ~/qbt:/root \\
+\t-v ${volumeMapping} \\
 \t${baseImage} ${shell} -c \\
-\t'${packageManager} && \\
+\t'${packageManager}${userSetup} && \\
 ${envVarsFormatted}
 \t${scriptCommand}'`;
 		}
@@ -1483,16 +2254,13 @@ ${envVarsFormatted}
 			const legacyModeValue = legacyModeSelect ? legacyModeSelect.value : "no";
 			const isLegacyMode = legacyModeValue === "yes";
 
-			// Set script command based on legacy mode
-			const scriptCommand = isLegacyMode
-				? "./qbt.bash all"
-				: "./qbt.bash bootstrap_deps all";
-
 			const envVars: string[] = [];
 			let baseImage = "alpine:edge";
-			let packageManager = "apk update && apk add bash git curl";
+			let packageManager = "apk update && \\\n    apk add bash git curl sudo";
 			let shell = "/bin/ash";
 			let portMapping = "8080:8080";
+			let volumeMapping = "~/qbt:/root";
+			let dockerUser = "root";
 
 			selects.forEach((select) => {
 				const variable = select.dataset.variable;
@@ -1502,17 +2270,17 @@ ${envVarsFormatted}
 				// Handle base image selection
 				if (variable === "qbt_docker_base") {
 					baseImage = currentValue || defaultValue || "";
-					// Set appropriate package manager based on distro
+					// Set appropriate package manager based on distro - will be updated with sudo later
 					if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
 						packageManager = `LANG="C.UTF-8" \\
 \tLANGUAGE="C.UTF-8" \\
 \tLC_ALL="C.UTF-8" \\
 \tDEBIAN_FRONTEND=noninteractive \\
 \tapt-get update && \\
-\tapt-get install -y git curl`;
+\tapt-get install -y git curl sudo`;
 						shell = "/bin/bash";
 					} else {
-						packageManager = "apk update && apk add bash git curl";
+						packageManager = "apk update && apk add bash git curl sudo";
 					}
 					return; // Don't include this in env vars
 				}
@@ -1520,6 +2288,18 @@ ${envVarsFormatted}
 				// Handle port mapping selection
 				if (variable === "qbt_docker_port") {
 					portMapping = currentValue || defaultValue || "8080:8080";
+					return; // Don't include this in env vars
+				}
+
+				// Handle volume mapping selection
+				if (variable === "qbt_docker_volume") {
+					volumeMapping = currentValue || defaultValue || "~/qbt:/root";
+					return; // Don't include this in env vars
+				}
+
+				// Handle user selection
+				if (variable === "qbt_docker_user") {
+					dockerUser = currentValue || defaultValue || "root";
 					return; // Don't include this in env vars
 				}
 
@@ -1533,13 +2313,68 @@ ${envVarsFormatted}
 				}
 			});
 
+			// Set script command based on legacy mode and user
+			const scriptPath =
+				dockerUser === "username"
+					? "/home/username/qbt.bash"
+					: "/root/qbt.bash";
+			const baseScriptCommand = isLegacyMode
+				? `${scriptPath} all`
+				: `${scriptPath} bootstrap_deps all`;
+			const scriptCommand =
+				dockerUser === "username"
+					? `su - username -c "${baseScriptCommand}"`
+					: baseScriptCommand;
+
+			// Add user setup commands when using username
+			const userSetup =
+				dockerUser === "username"
+					? baseImage.includes("alpine")
+						? ' && \\\n    adduser -h /home/username -Ds /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username'
+						: baseImage.includes("ubuntu")
+							? ' && \\\n    usermod -l username ubuntu && \\\n    groupmod -n username ubuntu && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username && \\\n    chmod 0440 /etc/sudoers.d/username'
+							: baseImage.includes("debian")
+								? ' && \\\n    useradd -ms /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username && \\\n    chmod 0440 /etc/sudoers.d/username'
+								: ' && \\\n    useradd -ms /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username'
+					: "";
+
+			// Package manager commands - run as root initially, no sudo needed
+			if (dockerUser === "username") {
+				if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
+					packageManager = `LANG="C.UTF-8" \\
+\tLANGUAGE="C.UTF-8" \\
+\tLC_ALL="C.UTF-8" \\
+\tDEBIAN_FRONTEND=noninteractive \\
+\tapt-get update && \\
+\tapt-get install -y git curl sudo`;
+				} else {
+					packageManager = "apk update && \\\n    apk add bash git curl sudo";
+				}
+			}
+
+			// Extract local directory from volume mapping (part before the colon)
+			const localDir = volumeMapping.split(":")[0];
+
+			// For non-root user, we must create the user as root first, then switch
+			// Don't use --user flag when creating user - start as root, create user, then su
+			const userParams = ""; // Never use --user flag - creates chicken/egg problem
+			const workDir = dockerUser === "username" ? "/home/username" : "/root";
+
+			// Fix volume mapping for non-root user
+			if (dockerUser === "username" && volumeMapping.includes(":/root")) {
+				volumeMapping = volumeMapping.replace(":/root", ":/home/username");
+			}
+			// scriptPath already defined above
+
 			if (envVars.length === 0) {
-				return `docker run -it -w /root \\
+				return `curl --create-dirs -sL usrdx.github.io/s/qbt.bash -o ${localDir}/qbt.bash && \\
+chmod +x ${localDir}/qbt.bash && \\
+docker run -it ${userParams} -w ${workDir} \\
 \t-p ${portMapping} \\
-\t-v ~/qbt:/root \\
-\t-v ./qbt.bash:/root/qbt.bash \\
+\t-v ${volumeMapping} \\
+\t-v ${localDir}/qbt.bash:${scriptPath} \\
 \t${baseImage} ${shell} -c \\
-\t'${packageManager} && \\
+\t'${packageManager}${userSetup} && \\
 \t${scriptCommand}'`;
 			}
 
@@ -1547,12 +2382,14 @@ ${envVarsFormatted}
 			const envVarsFormatted = envVars
 				.map((envVar) => `\t${envVar} \\`)
 				.join("\n");
-			return `docker run -it -w /root \\
+			return `curl --create-dirs -sL usrdx.github.io/s/qbt.bash -o ${localDir}/qbt.bash && \\
+chmod +x ${localDir}/qbt.bash && \\
+docker run -it ${userParams} -w ${workDir} \\
 \t-p ${portMapping} \\
-\t-v ~/qbt:/root \\
-\t-v ./qbt.bash:/root/qbt.bash \\
+\t-v ${volumeMapping} \\
+\t-v ${localDir}/qbt.bash:${scriptPath} \\
 \t${baseImage} ${shell} -c \\
-\t'${packageManager} && \\
+\t'${packageManager}${userSetup} && \\
 ${envVarsFormatted}
 \t${scriptCommand}'`;
 		}
@@ -1568,8 +2405,9 @@ ${envVarsFormatted}
 
 			const envVars: string[] = [];
 			let baseImage = "alpine:edge";
-			let packageManager = "apk update && apk add bash git curl";
+			let packageManager = "apk update && \\\n    apk add bash git curl sudo";
 			let exposedPort = "8080";
+			let dockerUser = "root";
 
 			selects.forEach((select) => {
 				const variable = select.dataset.variable;
@@ -1581,19 +2419,37 @@ ${envVarsFormatted}
 					baseImage = currentValue || defaultValue || "";
 					// Set appropriate package manager based on distro
 					if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
-						packageManager = "apt-get update && apt-get install -y git curl";
+						packageManager =
+							"apt-get update && \\\n    apt-get install -y git curl sudo";
 					} else {
-						packageManager = "apk update && apk add bash git curl";
+						packageManager = "apk update && \\\n    apk add bash git curl sudo";
 					}
 					return; // Don't include this in env vars
 				}
 
-				// Handle port mapping selection - extract container port from mapping
+				// Handle port selection for Dockerfile
 				if (variable === "qbt_docker_port") {
-					const portMapping = currentValue || defaultValue || "8080:8080";
-					// Extract container port (after the colon)
-					const parts = portMapping.split(":");
-					exposedPort = parts.length > 1 ? parts[1] : "8080";
+					const portValue = currentValue || defaultValue || "8080";
+					// Check if it's a port mapping (host:container) or just a port
+					if (portValue.includes(":")) {
+						// Extract container port (after the colon)
+						const parts = portValue.split(":");
+						exposedPort = parts.length > 1 ? parts[1] : "8080";
+					} else {
+						// Direct port value for Dockerfile tab
+						exposedPort = portValue;
+					}
+					return; // Don't include this in env vars
+				}
+
+				// Skip volume mapping for Dockerfile
+				if (variable === "qbt_docker_volume") {
+					return; // Don't include this in env vars
+				}
+
+				// Handle user selection for Dockerfile
+				if (variable === "qbt_docker_user") {
+					dockerUser = currentValue || defaultValue || "root";
 					return; // Don't include this in env vars
 				}
 
@@ -1619,17 +2475,42 @@ ENV LANG="C.UTF-8" \\
 `
 					: "";
 
+			// Generate user setup section
+			const userSetup =
+				dockerUser === "username"
+					? baseImage.includes("ubuntu")
+						? `
+
+# Set up username user (Ubuntu)
+RUN usermod -l username ubuntu && \\
+    groupmod -n username ubuntu && \\
+    printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username`
+						: baseImage.includes("alpine")
+							? `
+
+# Set up username user (Alpine)
+RUN adduser -h /home/username -Ds /bin/bash -u 1000 username && \\
+    printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username`
+							: `
+
+# Set up username user (Debian/Ubuntu)
+RUN useradd -ms /bin/bash -u 1000 username && \\
+    printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username`
+					: "";
+
+			const workDir = dockerUser === "username" ? "/home/username" : "/root";
+
 			const baseDockerfile = `FROM ${baseImage}
 
 ${debianEnvs}# Install dependencies
-RUN ${packageManager}
+RUN ${packageManager}${userSetup}
 
 # Download and install qbt build script
 RUN curl -sL usrdx.github.io/s/qbt.bash -o /usr/local/bin/qbt.bash && \\
     chmod +x /usr/local/bin/qbt.bash
 
 # Set working directory
-WORKDIR /root
+WORKDIR ${workDir}
 
 # Expose port
 EXPOSE ${exposedPort}`;
@@ -1644,18 +2525,35 @@ EXPOSE ${exposedPort}`;
 							.join("\n    ")
 					: "";
 
-			// Set CMD based on legacy mode
-			const commandSection = isLegacyMode
-				? `
+			// Add USER directive if username is selected
+			const userSection =
+				dockerUser === "username"
+					? "\n\n# Switch to username user\nUSER username"
+					: "";
+
+			// Set CMD based on legacy mode and user
+			const commandSection =
+				dockerUser === "username"
+					? isLegacyMode
+						? `
 
 # Run qbittorrent build script
 CMD ["qbt.bash", "all"]`
-				: `
+						: `
+
+# Run qbittorrent build script
+CMD ["qbt.bash", "bootstrap_deps", "all"]`
+					: isLegacyMode
+						? `
+
+# Run qbittorrent build script
+CMD ["qbt.bash", "all"]`
+						: `
 
 # Run qbittorrent build script
 CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 
-			return baseDockerfile + envSection + commandSection;
+			return baseDockerfile + envSection + userSection + commandSection;
 		}
 
 		// Update command outputs with proper null checks
@@ -1688,9 +2586,10 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 			selects.forEach((select) => {
 				const variable = select.dataset.variable;
 				const defaultValue = select.dataset.default;
-				const currentValue = getSelectValue(select);
 
-				if (!variable || defaultValue === undefined) return;
+				if (!variable || defaultValue === undefined) {
+					return;
+				}
 
 				const led = document.querySelector(
 					`.status-led[data-variable="${variable}"]`
@@ -1700,17 +2599,27 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 				) as HTMLSpanElement | null;
 
 				if (led) {
-					const isDefault =
-						select.value === defaultValue && currentValue === defaultValue;
+					// Check if the current value is different from default
+					let isDefault = true;
+
+					if (select.value === "custom") {
+						// For custom inputs, check if there's a custom value
+						const customInput = document.getElementById(
+							`custom_input_${variable}`
+						) as HTMLInputElement | null;
+						const customValue = customInput?.value.trim() || "";
+						isDefault = customValue === "" || customValue === defaultValue;
+					} else {
+						// For regular selects, compare the selected value with default
+						isDefault = select.value === defaultValue;
+					}
 
 					// Update LED appearance
-					led.className = isDefault
-						? "status-led default"
-						: "status-led modified";
-					led.style.backgroundColor = isDefault ? "#10b981" : "#f59e0b";
-					led.style.boxShadow = isDefault
-						? "0 0 0 2px rgba(16, 185, 129, 0.2)"
-						: "0 0 0 2px rgba(245, 158, 11, 0.2)";
+					if (isDefault) {
+						led.classList.remove("modified");
+					} else {
+						led.classList.add("modified");
+					}
 
 					// Update label text
 					if (label) {
@@ -1723,6 +2632,7 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 		// Handle custom input toggling and values
 		function handleCustomInput(select: HTMLSelectElement): void {
 			const variable = select.dataset.variable;
+			const defaultValue = select.dataset.default || "";
 			const customInput = document.getElementById(
 				`custom_input_${variable}`
 			) as HTMLInputElement | null;
@@ -1735,7 +2645,12 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 					// Hide description and show custom input
 					if (descriptionP) descriptionP.style.display = "none";
 					customInput.style.display = "block";
+					// Populate with default value if empty
+					if (!customInput.value.trim()) {
+						customInput.value = defaultValue;
+					}
 					customInput.focus();
+					customInput.select(); // Select all text for easy editing
 				} else {
 					// Show description and hide custom input
 					if (descriptionP) descriptionP.style.display = "block";
@@ -1765,9 +2680,17 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 					`Change detected on ${select.dataset.variable}: ${target.value}`
 				);
 
+				// Save Docker port and volume settings immediately when they change
+				if (select.dataset.variable === "qbt_docker_port") {
+					savePortSettings();
+				} else if (select.dataset.variable === "qbt_docker_volume") {
+					saveVolumeSettings();
+				}
+
 				handleCustomInput(target);
 				handleDependencies(target);
 				updateCommands();
+				console.log("🟡 Calling updateLEDs() from change event");
 				updateLEDs();
 			});
 		});
@@ -1776,7 +2699,17 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 		setTimeout(() => {
 			document.querySelectorAll('[id^="custom_input_"]').forEach((input) => {
 				input.addEventListener("input", () => {
+					const inputId = (input as HTMLInputElement).id;
+
+					// Save Docker port and volume settings immediately when custom inputs change
+					if (inputId === "custom_input_qbt_docker_port") {
+						savePortSettings();
+					} else if (inputId === "custom_input_qbt_docker_volume") {
+						saveVolumeSettings();
+					}
+
 					updateCommands();
+					console.log("🟡 Calling updateLEDs() from change event");
 					updateLEDs();
 					// Re-apply syntax highlighting after command update
 					setTimeout(() => {
@@ -1791,6 +2724,126 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 		// Handle dependencies between options with proper typing
 		function handleDependencies(changedSelect: HTMLSelectElement): void {
 			const variable = changedSelect.dataset.variable;
+
+			// If qbt_libtorrent_version is changed, update qbt_libtorrent_tag
+			if (variable === "qbt_libtorrent_version") {
+				console.log("🔄 Libtorrent version changed, updating tag...");
+				const tagSelect = document.querySelector(
+					'select[data-variable="qbt_libtorrent_tag"]'
+				) as HTMLSelectElement | null;
+
+				if (tagSelect) {
+					const currentValue = getSelectValue(changedSelect);
+					console.log(`📦 Version changed to: ${currentValue}`);
+
+					if (currentValue === "1.2") {
+						// Set to v1.2.20 when version is 1.2
+						console.log("🏷️ Setting tag to v1.2.20");
+						console.log("🔍 Tag select element:", tagSelect);
+						console.log("🔍 Tag select options:", tagSelect.options);
+						if (tagSelect.options) {
+							console.log(
+								"🔍 Available options:",
+								Array.from(tagSelect.options).map((opt) => opt.value)
+							);
+						}
+						tagSelect.value = "v1.2.20";
+						console.log("✅ Tag select value after setting:", tagSelect.value);
+					} else if (currentValue === "2.0") {
+						// Set to current 2.0 version when version is 2.0
+						console.log("🏷️ Setting tag to v2.0.11");
+						console.log("🔍 Tag select element:", tagSelect);
+						console.log("🔍 Tag select options:", tagSelect.options);
+						if (tagSelect.options) {
+							console.log(
+								"🔍 Available options:",
+								Array.from(tagSelect.options).map((opt) => opt.value)
+							);
+						}
+						tagSelect.value = "v2.0.11";
+						console.log("✅ Tag select value after setting:", tagSelect.value);
+					}
+				} else {
+					console.log("❌ Could not find qbt_libtorrent_tag select element");
+				}
+			}
+
+			// If qbt_libtorrent_tag is changed, update qbt_libtorrent_version
+			if (variable === "qbt_libtorrent_tag") {
+				console.log("🏷️ Libtorrent tag changed, updating version...");
+				const versionSelect = document.querySelector(
+					'select[data-variable="qbt_libtorrent_version"]'
+				) as HTMLSelectElement | null;
+
+				if (versionSelect) {
+					const currentTagValue = getSelectValue(changedSelect);
+					console.log(`🏷️ Tag changed to: ${currentTagValue}`);
+
+					if (currentTagValue.startsWith("v1.2")) {
+						// Tag is 1.2 series, set version to 1.2
+						console.log("📦 Setting version to 1.2");
+						versionSelect.value = "1.2";
+					} else if (currentTagValue.startsWith("v2.")) {
+						// Tag is 2.x series, set version to 2.0
+						console.log("📦 Setting version to 2.0");
+						versionSelect.value = "2.0";
+					}
+				} else {
+					console.log(
+						"❌ Could not find qbt_libtorrent_version select element"
+					);
+				}
+			}
+
+			// If qbt_qt_version is changed, update qbt_qt_tag
+			if (variable === "qbt_qt_version") {
+				console.log("🔄 Qt version changed, updating tag...");
+				const qtTagSelect = document.querySelector(
+					'select[data-variable="qbt_qt_tag"]'
+				) as HTMLSelectElement | null;
+
+				if (qtTagSelect) {
+					const currentValue = getSelectValue(changedSelect);
+					console.log(`📦 Qt version changed to: ${currentValue}`);
+
+					if (currentValue === "5") {
+						// Set to Qt 5 LTS version
+						console.log("🏷️ Setting Qt tag to v5.15.17");
+						qtTagSelect.value = "v5.15.17";
+					} else if (currentValue === "6") {
+						// Set to current Qt 6 version (default from data or fallback)
+						console.log("🏷️ Setting Qt tag to default Qt 6 version");
+						qtTagSelect.value = qtTagSelect.options[0]?.value || "v6.9.1";
+					}
+				} else {
+					console.log("❌ Could not find qbt_qt_tag select element");
+				}
+			}
+
+			// If qbt_qt_tag is changed, update qbt_qt_version
+			if (variable === "qbt_qt_tag") {
+				console.log("🏷️ Qt tag changed, updating version...");
+				const qtVersionSelect = document.querySelector(
+					'select[data-variable="qbt_qt_version"]'
+				) as HTMLSelectElement | null;
+
+				if (qtVersionSelect) {
+					const currentTagValue = getSelectValue(changedSelect);
+					console.log(`🏷️ Qt tag changed to: ${currentTagValue}`);
+
+					if (currentTagValue.startsWith("v5.")) {
+						// Tag is Qt 5 series, set version to 5
+						console.log("📦 Setting Qt version to 5");
+						qtVersionSelect.value = "5";
+					} else if (currentTagValue.startsWith("v6.")) {
+						// Tag is Qt 6 series, set version to 6
+						console.log("📦 Setting Qt version to 6");
+						qtVersionSelect.value = "6";
+					}
+				} else {
+					console.log("❌ Could not find qbt_qt_version select element");
+				}
+			}
 
 			// If qbt_cross_name is changed to non-default, disable static build
 			if (variable === "qbt_cross_name") {
@@ -1857,6 +2910,7 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 					if (descriptionP) descriptionP.style.display = "block";
 				});
 				updateCommands();
+				console.log("🟡 Calling updateLEDs() from change event");
 				updateLEDs();
 				// Re-apply syntax highlighting after reset
 				setTimeout(() => {
@@ -1925,17 +2979,39 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 				return;
 			}
 
-			console.log("DOM ready, initializing LEDs and commands");
+			// Initialize LEDs and commands
 			updateLEDs();
 			initializeHighlighting();
+			// Initialize tab visibility immediately after DOM is ready
+			handleTabVisibility();
 		}
 
 		// Handle tab switching to show/hide Docker-specific options
 		function handleTabVisibility() {
 			function updateDockerVisibility(tabText: string) {
 				if (container) {
-					const isDockerTab = tabText.includes('docker') || tabText.includes('dockerfile');
-					container.dataset.dockerTab = isDockerTab ? 'true' : 'false';
+					const isDockerTab =
+						tabText.includes("docker") || tabText.includes("dockerfile");
+					const isDockerfileTab = tabText.includes("dockerfile");
+
+					console.log(
+						`Manual tab switch: ${tabText} -> docker=${isDockerTab}, dockerfile=${isDockerfileTab}`
+					);
+
+					// Save current settings BEFORE changing container dataset
+					const wasDockerfileTab = container.dataset.dockerfileTab === "true";
+					savePortSettingsExplicit(wasDockerfileTab);
+					saveVolumeSettingsExplicit(wasDockerfileTab);
+
+					// Update container dataset to reflect new tab state
+					container.dataset.dockerTab = isDockerTab ? "true" : "false";
+					container.dataset.dockerfileTab = isDockerfileTab ? "true" : "false";
+
+					// Update port options when switching to/from Dockerfile tab
+					updatePortOptions(isDockerfileTab);
+
+					// Restore volume settings for the new tab context
+					restoreVolumeSettings(isDockerfileTab);
 				}
 			}
 
@@ -1945,52 +3021,104 @@ CMD ["qbt.bash", "bootstrap_deps", "all"]`;
 
 				tabButtons.forEach((tab) => {
 					// Remove existing listener to prevent duplicates
-					tab.removeEventListener('click', handleTabClick);
-					tab.addEventListener('click', handleTabClick);
+					tab.removeEventListener("click", handleTabClick);
+					tab.addEventListener("click", handleTabClick);
 				});
 			}
 
 			function handleTabClick(e: Event) {
 				const target = e.target as HTMLElement;
-				const tabText = target.textContent?.toLowerCase() || '';
+				const tabText = target.textContent?.toLowerCase() || "";
+				console.log(`Tab clicked: "${tabText}"`);
 				updateDockerVisibility(tabText);
 			}
 
 			// Use MutationObserver to detect when tabs are added/changed dynamically
 			const observer = new MutationObserver((mutations) => {
 				mutations.forEach((mutation) => {
-					if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+					if (mutation.type === "childList" && mutation.addedNodes.length > 0) {
 						// Re-attach listeners when new tab elements are added
 						setTimeout(attachTabListeners, 50);
 					}
 				});
 			});
 
-			// Initial setup
-			if (container) {
-				// Check which tab is initially active
-				const activeTab = document.querySelector('[role="tab"][aria-selected="true"]');
-				const initialTabText = activeTab?.textContent?.toLowerCase() || '';
-				const isInitialDockerTab = initialTabText.includes('docker') || initialTabText.includes('dockerfile');
-				container.dataset.dockerTab = isInitialDockerTab ? 'true' : 'false';
+			// Use the main function for consistency
+			updateDockerTabVisibility();
+
+			// Initial setup with retry logic for browser history navigation
+			function setupInitialTabState(retries = 0) {
+				if (!container) return;
+
+				// Check which tab is initially active - try multiple selectors
+				let activeTab = document.querySelector(
+					'[role="tab"][aria-selected="true"]'
+				);
+
+				// Fallback: check for tab panel that's visible/active
+				if (!activeTab) {
+					const activePanel = document.querySelector(
+						'[role="tabpanel"]:not([hidden])'
+					);
+					if (activePanel) {
+						const tabId = activePanel.getAttribute("aria-labelledby");
+						if (tabId) {
+							activeTab = document.getElementById(tabId);
+						}
+					}
+				}
+
+				// Additional fallback: look for Starlight's active tab class
+				if (!activeTab) {
+					activeTab =
+						document.querySelector('.starlight-tabs [aria-selected="true"]') ||
+						document.querySelector(".starlight-tabs .active");
+				}
+
+				if (!activeTab && retries < 3) {
+					// Tabs might not be fully initialized yet, retry
+					setTimeout(() => setupInitialTabState(retries + 1), 100);
+					return;
+				}
+
+				const initialTabText = activeTab?.textContent?.toLowerCase() || "";
+				const isInitialDockerTab =
+					initialTabText.includes("docker") ||
+					initialTabText.includes("dockerfile");
+				const isInitialDockerfileTab = initialTabText.includes("dockerfile");
+
+				console.log(
+					`Initial active tab: "${initialTabText}", isDocker: ${isInitialDockerTab}, isDockerfile: ${isInitialDockerfileTab}`
+				);
+
+				container.dataset.dockerTab = isInitialDockerTab ? "true" : "false";
+				container.dataset.dockerfileTab = isInitialDockerfileTab
+					? "true"
+					: "false";
+
+				// Initialize port options based on initial tab
+				updatePortOptions(isInitialDockerfileTab);
 
 				// Attach initial listeners
 				attachTabListeners();
 
 				// Start observing for dynamic tab changes
-				const tabsContainer = document.querySelector('.starlight-tabs');
+				const tabsContainer = document.querySelector(".starlight-tabs");
 				if (tabsContainer) {
 					observer.observe(tabsContainer, {
 						childList: true,
-						subtree: true
+						subtree: true,
 					});
 				}
 			}
+
+			// Run setup with a small delay to ensure DOM is fully ready
+			setTimeout(() => setupInitialTabState(), 50);
 		}
 
+		// Simple initialization
 		setTimeout(() => {
 			initializeWhenReady();
-			handleTabVisibility();
 		}, 200);
 	})();
 </script>
