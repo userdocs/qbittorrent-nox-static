@@ -1743,17 +1743,33 @@ _apply_patches() {
 				has_content=true
 			fi
 
-			# Step 2: If URL file exists, download and append/merge to patch
+			# Step 2: If URL file exists, download and append/merge to patch (only if not already present)
 			if [[ -f "${patch_dir}/url" && -s "${patch_dir}/url" ]]; then
 				local patch_url tmp_patch="${patch_dir}/url_download.tmp"
 				patch_url="$(< "${patch_dir}/url")"
 
-				if _curl "${patch_url}" -o "${tmp_patch}"; then
-					[[ ${has_content} == true ]] && printf '\n\n# Merged from URL: %s\n' "${patch_url}" >> "${temp_patch}" || printf '# Downloaded from URL: %s\n' "${patch_url}" > "${temp_patch}"
-					cat "${tmp_patch}" >> "${temp_patch}"
-					has_content=true
+				# Check if this URL was already merged by looking for the comment marker
+				if [[ -f "${patch_dir}/patch" ]] && grep -Fq "# Merged from URL: ${patch_url}" "${patch_dir}/patch" 2> /dev/null; then
+					# URL already processed, skip download
+					[[ -f "${patch_dir}/patch" && -s "${patch_dir}/patch" ]] && {
+						cat "${patch_dir}/patch" > "${temp_patch}"
+						has_content=true
+					}
+				elif [[ -f "${patch_dir}/patch" ]] && grep -Fq "# Downloaded from URL: ${patch_url}" "${patch_dir}/patch" 2> /dev/null; then
+					# URL already processed, skip download
+					[[ -f "${patch_dir}/patch" && -s "${patch_dir}/patch" ]] && {
+						cat "${patch_dir}/patch" > "${temp_patch}"
+						has_content=true
+					}
 				else
-					printf '%b\n' " ${unicode_yellow_circle} Failed to download from URL: ${patch_url}"
+					# Download and merge URL content
+					if _curl "${patch_url}" -o "${tmp_patch}"; then
+						[[ ${has_content} == true ]] && printf '\n\n# Merged from URL: %s\n' "${patch_url}" >> "${temp_patch}" || printf '# Downloaded from URL: %s\n' "${patch_url}" > "${temp_patch}"
+						cat "${tmp_patch}" >> "${temp_patch}"
+						has_content=true
+					else
+						printf '%b\n' " ${unicode_yellow_circle} Failed to download from URL: ${patch_url}"
+					fi
 				fi
 				rm -f "${tmp_patch}"
 			fi
@@ -1765,13 +1781,35 @@ _apply_patches() {
 			done
 
 			for patch_src in "${additional_patches[@]}"; do
-				if [[ ${has_content} == true ]]; then
-					printf '\n\n# Merged from: %s\n' "${patch_src##*/}" >> "${temp_patch}"
+				local patch_filename="${patch_src##*/}"
+
+				# Check if this patch file was already merged by looking for the comment marker
+				if [[ -f "${patch_dir}/patch" ]] && grep -Fq "# Merged from: ${patch_filename}" "${patch_dir}/patch" 2> /dev/null; then
+					# Patch already processed, skip merge
+					[[ -f "${patch_dir}/patch" && -s "${patch_dir}/patch" ]] && {
+						[[ ${has_content} == false ]] && {
+							cat "${patch_dir}/patch" > "${temp_patch}"
+							has_content=true
+						}
+					}
+				elif [[ -f "${patch_dir}/patch" ]] && grep -Fq "# From: ${patch_filename}" "${patch_dir}/patch" 2> /dev/null; then
+					# Patch already processed, skip merge
+					[[ -f "${patch_dir}/patch" && -s "${patch_dir}/patch" ]] && {
+						[[ ${has_content} == false ]] && {
+							cat "${patch_dir}/patch" > "${temp_patch}"
+							has_content=true
+						}
+					}
 				else
-					printf '# From: %s\n' "${patch_src##*/}" > "${temp_patch}"
-					has_content=true
+					# Merge the patch file
+					if [[ ${has_content} == true ]]; then
+						printf '\n\n# Merged from: %s\n' "${patch_filename}" >> "${temp_patch}"
+					else
+						printf '# From: %s\n' "${patch_filename}" > "${temp_patch}"
+						has_content=true
+					fi
+					cat "${patch_src}" >> "${temp_patch}"
 				fi
-				cat "${patch_src}" >> "${temp_patch}"
 			done
 
 			# Final validation and atomic move
