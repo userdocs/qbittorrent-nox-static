@@ -2122,7 +2122,7 @@ const renderConfigOption = (option: ConfigOption, isBasic = true) => {
 
 			const envVars: string[] = [];
 			let baseImage = "alpine:edge";
-			let packageManager = "apk update && \\\n    apk add bash git curl sudo";
+			let packageManager = "apk update && \\\n    apk add bash git curl";
 			let shell = "/bin/ash";
 			let portMapping = "8080:8080";
 			let volumeMapping = "~/qbt:/root";
@@ -2143,10 +2143,10 @@ const renderConfigOption = (option: ConfigOption, isBasic = true) => {
 \tLC_ALL="C.UTF-8" \\
 \tDEBIAN_FRONTEND=noninteractive \\
 \tapt-get update && \\
-\tapt-get install -y git curl sudo`;
+\tapt-get install -y git curl`;
 						shell = "/bin/bash";
 					} else {
-						packageManager = "apk update && apk add bash git curl sudo";
+						packageManager = "apk update && apk add bash git curl";
 					}
 					return; // Don't include this in env vars
 				}
@@ -2200,7 +2200,7 @@ const renderConfigOption = (option: ConfigOption, isBasic = true) => {
 								: ' && \\\n    useradd -ms /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username'
 					: "";
 
-			// Package manager commands - run as root initially, no sudo needed
+			// Package manager commands - add sudo only when running as username
 			if (dockerUser === "username") {
 				if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
 					packageManager = `LANG="C.UTF-8" \\
@@ -2256,7 +2256,7 @@ ${envVarsFormatted}
 
 			const envVars: string[] = [];
 			let baseImage = "alpine:edge";
-			let packageManager = "apk update && \\\n    apk add bash git curl sudo";
+			let packageManager = "apk update && \\\n    apk add bash git curl";
 			let shell = "/bin/ash";
 			let portMapping = "8080:8080";
 			let volumeMapping = "~/qbt:/root";
@@ -2277,10 +2277,10 @@ ${envVarsFormatted}
 \tLC_ALL="C.UTF-8" \\
 \tDEBIAN_FRONTEND=noninteractive \\
 \tapt-get update && \\
-\tapt-get install -y git curl sudo`;
+\tapt-get install -y git curl`;
 						shell = "/bin/bash";
 					} else {
-						packageManager = "apk update && apk add bash git curl sudo";
+						packageManager = "apk update && apk add bash git curl";
 					}
 					return; // Don't include this in env vars
 				}
@@ -2338,7 +2338,7 @@ ${envVarsFormatted}
 								: ' && \\\n    useradd -ms /bin/bash -u 1000 username && \\\n    echo "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username'
 					: "";
 
-			// Package manager commands - run as root initially, no sudo needed
+			// Package manager commands - add sudo only when running as username
 			if (dockerUser === "username") {
 				if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
 					packageManager = `LANG="C.UTF-8" \\
@@ -2405,7 +2405,7 @@ ${envVarsFormatted}
 
 			const envVars: string[] = [];
 			let baseImage = "alpine:edge";
-			let packageManager = "apk update && \\\n    apk add bash git curl sudo";
+			let packageManager = "apk update && \\\n    apk add bash git curl";
 			let exposedPort = "8080";
 			let dockerUser = "root";
 
@@ -2420,9 +2420,9 @@ ${envVarsFormatted}
 					// Set appropriate package manager based on distro
 					if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
 						packageManager =
-							"apt-get update && \\\n    apt-get install -y git curl sudo";
+							"apt-get update && \\\n    apt-get install -y git curl";
 					} else {
-						packageManager = "apk update && \\\n    apk add bash git curl sudo";
+						packageManager = "apk update && \\\n    apk add bash git curl";
 					}
 					return; // Don't include this in env vars
 				}
@@ -2499,6 +2499,15 @@ RUN useradd -ms /bin/bash -u 1000 username && \\
 					: "";
 
 			const workDir = dockerUser === "username" ? "/home/username" : "/root";
+
+			// Add sudo to package manager if using non-root user
+			if (dockerUser === "username") {
+				if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
+					packageManager = packageManager.replace("git curl", "git curl sudo");
+				} else {
+					packageManager = packageManager.replace("git curl", "git curl sudo");
+				}
+			}
 
 			const baseDockerfile = `FROM ${baseImage}
 
