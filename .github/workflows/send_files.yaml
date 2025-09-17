@@ -6,6 +6,7 @@ on:
     paths:
       - 'qbittorrent-nox-static.sh'
       - 'qbt-nox-static.bash'
+      - 'qi.bash'
   workflow_dispatch:
 
 permissions: {}
