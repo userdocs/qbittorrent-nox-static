@@ -273,6 +273,119 @@ To build with these optimizations:
 ./qbt-nox-static.bash -o all
 ```
 
+## Performance Testing and System Tuning Tools
+
+### 1. Performance Testing Toolkit
+
+**Script:** `qbt-performance-test.bash`
+
+Comprehensive performance assessment tool that monitors:
+- CPU usage and load patterns
+- Memory consumption and allocation
+- Disk I/O throughput and latency
+- Network bandwidth and connection stats
+- File descriptor usage
+- Connection state analysis
+
+**Usage:**
+```bash
+# Run with default settings (60 second test)
+./qbt-performance-test.bash
+
+# Custom duration test
+./qbt-performance-test.bash --duration 300
+
+# Custom output directory
+./qbt-performance-test.bash --output /var/log/qbt-perf
+```
+
+**Output:**
+- Detailed CSV logs for each metric
+- Performance summary report
+- System information snapshot
+- Graphs data for visualization
+
+Use this tool to:
+- Establish performance baselines
+- Identify bottlenecks
+- Compare different configurations
+- Provide feedback for further optimizations
+
+### 2. Debian 12 System Tuning Script
+
+**Script:** `debian12-tune.bash`
+
+Automatically optimizes Debian 12 (and derivatives) for maximum qBittorrent performance.
+
+**Features:**
+- **Kernel parameter tuning** (sysctl): Network buffers, TCP optimization, file limits
+- **File descriptor limits**: 10M open files for massive connection handling
+- **NVMe optimization**: I/O scheduler, queue depth, read-ahead
+- **CPU governor**: Performance mode for maximum speed
+- **SystemD service limits**: Resource limits for qBittorrent service
+- **Network interface tuning**: Ring buffers, offloading, interrupt coalescing
+- **IRQ affinity**: Spread interrupts across CPU cores
+- **Hardware detection**: Auto-detects EPYC, NVMe, RAM, network speed
+
+**Usage:**
+```bash
+# Must run as root
+sudo ./debian12-tune.bash
+```
+
+**What it does:**
+1. Detects hardware (EPYC, NVMe, RAM, network)
+2. Configures kernel parameters for high performance
+3. Sets file descriptor limits to 10M
+4. Optimizes NVMe devices (if present)
+5. Sets CPU governor to performance
+6. Configures SystemD service limits
+7. Tunes network interfaces
+8. Enables IRQ balancing
+9. Disables unnecessary services
+10. Creates backup of all modified files
+11. Generates summary report
+
+**After running:**
+- Reboot system for all changes to take effect
+- Restart qBittorrent service
+- Run performance tests to verify improvements
+
+**Configuration files created:**
+- `/etc/sysctl.d/99-qbittorrent-performance.conf`
+- `/etc/security/limits.d/qbittorrent.conf`
+- `/etc/systemd/system/qbittorrent-nox.service.d/performance.conf`
+- `/etc/udev/rules.d/60-nvme-scheduler.rules` (if NVMe present)
+- `/etc/systemd/system/cpu-performance.service`
+
+## Recommended Workflow
+
+1. **Build optimized binary:**
+   ```bash
+   ./qbt-nox-static.bash all
+   ```
+
+2. **Tune the operating system:**
+   ```bash
+   sudo ./debian12-tune.bash
+   sudo reboot
+   ```
+
+3. **Configure qBittorrent runtime settings:**
+   - See runtime configuration sections above
+   - Apply EPYC-specific settings if applicable
+
+4. **Run performance tests:**
+   ```bash
+   ./qbt-performance-test.bash --duration 300
+   ```
+
+5. **Analyze results and iterate:**
+   - Review performance reports
+   - Identify bottlenecks
+   - Adjust settings as needed
+   - Re-test to verify improvements
+
 ## Additional Resources
 
 - [libtorrent Documentation](https://libtorrent.org/reference.html)
