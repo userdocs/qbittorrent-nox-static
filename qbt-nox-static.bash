@@ -1229,6 +1229,36 @@ _custom_flags() {
 		qbt_optimise_march="-march=native"
 	fi
 
+	# AMD EPYC-specific optimizations for high-end hardware
+	# Detect EPYC processor and apply specific optimizations
+	if [[ -f /proc/cpuinfo ]]; then
+		cpu_model="$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs)"
+		if [[ ${cpu_model} =~ EPYC ]]; then
+			# Detect EPYC generation and set optimal march flag
+			if [[ ${cpu_model} =~ (9[0-9]{3}|7[0-9]{3}[HF]) ]]; then
+				# EPYC 4th Gen (Genoa/Bergamo) - Zen 4
+				qbt_optimise_march="-march=znver4 -mtune=znver4"
+			elif [[ ${cpu_model} =~ (7[0-9]{3}3|9[0-9]{3}) ]]; then
+				# EPYC 3rd Gen (Milan) - Zen 3
+				qbt_optimise_march="-march=znver3 -mtune=znver3"
+			else
+				# EPYC 2nd Gen (Rome) or 1st Gen (Naples) - Zen 2/Zen 1
+				qbt_optimise_march="-march=znver2 -mtune=znver2"
+			fi
+
+			# EPYC-specific optimizations for high-core-count, NVMe, high-RAM systems
+			qbt_optimization_flags+=" -mavx2 -mfma -mbmi2 -madx -msha"
+			qbt_optimization_flags+=" -DBOOST_ASIO_HAS_IO_URING"
+			qbt_optimization_flags+=" -DTORRENT_DISK_STATS"
+
+			# Increase parallelism for high core count
+			export MAKEFLAGS="-j$(nproc)"
+
+			printf '%b\n' " ${color_green}AMD EPYC CPU detected: ${cpu_model}${color_end}"
+			printf '%b\n' " ${color_green}EPYC optimizations enabled: ${qbt_optimise_march}${color_end}"
+		fi
+	fi
+
 	# Dynamic tests to change settings based on the use of qmake,cmake,strip and debug
 	if [[ ${qbt_optimise_strip} == "yes" && ${qbt_build_debug} == "no" ]]; then
 		qbt_strip_qmake='strip'
