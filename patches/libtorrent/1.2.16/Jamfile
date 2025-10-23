@@ -765,6 +765,11 @@ local usage-requirements =
 	<define>BOOST_ASIO_ENABLE_CANCELIO
 # make sure asio uses std::chrono
 	<define>BOOST_ASIO_HAS_STD_CHRONO
+# performance optimizations for many trackers and torrents
+	<define>BOOST_ASIO_CONCURRENCY_HINT_SAFE
+	<define>TORRENT_USE_NETWORK_ENDPOINT_CACHE
+# increase default limits for tracker connections
+	<define>TORRENT_MAX_TRACKER_CONNECTIONS=16
 	<conditional>@linking
 # msvc optimizations
 	<toolset>msvc,<variant>release:<linkflags>"/OPT:ICF=5"

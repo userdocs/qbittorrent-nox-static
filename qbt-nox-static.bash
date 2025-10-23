@@ -1131,6 +1131,8 @@ _custom_flags() {
 
 	# Compiler optimization flags (for CFLAGS/CXXFLAGS)
 	qbt_optimization_flags="${qbt_optimise_gcc} -pipe -fdata-sections -ffunction-sections -fPIC"
+	# Network performance optimizations for handling thousands of torrents with many trackers
+	qbt_optimization_flags+=" -DBOOST_ASIO_DISABLE_EPOLL_BUCKET_POLL"
 	# Preprocessor only flags - _FORTIFY_SOURCE=3 has been in the GNU C Library (glibc) since version 2.34
 	qbt_preprocessor_flags="-U_FORTIFY_SOURCE -D_GLIBCXX_ASSERTIONS"
 
