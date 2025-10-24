@@ -773,6 +773,7 @@ local usage-requirements =
 # high-end hardware optimizations (EPYC CPU, NVMe, high RAM, fast network)
 	<define>TORRENT_DISK_IO_THREAD_COUNT=32
 	<define>TORRENT_ASYNC_HASH_THREADS=16
+	<define>TORRENT_NETWORK_THREADS=4
 	<define>TORRENT_USE_PREADV
 	<define>TORRENT_USE_PWRITEV
 # larger default cache sizes for high-RAM systems

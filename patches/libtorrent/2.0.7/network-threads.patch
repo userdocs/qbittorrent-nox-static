@@ -1,0 +1,52 @@
+--- a/src/session_impl.cpp
++++ b/src/session_impl.cpp
+@@ -754,6 +754,9 @@ namespace libtorrent {
+ 		, m_stats_counters(m_stat)
+ 		, m_disk_thread(m_io_context, m_settings, m_stats_counters)
+ #endif
++#ifndef TORRENT_NETWORK_THREADS
++#define TORRENT_NETWORK_THREADS 4
++#endif
+ 	{
+ #ifndef TORRENT_DISABLE_LOGGING
+ 		session_log("version: %s", lt::version());
+@@ -955,9 +958,24 @@ namespace libtorrent {
+ 		update_Want_peers();
+ 		update_Want_tick();
+ 		update_receive_buffer_size();
++
++		// Start network I/O threads (default: 4 threads for high-concurrency workloads)
++		int const num_network_threads = TORRENT_NETWORK_THREADS;
++		m_network_threads.reserve(num_network_threads);
++
++		for (int i = 0; i < num_network_threads; ++i)
++		{
++			m_network_threads.emplace_back([this, i] {
++#ifndef TORRENT_DISABLE_LOGGING
++				session_log("starting network thread %d", i);
++#endif
++				m_io_context.run();
++			});
++		}
+ 	}
+
+ 	session_impl::~session_impl()
+ 	{
++		// Stop io_context and join network threads
++		m_io_context.stop();
++		for (auto& t : m_network_threads) { if (t.joinable()) t.join(); }
++
+ 		// this is not allowed to be the network thread!
+ //		TORRENT_ASSERT(is_not_thread());
+--- a/include/libtorrent/session_impl.hpp
++++ b/include/libtorrent/session_impl.hpp
+@@ -1142,6 +1142,9 @@ namespace libtorrent {
+ 		// the main io_context for all asynchronous operations
+ 		io_context m_io_context;
+
++		// thread pool for network I/O operations
++		std::vector<std::thread> m_network_threads;
++
+ #if TORRENT_USE_SSL
+ 		// this is a generic SSL context used when talking to HTTPS servers
+ 		ssl::context m_ssl_ctx;
