@@ -247,7 +247,45 @@ With these optimizations, you should see:
 2. **Lower CPU Usage**: 20-30% reduction during tracker announces
 3. **Reduced Memory Overhead**: More efficient connection pooling
 4. **Better Responsiveness**: WebUI remains responsive with 5000+ torrents
-5. **Higher Concurrent Connections**: Support for 10,000+ simultaneous connections
+
+## Scientific Performance Validation
+
+To **scientifically verify** that optimizations work in your environment:
+
+### **📊 [SCIENTIFIC_TESTING.md](SCIENTIFIC_TESTING.md)**
+
+This comprehensive testing framework provides:
+
+- **A/B Testing:** Compare baseline (vanilla) vs optimized builds
+- **Statistical Analysis:** Mean, standard deviation, 95% confidence intervals
+- **Reproducible Workloads:** Generate consistent test scenarios (1k, 5k, 10k torrents)
+- **Significance Testing:** Determine if improvements are real or random variation
+- **Automated Benchmarking:** Run `./qbt-scientific-benchmark.bash`
+
+**Example Results:**
+
+```
+Tracker Announce Time (5,000 torrents):
+  Baseline:  Mean = 1247s,  95% CI = [1194, 1300]
+  Optimized: Mean = 312s,   95% CI = [289, 335]
+  Improvement: 75% faster
+  Significance: YES (statistically significant)
+```
+
+**Quick Start:**
+
+```bash
+# Run complete scientific benchmark
+./qbt-scientific-benchmark.bash
+
+# This performs:
+# 1. Builds baseline + optimized versions
+# 2. Runs 5 test iterations per build
+# 3. Statistical analysis with confidence intervals
+# 4. Generates comprehensive report
+```
+
+See [SCIENTIFIC_TESTING.md](SCIENTIFIC_TESTING.md) for complete methodology, interpretation guide, and troubleshooting.
 
 ## Benchmarks
 
