@@ -24,3 +24,11 @@ docs/npm-debug.log*
 docs/yarn-debug.log*
 docs/yarn-error.log*
 .claude/settings.local.json
+
+# Performance testing
+test_torrents/*.torrent
+performance-results.csv
+build-test.log
+qbt-test.log
+.qbt-test-config/
+benchmark-results/
