@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - 'qi.bash'
+      - "qi.bash"
 
 permissions:
   contents: write
@@ -17,11 +17,7 @@ jobs:
       matrix:
         runs-on: ["ubuntu-24.04"]
         arch: ["amd64", "arm32v6", "arm32v7", "arm64v8", "i386", "riscv64"]
-        container_image: [
-          "ubuntu:latest",
-          "debian:latest",
-          "alpine:edge"
-        ]
+        container_image: ["ubuntu:latest", "debian:latest", "alpine:edge"]
         include:
           - arch: amd64
             platform: linux/amd64
@@ -46,7 +42,7 @@ jobs:
             container_image: debian:latest
 
     env:
-        container_name: "build"
+      container_name: "build"
     steps:
       - name: Checkout
         uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0

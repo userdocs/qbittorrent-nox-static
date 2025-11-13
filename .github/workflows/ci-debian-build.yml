@@ -114,7 +114,7 @@ jobs:
           printf '%s\n\n' "qbt_host_deps_repo=${set_qbt_host_deps_repo}" >> env.custom
 
       - name: Host - Debian based specific env ${{ inputs.distinct_id }}
-        if : matrix.os_id != 'alpine'
+        if: matrix.os_id != 'alpine'
         run: |
           printf '%s\n' "LANG=C.UTF-8" >> env.custom
           printf '%s\n' "LC_ALL=C.UTF-8" >> env.custom
@@ -128,9 +128,9 @@ jobs:
       - name: Host - Bootstrap docker container
         uses: userdocs/actions/qbt_docker@e8f57bd585c7bb6dcce011694d6772bab657abca # v1.0.7
         with:
-            os_id: ${{ matrix.os_id }}
-            os_version_id: ${{ matrix.os_version_id }}
-            additional_apps: "curl git"
+          os_id: ${{ matrix.os_id }}
+          os_version_id: ${{ matrix.os_version_id }}
+          additional_apps: "curl git"
 
       - name: Host - patches ${{ inputs.distinct_id }}
         if: hashFiles('patches/**') != ''
@@ -144,7 +144,7 @@ jobs:
         run: docker exec "${container_name}" bash "${script_name}" -bs-a
 
       - name: Docker - glibc ${{ inputs.distinct_id }}
-        if : matrix.os_id != 'alpine'
+        if: matrix.os_id != 'alpine'
         run: docker exec "${container_name}" bash "${script_name}" glibc
 
       - name: Docker - zlib ${{ inputs.distinct_id }}
