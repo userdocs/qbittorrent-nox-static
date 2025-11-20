@@ -25,7 +25,7 @@ jobs:
           persist-credentials: false
 
       - name: Install, build, and upload your site
-        uses: withastro/action@2226b5671ff302b175d9843add614af27e60bbfc # v5.0.0
+        uses: withastro/action@9811f9299d5d37ca0416ca85cee333c7c9485cd1 # v5.0.1
         with:
           path: ./docs
 
