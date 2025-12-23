@@ -13,7 +13,7 @@
     "@astrojs/check": "^0.9.6",
     "@astrojs/starlight": "^0.37.1",
     "@expressive-code/plugin-collapsible-sections": "^0.41.3",
-    "astro": "^5.16.5",
+    "astro": "^5.16.6",
     "sharp": "^0.34.2",
     "starlight-github-alerts": "^0.1.0",
     "starlight-image-zoom": "^0.13.0",
