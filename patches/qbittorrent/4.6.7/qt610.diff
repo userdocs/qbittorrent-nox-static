@@ -1,0 +1,26 @@
+diff --git a/cmake/Modules/CheckPackages.cmake b/cmake/Modules/CheckPackages.cmake
+index 672cbd9..e8f581a 100644
+--- a/cmake/Modules/CheckPackages.cmake
++++ b/cmake/Modules/CheckPackages.cmake
+@@ -48,6 +48,9 @@ find_package(OpenSSL ${minOpenSSLVersion} REQUIRED)
+ find_package(ZLIB ${minZlibVersion} REQUIRED)
+ if (QT6)
+     find_package(Qt6 ${minQt6Version} REQUIRED COMPONENTS Core Network Sql Xml LinguistTools)
++    if (Qt6_FOUND AND (Qt6_VERSION VERSION_GREATER_EQUAL 6.10))
++        find_package(Qt6 ${minQt6Version} REQUIRED COMPONENTS CorePrivate)
++    endif()
+     if (DBUS)
+         find_package(Qt6 ${minQt6Version} REQUIRED COMPONENTS DBus)
+         set_package_properties(Qt6DBus PROPERTIES
+diff --git a/src/base/http/types.h b/src/base/http/types.h
+index 156ddf6..fcfef23 100644
+--- a/src/base/http/types.h
++++ b/src/base/http/types.h
+@@ -32,6 +32,8 @@
+ #include <QHostAddress>
+ #include <QString>
+ #include <QVector>
++#include <QMap>
++#include <QHash>
+
+ #include "base/global.h"
