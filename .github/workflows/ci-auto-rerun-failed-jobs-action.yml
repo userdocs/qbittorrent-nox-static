@@ -15,9 +15,6 @@ on:
       github_repo:
         description: "The repository to rerun the workflow"
         required: false
-      distinct_id:
-        description: "The distinct id of the workflow to rerun"
-        required: false
 
 run-name: ci auto rerun failed jobs - attempt ${{ inputs.attempts }}
 
@@ -27,10 +24,11 @@ jobs:
     permissions:
       actions: write
     runs-on: ubuntu-24.04-arm
+    environment: production
     env:
       GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
     steps:
-      - name: Host - Checkout action ${{ inputs.distinct_id }}
+      - name: Host - Checkout action
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
@@ -41,4 +39,3 @@ jobs:
           attempts: ${{ inputs.attempts }}
           retries: ${{ inputs.retries }}
           github_repo: ${{ inputs.github_repo || github.repository }}
-          distinct_id: ${{ inputs.distinct_id || github.run_id }}

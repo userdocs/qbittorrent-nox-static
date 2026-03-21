@@ -39,14 +39,10 @@ on:
         required: true
         default: true
         type: boolean
-      distinct_id:
-        description: "Distinct id"
-        required: false
-        type: string
       skip_rerun:
         description: "Skip rerun?"
         required: true
-        default: false
+        default: true
         type: boolean
       retries:
         description: "Number of rerun retries"
@@ -69,7 +65,6 @@ jobs:
       attestations: write
     uses: ./.github/workflows/ci-debian-build.yml
     with:
-      distinct_id: ${{ github.event.inputs.distinct_id }}
       workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
       icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
       debug: ${{ github.event.inputs.debug == 'true' && 'yes' || 'no' }}
@@ -86,7 +81,6 @@ jobs:
       attestations: write
     uses: ./.github/workflows/ci-alpine-build.yml
     with:
-      distinct_id: ${{ github.event.inputs.distinct_id }}
       workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
       icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
       debug: ${{ github.event.inputs.debug == 'true' && 'yes' || 'no' }}
@@ -101,8 +95,6 @@ jobs:
     permissions:
       contents: write
     uses: ./.github/workflows/ci-alpine-release.yml
-    with:
-      distinct_id: ${{ github.event.inputs.distinct_id }}
 
   ci-auto-rerun-failed-jobs:
     if: failure() && (github.event.inputs.skip_rerun || 'false') == 'false'
@@ -113,11 +105,11 @@ jobs:
     permissions:
       actions: write
     runs-on: ubuntu-24.04-arm
+    environment: production
     env:
       GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
       github_repo: "" # To use ci-auto-rerun-failed-jobs.yml hosted in a remote repository else default to the current repository. Requires PAT token AUTO_RERUN
       retries: ${{ github.event.inputs.retries || '1' }}
-      distinct_id: ${{ github.event.inputs.distinct_id }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
@@ -130,4 +122,3 @@ jobs:
           -f run_id=${GITHUB_RUN_ID}
           -f attempts=${GITHUB_RUN_ATTEMPT}
           -f retries=${retries}
-          -f distinct_id=${distinct_id}
