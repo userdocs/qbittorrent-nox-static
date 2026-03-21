@@ -113,6 +113,7 @@ jobs:
     permissions:
       actions: write
     runs-on: ubuntu-24.04-arm
+    environment: production
     env:
       GH_TOKEN: "${{ secrets.AUTO_RERUN || github.token }}"
       github_repo: "" # To use ci-auto-rerun-failed-jobs.yml hosted in a remote repository else default to the current repository. Requires PAT token AUTO_RERUN

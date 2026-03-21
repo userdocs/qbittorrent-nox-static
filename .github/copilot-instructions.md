@@ -5,6 +5,7 @@ Purpose: Make AI contributions precise, minimal, and correct. Follow these rules
 ## Bash scripting (applies to all repos)
 
 Do
+
 - Use `#!/bin/bash` as the shebang for Bash scripts.
 - Use the `.bash` extension for Bash; use `.sh` only for POSIX-only scripts.
 - Prefer `$BASH_SOURCE` over `$0` for script path detection.
@@ -17,14 +18,16 @@ Do
 - For Bash references, consult: https://mywiki.wooledge.org and https://mywiki.wooledge.org/BashFAQ and include a source link when possible. Do not invent links.
 
 Avoid
-- Global “set -euo pipefail”; prefer targeted checks and explicit error handling.
+
+- `set -euo pipefail`; prefer targeted checks and explicit error handling.
 - Uppercase variable names for general scripting (reserve UPPERCASE for Docker/env settings).
 - Clever one-liners that harm clarity.
 - Generalized or speculative changes not asked for in the prompt.
 - Over-engineering; keep it stable, concise, and C-like in mindset.
 
 Scope and behavior
-- Only implement what the prompt requests.
+
+- Only implement what the prompt requests. All changes should be in the context of the prompt.
 - Keep solutions minimal and modular; do not add placeholders or future-proofing unless required.
 - When giving Bash/shell answers, add a relevant wooledge link if helpful; never fabricate links.
 
@@ -32,16 +35,23 @@ Scope and behavior
 
 - In reusable workflows, any job that uses outputs from another job must declare that job in `needs` to avoid null outputs.
 - Do not use outdated Actions. Check for current recommended versions before editing.
-- The `gh` CLI cannot fetch the ID of a workflow run it just started via `gh run workflow`. List runs afterward and extract the ID.
+- gh cli can get gets the id of a workflow it starts, here is an example usage
+
+    ```bash
+    run_url="$(~/bin/gh workflow run ci-main-reusable-caller.yml --repo user/repo -f skip_rerun=false -f retries=3)"
+    ~/bin/gh run watch "${run_url##*/}" --repo user/repo --exit-status --compact --interval 30
+    ```
 
 ## If repo name matches `*-musl-cross-make`
 
 Toolchain specifics
+
 - Use both `-static` and `--static` to produce static toolchain binaries. Using only `-static` can miss POSIX threads.
 - When using `../config.mak`, always load options from both `../gcc-configure-options.md` and `../gcc-configure-options-recursive.md`.
 - The binutils gold linker is deprecated. Use `ld=default` and `--disable-gold`.
 
 Fully static toolchains with musl
+
 - Do not use LTO: avoid `-flto` and `-fuse-linker-plugin`.
 - Do not add any LTO-related settings.
 - Only set linker options such as `LDFLAGS` at link time, not during library builds.
@@ -52,53 +62,63 @@ Fully static toolchains with musl
 ## Debugging with QEMU
 
 - Start the target under QEMU with gdbstub, then attach with gdb:
-  - `qemu -g <port> <binary>` (e.g., `qemu -g 1234 ./qbt-nox-static`)
-  - In another terminal: `gdb ./qbt-nox-static` and `target remote :1234`
+    - `qemu -g <port> <binary>` (e.g., `qemu -g 1234 ./qbt-nox-static`)
+    - In another terminal: `gdb ./qbt-nox-static` and `target remote :1234`
 
 ## If repo name matches `*qbittorrent-nox-static`
 
 `qi.bash` script goals
+
 - Simple installer that verifies installation and binaries.
 - Shebang must be `#!/bin/bash`.
 
 OS detection
+
 - `source /etc/os-release`.
 - Supported: `ID=alpine`, `ID=debian`, or `ID_LIKE` contains `debian`. Otherwise exit with a clear reason.
 
 Transfer tools
+
 - Prefer `curl` if present; use `wget` if present and `curl` is not; exit if neither is available.
 - Detect presence of `gh` CLI and use it when available, but it is not required.
 
 Architecture detection
+
 - Alpine: `apk --print-arch`.
 - Debian-like: `dpkg --print-architecture`.
 - Architectures are the same across distros except `armhf`: Debian uses `armv7`, Alpine uses `armv6`.
 - If architecture is not valid/supported, exit with a reason.
 
 Download function
+
 - Build the download URL from the detected architecture.
 - Create and store the download’s SHA-256 sum.
 
 Attestation (optional)
+
 - When `gh` CLI is available and usable, verify downloaded binaries:
-  - `gh attestation verify <INSTALL_PATH> --repo <REPO> 2> /dev/null`
+    - `gh attestation verify <INSTALL_PATH> --repo <REPO> 2> /dev/null`
 
 Error handling
+
 - Provide a helper that checks command exit codes and exits with a concise, helpful message on failure.
 
 Output formatting
+
 - Provide a print helper that supports:
-  - `[INFO]` (blue), `[WARNING]` (yellow), `[ERROR]` (red), `[SUCCESS]` (green), `[FAILURE]` (magenta)
+    - `[INFO]` (blue), `[WARNING]` (yellow), `[ERROR]` (red), `[SUCCESS]` (green), `[FAILURE]` (magenta)
 - Use `printf '%s'` and `printf '%b'`; do not use `echo`.
 - Keep messages succinct. Be verbose only on errors to aid troubleshooting.
 
 ---
 
 Meta for AI contributors
+
 - Be conservative: do only what the prompt requests. No broad refactors.
 - Prefer small, well-named functions and staged changes.
 - Preserve existing public behavior and style unless the prompt requires changes.
 - If something cannot be done with available context/tools, state why and propose the smallest viable alternative.
+
 # Bash Scripting - All repos
 
 - use $BASH_SOURCE instead of $0
@@ -128,8 +148,10 @@ Meta for AI contributors
 - Do not use outdated GitHub Actions in workflow code. Always check the version recommended is the current version
 - The `gh` CLI cannot get the ID of a workflow it started with `gh run workflow`; you must list runs after and extract the ID.
 
-# If repo = *-musl-cross-make
+# If repo = \*-musl-cross-make
+
 GCC / Binutils
+
 - Use both `-static` and `--static` to create static toolchain binaries. Using `-static` alone can cause errors (e.g., missing POSIX threads).
 - When working with `../config.mak`, always load options from both `../gcc-configure-options.md` and `../gcc-configure-options-recursive.md`.
 - The binutils gold linker is deprecated. Use `ld=default` and `--disable-gold`.
@@ -146,42 +168,50 @@ GCC / Binutils
 - To debug with QEMU:
   Run `qemu -g <port> <binary>` (e.g., `qemu -g 1234 ./qbt-nox-static`), then connect with `gdb ./qbt-nox-static` in another terminal.
 
-# If repo = * qbittorrent-nox-static
+# If repo = \* qbittorrent-nox-static
 
 ## qi.bash script
 
 General features
+
 - Always use `#!/bin/bash` as the shebang.
 - this script is focused on being a simple installer that verifies installation and binaries.
 
 basic check for supported os
+
 - use source /etc/os-release
 - if ID = alpine of debian or if the or if ID_LIKE=debian is debian like we can proceed.
 - if not supported os exit with reason.
 
 basic check for wget or curl, default to curl if present.
+
 - if no tools exit with reason.
 - wget or curl must have, curl default if present but use wget if there.
 - check if gh cli is available to use but no required.
 
 basic check of which arch using
+
 - alpine use apk --print-arch
 - debian like use dpkg --print-architecture
 - all arches are the same except armhf. on debian this is armv7 and alpine armv6
 - if not valid arch exit with reason.
 
 create download function based on arch checks.
+
 - configure download url based on arch.
 - creates sha256 of download.
 
 gh cli function
+
 - if gh cli exists and is usable use it to very the binaries downloaded
 - if gh attestation verify <INSTALL_PATH> --repo <REPO> 2> /dev/null; then ...
 
 error handling
+
 - there should be a error handling function to test commands exit the script with helpful explanations when a command or function fails.
 
 ouputs
+
 - there should be a function to handle printing outputs.
 - It should handle [INFO] (blue) [WARNING] (yellow) [ERROR] (red) [SUCCESS] (Green) [FAILURE] (magenta)
 - Use `printf '%s'` for printing strings and `printf '%b'` for escape sequences. **Avoid using `echo`.**
