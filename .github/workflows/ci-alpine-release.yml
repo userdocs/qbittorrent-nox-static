@@ -97,13 +97,20 @@ jobs:
         run: printf '%s\n' "release_title=$(cat ${{ matrix.qbt_libtorrent_version }}/title.md)" >> $GITHUB_ENV
 
       - name: Host- Create release - tag - assets ${{ inputs.distinct_id }}
-        uses: ncipollo/release-action@339a81892b84b4eeb0f6e744e4574d79d0d9b8dd # v1.21.0
-        with:
-          prerelease: "${{ matrix.preview_release }}"
-          artifacts: "${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox,dependency-version.json"
-          replacesArtifacts: true
-          tag: "${{ env.release_tag }}"
-          name: "${{ env.release_title }}"
-          bodyFile: "release.md"
-          allowUpdates: true
-          token: "${{ github.TOKEN }}"
+        env:
+          GH_TOKEN: "${{ github.TOKEN }}"
+        run: |
+          # Try to create the release. If it already exists, update it and replace assets.
+          gh release create "${release_tag}" \
+            --title "${release_title}" \
+            --notes-file release.md \
+            ${{ matrix.preview_release == true && '--prerelease' || '--latest' }} \
+            ${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox dependency-version.json || {
+            gh release edit "${release_tag}" \
+              --title "${release_title}" \
+              --notes-file release.md \
+              ${{ matrix.preview_release == true && '--prerelease' || '--latest' }}
+            gh release upload "${release_tag}" \
+              --clobber \
+              ${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox dependency-version.json
+          }
