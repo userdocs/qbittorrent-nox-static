@@ -102,12 +102,7 @@ jobs:
         env:
           GH_TOKEN: "${{ github.TOKEN }}"
         run: |
-          # Try to create the release. If it already exists, update it and replace assets.
-          gh release create "${release_tag}" \
-            --title "${release_title}" \
-            --notes-file release.md \
-            ${{ matrix.preview_release == true && '--prerelease' || '--latest' }} \
-            ${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox dependency-version.json || {
+          if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
             gh release edit "${release_tag}" \
               --title "${release_title}" \
               --notes-file release.md \
@@ -115,4 +110,10 @@ jobs:
             gh release upload "${release_tag}" \
               --clobber \
               ${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox dependency-version.json
-          }
+          else
+            gh release create "${release_tag}" \
+              --title "${release_title}" \
+              --notes-file release.md \
+              ${{ matrix.preview_release == true && '--prerelease' || '--latest' }} \
+              ${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox dependency-version.json
+          fi

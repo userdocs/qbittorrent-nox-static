@@ -63,11 +63,12 @@ jobs:
           persist-credentials: false
 
       - name: Download ${{ env.script_name }}
+        env:
+          GH_TOKEN: "${{ github.token }}"
         run: |
-          # Make sure the branch is set to master for qbittorrent-nox-static and main qbittorrent-nox-static-test
           if [[ ! -f "${script_name}" ]]; then
-            echo "Downloading ${script_name} from userdocs/qbittorrent-nox-static"
-            curl -LO "https://raw.githubusercontent.com/userdocs/qbittorrent-nox-static/refs/heads/master/${script_name}"
+            gh api "repos/${{ github.repository }}/contents/${script_name}" \
+              --header "Accept: application/vnd.github.raw+json" > "${script_name}"
             chmod +x "${script_name}"
           fi
 
