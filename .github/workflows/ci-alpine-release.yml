@@ -2,11 +2,6 @@ name: ci - alpine-release
 
 on:
   workflow_call:
-    inputs:
-      distinct_id:
-        description: "Distinct ID for the artifacts"
-        required: true
-        type: string
 
 jobs:
   release:
@@ -30,7 +25,7 @@ jobs:
       qbt_build_dir: "qbt-build"
 
     steps:
-      - name: Checkout ${{ inputs.distinct_id }}
+      - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           persist-credentials: false
@@ -40,21 +35,21 @@ jobs:
           pandoc_git_tag="$(git ls-remote -q -t --refs https://github.com/jgm/pandoc.git | awk '/tags\/[0-9]/{sub("refs/tags/", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
           curl -sLo- "https://github.com/jgm/pandoc/releases/latest/download/pandoc-${pandoc_git_tag}-linux-$(dpkg --print-architecture).tar.gz" | tar xzf - --strip-components 2 -C "$(pwd)" --exclude="share"
 
-      - name: Host - Download 1.2 qbittorrent-nox artifacts ${{ inputs.distinct_id }}
+      - name: Host - Download 1.2 qbittorrent-nox artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: "1.2"
           pattern: libtorrent-v1.2-*-qbittorrent-nox
           merge-multiple: true
 
-      - name: Host - Download 2.0 qbittorrent-nox artifacts ${{ inputs.distinct_id }}
+      - name: Host - Download 2.0 qbittorrent-nox artifacts
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           path: "2.0"
           pattern: libtorrent-v2.0-*-qbittorrent-nox
           merge-multiple: true
 
-      - name: Host - merge release-info ${{ inputs.distinct_id }}
+      - name: Host - merge release-info
         env:
           lt_version: ${{ matrix.qbt_libtorrent_version }}
         run: |
@@ -92,13 +87,13 @@ jobs:
 
           ./pandoc --wrap=preserve -f gfm tmp-release.md -t gfm -o release.md
 
-      - name: Host - Bootstrap release tag ${{ inputs.distinct_id }}
+      - name: Host - Bootstrap release tag
         run: printf '%s\n' "release_tag=$(cat ${{ matrix.qbt_libtorrent_version }}/tag.md)" >> $GITHUB_ENV
 
-      - name: Host - Bootstrap release title ${{ inputs.distinct_id }}
+      - name: Host - Bootstrap release title
         run: printf '%s\n' "release_title=$(cat ${{ matrix.qbt_libtorrent_version }}/title.md)" >> $GITHUB_ENV
 
-      - name: Host- Create release - tag - assets ${{ inputs.distinct_id }}
+      - name: Host- Create release - tag - assets
         env:
           GH_TOKEN: "${{ github.TOKEN }}"
         run: |
