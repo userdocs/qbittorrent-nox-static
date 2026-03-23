@@ -1,3 +1,82 @@
+### v2.2.3 - 21/03/2026
+
+No breaking changes. Some work towards Libtorrent RC_2_1 support but mostly bugs fixes.
+
+| #   | Severity | Finding                                                                                                 | Status |
+| --- | -------- | ------------------------------------------------------------------------------------------------------- | ------ |
+| 1   | Critical | `-lm\|--libtorrent-master` sets `source_default[qbittorrent]` instead of `[libtorrent]`                 | Fixed  |
+| 2   | Critical | `-q\|--qmake` sets `qbt_build_tool="--qmake"` instead of `"qmake"` — breaks all qmake builds            | Fixed  |
+| 3   | Critical | `_git` — `git_test_cmd` not local/reset; stale URL from prior call used silently                        | Fixed  |
+| 4   | Critical | `_post_command` PIPESTATUS capture fragile — any code before `outcome=` line silently breaks it         | Fixed  |
+| 5   | Critical | Duplicate `qbt_strip_flags` logic — second block overrides first, injects `-g` even when debug=no       | Fixed  |
+| 6   | Critical | Linker flag `-z,--no-copy-dt-needed-entries` — `--no-copy-dt-needed-entries` is not a `-z` argument     | Fixed  |
+| 7   | Critical | `armhf` cross_arch set to `"armel"` for Debian — installs wrong crossbuild package                      | Fixed  |
+| 8   | High     | Bare `exit` (code 0) in `_set_build_cons` error path — CI sees success on rejected builds               | Fixed  |
+| 9   | High     | Infinite retry loop in `_release_info` — hangs CI if URL is permanently unavailable                     | Fixed  |
+| 10  | Info     | `_check_dependency_status` modifies global `filtered_params`                                            | Fixed  |
+| 11  | Info     | `_debug` inner for loop over single-element string is misleading                                        | Fixed  |
+| 12  | Info     | `_qt_std_cons` and similar functions use `printf` return pattern — fragile if output is polluted        | Noted  |
+| 13  | Info     | `_test_url` comment says "google.com" but function tests `github.com`                                   | Fixed  |
+| 14  | Info     | Glob in `_multi_arch` symlink loop may fail silently on no match                                        | Fixed  |
+| 15  | Info     | Help text for `-h-qtt` shows `-qt` in usage examples instead of `-qtt`                                  | Fixed  |
+| 16  | Logic    | `_error_tag` ignores its arguments — silent exits with no error message                                 | Fixed  |
+| 17  | Logic    | `qbt_dl_folder_path` collapses to install dir on corrupt/empty archive                                  | Fixed  |
+| 18  | Logic    | `qbt_host_deps` referenced before its default is assigned                                               | Fixed  |
+| 19  | Logic    | `qbt_patches_url_branch` unset when remote download is skipped — malformed Jamfile URL                  | Fixed  |
+| 20  | Logic    | Duplicate dependency deletion block for Debian — idempotent but indicates copy-paste error              | Fixed  |
+| 21  | Low      | Alpine version check comment says "min v3.10" but code enforces 3.18                                    | Fixed  |
+| 22  | Low      | `-fuse-ld=mold` placed in CFLAGS/CXXFLAGS — linker selection flag belongs in LDFLAGS only               | Fixed  |
+| 23  | Low      | `-h-m` (`--help-master`) shows `-lm` in usage example instead of `-m`                                   | Fixed  |
+| 24  | Low      | `arm_libatomic` not declared `local` in `_libtorrent`/`_qtbase` — leaks between calls                   | Fixed  |
+| 25  | Low      | `chmod +x -R` on a single file — `-R` flag is misleading and redundant                                  | Fixed  |
+| 26  | Low      | `command_privilege` may be unset if neither root nor sudo                                               | Fixed  |
+| 27  | Low      | `exit_script` in `_set_build_cons` not declared `local` — could fire on leaked global                   | Fixed  |
+| 28  | Low      | `pkgman` function shadows `pkgman` array inside loop and is redefined every iteration                   | Fixed  |
+| 29  | Low      | `qbt_core_deps_sorted` grows without reset on re-check across multiple `_check_dependency_status` calls | Fixed  |
+| 30  | Low      | `qbt_dl_folder_path` collapses to install dir on corrupt archive (carried from v1)                      | Fixed  |
+| 31  | Low      | `sub_dir` global variable leaks between modules if bootstrap does not unset it                          | Fixed  |
+| 32  | Low      | `_boost` runs `sed -i` on `build.sh` without checking file exists or pattern matches                    | Fixed  |
+| 33  | Low      | `_cache_dirs_qbt_env` calls `exit 1` from inside download hot path — confusing failure context          | Fixed  |
+| 34  | Low      | `_download_directory_contents` grep-based JSON parsing fragile against API format changes               | Open   |
+| 35  | Low      | `_fix_multiarch_static_links` ignores its argument, uses global `qbt_cross_host` directly               | Fixed  |
+| 36  | Low      | `_icu_host_deps` second `make` call uses `_tee` without `-a` — overwrites configure log                 | Fixed  |
+| 37  | Low      | `_installation_modules` regex over `${!qbt_modules_install[*]}` fragile with non-default IFS            | Open   |
+| 38  | Critical | `_semantic_version` output starting with `0` (e.g. `0.8`) is evaluated as octal by `[[ -lt ]]`          | Fixed  |
+| 39  | Low      | `_semantic_version` strips non-numeric chars: `10rc1` becomes `101` — misparses RC versions             | Fixed  |
+| 40  | Low      | `_semantic_version` zero-padded components (`08`, `09`) trigger bash octal parse error                  | Fixed  |
+| 41  | Low      | `_test_git_ouput` function name typo (`ouput`)                                                          | Fixed  |
+| 42  | Low      | Missing `${color_end}` after `${color_green}` in `-h-m` output — color bleeds into terminal             | Fixed  |
+| 43  | Low      | Multiple assignments on one line after `&&` — second assignment always executes regardless of test      | Fixed  |
+| 44  | Low      | Redundant inner `if [[ ${qbt_host_deps} == "yes" ]]` inside already-gated outer block                   | Fixed  |
+| 45  | Low      | Stale `unset tar_additional_cmds` — dead codeafter array was removed                                    | Fixed  |
+| 46  | Low      | Typo in loongarch64 error message — "on and Alpine Host" → "on an Alpine Host"                          | Fixed  |
+| 47  | Low      | Typo: "arugment" → "argument" in error message                                                          | Fixed  |
+| 48  | Low      | Undeclared array `build_tools` used in `_check_dependency_status` — unset is a no-op                    | Fixed  |
+| 49  | Medium   | `-qm\|--qbittorrent-master` sets `source_archive_url` but not `source_default` — no fallback to git     | Fixed  |
+| 50  | Medium   | `gcc_version` unset when cross-compiler unavailable — `[[ -ge ]]` emits integer error to stderr         | Fixed  |
+| 51  | Medium   | `github_tag[boost]` assignment missing quotes around command substitution                               | Fixed  |
+| 52  | Medium   | `os_arch` never set when OS is unrecognised — empty value used in security flags and multiarch          | Fixed  |
+| 53  | Medium   | `qbt_cflags_consumed` missing from top-level `unset` list                                               | Fixed  |
+| 54  | Medium   | `qbt_cross_boost` not set for `x86` cross-build — defaults to `gcc`, may be wrong                       | Fixed  |
+| 55  | Medium   | Qt/qttools tag regex `sub("(.*)(-alpha\|-beta\|-rc)", "")` still mangles not filters                    | Fixed  |
+| 56  | Medium   | `_check_dependency_status` global `filtered_params` — brittle call-order dependency (v4 #7 carried)     | Fixed  |
+| 57  | Medium   | `_delete_function` calls `_pushd` without `_popd` — stack grows by one entry per module                 | Fixed  |
+| 58  | Medium   | `_download_file` — `tar_additional_cmds` uses `+=` instead of `=`; stale on early return                | Fixed  |
+| 59  | Medium   | `_git` curl test passes `-t TAG` to curl — `-t` is curl's `--telnet-option`                             | Fixed  |
+| 60  | Medium   | `_git` scans for URLs at hardcoded positional indices 9 and 11                                          | Fixed  |
+| 61  | Medium   | `_iconv` missing `_post_command build` check — silent build failure                                     | Fixed  |
+| 62  | Medium   | `_iconv` — `autogen.sh` only runs when cache dir is set; folder-source without cache fails              | Fixed  |
+| 63  | Medium   | `_post_command` captures `PIPESTATUS` at function entry, not at pipeline call site — may miss failures  | Fixed  |
+| 64  | Medium   | Help long-form mismatch: `--help-boost-version` in output vs `--help-boost-tag` in handler              | Fixed  |
+| 65  | Medium   | Help long-form mismatch: `--help-multi-arch` in output vs `--help-multiarch` in handler                 | Fixed  |
+| 66  | Medium   | Help long-form mismatch: `--help-qtt-tag` in output vs `--help-qt-tag` in handler                       | Fixed  |
+| 67  | Medium   | Missing case handler for `-h-bs-c` / `--help-bootstrap-cmake` — documented but does nothing             | Fixed  |
+| 68  | Medium   | Qt tag filtering `sub("(.*)(-a\|-b\|-r)", "")` mangles pre-release tags instead of filtering them       | Fixed  |
+| 69  | Medium   | `qbt_dl_folder_path` collapses to install dir on corrupt archive (carried from v1)                      | Fixed  |
+| 70  | Medium   | fix qt apps multiarch command for qbt_host_deps                                                         | Fixed  |
+| 70  | Medium   | fix tag generation with libtorrent when using master branch                                             | Fixed  |
+| 71  | Medium   | script version function check will compare its sha256sum against the github hosted one                  | Added  |
+
 ### v2.2.2 - 30/08/2025
 
 `qbt-nox-static.bash` was fully merged into `qbittorrent-nox-static.sh` so that the scripts no longer have significantly different code approaches to the same outcomes.

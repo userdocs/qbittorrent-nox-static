@@ -95,7 +95,13 @@ print_output() {
 	if [[ $message == *:* ]]; then
 		local prefix="${message%%:*}:"
 		local suffix="${message#*: }"
-		printf '%b\n' "$color $icon $prefix ${color}$suffix $COLOR_RESET"
+		# Robustly check if a suffix was actually extracted.
+		# This prevents duplication when the message ends with a colon.
+		if [[ -n $suffix && $suffix != "$message" ]]; then
+			printf '%b\n' "$color $icon $prefix ${color}$suffix $COLOR_RESET"
+		else
+			printf '%b\n' "$color $icon $message"
+		fi
 	else
 		printf '%b\n' "$color $icon $message"
 	fi
@@ -109,6 +115,48 @@ print_error() { print_output "ERROR" "$1"; }
 print_success() { print_output "SUCCESS" "$1"; }
 print_failure() { print_output "FAILURE" "$1"; }
 print_generic() { print_output "" "$1"; }
+
+# Print build info from JSON
+print_build_info() {
+	local json_data="$1"
+	local libtorrent_ver="$2"
+	print_info "Latest Build Information:"
+
+	local key_to_remove
+	if [[ $libtorrent_ver == "v2" ]]; then
+		key_to_remove="libtorrent_1_2"
+	else
+		key_to_remove="libtorrent_2_0"
+	fi
+
+	if command -v jq > /dev/null 2>&1; then
+		# Preferred method: Use jq to create "key value" pairs
+		local filtered_json
+		filtered_json=$(printf '%s' "$json_data" | jq -r "del(.$key_to_remove) | to_entries[] | \"\(.key) \(.value)\"")
+		while read -r key value; do
+			if [[ -z $key ]]; then
+				continue
+			fi
+			local aligned_text
+			aligned_text=$(printf "%-18s %s" "${key}:" "$value")
+			printf '%b\n' "$COLOR_INFO   $aligned_text $COLOR_RESET"
+		done <<< "$filtered_json"
+	else
+		# Fallback method: Use bash regex matching. It's slower but more robust.
+		while IFS= read -r line; do
+			# Filter out the unwanted libtorrent version and non-key-value lines
+			if [[ $line == *"$key_to_remove"* || ! $line =~ \"(.+)\":[[:space:]]*\"(.+)\" ]]; then
+				continue
+			fi
+			local key="${BASH_REMATCH[1]}"
+			local value="${BASH_REMATCH[2]}"
+
+			local aligned_text
+			aligned_text=$(printf "%-18s %s" "${key}:" "$value")
+			printf '%b\n' "$COLOR_INFO   $aligned_text $COLOR_RESET"
+		done <<< "$(printf '%s' "$json_data")"
+	fi
+}
 
 # Detect architecture and map to binary name
 detect_arch() {
@@ -193,6 +241,30 @@ check_gh_cli() {
 	fi
 }
 
+# Fetch URL content using curl or wget
+fetch_url() {
+	local url="$1"
+	local tool
+	tool=$(check_download_tools)
+
+	local response
+	case "$tool" in
+		wget)
+			response=$(wget -qO- "$url" 2> /dev/null)
+			;;
+		curl)
+			response=$(curl -sL "$url" 2> /dev/null)
+			;;
+	esac
+
+	if [[ $? -ne 0 ]]; then
+		print_warning "Failed to fetch information from URL: $url"
+		printf "" # Return empty on failure
+	else
+		printf "%s" "$response"
+	fi
+}
+
 # Create download function based on architecture checks
 create_download_url() {
 	local arch="$1"
@@ -265,25 +337,9 @@ verify_binary_integrity() {
 
 	# Fetch release assets from GitHub API
 	local api_response
-	case "$tool" in
-		wget)
-			api_response=$(wget -qO- "$api_url" 2> /dev/null) || {
-				print_warning "Failed to fetch release information from GitHub API"
-				print_info "Local SHA256 verification completed"
-				return 1
-			}
-			;;
-		curl)
-			api_response=$(curl -sL "$api_url" 2> /dev/null) || {
-				print_warning "Failed to fetch release information from GitHub API"
-				print_info "Local SHA256 verification completed"
-				return 1
-			}
-			;;
-	esac
-
+	api_response=$(fetch_url "$api_url")
 	if [[ -z $api_response ]]; then
-		print_warning "Empty response from GitHub API"
+		print_warning "Failed to fetch release information from GitHub API"
 		print_info "Local SHA256 verification completed"
 		return 1
 	fi
@@ -294,8 +350,8 @@ verify_binary_integrity() {
 		# Use jq if available (preferred method) - extract just the hash value
 		api_digests=$(printf '%s' "$api_response" | jq -r '.assets[].digest // empty' 2> /dev/null | sed 's/^sha256://')
 	else
-		# Fall back to sed if jq is not available - extract just the hash value
-		api_digests=$(printf '%s' "$api_response" | sed -rn 's|(.*)sha256:([^"]*)".*|\2|p' 2> /dev/null)
+		# Fall back to grep/cut if jq is not available - more robust than a single sed
+		api_digests=$(printf '%s' "$api_response" | grep -o '"digest": *"[^"]*"' | cut -d'"' -f4 | sed 's/^sha256://')
 	fi
 
 	if [[ -z $api_digests ]]; then
@@ -331,51 +387,32 @@ verify_binary_integrity() {
 		return 1
 	fi
 }
-# Get release tag from API
-get_release_tag() {
-	local api="https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json"
-	local ver="${LIBTORRENT_VERSION:-v2}"
-	local tool
-	tool=$(check_download_tools)
-
-	# Fetch API response
-	local response
-	case "$tool" in
-		wget)
-			response=$(wget -qO- "$api" 2> /dev/null) || {
-				handle_error $? "wget -qO $api" "Failed to fetch release information from API"
-			}
-			;;
-		curl)
-			response=$(curl -sL "$api" 2> /dev/null) || {
-				handle_error $? "curl -sL $api" "Failed to fetch release information from API"
-			}
-			;;
-	esac
-
-	if [[ -z $response ]]; then
-		print_error "Failed to fetch release information - empty response"
-		print_error "API endpoint: $api"
-		exit 1
-	fi
+# Parse release info from JSON
+parse_release_info() {
+	local response="$1"
+	local ver="$2"
 
 	# Parse release tag
-	local qbt_ver libt_ver
-	qbt_ver=$(printf '%s' "$response" | sed -rn 's|(.*)"qbittorrent": "(.*)",|\2|p')
-
+	local qbt_ver libt_ver revision libt_key
 	case "$ver" in
-		v1)
-			libt_ver=$(printf '%s' "$response" | sed -rn 's|(.*)"libtorrent_1_2": "(.*)",|\2|p')
-			;;
-		v2)
-			libt_ver=$(printf '%s' "$response" | sed -rn 's|(.*)"libtorrent_2_0": "(.*)",|\2|p')
-			;;
+		v1) libt_key="libtorrent_1_2" ;;
+		v2) libt_key="libtorrent_2_0" ;;
 		*)
 			print_error "Invalid LibTorrent version: $ver"
 			print_error "Valid options: v1, v2"
 			exit 1
 			;;
 	esac
+
+	if command -v jq > /dev/null 2>&1; then
+		qbt_ver=$(printf '%s' "$response" | jq -r '.qbittorrent')
+		revision=$(printf '%s' "$response" | jq -r '.revision // ""')
+		libt_ver=$(printf '%s' "$response" | jq -r --arg KEY "$libt_key" '.[$KEY]')
+	else
+		qbt_ver=$(printf '%s' "$response" | sed -rn 's/.*"qbittorrent": "([^"]*)".*/\1/p')
+		revision=$(printf '%s' "$response" | sed -rn 's/.*"revision": "([^"]*)".*/\1/p')
+		libt_ver=$(printf '%s' "$response" | sed -rn "s/.*\"${libt_key}\": \"([^\"]*)\".*/\1/p")
+	fi
 
 	if [[ -z $qbt_ver ]] || [[ -z $libt_ver ]]; then
 		print_error "Failed to parse version information from API response"
@@ -384,9 +421,6 @@ get_release_tag() {
 		exit 1
 	fi
 
-	# Parse revision field
-	local revision
-	revision=$(printf '%s' "$response" | sed -rn 's|.*"revision": "(.*)".*|\1|p')
 	if [[ -z $revision ]]; then
 		print_warning "Failed to parse revision from API response"
 	fi
@@ -436,10 +470,22 @@ main() {
 	local arch="${FORCE_ARCH:-$(detect_arch)}"
 	local libtorrent_ver="${LIBTORRENT_VERSION:-v2}"
 	local install_path="$HOME/bin/qbittorrent-nox"
+
+	# Fetch dependency info
+	local dep_api_url="https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json"
+	local dep_json
+	dep_json=$(fetch_url "$dep_api_url")
+	if [[ -z $dep_json ]]; then
+		handle_error 1 "fetch_url $dep_api_url" "Failed to fetch dependency information"
+	fi
+
+	# Print build info for the user
+	print_build_info "$dep_json" "$libtorrent_ver"
+
 	# Get release and download
 	local release_tag revision
-	# Capture release tag and revision from get_release_tag
-	read release_tag revision <<< "$(get_release_tag)"
+	# Capture release tag and revision from parse_release_info
+	read release_tag revision <<< "$(parse_release_info "$dep_json" "$libtorrent_ver")"
 
 	print_info "Architecture: $arch"
 	print_info "LibTorrent version: $libtorrent_ver"
@@ -450,9 +496,15 @@ main() {
 	print_info "Attestation verification: $(check_gh_cli && printf '%s' "enabled" || printf '%s' "disabled (gh cli not found)")"
 
 	# Prepare installation directory
-	print_action "Creating install directory: $HOME/bin"
-	mkdir -p "$HOME/bin" || {
-		handle_error $? "mkdir -p $HOME/bin" "Failed to create installation directory"
+	local install_dir="$HOME/bin"
+	if [[ -f $install_dir ]]; then
+		print_error "Installation path $install_dir exists and is a file."
+		print_error "Please remove it or choose a different installation path."
+		exit 1
+	fi
+	print_action "Creating install directory: $install_dir"
+	mkdir -p "$install_dir" || {
+		handle_error $? "mkdir -p $install_dir" "Failed to create installation directory"
 	}
 
 	# Get release and download
