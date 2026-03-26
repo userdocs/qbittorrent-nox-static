@@ -1,5 +1,4 @@
 ---
-import fs from "node:fs/promises";
 import { Badge } from "@astrojs/starlight/components";
 
 type Props = {
@@ -22,24 +21,34 @@ const {
 	prefix = "v",
 } = Astro.props as Props;
 
-async function readVersion(relPath: string): Promise<string> {
+const scripts = import.meta.glob("../../../*.bash", {
+	query: "?raw",
+	import: "default",
+	eager: true,
+}) as Record<string, string>;
+
+function readVersion(filename: string): string {
 	try {
-		// Build a file URL relative to this component's location
-		const url = new URL(relPath, import.meta.url);
-		const content = await fs.readFile(url, "utf8");
+		const importPath = `../../../${filename}`;
+		const content = scripts[importPath];
+		if (!content) {
+			console.error(`Script file ${filename} not found at ${importPath}`);
+			return "unknown";
+		}
 		// More robust match: allow spaces and single/double quotes
 		const match = content.match(
 			/(?:^|\n)\s*script_version\s*=\s*(["'])([^"']+)\1/,
 		);
 		return match?.[2] ?? "unknown";
-	} catch {
+	} catch (e) {
+		console.error(`Error parsing script file ${filename}:`, e);
 		return "unknown";
 	}
 }
 
 // Scripts live at the repository root; this component is at docs/src/components/
 // So we traverse up three directories to reach the repo root.
-const version = await readVersion(`../../../${file}`);
+const version = readVersion(file);
 const isKnown = version !== "unknown";
 const normalizedVersion = typeof version === "string" ? version.trim() : "";
 const displayVersion = isKnown
