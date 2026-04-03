@@ -120,7 +120,10 @@ print_generic() { print_output "" "$1"; }
 print_build_info() {
 	local json_data="$1"
 	local libtorrent_ver="$2"
-	print_info "Latest Build Information:"
+	# Extra key-value pairs appended after JSON fields, passed as "key value" arguments
+	shift 2
+	local -a extra_fields=("$@")
+	print_info "Install Configuration:"
 
 	local key_to_remove
 	if [[ $libtorrent_ver == "v2" ]]; then
@@ -156,6 +159,16 @@ print_build_info() {
 			printf '%b\n' "$COLOR_INFO   $aligned_text $COLOR_RESET"
 		done <<< "$(printf '%s' "$json_data")"
 	fi
+
+	# Print any extra key-value pairs in the same aligned format
+	local i
+	for ((i = 0; i < ${#extra_fields[@]}; i += 2)); do
+		local ekey="${extra_fields[i]}"
+		local evalue="${extra_fields[i+1]}"
+		local aligned_text
+		aligned_text=$(printf "%-18s %s" "${ekey}:" "$evalue")
+		printf '%b\n' "$COLOR_INFO   $aligned_text $COLOR_RESET"
+	done
 }
 
 # Detect architecture and map to binary name
@@ -406,11 +419,9 @@ parse_release_info() {
 
 	if command -v jq > /dev/null 2>&1; then
 		qbt_ver=$(printf '%s' "$response" | jq -r '.qbittorrent')
-		revision=$(printf '%s' "$response" | jq -r '.revision // ""')
 		libt_ver=$(printf '%s' "$response" | jq -r --arg KEY "$libt_key" '.[$KEY]')
 	else
 		qbt_ver=$(printf '%s' "$response" | sed -rn 's/.*"qbittorrent": "([^"]*)".*/\1/p')
-		revision=$(printf '%s' "$response" | sed -rn 's/.*"revision": "([^"]*)".*/\1/p')
 		libt_ver=$(printf '%s' "$response" | sed -rn "s/.*\"${libt_key}\": \"([^\"]*)\".*/\1/p")
 	fi
 
@@ -421,12 +432,61 @@ parse_release_info() {
 		exit 1
 	fi
 
-	if [[ -z $revision ]]; then
-		print_warning "Failed to parse revision from API response"
+	# Output release tag only; revision must be fetched from the tag-specific dep JSON
+	printf '%s' "release-${qbt_ver}_v${libt_ver}"
+}
+
+# Module-level variable: the service unit identified during the stop probe
+_qbt_active_service=""
+
+# Probe for a known qbittorrent user service, stop it if running, restart after install.
+# Sets _qbt_active_service to the first unit that exists (active or not).
+# Probes: qbittorrent-nox.service  qbt-nox.service  qbt.service
+manage_user_service() {
+	local action="$1" # stop | start
+	local unit="${2:-}"
+
+	# systemctl --user requires a running user bus; skip if unavailable
+	if ! command -v systemctl > /dev/null 2>&1; then
+		if [[ $action == "stop" ]]; then
+			print_info "Service check skipped: systemctl not available"
+		fi
+		return 1
 	fi
 
-	# Output release tag and revision
-	printf '%s %s' "release-${qbt_ver}_v${libt_ver}" "${revision:-}"
+	if [[ $action == "stop" ]]; then
+		local candidates=("qbittorrent-nox.service" "qbt-nox.service" "qbt.service")
+		for svc in "${candidates[@]}"; do
+			# Check existence via 'cat' - works for enabled, disabled, or stopped units
+			if systemctl --user cat "$svc" > /dev/null 2>&1; then
+				print_info "Found user service: $svc"
+				_qbt_active_service="$svc"
+				# Only stop it if currently running
+				if systemctl --user is-active --quiet "$svc" 2> /dev/null; then
+					print_action "Stopping user service: $svc"
+					if systemctl --user stop "$svc" 2> /dev/null; then
+						print_success "Stopped: $svc"
+					else
+						print_warning "Failed to stop $svc - continuing anyway"
+					fi
+				else
+					print_info "Service $svc is not running - will restart after install"
+				fi
+				return 0
+			fi
+		done
+		print_info "No qbittorrent user service found - skipping service management"
+		return 1
+	fi
+
+	if [[ $action == "start" ]] && [[ -n $unit ]]; then
+		print_action "Restarting user service: $unit"
+		if systemctl --user start "$unit" 2> /dev/null; then
+			print_success "Restarted: $unit"
+		else
+			print_warning "Failed to restart $unit"
+		fi
+	fi
 }
 
 # Download file
@@ -471,7 +531,7 @@ main() {
 	local libtorrent_ver="${LIBTORRENT_VERSION:-v2}"
 	local install_path="$HOME/bin/qbittorrent-nox"
 
-	# Fetch dependency info
+	# Fetch latest dep JSON to build the correct release tag
 	local dep_api_url="https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json"
 	local dep_json
 	dep_json=$(fetch_url "$dep_api_url")
@@ -479,21 +539,38 @@ main() {
 		handle_error 1 "fetch_url $dep_api_url" "Failed to fetch dependency information"
 	fi
 
-	# Print build info for the user
-	print_build_info "$dep_json" "$libtorrent_ver"
+	# Build release tag from the latest dep JSON
+	local release_tag
+	release_tag=$(parse_release_info "$dep_json" "$libtorrent_ver")
 
-	# Get release and download
-	local release_tag revision
-	# Capture release tag and revision from parse_release_info
-	read release_tag revision <<< "$(parse_release_info "$dep_json" "$libtorrent_ver")"
-
-	print_info "Architecture: $arch"
-	print_info "LibTorrent version: $libtorrent_ver"
-	# Output revision if available
-	if [[ -n $revision ]]; then
-		print_info "Build revision: $revision"
+	# Fetch the dep JSON for that specific tag to get the correct revision and build info
+	local tag_dep_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/${release_tag}/dependency-version.json"
+	local tag_dep_json
+	tag_dep_json=$(fetch_url "$tag_dep_url")
+	if [[ -z $tag_dep_json ]]; then
+		handle_error 1 "fetch_url $tag_dep_url" "Failed to fetch tag-specific dependency information"
 	fi
-	print_info "Attestation verification: $(check_gh_cli && printf '%s' "enabled" || printf '%s' "disabled (gh cli not found)")"
+
+	# Get revision from the tag-specific JSON
+	local revision
+	if command -v jq > /dev/null 2>&1; then
+		revision=$(printf '%s' "$tag_dep_json" | jq -r '.revision // ""')
+	else
+		revision=$(printf '%s' "$tag_dep_json" | sed -rn 's/.*"revision": "([^"]*)".*/\1/p')
+	fi
+
+	if [[ -z $revision ]]; then
+		print_warning "Failed to parse revision from tag-specific dependency JSON"
+	fi
+
+	local attestation_status
+	attestation_status=$(check_gh_cli && printf '%s' "enabled" || printf '%s' "disabled (gh cli not found)")
+
+	# Print merged install configuration table
+	print_build_info "$tag_dep_json" "$libtorrent_ver" \
+		"architecture" "$arch" \
+		"libtorrent" "$libtorrent_ver" \
+		"attestation" "$attestation_status"
 
 	# Prepare installation directory
 	local install_dir="$HOME/bin"
@@ -506,6 +583,10 @@ main() {
 	mkdir -p "$install_dir" || {
 		handle_error $? "mkdir -p $install_dir" "Failed to create installation directory"
 	}
+
+	# Stop any running user service before replacing the binary
+	_qbt_active_service=""
+	manage_user_service stop || true
 
 	# Get release and download
 	local url
@@ -534,10 +615,7 @@ main() {
 	test_exit_code=$?
 
 	if [[ $test_exit_code -eq 0 ]]; then
-		local version_info
-		version_info=$(printf '%s' "$test_output" | head -1)
 		print_success "Binary test passed"
-		print_info "Version: $version_info"
 	else
 		binary_failed=true
 		print_warning "Binary test failed"
@@ -549,6 +627,15 @@ main() {
 		else
 			print_warning "The binary may not be compatible with your system"
 			print_info "Try: ldd $install_path (to check missing libraries)"
+		fi
+	fi
+
+	# Restart the service only if both integrity and binary tests passed
+	if [[ -n $_qbt_active_service ]]; then
+		if [[ $integrity_failed == false && $binary_failed == false ]]; then
+			manage_user_service start "$_qbt_active_service"
+		else
+			print_warning "Skipping service restart due to failed verification"
 		fi
 	fi
 
@@ -571,7 +658,9 @@ main() {
 	else
 		print_success "Installation completed successfully!"
 	fi
-	print_info "Run with: qbittorrent-nox"
+	if [[ -z $_qbt_active_service ]]; then
+		print_info "Run with: qbittorrent-nox"
+	fi
 }
 
 # Simple argument parsing: loop through all args
