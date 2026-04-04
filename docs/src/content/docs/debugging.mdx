@@ -51,6 +51,21 @@ The easiest way to get a debug build is to build it yourself by
 
 - Build it yourself locally
 
-	This can be done when building locally by using the `-d` flag or `export qbt_build_debug=on`
+	This can be done one of two ways
+
+	- First, Full debug mode.
+
+		All apps have debug mode set to true where applicable.
+
+		This can be done when building locally by using the `-d` flag or `export qbt_build_debug=yes`
+
+	- Second, by not stripping the binary
+
+		This sets `-Og` which does not optimise any debug sections but apps are not set to debug.
+
+		```bash
+		export qbt_build_debug=no
+		export qbt_optimise_strip=no
+		```
 
 Then you will have a debug build with the debug symbols included to get a stack traces using [gdb](https://www.gnu.org/software/gdb/).
