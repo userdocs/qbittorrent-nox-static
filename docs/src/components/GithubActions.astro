@@ -1,5 +1,8 @@
 ---
-const { id } = Astro.props;
+interface Props {
+	id: keyof typeof imports;
+}
+
 import { Code } from "@astrojs/starlight/components";
 
 import ci_main_reusable_caller from "../../../.github/workflows/ci-main-reusable-caller.yml?raw";
@@ -15,6 +18,8 @@ const imports = {
 	ci_alpine_release,
 	ci_auto_rerun_failed_jobs_action,
 };
+
+const { id } = Astro.props;
 const code = imports[id];
 ---
 

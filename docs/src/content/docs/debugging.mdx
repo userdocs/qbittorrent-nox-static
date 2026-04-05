@@ -51,21 +51,43 @@ The easiest way to get a debug build is to build it yourself by
 
 - Build it yourself locally
 
-	This can be done one of two ways
+	This can be done one of two ways with the recommended method being the second, for general purpose debugging.
 
-	- First, Full debug mode.
+	- First, Full debug mode binary.
 
 		All apps have debug mode set to true where applicable.
 
 		This can be done when building locally by using the `-d` flag or `export qbt_build_debug=yes`
 
-	- Second, by not stripping the binary
+	- Second, Release binary with debug symbols
 
-		This sets `-Og` which does not optimise any debug sections but apps are not set to debug.
+		By not stripping the binary, this allows you to have a binary with release binary with debug symbols.
+
+		This sets the below flags which does not optimise any debug sections but apps are not set to debug mode.
 
 		```bash
-		export qbt_build_debug=no
-		export qbt_optimise_strip=no
+		# defaults if both are set to no
+		qbt_strip_qmake='-nostrip'
+		qbt_strip_flags=''
+		qbt_optimise_gcc="-Og -g" # https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html#index-Og
+		qbt_optimise_linker="-Wl,-O0"
 		```
+
+		This can be activated by using these flags:
+
+		```bash
+		export qbt_build_debug=no # a default option
+		export qbt_optimise_strip=no # When not stripped the Binary is optimised with -Og
+		export qbt_use_lto=no # Native Alpine host only setting. LTO is not used in cross builds
+		```
+
+A custom version of qbt-mcm can be set using these flags:
+
+```
+# testing = easy way to switch to test qbt-musl-cross-make-test builds via an env in the workflow.
+qbt_mcm_url="userdocs/qbt-musl-cross-make" # the default setting
+# provide the github tag and it will use that to download instead of the latest release.
+export qbt_mcm_tag="2614"
+```
 
 Then you will have a debug build with the debug symbols included to get a stack traces using [gdb](https://www.gnu.org/software/gdb/).

@@ -1,10 +1,8 @@
-
-
 <!-- Early inline script to avoid flash: set the attribute before styles run (default: basic/off) -->
 <script is:inline>
 	try {
-		const stored = localStorage.getItem('advanced');
-		const value = (stored === 'true' || stored === 'false') ? stored : 'false';
+		const stored = localStorage.getItem("advanced");
+		const value = stored === "true" || stored === "false" ? stored : "false";
 		document.documentElement.dataset.advanced = value;
 	} catch {}
 	// Default is "false" (basic mode) when not set
@@ -12,48 +10,48 @@
 
 <!-- Hide the toggle until the state is applied to avoid visual flash -->
 <div id="advanced-toggle-wrapper" hidden aria-hidden="true">
-  <input
-  	data-advanced-input
-  	type="checkbox"
-  	class="advanced-toggle"
-  	id="advanced-switch"
-  	role="switch"
-	aria-checked="false"
-  	aria-label="Toggle advanced content"
-  />
-  <label for="advanced-switch" class="sr-only">Toggle advanced content</label>
+	<input
+		data-advanced-input
+		type="checkbox"
+		class="advanced-toggle"
+		id="advanced-switch"
+		role="switch"
+		aria-checked="false"
+		aria-label="Toggle advanced content"
+	/>
+	<label for="advanced-switch" class="sr-only">Toggle advanced content</label>
 </div>
 
 <script is:inline>
 	const __initAdvancedToggle = () => {
-		const input = document.querySelector('[data-advanced-input]');
-		const wrapper = document.getElementById('advanced-toggle-wrapper');
-	// Initialize from dataset set above (default false)
-	const isOn = (document.documentElement.dataset.advanced || 'false') !== 'false';
+		const input = document.querySelector("[data-advanced-input]");
+		const wrapper = document.getElementById("advanced-toggle-wrapper");
+		// Initialize from dataset set above (default false)
+		const isOn = document.documentElement.dataset.advanced === "true";
 
 		// Build a registry of advanced blocks and their removable wrapper targets
 		/** @type {{ el: Element, target: Element, placeholder: Comment }[]} */
 		const registry = [];
 		const prepared = new WeakSet();
-		const isWhitespaceOnly = (node) => (node?.textContent || '').trim() === '';
+		const isWhitespaceOnly = (node) => (node?.textContent || "").trim() === "";
 		const getWrapperCandidate = (el) => {
 			const p = el.parentElement;
 			if (!p) return null;
 			const tag = p.tagName;
 			// Collapse common markdown wrappers if they only contain Advanced
-			if (tag !== 'P' && tag !== 'DIV') return null;
+			if (tag !== "P" && tag !== "DIV") return null;
 			const onlyChild = p.childElementCount === 1 && p.firstElementChild === el;
 			if (!onlyChild) return null;
 			if (!isWhitespaceOnly(p)) return null;
 			return p;
 		};
 		const prepareRegistry = () => {
-			const nodes = document.querySelectorAll('.advanced-title');
+			const nodes = document.querySelectorAll(".advanced-title");
 			for (const el of nodes) {
 				if (prepared.has(el)) continue;
 				const wrap = getWrapperCandidate(el);
 				const target = wrap || el;
-				const placeholder = document.createComment('advanced:placeholder');
+				const placeholder = document.createComment("advanced:placeholder");
 				prepared.add(el);
 				registry.push({ el, target, placeholder });
 			}
@@ -62,146 +60,152 @@
 		// Keep tooltip text in sync with state; uses both native title and data-tooltip
 		const setTooltip = (on) => {
 			if (!input) return;
-			const tip = on ? 'Showing advanced content' : 'Hiding advanced content';
-			input.setAttribute('title', tip);
-			input.setAttribute('data-tooltip', tip);
+			const tip = on ? "Showing advanced content" : "Hiding advanced content";
+			input.setAttribute("title", tip);
+			input.setAttribute("data-tooltip", tip);
 			// Clarify SR label to indicate action on toggle
-			input.setAttribute('aria-label', on ? 'Hide advanced content' : 'Show advanced content');
+			input.setAttribute(
+				"aria-label",
+				on ? "Hide advanced content" : "Show advanced content",
+			);
 		};
 
-				const applyVisibility = (on) => {
-				// Advanced content blocks: remove or restore by swapping with placeholders
-				prepareRegistry();
-				if (on) {
-					for (const { target, placeholder } of registry) {
-						if (placeholder.parentNode) placeholder.replaceWith(target);
-					}
-				} else {
-					for (const { target, placeholder } of registry) {
-						if (target.parentNode) target.replaceWith(placeholder);
-					}
+		const applyVisibility = (on) => {
+			// Advanced content blocks: remove or restore by swapping with placeholders
+			prepareRegistry();
+			if (on) {
+				for (const { target, placeholder } of registry) {
+					if (placeholder.parentNode) placeholder.replaceWith(target);
 				}
-					// Advanced-only TOC items (supports Shadow DOM and mobile dropdown)
-					const setLinks = (root) => {
-						// Hide/show both anchors and <li> marked as advanced-only
-						const links = root.querySelectorAll('li.advanced-only, .advanced-only');
-						for (const el of links) {
-							el.style.display = on ? '' : 'none';
-						}
-					};
-					setLinks(document);
-					const tocEls = document.querySelectorAll('starlight-toc');
-					for (const toc of tocEls) {
-						const root = toc.shadowRoot || toc;
-						if (root) setLinks(root);
-					}
-
-					// Keep the current (active) link in view in the mobile dropdown
-					requestAnimationFrame(() => {
-						const current = document.querySelector('ul.isMobile a[aria-current="true"]');
-						current?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-					});
+			} else {
+				for (const { target, placeholder } of registry) {
+					if (target.parentNode) target.replaceWith(placeholder);
+				}
+			}
+			// Advanced-only TOC items (supports Shadow DOM and mobile dropdown)
+			const setLinks = (root) => {
+				const links = root.querySelectorAll("li.advanced-only, .advanced-only");
+				for (const el of links) {
+					el.style.display = on ? "" : "none";
+				}
 			};
+			setLinks(document);
+			const tocEls = document.querySelectorAll("starlight-toc");
+			for (const toc of tocEls) {
+				const root = toc.shadowRoot || toc;
+				if (root) setLinks(root);
+			}
 
-			const setState = (on) => {
-			const value = on ? 'true' : 'false';
+			// Keep the current (active) link in view in the mobile dropdown
+			requestAnimationFrame(() => {
+				const current = document.querySelector(
+					'ul.isMobile a[aria-current="true"]',
+				);
+				current?.scrollIntoView({ block: "nearest", inline: "nearest" });
+			});
+		};
+
+		const setState = (on) => {
+			const value = on ? "true" : "false";
 			document.documentElement.dataset.advanced = value;
 			if (input) {
 				input.checked = on;
-				input.setAttribute('aria-checked', String(on));
+				input.setAttribute("aria-checked", String(on));
 			}
 			setTooltip(on);
-				applyVisibility(on);
+			applyVisibility(on);
 		};
 
-			// Mark advanced-only TOC links once (standard TOC + mobile dropdown lists)
-				const tagAdvancedTocLinks = () => {
-				try {
-					const advancedHeadings = document.querySelectorAll(
-						'.advanced-title h1, .advanced-title h2, .advanced-title h3, .advanced-title h4, .advanced-title h5, .advanced-title h6'
-					);
-					const ids = new Set(
-						Array.from(advancedHeadings)
-							.map(h => h.id && `#${h.id}`)
-							.filter(Boolean)
-					);
-					// If there are no advanced headings with IDs, nothing to tag
-					if (ids.size === 0) return;
-						const tagRoot = (root) => {
-							const tocLinks = root.querySelectorAll('nav ul li a');
-							for (const a of tocLinks) {
-								if (ids.has(a.hash)) {
-									// Mark the whole list item and the anchor for robustness
-									a.classList.add('advanced-only');
-									a.closest('li')?.classList.add('advanced-only');
-								}
-							}
-						};
-						// Light DOM links (if any)
-						const lightLinksRoot = document.querySelector('starlight-toc');
-						if (lightLinksRoot) tagRoot(lightLinksRoot);
-						// Shadow DOM links
-						const tocEls = document.querySelectorAll('starlight-toc');
-						for (const toc of tocEls) {
-							const root = toc.shadowRoot;
-							if (root) tagRoot(root);
-						}
+		// Mark advanced-only TOC links once (standard TOC + mobile dropdown lists)
+		const tagAdvancedTocLinks = () => {
+			try {
+				const advancedHeadings = document.querySelectorAll(
+					".advanced-title h1, .advanced-title h2, .advanced-title h3, .advanced-title h4, .advanced-title h5, .advanced-title h6",
+				);
+				const ids = new Set(
+					Array.from(advancedHeadings)
+						.map((h) => h.id && `#${h.id}`)
+						.filter(Boolean),
+				);
+				// If there are no advanced headings with IDs, nothing to tag
+				if (ids.size === 0) return;
 
-						// Tag mobile dropdown lists matching ul.isMobile
-						const mobileLists = document.querySelectorAll('ul.isMobile');
-						for (const ul of mobileLists) {
-							const anchors = ul.querySelectorAll('li > a[href^="#"]');
-							for (const a of anchors) {
-								const href = a.getAttribute('href') || '';
-								if (ids.has(href)) {
-									// Mark the LI so it collapses cleanly
-									a.closest('li')?.classList.add('advanced-only');
-								}
-							}
-						}
-				} catch {}
-			};
-				tagAdvancedTocLinks();
-				applyVisibility(isOn);
-			// Observe TOC for changes (if hydrated or updated later)
-				try {
-					const tocEls = document.querySelectorAll('starlight-toc');
-					if (tocEls.length && 'MutationObserver' in window) {
-						const handler = () => {
-							tagAdvancedTocLinks();
-							applyVisibility((document.documentElement.dataset.advanced || 'true') !== 'false');
-						};
-						for (const toc of tocEls) {
-							const mo1 = new MutationObserver(handler);
-							mo1.observe(toc, { childList: true, subtree: true });
-							if (toc.shadowRoot) {
-								const mo2 = new MutationObserver(handler);
-								mo2.observe(toc.shadowRoot, { childList: true, subtree: true });
-							}
+				const tagRoot = (root) => {
+					const tocLinks = root.querySelectorAll("nav ul li a");
+					for (const a of tocLinks) {
+						if (ids.has(a.hash)) {
+							a.classList.add("advanced-only");
+							a.closest("li")?.classList.add("advanced-only");
 						}
 					}
-				} catch {}
+				};
+
+				// Process all starlight-toc elements: light DOM + shadow DOM
+				const tocEls = document.querySelectorAll("starlight-toc");
+				for (const toc of tocEls) {
+					tagRoot(toc);
+					if (toc.shadowRoot) tagRoot(toc.shadowRoot);
+				}
+
+				// Tag mobile dropdown lists matching ul.isMobile
+				const mobileLists = document.querySelectorAll("ul.isMobile");
+				for (const ul of mobileLists) {
+					const anchors = ul.querySelectorAll('li > a[href^="#"]');
+					for (const a of anchors) {
+						const href = a.getAttribute("href") || "";
+						if (ids.has(href)) {
+							a.closest("li")?.classList.add("advanced-only");
+						}
+					}
+				}
+			} catch {}
+		};
+
+		tagAdvancedTocLinks();
+		applyVisibility(isOn);
+
+		// Observe TOC for changes (if hydrated or updated later)
+		try {
+			const tocEls = document.querySelectorAll("starlight-toc");
+			if (tocEls.length && "MutationObserver" in window) {
+				const handler = () => {
+					tagAdvancedTocLinks();
+					applyVisibility(document.documentElement.dataset.advanced === "true");
+				};
+				for (const toc of tocEls) {
+					const mo1 = new MutationObserver(handler);
+					mo1.observe(toc, { childList: true, subtree: true });
+					if (toc.shadowRoot) {
+						const mo2 = new MutationObserver(handler);
+						mo2.observe(toc.shadowRoot, { childList: true, subtree: true });
+					}
+				}
+			}
+		} catch {}
 
 		setState(isOn);
 
 		// Reveal the toggle only after the correct state is applied
 		if (wrapper) {
 			wrapper.hidden = false;
-			wrapper.removeAttribute('aria-hidden');
-			wrapper.classList.add('fade-in');
+			wrapper.removeAttribute("aria-hidden");
+			wrapper.classList.add("fade-in");
 		}
 
 		if (input) {
 			let _reloading = false;
 			const handler = () => {
 				const next = input.checked;
-				try { localStorage.setItem('advanced', next ? 'true' : 'false'); } catch {}
-				if (next) { // turning ON advanced
+				try {
+					localStorage.setItem("advanced", next ? "true" : "false");
+				} catch {}
+				if (next) {
+					// turning ON advanced
 					if (_reloading) return; // guard against duplicate events
 					_reloading = true;
 					// Reflect state for a11y just before navigation
-					input.setAttribute('aria-checked', 'true');
-					document.documentElement.dataset.advanced = 'true';
+					input.setAttribute("aria-checked", "true");
+					document.documentElement.dataset.advanced = "true";
 					// Full reload to allow late-hydrated components to render in advanced mode without manual refresh
 					window.location.reload();
 				} else {
@@ -209,16 +213,18 @@
 				}
 			};
 			// 'change' covers user interaction; avoid also listening to 'click' to prevent double firing
-			input.addEventListener('change', handler);
+			input.addEventListener("change", handler);
 		}
 	};
 
-	if (document.readyState === 'loading') {
-		document.addEventListener('DOMContentLoaded', __initAdvancedToggle, { once: true });
+	if (document.readyState === "loading") {
+		document.addEventListener("DOMContentLoaded", __initAdvancedToggle, {
+			once: true,
+		});
 	} else {
 		__initAdvancedToggle();
 	}
-	</script>
+</script>
 
 <style is:global lang="css">
 	/* Accessible visually-hidden utility */
@@ -235,19 +241,35 @@
 	}
 
 	/* Fade-in for the toggle wrapper once state is known */
-	#advanced-toggle-wrapper { opacity: 0; }
-	#advanced-toggle-wrapper.fade-in { animation: advToggleFade .2s ease-out forwards; }
-	@keyframes advToggleFade { to { opacity: 1; } }
+	#advanced-toggle-wrapper {
+		opacity: 0;
+	}
+	#advanced-toggle-wrapper.fade-in {
+		animation: advToggleFade 0.2s ease-out forwards;
+	}
+	@keyframes advToggleFade {
+		to {
+			opacity: 1;
+		}
+	}
 
-	/* Global visibility rules driven by the data attribute */
-	html:not([data-advanced]) .advanced-title { display: none !important; }
-	html:not([data-advanced]) .advanced-only  { display: none !important; }
-	html[data-advanced="false"] .advanced-title { display: none !important; }
-	html[data-advanced="false"] .advanced-only  { display: none !important; }
+	/* Global visibility rules driven by the data attribute.
+	   Hide advanced content unless explicitly set to "true" — covers both
+	   the attribute being absent (pre-script) and set to "false" (basic mode). */
+	html:not([data-advanced="true"]) .advanced-title {
+		display: none !important;
+	}
+	html:not([data-advanced="true"]) .advanced-only {
+		display: none !important;
+	}
 
 	/* Explicitly show when on (some themes may hide by default) */
-	html:not([data-advanced="false"]) .advanced-title { display: revert !important; }
-	html:not([data-advanced="false"]) .advanced-only  { display: revert !important; }
+	html[data-advanced="true"] .advanced-title {
+		display: revert !important;
+	}
+	html[data-advanced="true"] .advanced-only {
+		display: revert !important;
+	}
 
 	.advanced-toggle {
 		-webkit-appearance: none;
@@ -261,55 +283,77 @@
 		display: inline-block;
 		position: relative;
 		border: 2px solid #474755;
-		background: linear-gradient(180deg, #2D2F39 0%, #1F2027 100%);
+		background: linear-gradient(180deg, #2d2f39 0%, #1f2027 100%);
 		border-color: #aa4bb3;
 	}
-	.advanced-toggle:focus { outline: 0; }
-	.advanced-toggle:focus-visible {
-		box-shadow: 0 0 0 3px rgba(132, 100, 198, .45);
-		border-color: #8464C6;
+	.advanced-toggle:focus {
+		outline: 0;
 	}
-		.advanced-toggle::after {
-			content: 'B';
+	.advanced-toggle:focus-visible {
+		box-shadow: 0 0 0 3px rgba(132, 100, 198, 0.45);
+		border-color: #8464c6;
+	}
+	.advanced-toggle::after {
+		content: "B";
 		position: absolute;
 		top: 2px;
 		left: 2px;
 		width: 18px;
 		height: 18px;
 		border-radius: 50%;
-		background: #C7A06F;
-		box-shadow: 0 1px 2px rgba(44,44,44,.2);
-		transition: transform .15s ease, background-color .15s ease;
-			display: grid;
-			place-items: center;
-			font-weight: 700;
-			font-size: 12px;
-			line-height: 1;
-			color: #fff;
-			user-select: none;
+		background: #c7a06f;
+		box-shadow: 0 1px 2px rgba(44, 44, 44, 0.2);
+		transition:
+			transform 0.15s ease,
+			background-color 0.15s ease;
+		display: grid;
+		place-items: center;
+		font-weight: 700;
+		font-size: 12px;
+		line-height: 1;
+		color: #fff;
+		user-select: none;
 	}
-	.advanced-toggle:checked { border-color: #54C59F; }
+	.advanced-toggle:checked {
+		border-color: #54c59f;
+	}
 	.advanced-toggle:checked::after {
-			content: 'A';
-		background: #8464C6;
+		content: "A";
+		background: #8464c6;
 		transform: translateX(20px);
 	}
 
-		/* Theme-aware knob letter color */
-		/* Starlight sets data-theme on html; prefer that if present */
-		html[data-theme="dark"] .advanced-toggle::after { color: #fff; }
-		html[data-theme="dark"] .advanced-toggle:checked::after { color: #BDBDBD; }
-		html[data-theme="light"] .advanced-toggle::after { color: #000000; }
-		/* Ensure contrast on purple knob in light theme */
-		html[data-theme="light"] .advanced-toggle:checked::after { color: #1f2027; }
+	/* Theme-aware knob letter color */
+	/* Starlight sets data-theme on html; prefer that if present */
+	html[data-theme="dark"] .advanced-toggle::after {
+		color: #fff;
+	}
+	html[data-theme="dark"] .advanced-toggle:checked::after {
+		color: #bdbdbd;
+	}
+	html[data-theme="light"] .advanced-toggle::after {
+		color: #000000;
+	}
+	/* Ensure contrast on purple knob in light theme */
+	html[data-theme="light"] .advanced-toggle:checked::after {
+		color: #1f2027;
+	}
 
-		/* Fallback to system preference when data-theme is not set */
-		@media (prefers-color-scheme: dark) {
-			:root:not([data-theme]) .advanced-toggle::after { color: #BDBDBD; }
-			:root:not([data-theme]) .advanced-toggle:checked::after { color: #BDBDBD; }
+	/* Fallback to system preference when data-theme is not set */
+	@media (prefers-color-scheme: dark) {
+		:root:not([data-theme]) .advanced-toggle::after {
+			color: #bdbdbd;
 		}
-		@media (prefers-color-scheme: light) {
-			:root:not([data-theme]) .advanced-toggle::after { color: #136454; }
-			:root:not([data-theme]) .advanced-toggle:checked::after { color: #136454; }
+		:root:not([data-theme]) .advanced-toggle:checked::after {
+			color: #bdbdbd;
 		}
+	}
+	@media (prefers-color-scheme: light) {
+		:root:not([data-theme]) .advanced-toggle::after {
+			color: #136454;
+		}
+		:root:not([data-theme]) .advanced-toggle:checked::after {
+			color: #136454;
+		}
+	}
 </style>

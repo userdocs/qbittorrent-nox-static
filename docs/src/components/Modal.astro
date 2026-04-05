@@ -1,5 +1,9 @@
 ---
-import { loadGlossaryEntry, generateUniqueId, GlossaryError } from '../utils/modal-utils';
+import {
+	loadGlossaryEntry,
+	generateUniqueId,
+	GlossaryError,
+} from "../utils/modal-utils";
 
 interface Props {
 	id: string;
@@ -25,43 +29,53 @@ try {
 	const basePath = `/${Astro.url.pathname.split("/")[1]}/`;
 	glossaryUrl = `${basePath}glossary/${id}`;
 } catch (error) {
-	errorMessage = error instanceof GlossaryError
-		? `Glossary Error (${error.code}): ${error.message}`
-		: `Failed to load modal content: ${error instanceof Error ? error.message : String(error)}`;
+	errorMessage =
+		error instanceof GlossaryError
+			? `Glossary Error (${error.code}): ${error.message}`
+			: `Failed to load modal content: ${error instanceof Error ? error.message : String(error)}`;
 
-	console.error('Modal component error:', errorMessage);
+	console.error("Modal component error:", errorMessage);
 }
 ---
 
-{errorMessage ? (
-	<div class={`modal-error ${className ?? ''}`} role="alert">
-		<span class="modal-error-label">{label}</span>
-		<span class="modal-error-message" title={import.meta.env.DEV ? errorMessage : undefined}>
-			{import.meta.env.DEV ? errorMessage : `Unable to load glossary entry for "${label}"`}
-		</span>
-	</div>
-) : (
-	<my-modal
-		class={`modal-dialog-button ${className ?? ''}`}
-		tabindex="0"
-		data-tippy-maxWidth="100"
-		data-unique-id={uniqueId}
-		data-dialog-label={label}
-		data-has-more={String(hasMore)}
-		data-html={`<div id="${uniqueId}-primary">${primaryHtml}<hr class="glossary-separator"><div class="glossary-url-div" id="${uniqueId}-glossary-url">🟩 <a class="glossary-url" href=${glossaryUrl} target="_blank" rel="noopener noreferrer">Click here for the full Glossary entry</a></div></div>`}
-		data-html-more={moreHtml}
-	>
-		<a
-			class="glossary-url dialog-button-open"
-			id={`${uniqueId}-open`}
-			role="button"
+{
+	errorMessage ? (
+		<div class={`modal-error ${className ?? ""}`} role="alert">
+			<span class="modal-error-label">{label}</span>
+			<span
+				class="modal-error-message"
+				title={import.meta.env.DEV ? errorMessage : undefined}
+			>
+				{import.meta.env.DEV
+					? errorMessage
+					: `Unable to load glossary entry for "${label}"`}
+			</span>
+		</div>
+	) : (
+		<my-modal
+			class={`modal-dialog-button ${className ?? ""}`}
 			tabindex="0"
-			aria-haspopup="dialog"
-			aria-controls={`${uniqueId}-dialog`}
-			aria-label={`Open glossary entry for ${label}`}
-		>{label}</a>
-	</my-modal>
-)}
+			data-tippy-maxWidth="100"
+			data-unique-id={uniqueId}
+			data-dialog-label={label}
+			data-has-more={String(hasMore)}
+			data-html={`<div id="${uniqueId}-primary">${primaryHtml}<hr class="glossary-separator"><div class="glossary-url-div" id="${uniqueId}-glossary-url">🟩 <a class="glossary-url" href="${glossaryUrl}" target="_blank" rel="noopener noreferrer">Click here for the full Glossary entry</a></div></div>`}
+			data-html-more={moreHtml}
+		>
+			<a
+				class="glossary-url dialog-button-open"
+				id={`${uniqueId}-open`}
+				role="button"
+				tabindex="0"
+				aria-haspopup="dialog"
+				aria-controls={`${uniqueId}-dialog`}
+				aria-label={`Open glossary entry for ${label}`}
+			>
+				{label}
+			</a>
+		</my-modal>
+	)
+}
 
 <script>
 	class MyModal extends HTMLElement {
@@ -79,7 +93,7 @@ try {
 		private initializeModal(): void {
 			const uniqueId = this.dataset.uniqueId;
 			if (!uniqueId) {
-				console.error('Modal: uniqueId is required');
+				console.error("Modal: uniqueId is required");
 				return;
 			}
 
@@ -98,7 +112,7 @@ try {
 
 			const body = document.body;
 			if (!body) {
-				console.error('Modal: document.body not available');
+				console.error("Modal: document.body not available");
 				return;
 			}
 
@@ -111,7 +125,7 @@ try {
 						<button class="dialog-button-close" id="${buttonClose}" type="button">Close this Dialog</button>
 						<button class="dialog-button-more" id="${buttonMore}" type="button" aria-expanded="false">Show more</button>
                     </div>
-                </dialog>`
+                </dialog>`,
 			);
 
 			const dialogDiv = document.getElementById(idContent);
@@ -128,13 +142,17 @@ try {
 			const primary = document.getElementById(idPrimary);
 			this.dialog = document.getElementById(idDialog) as HTMLDialogElement;
 			this.openButton = document.getElementById(buttonId) as HTMLButtonElement;
-			this.closeButton = document.getElementById(buttonClose) as HTMLButtonElement;
-			this.toggleButton = document.getElementById(buttonMore) as HTMLButtonElement;
+			this.closeButton = document.getElementById(
+				buttonClose,
+			) as HTMLButtonElement;
+			this.toggleButton = document.getElementById(
+				buttonMore,
+			) as HTMLButtonElement;
 			const moreDialog = document.getElementById(showMore);
 			const dialogUrl = document.getElementById(glossaryUrl);
 
 			if (!this.openButton || !this.closeButton || !this.dialog) {
-				console.error('Modal: Required elements not found');
+				console.error("Modal: Required elements not found");
 				return;
 			}
 
@@ -154,18 +172,21 @@ try {
 				}
 			});
 
-			// Form cancel button closes the dialog box
-			this.closeButton.addEventListener("click", () => this.closeModal());
-
 			this.toggleButton?.addEventListener("click", () => {
 				this.toggleDisplay(primary);
 				this.toggleDisplay(dialogUrl);
 				this.toggleDisplay(moreDialog);
 				if (this.toggleButton) {
 					this.toggleButton.innerHTML =
-						this.toggleButton.innerHTML === "Show less" ? "Show more" : "Show less";
-					const expanded = this.toggleButton.getAttribute("aria-expanded") === "true";
-					this.toggleButton.setAttribute("aria-expanded", expanded ? "false" : "true");
+						this.toggleButton.innerHTML === "Show less"
+							? "Show more"
+							: "Show less";
+					const expanded =
+						this.toggleButton.getAttribute("aria-expanded") === "true";
+					this.toggleButton.setAttribute(
+						"aria-expanded",
+						expanded ? "false" : "true",
+					);
 				}
 			});
 
@@ -188,30 +209,20 @@ try {
 				}
 			};
 
-			const handleClose = () => {
-				resetContent();
-				this.closeModal();
-			};
-
-			// Update all close handlers
-			this.closeButton.addEventListener("click", handleClose);
+			// Close button handler
+			this.closeButton.addEventListener("click", () => this.closeModal());
 
 			// Close the dialog when clicked on the backdrop
-			window.addEventListener("click", (event) => {
+			this.dialog.addEventListener("click", (event) => {
 				if (event.target === this.dialog) {
-					handleClose();
+					this.closeModal();
 				}
 			});
 
-			document.addEventListener("keydown", (event) => {
-				if (event.key === "Escape" && this.dialog?.open) {
-					handleClose();
-				}
-			});
-
-			// Keep dialog state consistent if closed by other means
+			// Reset content state whenever the dialog closes (handles close button, Escape, backdrop, etc.)
 			this.dialog.addEventListener("close", () => {
 				resetContent();
+				this.restoreFocus();
 			});
 		}
 
@@ -227,12 +238,12 @@ try {
 			if (!this.dialog) return;
 
 			this.dialog.close();
-			this.restoreFocus();
+			// restoreFocus is handled by the 'close' event listener
 		}
 
 		private manageFocus(element: HTMLElement): void {
 			const focusableElements = element.querySelectorAll(
-				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+				'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
 			);
 
 			if (focusableElements.length > 0) {
@@ -321,9 +332,9 @@ try {
 		padding-bottom: 0px !important;
 	}
 
-	.dialog-button-close {
+	.dialog-button-close,
+	.dialog-button-more {
 		width: 49% !important;
-		float: left !important;
 		border: var(--modal-border-width) solid var(--modal-border-color);
 		padding: var(--modal-padding);
 		border-radius: var(--modal-border-radius);
@@ -332,15 +343,12 @@ try {
 		transition: all 0.2s ease;
 	}
 
+	.dialog-button-close {
+		float: left !important;
+	}
+
 	.dialog-button-more {
-		width: 49% !important;
 		float: right !important;
-		border: var(--modal-border-width) solid var(--modal-border-color);
-		padding: var(--modal-padding);
-		border-radius: var(--modal-border-radius);
-		background: transparent;
-		cursor: pointer;
-		transition: all 0.2s ease;
 	}
 
 	.dialog-button-close:hover,
@@ -371,7 +379,10 @@ try {
 	}
 
 	.dialog-button-open:hover {
-		background-color: var(--modal-url-bg-hv-color, var(--modal-border-color)) !important;
+		background-color: var(
+			--modal-url-bg-hv-color,
+			var(--modal-border-color)
+		) !important;
 		color: var(--modal-url-hover-color, white) !important;
 		text-decoration: none;
 	}
