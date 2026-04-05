@@ -220,6 +220,8 @@ _set_default_values() {
 
 	# testing = easy way to switch to test qbt-musl-cross-make-test builds via an env in the workflow.
 	qbt_mcm_url="${qbt_mcm_url:-userdocs/qbt-musl-cross-make}"
+	# provide the github tag and it will use that to download instead of the latest release.
+	qbt_mcm_tag="${qbt_mcm_tag:-}"
 
 	# Default to this version of libtorrent is no tag or branch is specified. qbt_libtorrent_version=1.2 or 2.0 or 2.1 or -lt v1.2.18
 	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"
@@ -294,7 +296,14 @@ _set_default_values() {
 	# The Alpine repository we use for package sources
 	CDN_URL="http://dl-cdn.alpinelinux.org/alpine/edge/main" # for alpine
 
-	# Dynamic tests to change settings based on the use of qmake,cmake,strip and debug
+	# Native Alpine linux configuration. Does not apply when cross building using qbt-mcm
+	qbt_use_lto="${qbt_use_lto:-yes}"
+
+	# Use mold as the linker - available from qbt-mcm 2614
+	qbt_linker_mold="${qbt_linker_mold:-no}"
+
+	# Part 1: a series of # Dynamic tests to change settings based on the use of qmake,cmake,strip and debug
+	# Part 2, the compiler options are located in the _custom_flags function.
 	if [[ ${qbt_build_debug} == "yes" ]]; then
 		qbt_optimise_strip="no"
 		qbt_cmake_debug='ON'
@@ -302,6 +311,7 @@ _set_default_values() {
 		qbt_qbittorrent_debug='--enable-debug'
 		qbt_cmake_build_type="Debug"
 		qbt_openssl_build_type="--debug"
+		qbt_use_lto="no"
 	else
 		qbt_cmake_debug='OFF'
 		qbt_cmake_build_type="Release"
@@ -1214,7 +1224,7 @@ _debug() {
 # https://best.openssf.org/Compiler-Hardening-Guides/Compiler-Options-Hardening-Guide-for-C-and-C++.html#tldr-what-compiler-options-should-i-use
 _custom_flags() {
 
-	# Dynamic tests to change settings based on the use of qmake,cmake,strip and debug
+	# Part 2: Dynamic tests to change settings based on the use of qmake,cmake,strip and debug
 	if [[ ${qbt_build_debug} == "yes" ]]; then
 		# Debug builds always get priority
 		qbt_strip_qmake='-nostrip'
@@ -1316,7 +1326,7 @@ _custom_flags() {
 		qbt_security_flags+=" -mbranch-protection=standard"
 	fi
 
-	if [[ ${os_id} =~ ^(alpine)$ ]] && [[ -z ${qbt_cross_name} || ${qbt_cross_name} == "default" ]]; then
+	if [[ ${os_id} =~ ^(alpine)$ && ${qbt_use_lto} == "yes" ]] && [[ -z ${qbt_cross_name} || ${qbt_cross_name} == "default" ]]; then
 		if [[ ! ${app_name} =~ ^(openssl)$ ]]; then
 			qbt_optimization_flags+=" -flto=auto -fno-fat-lto-objects"
 			qbt_linker_flags+=" -flto -fuse-linker-plugin"
@@ -1342,6 +1352,13 @@ _custom_flags() {
 		qbt_static_flags="-static --static"
 	fi
 
+	# Mold linker - set -fuse-ld=mold when qbt_linker_mold=yes
+	if [[ ${qbt_linker_mold} == "yes" ]]; then
+		qbt_mold_flag="-fuse-ld=mold"
+	else
+		qbt_mold_flag=""
+	fi
+
 	# If you set and export your own flags in the env that the script is run, they will be appended to the defaults
 	# This is done via these checks and the flags are set in the _custom_flags_set function and it avoids duplication
 	[[ -z ${qbt_cflags_consumed} ]] && qbt_cflags="${CFLAGS}" qbt_cflags_consumed="yes"
@@ -1356,9 +1373,9 @@ _custom_flags() {
 
 		# Only set linker flags for final executables, not for libraries
 		if [[ ${app_name} =~ ^(icu|boost|qtbase|qbittorrent)$ ]]; then
-			LDFLAGS="-L${lib_dir} ${qbt_strip_flags} -pthread ${qbt_optimise_march} ${qbt_static_flags} ${qbt_linker_flags} ${qbt_ldflags:-}"
+			LDFLAGS="-L${lib_dir} ${qbt_strip_flags} -pthread ${qbt_optimise_march} ${qbt_static_flags} ${qbt_linker_flags} ${qbt_mold_flag} ${qbt_ldflags:-}"
 		else
-			LDFLAGS="-L${lib_dir} ${qbt_strip_flags} -pthread ${qbt_optimise_march} ${qbt_ldflags:-}"
+			LDFLAGS="-L${lib_dir} ${qbt_strip_flags} -pthread ${qbt_optimise_march} ${qbt_mold_flag} ${qbt_ldflags:-}"
 		fi
 
 		# Export compilation flags for build tools
@@ -2806,7 +2823,11 @@ _multi_arch() {
 				if [[ ${QBT_MCM_DOCKER} != "YES" ]]; then
 					if [[ ${1} == "bootstrap" || ${qbt_cache_dir_options} == "bs" || ! -f "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz" ]]; then
 						printf '\n%b\n' " ${unicode_blue_light_circle} Downloading ${color_magenta_light}${qbt_cross_host}.tar.gz${color_end} cross tool chain - ${color_cyan_light}https://github.com/${qbt_mcm_url}/releases/latest/download/${qbt_mcm_toolchain_prefix}-${qbt_cross_host}.tar.xz${color_end}"
-						_curl --create-dirs "https://github.com/${qbt_mcm_url}/releases/latest/download/${qbt_mcm_toolchain_prefix}-${qbt_cross_host}.tar.xz" -o "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz"
+						if [[ -z $qbt_mcm_tag ]]; then
+							_curl --create-dirs "https://github.com/${qbt_mcm_url}/releases/latest/download/${qbt_mcm_toolchain_prefix}-${qbt_cross_host}.tar.xz" -o "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz"
+						else
+							_curl --create-dirs "https://github.com/${qbt_mcm_url}/releases/download/${qbt_mcm_tag}/${qbt_mcm_toolchain_prefix}-${qbt_cross_host}.tar.xz" -o "${qbt_cache_dir:-${qbt_install_dir}}/${qbt_cross_host}.tar.gz"
+						fi
 					fi
 
 					if [[ -f "${qbt_install_dir}/.active-toolchain-info" ]]; then
