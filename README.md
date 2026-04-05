@@ -91,7 +91,7 @@ chmod 700 ~/bin/qbittorrent-nox
 Both Libtorrent v1.2 (stable) and v2.0 (latest features) builds are provided with every release.
 
 > [!IMPORTANT]
-> Libtorrent v1.2 is the main branch supported by qBittorrent since [4.4.5](https://www.qbittorrent.org/news.php).
+> Libtorrent v1.2 is the main branch supported by qBittorrent since [4.4.5](https://www.qbittorrent.org/news#tuesday-aug-30th-2022---qbittorrent-v4.4.5-release).
 
 ## Version Management
 
