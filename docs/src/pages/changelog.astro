@@ -3,11 +3,7 @@ import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 import CalloutProcessor from "../components/CalloutProcessor.astro";
 import * as myPost from "../../../changelog.md";
 
-const headings = myPost.getHeadings().map((heading) => ({
-	depth: heading.depth,
-	slug: heading.slug,
-	text: heading.text,
-}));
+const headings = myPost.getHeadings();
 
 const content = await myPost.compiledContent();
 ---

@@ -119,9 +119,9 @@ try {
 			body.insertAdjacentHTML(
 				"beforeend",
 				`<dialog class="modal-dialog" id="${idDialog}" role="dialog" aria-modal="true" aria-label="${dialogLabel}">
-                    <div class="dialog-content" id="${idContent}"></div>
+                    <div class="dialog-content sl-markdown-content" id="${idContent}"></div>
                     <div class="dialog-button">
-                        <div class="dialog-show-more" id="${showMore}" style="display: none"></div>
+                        <div class="dialog-show-more sl-markdown-content" id="${showMore}" style="display: none"></div>
 						<button class="dialog-button-close" id="${buttonClose}" type="button">Close this Dialog</button>
 						<button class="dialog-button-more" id="${buttonMore}" type="button" aria-expanded="false">Show more</button>
                     </div>
@@ -137,6 +137,11 @@ try {
 
 			if (dialogMoreDiv) {
 				dialogMoreDiv.innerHTML = htmlMore;
+				// Open all links in new tabs
+				for (const a of dialogMoreDiv.querySelectorAll("a[href]")) {
+					a.setAttribute("target", "_blank");
+					a.setAttribute("rel", "noopener noreferrer");
+				}
 			}
 
 			const primary = document.getElementById(idPrimary);
@@ -297,7 +302,7 @@ try {
 		border-top: 1px solid var(--modal-separator-color) !important;
 		background-color: var(--modal-separator-color) !important;
 		height: 1px !important;
-		margin: -10px 0px 0px 0px;
+		margin: var(--modal-padding) 0;
 	}
 
 	.glossary-url {
@@ -324,17 +329,18 @@ try {
 		border: var(--modal-border-width) solid var(--modal-border-color);
 		line-height: var(--modal-line-height);
 		border-radius: var(--modal-border-radius);
+		padding: var(--modal-padding);
 	}
 
 	.dialog-button {
 		float: none !important;
-		padding-top: var(--modal-padding) !important;
 		padding-bottom: 0px !important;
 	}
 
 	.dialog-button-close,
 	.dialog-button-more {
 		width: 49% !important;
+		margin-top: var(--modal-padding);
 		border: var(--modal-border-width) solid var(--modal-border-color);
 		padding: var(--modal-padding);
 		border-radius: var(--modal-border-radius);
@@ -358,15 +364,11 @@ try {
 	}
 
 	.dialog-content {
-		padding: 0px !important;
 		margin-bottom: 0px !important;
-		white-space: pre-wrap !important;
 	}
 
 	.dialog-show-more {
 		padding-bottom: var(--modal-padding) !important;
-		margin-top: calc(-1 * var(--modal-padding) * 3) !important;
-		white-space: pre-wrap !important;
 	}
 
 	.dialog-button-open {

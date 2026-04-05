@@ -1,0 +1,71 @@
+---
+import { Code } from "@astrojs/starlight/components";
+
+interface Props {
+	id: "introduction" | "patchinfo";
+}
+
+// Fallback versions used when the remote JSON is unavailable
+const fallback: Record<string, string> = {
+	glibc: "2.43",
+	zlib: "1.3.2.1",
+	zlib_ng: "1.3.1",
+	iconv: "1.19",
+	icu: "78.3",
+	openssl: "3.6.1",
+	boost: "1.90.0",
+	libtorrent_1_2: "1.2.20",
+	libtorrent_2_0: "2.0.12",
+	double_conversion: "3.4.0",
+	qt5: "5.15.18",
+	qt6: "6.11.0",
+	qbittorrent: "5.1.4",
+};
+
+let data = fallback;
+
+try {
+	const response = await fetch(
+		"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json",
+	);
+
+	if (response.ok) {
+		data = await response.json();
+	}
+} catch {}
+
+const { id } = Astro.props;
+
+const templates: Record<string, string> = {
+	introduction: `qBittorrent ${data.qbittorrent} was built with the following libraries:
+Qt: ${data.qt6}
+Libtorrent: ${data.libtorrent_2_0}
+Boost: ${data.boost}
+OpenSSL: ${data.openssl}
+zlib: ${data.zlib}-motley`,
+
+	patchinfo: [
+		["glibc", data.glibc],
+		["zlib", data.zlib],
+		["zlib_ng", data.zlib_ng],
+		["iconv", data.iconv],
+		["icu", data.icu],
+		["openssl", data.openssl],
+		["boost", data.boost],
+		["libtorrent", data.libtorrent_1_2],
+		["libtorrent", data.libtorrent_2_0],
+		["double_conversion", data.double_conversion],
+		["qtbase", data.qt5],
+		["qtbase", data.qt6],
+		["qttools", data.qt5],
+		["qttools", data.qt6],
+		["qbittorrent", data.qbittorrent],
+	]
+		.map(([name, version]) => `qbt-build/patches/${name}/${version}`)
+		.join("\n"),
+};
+
+const codeblock = templates[id] ?? "";
+---
+
+<Code code={codeblock} lang="plaintext" />

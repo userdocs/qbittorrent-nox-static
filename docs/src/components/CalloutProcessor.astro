@@ -1,18 +1,29 @@
 ---
-export interface Props { content: string }
+interface Props {
+	content: string;
+}
 
 const { content } = Astro.props;
 
 // Precompiled constants & regexes (outside function to avoid reallocation per render)
-const CALLOUT_TYPES = ["NOTE", "TIP", "WARNING", "IMPORTANT", "CAUTION"] as const;
-type CalloutType = typeof CALLOUT_TYPES[number];
+const CALLOUT_TYPES = [
+	"NOTE",
+	"TIP",
+	"WARNING",
+	"IMPORTANT",
+	"CAUTION",
+] as const;
+type CalloutType = (typeof CALLOUT_TYPES)[number];
 const CALLOUT_TYPE_PATTERN = CALLOUT_TYPES.join("|");
 const CALLOUT_MARKER_RE = new RegExp(`\\[!(${CALLOUT_TYPE_PATTERN})\\]`, "i");
-const BLOCKQUOTE_RE = new RegExp(`<blockquote[^>]*>([\\s\\S]*?)<\\/blockquote>`, "gi");
+const BLOCKQUOTE_RE = new RegExp(
+	`<blockquote[^>]*>([\\s\\S]*?)<\\/blockquote>`,
+	"gi",
+);
 // Markdown pattern: > [!TYPE]\n> line ... (stops at first blank or non > line)
 const MD_CALLOUT_RE = new RegExp(
 	`(^|\n)>\\s*\\[!(${CALLOUT_TYPE_PATTERN})\\]\\s*\n((?:>.*(?:\n|$))+)(?=\n[^>]|$)?`,
-	"gi"
+	"gi",
 );
 
 // Mapping to starlight aside variants
@@ -33,7 +44,10 @@ function createAside(rawType: string, innerHtml: string): string {
 }
 
 function stripFirstMarkerLine(block: string): { type: string; html: string } {
-	const markerLineRe = new RegExp(`^\\s*(?:<p>)?\\s*\\[!(${CALLOUT_TYPE_PATTERN})\\]\\s*(?:<\\/p>)?\\s*`, "i");
+	const markerLineRe = new RegExp(
+		`^\\s*(?:<p>)?\\s*\\[!(${CALLOUT_TYPE_PATTERN})\\]\\s*(?:<\\/p>)?\\s*`,
+		"i",
+	);
 	const match = block.match(CALLOUT_MARKER_RE);
 	const type = match?.[1] || "NOTE";
 	const html = block.replace(markerLineRe, "").trim();
@@ -51,17 +65,17 @@ function processBlockquoteCallouts(src: string): string {
 function processMarkdownCallouts(src: string): string {
 	return src.replace(MD_CALLOUT_RE, (full, _lead, type, lines) => {
 		// Remove leading ">" markers & blank lines
-			const cleaned = lines
-				.split(/\n/)
-				.map((l: string) => l.replace(/^>\s?/, ""))
-				.filter((l: string) => l.trim().length > 0)
-				.join("\n");
+		const cleaned = lines
+			.split(/\n/)
+			.map((l: string) => l.replace(/^>\s?/, ""))
+			.filter((l: string) => l.trim().length > 0)
+			.join("\n");
 		return `\n${createAside(type, cleaned)}\n`;
 	});
 }
 
 function processCallouts(htmlContent: string): string {
-	if (!htmlContent || typeof htmlContent !== "string") return htmlContent;
+	if (!htmlContent) return htmlContent;
 	// Quick escape if no markers
 	if (!CALLOUT_MARKER_RE.test(htmlContent)) return htmlContent;
 	let out = htmlContent;

@@ -11,7 +11,7 @@ When building on supported Debian based hosts we use the official `crossbuild-es
 
 On the modern distros like Trixie and Noble there is a wide range of supported cross build targets available.
 
-Please look a the links below to see which options are available for which platform and release.
+Please look at the links below to see which options are available for which platform and release.
 
 [Debian cross build essential toolchains](https://packages.debian.org/search?suite=trixie&searchon=names&keywords=crossbuild-essential)
 

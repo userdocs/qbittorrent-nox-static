@@ -1,64 +1,51 @@
 ---
 import StarlightPage from "@astrojs/starlight/components/StarlightPage.astro";
 
-interface GlossaryEntry {
-	file: string;
-	frontmatter: {
-		title: string;
-	};
-}
-
-interface File {
+interface GlossaryItem {
 	fileBase: string;
 	title: string;
 }
 
 const basePath = `/${Astro.url.pathname.split("/")[1]}`;
 
-// Get all markdown files
-const posts = import.meta.glob<GlossaryEntry>(
+// Get all glossary markdown files
+const posts = import.meta.glob<{ frontmatter: { title: string } }>(
 	"/src/content/docs/glossary/*.md",
-	{
-		eager: true,
-	}
+	{ eager: true },
 );
 
-// Convert posts object to array and map to File[]
-const files: File[] = Object.entries(posts).map(([path, post]) => {
-	const fileBase = path.split("/").pop()?.split(".").shift() ?? "";
-	return {
-		fileBase,
+// Extract fileBase and title, then sort alphabetically by title
+const items: GlossaryItem[] = Object.entries(posts)
+	.map(([path, post]) => ({
+		fileBase:
+			path
+				.split("/")
+				.pop()
+				?.replace(/\.mdx?$/, "") ?? "",
 		title: post.frontmatter.title,
-	};
-});
+	}))
+	.sort((a, b) => a.title.localeCompare(b.title));
 
-// Group files by first letter
-const sections = files.reduce((acc: { [key: string]: File[] }, file) => {
-	const firstLetter = file.title.charAt(0).toUpperCase();
-	if (!acc[firstLetter]) {
-		acc[firstLetter] = [];
-	}
-	acc[firstLetter].push(file);
-	return acc;
-}, {});
+// Group sorted items by first letter
+const sections = Map.groupBy(items, (item) =>
+	item.title.charAt(0).toUpperCase(),
+);
 
-// Generate headings for each section
-const headings = Object.entries(sections)
-	.sort(([a], [b]) => a.localeCompare(b))
-	.map(([slug]) => ({
-		depth: 2,
-		slug,
-		text: slug,
-	}));
+// Generate headings for the TOC from the sorted section keys
+const headings = [...sections.keys()].map((letter) => ({
+	depth: 2 as const,
+	slug: letter,
+	text: letter,
+}));
 ---
 
 <StarlightPage frontmatter={{ title: "Glossary" }} headings={headings}>
 	{
-		Object.entries(sections).map(([sectionTitle, files]: [string, File[]]) => (
+		[...sections.entries()].map(([letter, files]) => (
 			<>
-				<h2 id={sectionTitle}>{sectionTitle}</h2>
+				<h2 id={letter}>{letter}</h2>
 				<ul>
-					{files.map(({ fileBase, title }: File) => (
+					{files.map(({ fileBase, title }) => (
 						<li>
 							<a href={`${basePath}/glossary/${fileBase}`}>{title}</a>
 						</li>

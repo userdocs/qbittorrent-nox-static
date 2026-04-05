@@ -1,12 +1,11 @@
 import AdvancedMarkdown from "/src/components/AdvancedMarkdown.astro";
+import Buildinfo from "/src/components/Buildinfo.astro";
+import BuildConfigTool from "/src/components/BuildConfigTool.astro";
+import BuildinfoBuildHelp from "/src/components/BuildinfoBuildHelp.astro";
 import Charts from "/src/components/Charts.astro";
 import Details from "/src/components/Details.astro";
 import GithubActions from "/src/components/GithubActions.astro";
 import Modal from "/src/components/Modal.astro";
-import BuildConfigTool from "/src/components/BuildConfigTool.astro";
-import BuildinfoIntroduction from "/src/components/BuildinfoIntroduction.astro";
-import BuildinfoBuildHelp from "/src/components/BuildinfoBuildHelp.astro";
-import Patchinfo from "/src/components/Patchinfo.astro";
 import Scriptinfo from "/src/components/Scriptinfo.astro";
 import ScriptVersions from "/src/components/ScriptVersions.astro";
 
@@ -26,9 +25,9 @@ import {
 export {
 	AdvancedMarkdown,
 	Aside,
-	BuildConfigTool,
 	Badge,
-	BuildinfoIntroduction,
+	BuildConfigTool,
+	Buildinfo,
 	BuildinfoBuildHelp,
 	Card,
 	CardGrid,
@@ -39,7 +38,6 @@ export {
 	Icon,
 	LinkCard,
 	Modal,
-	Patchinfo,
 	Scriptinfo,
 	ScriptVersions,
 	Steps,

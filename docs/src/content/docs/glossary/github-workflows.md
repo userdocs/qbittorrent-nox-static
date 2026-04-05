@@ -15,7 +15,7 @@ In a nutshell a workflow is a special syntax to define some tasks you want done 
 
 You use a combination of `yaml` and scripting/shell languages to define the some criteria and then create steps towards completion of a job.
 
-This project uses them to build and release static binaries and here is an example of on of the files that build releases using the workflow files.
+This project uses them to build and release static binaries and here is an example of one of the files that build releases using the workflow files.
 
 Action overview for this workflows: [matrix_multi_build_and_release_qbt_workflow_files.yml](https://github.com/userdocs/qbittorrent-nox-static/actions/workflows/matrix_multi_build_and_release_qbt_workflow_files.yml)
 

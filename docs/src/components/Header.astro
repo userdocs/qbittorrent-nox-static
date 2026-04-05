@@ -1,26 +1,23 @@
 ---
 import type { Props } from "@astrojs/starlight/props";
 
+import AdvancedButton from "./AdvancedButton.astro";
 import LanguageSelect from "@astrojs/starlight/components/LanguageSelect.astro";
 import Search from "@astrojs/starlight/components/Search.astro";
 import SiteTitle from "@astrojs/starlight/components/SiteTitle.astro";
 import SocialIcons from "@astrojs/starlight/components/SocialIcons.astro";
 import ThemeSelect from "@astrojs/starlight/components/ThemeSelect.astro";
-
-const shouldRenderSearch = true;
-
-import App from "./AdvancedButton.astro";
 ---
 
 <div class="header sl-flex">
 	<div class="title-wrapper sl-flex">
 		<div class="toggle-global">
-			<App />
+			<AdvancedButton />
 		</div>
 		<SiteTitle {...Astro.props} />
 	</div>
 	<div class="sl-flex">
-		{shouldRenderSearch && <Search {...Astro.props} />}
+		<Search {...Astro.props} />
 	</div>
 	<div class="sl-hidden md:sl-flex right-group">
 		<div class="sl-flex social-icons">
@@ -73,7 +70,8 @@ import App from "./AdvancedButton.astro";
 							var(--__toc-width, var(--sl-sidebar-width)) -
 							(2 * var(--__toc-width, var(--sl-nav-pad-x))) -
 							var(--sl-content-inline-start, 0rem) - var(--sl-content-width)
-					) / 2
+					) /
+					2
 			);
 			display: grid;
 			grid-template-columns:

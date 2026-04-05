@@ -4,27 +4,26 @@ description: Build Help
 ---
 
 import {
-	AdvancedMarkdown,
-	Aside,
-	BuildConfigTool,
-	Badge,
-	BuildinfoIntroduction,
-	BuildinfoBuildHelp,
-	Card,
-	CardGrid,
-	Charts,
-	Details,
-	FileTree,
-	GithubActions,
-	Icon,
-	LinkCard,
-	Modal,
-	Patchinfo,
-	Scriptinfo,
-	ScriptVersions,
-	Steps,
-	TabItem,
-	Tabs
+    AdvancedMarkdown,
+    Aside,
+    Badge,
+    BuildConfigTool,
+    Buildinfo,
+    BuildinfoBuildHelp,
+    Card,
+    CardGrid,
+    Charts,
+    Details,
+    FileTree,
+    GithubActions,
+    Icon,
+    LinkCard,
+    Modal,
+    Scriptinfo,
+    ScriptVersions,
+    Steps,
+    TabItem,
+    Tabs
 } from "/src/components/global.jsx"
 
 Once the script has successfully configured the platform you can execute the help switch to see how it works and what options you have available to you.
@@ -40,7 +39,7 @@ The script will use the following order of preference when configuring the build
 <Steps>
 1.  Command line flags provided to the script
 2. `.qbt_env` file in the same directory as the script
-3.  Exported `env` variables, these will overridden by `.qbt_env`
+3.  Exported `env` variables, these will be overridden by `.qbt_env`
 </Steps>
 
 :::tip

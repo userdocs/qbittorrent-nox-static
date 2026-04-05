@@ -1,4 +1,9 @@
 ---
+interface Props {
+	id: string;
+	alt: string;
+}
+
 const { id, alt } = Astro.props;
 const basePath = "/" + Astro.url.pathname.split("/")[1];
 ---

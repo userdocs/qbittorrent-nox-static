@@ -1,7 +1,7 @@
 ---
 import { Badge } from "@astrojs/starlight/components";
 
-type Props = {
+interface Props {
 	// Render mode:
 	// - "sentence": badge + human-friendly text
 	// - "values": just the version string
@@ -12,7 +12,7 @@ type Props = {
 	label?: string;
 	// Optional prefix before the version (default: "v"). Use "" to disable.
 	prefix?: string;
-};
+}
 
 const {
 	mode = "sentence",
@@ -50,11 +50,10 @@ function readVersion(filename: string): string {
 // So we traverse up three directories to reach the repo root.
 const version = readVersion(file);
 const isKnown = version !== "unknown";
-const normalizedVersion = typeof version === "string" ? version.trim() : "";
 const displayVersion = isKnown
 	? prefix === ""
-		? normalizedVersion
-		: `${prefix}${normalizedVersion}`
+		? version.trim()
+		: `${prefix}${version.trim()}`
 	: "unknown";
 ---
 
@@ -63,14 +62,13 @@ const displayVersion = isKnown
 		mode === "values" ? (
 			<code title={`source: ${file}`}>{displayVersion}</code>
 		) : (
-			<>
+			<span style="display:inline-flex; align-items:center; gap:10px;">
 				<Badge
 					text={isKnown ? label : "Version unavailable"}
 					variant={isKnown ? "success" : "caution"}
 				/>
-				<span style="display:inline-block; width:10px;" />
 				<code title={`source: ${file}`}>{displayVersion}</code>
-			</>
+			</span>
 		)
 	}
 </>
