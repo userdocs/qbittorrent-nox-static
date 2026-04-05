@@ -1172,8 +1172,7 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 						baseImage = cur || def;
 						if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
 							packageManager =
-								`LANG="C.UTF-8" \\\n\tLANGUAGE="C.UTF-8" \\\n\tLC_ALL="C.UTF-8" \\\n` +
-								`\tDEBIAN_FRONTEND=noninteractive \\\n\tapt-get update && \\\n\tapt-get install -y git curl`;
+								"apt-get update && \\\n\tapt-get install -y git curl";
 							shell = "/bin/bash";
 						}
 						break;
@@ -1213,21 +1212,21 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 			if (dockerUser !== "username") return [];
 			if (baseImage.includes("ubuntu")) {
 				return [
-					"usermod -l username ubuntu",
+					"usermod -l username -d /home/username ubuntu",
 					"groupmod -n username ubuntu",
-					"printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username",
+					'printf "%s" "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username',
 					"chmod 0440 /etc/sudoers.d/username",
 				];
 			}
 			if (baseImage.includes("alpine")) {
 				return [
 					"adduser -h /home/username -Ds /bin/bash -u 1000 username",
-					"printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username",
+					'printf "%s" "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username',
 				];
 			}
 			return [
 				"useradd -ms /bin/bash -u 1000 username",
-				"printf '%s' 'username ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/username",
+				'printf "%s" "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username',
 				"chmod 0440 /etc/sudoers.d/username",
 			];
 		}
@@ -1277,29 +1276,37 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 					? `${scriptPath} all`
 					: `${scriptPath} bootstrap_deps all`;
 				scriptCmd =
-					dockerUser === "username" ? `su - username -c "${baseCmd}"` : baseCmd;
+					dockerUser === "username"
+						? `sudo -u username bash -c "${baseCmd}"`
+						: baseCmd;
 			} else {
 				const baseCmd = getScriptCmd();
 				scriptCmd =
-					dockerUser === "username" ? `su - username -c "${baseCmd}"` : baseCmd;
+					dockerUser === "username"
+						? `sudo -u username bash -c "${baseCmd}"`
+						: baseCmd;
 			}
 
 			const downloadLine = isLocal
 				? `curl --create-dirs -sL usrdx.github.io/s/qbt.bash -o ${localDir}/qbt.bash && \\\nchmod +x ${localDir}/qbt.bash && \\\n`
 				: "";
 
-			const volumeLines = isLocal
-				? `\t-v ${volumeMapping} \\\n\t-v ${localDir}/qbt.bash:${workDir}/qbt.bash \\`
-				: `\t-v ${volumeMapping} \\`;
+			const volumeLines = `\t-v ${volumeMapping} \\`;
 
 			const envBlock = envVars.length
-				? `\n${formatEnvVars(envVars, "\t")}\n`
+				? envVars.map((v) => `\n\texport ${v} && \\`).join("")
 				: "";
+
+			const debianEnvLines =
+				baseImage.includes("ubuntu") || baseImage.includes("debian")
+					? `\t-e LANG="C.UTF-8" \\\n\t-e LANGUAGE="C.UTF-8" \\\n\t-e LC_ALL="C.UTF-8" \\\n\t-e DEBIAN_FRONTEND=noninteractive \\\n`
+					: "";
 
 			return (
 				`${downloadLine}docker run -it -w ${workDir} \\\n` +
 				`\t-p ${portMapping} \\\n` +
 				`${volumeLines}\n` +
+				`${debianEnvLines}` +
 				`\t${baseImage} ${shell} -c \\\n` +
 				`\t'${packageManager}${userSetup} && \\` +
 				`${envBlock}\n` +
@@ -1308,8 +1315,19 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 		}
 
 		function generateDockerfile(): string {
-			const { baseImage, packageManager, dockerUser, envVars } =
-				getDockerConfig();
+			const { baseImage, dockerUser, envVars } = getDockerConfig();
+
+			let dockerfilePkgMgr = "apk update && apk add bash git curl";
+			if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
+				dockerfilePkgMgr =
+					"apt-get update && \\\n    apt-get install -y git curl";
+			}
+			if (dockerUser === "username") {
+				dockerfilePkgMgr = dockerfilePkgMgr.replace(
+					"git curl",
+					"git curl sudo",
+				);
+			}
 
 			const portSelect = document.getElementById(
 				"config_qbt_docker_port",
@@ -1341,7 +1359,7 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 			return (
 				`FROM ${baseImage}\n\n` +
 				`${debianEnvBlock}` +
-				`# Install dependencies\nRUN ${packageManager}${userSetupBlock}\n\n` +
+				`# Install dependencies\nRUN ${dockerfilePkgMgr}${userSetupBlock}\n\n` +
 				`# Download build script\nRUN curl -sL usrdx.github.io/s/qbt.bash -o /usr/local/bin/qbt.bash && \\\n    chmod +x /usr/local/bin/qbt.bash\n\n` +
 				`WORKDIR ${workDir}\n\n` +
 				`EXPOSE ${exposedPort}` +
@@ -1659,6 +1677,33 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 				if (ver) ver.value = cur.startsWith("v5.") ? "5" : "6";
 			}
 
+			if (v === "qbt_docker_user") {
+				const volSel = document.querySelector<HTMLSelectElement>(
+					'select[data-variable="qbt_docker_volume"]',
+				);
+				if (volSel) {
+					const isUser = cur === "username";
+					const fromDir = isUser ? ":/root" : ":/home/username";
+					const toDir = isUser ? ":/home/username" : ":/root";
+
+					// Update each option value and label
+					Array.from(volSel.options).forEach((opt) => {
+						if (opt.value === "custom") return;
+						opt.value = opt.value.replace(fromDir, toDir);
+						opt.label = opt.value;
+						opt.textContent = opt.value;
+					});
+
+					// Update custom input placeholder path hint
+					const customInput = document.getElementById(
+						"custom_input_qbt_docker_volume",
+					) as HTMLInputElement | null;
+					if (customInput?.value) {
+						customInput.value = customInput.value.replace(fromDir, toDir);
+					}
+				}
+			}
+
 			if (v === "qbt_cross_name") {
 				const staticSel = document.querySelector<HTMLSelectElement>(
 					'[data-variable="qbt_static_ish"]',
@@ -1731,6 +1776,17 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 
 			selects.forEach((select) => {
 				const def = select.dataset.default ?? "";
+
+				// Revert volume options back to :/root paths if they were changed
+				if (select.dataset.variable === "qbt_docker_volume") {
+					Array.from(select.options).forEach((opt) => {
+						if (opt.value === "custom") return;
+						opt.value = opt.value.replace(":/home/username", ":/root");
+						opt.label = opt.value;
+						opt.textContent = opt.value;
+					});
+				}
+
 				select.value = def;
 				select.disabled = false;
 				select.style.opacity = "1";
