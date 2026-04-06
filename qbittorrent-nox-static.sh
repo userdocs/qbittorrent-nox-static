@@ -159,6 +159,9 @@ multi_arch_options["loongarch64"]="loongarch64"
 _set_default_values() {
 	# For debian based docker deploys to not get prompted to set the timezone.
 	if [[ ${os_id} =~ ^(debian|ubuntu)$ ]]; then
+		export LANG="C.UTF-8"
+		export LANGUAGE="C.UTF-8"
+		export LC_ALL="C.UTF-8"
 		export DEBIAN_FRONTEND="noninteractive"
 		export TZ="Europe/London"
 	fi
@@ -786,7 +789,7 @@ _check_dependencies() {
 		if sudo -n true &> /dev/null; then
 			printf '%b\n' " $unicode_green_circle ${color_red_light}sudo${color_end}"
 			qbt_privileges_required["sudo"]="true"
-			[[ ${qbt_privileges_required["root"]} != "true" ]] && command_privilege=("sudo")
+			[[ ${qbt_privileges_required["root"]} != "true" ]] && command_privilege=("sudo" "-E")
 		else
 			printf '%b\n' " $unicode_red_circle ${color_red_light}sudo${color_end}"
 		fi
