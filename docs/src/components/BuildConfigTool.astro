@@ -1269,47 +1269,41 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 
 			let scriptPath: string;
 			let scriptCmd: string;
+			const isUser = dockerUser === "username";
 
 			if (isLocal) {
 				scriptPath = `${workDir}/qbt.bash`;
 				const baseCmd = isLegacyMode()
-					? `${scriptPath} all`
-					: `${scriptPath} bootstrap_deps all`;
-				scriptCmd =
-					dockerUser === "username"
-						? `sudo -u username bash -c "${baseCmd}"`
-						: baseCmd;
+					? `bash ${scriptPath} all`
+					: `bash ${scriptPath} bootstrap_deps all`;
+				scriptCmd = isUser ? `sudo -E -H -u username ${baseCmd}` : baseCmd;
 			} else {
 				const baseCmd = getScriptCmd();
-				scriptCmd =
-					dockerUser === "username"
-						? `sudo -u username bash -c "${baseCmd}"`
-						: baseCmd;
+				scriptCmd = isUser
+					? `sudo -E -H -u username bash -c "${baseCmd}"`
+					: baseCmd;
 			}
 
 			const downloadLine = isLocal
-				? `curl --create-dirs -sL usrdx.github.io/s/qbt.bash -o ${localDir}/qbt.bash && \\\nchmod +x ${localDir}/qbt.bash && \\\n`
+				? `mkdir -p ${localDir} && chmod 755 ${localDir} && \\\ncurl -sL usrdx.github.io/s/qbt.bash -o ${localDir}/qbt.bash && \\\n`
 				: "";
 
 			const volumeLines = `\t-v ${volumeMapping} \\`;
 
 			const envBlock = envVars.length
-				? envVars.map((v) => `\n\texport ${v} && \\`).join("")
+				? envVars.map((v) => `\t-e ${v} \\\n`).join("")
 				: "";
 
-			const debianEnvLines =
-				baseImage.includes("ubuntu") || baseImage.includes("debian")
-					? `\t-e LANG="C.UTF-8" \\\n\t-e LANGUAGE="C.UTF-8" \\\n\t-e LC_ALL="C.UTF-8" \\\n\t-e DEBIAN_FRONTEND=noninteractive \\\n`
-					: "";
+			const debianEnvLines = "";
 
 			return (
 				`${downloadLine}docker run -it -w ${workDir} \\\n` +
 				`\t-p ${portMapping} \\\n` +
 				`${volumeLines}\n` +
 				`${debianEnvLines}` +
+				`${envBlock}` +
 				`\t${baseImage} ${shell} -c \\\n` +
-				`\t'${packageManager}${userSetup} && \\` +
-				`${envBlock}\n` +
+				`\t'${packageManager}${userSetup} && \\\n` +
 				`\t${scriptCmd}'`
 			);
 		}
@@ -1339,10 +1333,7 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 
 			const workDir = dockerUser === "username" ? "/home/username" : "/root";
 
-			const debianEnvBlock =
-				baseImage.includes("ubuntu") || baseImage.includes("debian")
-					? `# Set locale\nENV LANG="C.UTF-8" \\\n    LANGUAGE="C.UTF-8" \\\n    LC_ALL="C.UTF-8" \\\n    DEBIAN_FRONTEND=noninteractive\n\n`
-					: "";
+			const debianEnvBlock = "";
 
 			const setupCmds = getUserSetupCmds(baseImage, dockerUser);
 			const userSetupBlock = setupCmds.length
