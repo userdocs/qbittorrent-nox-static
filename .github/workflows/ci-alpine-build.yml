@@ -33,6 +33,7 @@ jobs:
           ["armhf", "armv7", "aarch64", "riscv64", "x86_64", "x86"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         qbt_build_tool: [""]
+        qbt_qt_tag: ["v6.10.3"]
         qbt_qbittorrent_tag: [""]
         include:
           - qbt_build_tool: ""
