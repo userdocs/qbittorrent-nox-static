@@ -588,9 +588,19 @@ _set_cxx_standard() {
 		[[ ${app} == "qbittorrent" ]] && qbt_app_std="${app_std}"
 	done
 
-	# Validate: Prevent building incompatible ABIs like c++14 with c++17+
+	# Validate: Prevent building incompatible ABIs like c++14 with c++17+ or c++17 with c++20+
 	if (((qbt_libtorrent_std == 14 && qbt_app_std >= 17) || (qbt_app_std == 14 && qbt_libtorrent_std >= 17))); then
 		printf '\n%b\n\n' " ${text_blink}${unicode_red_light_circle}${color_end} ${color_yellow}ABI Mismatch: libtorrent (c++${qbt_libtorrent_std}) and qBittorrent (c++${qbt_app_std}) cannot be built together as c++14 is incompatible with c++17+.${color_end}"
+		if [[ -n ${GITHUB_REPOSITORY} ]]; then touch disable-qt5; fi
+		if [[ -d ${release_info_dir} ]]; then touch "${release_info_dir}/disable-qt5"; fi
+		exit 1
+	elif (((qbt_libtorrent_std == 17 && qbt_app_std >= 20) || (qbt_app_std == 17 && qbt_libtorrent_std >= 20))); then
+		printf '\n%b\n\n' " ${text_blink}${unicode_red_light_circle}${color_end} ${color_yellow}ABI Mismatch: libtorrent (c++${qbt_libtorrent_std}) and qBittorrent (c++${qbt_app_std}) cannot be built together as c++17 is incompatible with c++20+.${color_end}"
+		if [[ -n ${GITHUB_REPOSITORY} ]]; then touch disable-qt5; fi
+		if [[ -d ${release_info_dir} ]]; then touch "${release_info_dir}/disable-qt5"; fi
+		exit 1
+	elif (((qbt_libtorrent_std == 20 && qbt_app_std >= 23) || (qbt_app_std == 20 && qbt_libtorrent_std >= 23))); then
+		printf '\n%b\n\n' " ${text_blink}${unicode_red_light_circle}${color_end} ${color_yellow}ABI Mismatch: libtorrent (c++${qbt_libtorrent_std}) and qBittorrent (c++${qbt_app_std}) cannot be built together as c++20 is incompatible with c++23+.${color_end}"
 		if [[ -n ${GITHUB_REPOSITORY} ]]; then touch disable-qt5; fi
 		if [[ -d ${release_info_dir} ]]; then touch "${release_info_dir}/disable-qt5"; fi
 		exit 1
@@ -1611,7 +1621,13 @@ _set_module_urls() {
 	if [[ ${os_id} =~ ^(debian|ubuntu)$ ]]; then
 		github_tag[glibc]="$(_git_git ls-remote -q -t --refs "${github_url[glibc]}" | awk '/glibc-/{sub("refs/tags/", "");sub("(.*)(cvs|fedora)(.*)", ""); if($2 ~ /^glibc-[0-9]+\.[0-9]+$/) print $2 }' | awk '!/^$/' | sort -rV | head -n1)"
 	fi
-	github_tag[zlib]="develop" # same for zlib and zlib-ng
+
+	if [[ ${qbt_zlib_type} == "zlib" ]]; then
+		github_tag[zlib]="$(git ls-remote -q -t --refs "https://github.com/madler/zlib.git" | awk '//{sub("refs/tags/", ""); sub("-[^0-9].*", ""); print $2}' | awk '!/^$/ && !/rc/ && /^v[0-9]+[-.]?[0-9]+[-.]?[0-9][-.]?[0-9]*$/' | sort -rV | head -n1)" # same for zlib and zlib-ng
+	elif [[ ${qbt_zlib_type} == "zlib-ng" ]]; then
+		github_tag[zlib]="develop" # same for zlib and zlib-ng
+	fi
+
 	#github_tag[iconv]="$(_git_git ls-remote -q -t --refs "${github_url[iconv]}" | awk '{sub("refs/tags/", "");sub("(.*)(-[^0-9].*)(.*)", ""); print $2 }' | awk '!/^$/' | sort -rV | head -n 1)"
 	github_tag[iconv]="v$(_curl "https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json" | sed -rn 's|(.*)"iconv": "(.*)",?|\2|p')"
 	github_tag[icu]="$(_git_git ls-remote -q -t --refs "${github_url[icu]}" | awk '/\/release-/{sub("refs/tags/", ""); sub("-[^0-9].*", ""); print $2}' | awk '!/^$/ && !/rc/ && /^release-[0-9]+[-.]?[0-9]+[-.]?[0-9]*$/' | sort -rV | head -n 1)"
@@ -1630,7 +1646,7 @@ _set_module_urls() {
 	fi
 
 	if [[ ${qbt_zlib_type} == "zlib" ]]; then
-		app_version[zlib]="$(_curl "https://raw.githubusercontent.com/madler/zlib/${github_tag[zlib]}/zlib.h" | sed -rn 's|#define ZLIB_VERSION "(.*)"|\1|p' | sed 's/-.*//g')"
+		app_version[zlib]="${github_tag[zlib]#v}"
 	elif [[ ${qbt_zlib_type} == "zlib-ng" ]]; then
 		app_version[zlib]="$(_curl "https://raw.githubusercontent.com/zlib-ng/zlib-ng/${github_tag[zlib]}/zlib.h.in" | sed -rn 's|#define ZLIB_VERSION "(.*)"|\1|p' | sed 's/\.zlib-ng//g')"
 	fi
@@ -1652,7 +1668,7 @@ _set_module_urls() {
 	fi
 
 	if [[ ${qbt_zlib_type} == "zlib" ]]; then
-		source_archive_url[zlib]="https://github.com/madler/zlib/archive/refs/heads/develop.tar.gz"
+		source_archive_url[zlib]="https://github.com/madler/zlib/releases/download/v${app_version[zlib]}/zlib-${app_version[zlib]}.tar.gz"
 	elif [[ ${qbt_zlib_type} == "zlib-ng" ]]; then
 		source_archive_url[zlib]="https://github.com/zlib-ng/zlib-ng/archive/refs/heads/develop.tar.gz"
 	fi
