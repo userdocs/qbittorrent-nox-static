@@ -22,7 +22,7 @@ handle_error() {
 check_supported_distro() {
 	# Source os-release and check ID
 	if [[ -f /etc/os-release ]]; then
-		# shellcheck source=/etc/os-release
+		# shellcheck source=/dev/null
 		source /etc/os-release
 		# Support Alpine or Debian-based distributions
 		if [[ ${ID:-} =~ ^(alpine|debian)$ ]] || [[ ${ID_LIKE:-} == *debian* ]]; then
@@ -261,21 +261,21 @@ fetch_url() {
 	tool=$(check_download_tools)
 
 	local response
-	case "$tool" in
-		wget)
-			response=$(wget -qO- "$url" 2> /dev/null)
-			;;
-		curl)
-			response=$(curl -sL "$url" 2> /dev/null)
-			;;
-	esac
-
-	if [[ $? -ne 0 ]]; then
-		print_warning "Failed to fetch information from URL: $url"
-		printf "" # Return empty on failure
+	if [[ $tool == "wget" ]]; then
+		if ! response=$(wget -qO- "$url" 2> /dev/null); then
+			print_warning "Failed to fetch information from URL: $url"
+			printf "" # Return empty on failure
+			return 1
+		fi
 	else
-		printf "%s" "$response"
+		if ! response=$(curl -sL "$url" 2> /dev/null); then
+			print_warning "Failed to fetch information from URL: $url"
+			printf "" # Return empty on failure
+			return 1
+		fi
 	fi
+
+	printf "%s" "$response"
 }
 
 # Create download function based on architecture checks
@@ -641,7 +641,9 @@ main() {
 
 	# PATH check
 	if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
+		# shellcheck disable=SC2016
 		print_warning '$HOME/bin is not in your PATH'
+		# shellcheck disable=SC2016
 		print_info 'Add to ~/.bashrc: export PATH="$HOME/bin:$PATH"'
 		print_info 'Then run: source ~/.bashrc'
 	fi
