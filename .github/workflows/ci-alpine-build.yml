@@ -29,12 +29,11 @@ jobs:
         runs_on: ["ubuntu-24.04-arm"]
         os_id: ["alpine"]
         os_version_id: ["edge"]
-        qbt_cross_name:
-          ["armhf", "armv7", "aarch64", "riscv64", "x86_64", "x86"]
+        qbt_cross_name: ["armhf", "armv7", "aarch64", "riscv64", "x86_64", "x86"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         qbt_build_tool: [""]
-        qbt_qt_tag: ["v6.10.3"]
-        qbt_qbittorrent_tag: [""]
+        qbt_openssl_tag: ["openssl-3.5.6"]
+        qbt_linker_mold: ["yes"]
         include:
           - qbt_build_tool: ""
             qbt_qt_version_name: ""
@@ -47,7 +46,7 @@ jobs:
       set_skip_icu: ${{ inputs.icu }}
       set_workflow_files: ${{ inputs.workflow-files }}
       set_build_debug: ${{ inputs.debug }}
-      set_qbt_mcm_url: "" # default is userdocs/qbt-musl-cross-make
+      set_qbt_mcm_url: "userdocs/musl-cross-make" # default is userdocs/qbt-musl-cross-make
       set_qbt_with_qemu: "" # default is yes
       set_qbt_host_deps: "" # default is no
       set_qbt_host_deps_repo: "" # default is userdocs/qbt-host-deps
@@ -95,7 +94,8 @@ jobs:
           printf '%s\n' "qbt_optimise=${qbt_optimise}" >> env.custom
           printf '%s\n' "qbt_with_qemu=${set_qbt_with_qemu}" >> env.custom
           printf '%s\n' "qbt_host_deps=${set_qbt_host_deps}" >> env.custom
-          printf '%s\n\n' "qbt_host_deps_repo=${set_qbt_host_deps_repo}" >> env.custom
+          printf '%s\n' "qbt_host_deps_repo=${set_qbt_host_deps_repo}" >> env.custom
+          printf '%s\n\n' "qbt_linker_mold=${{ matrix.qbt_linker_mold }}" >> env.custom
 
       - name: Host - Debian based specific env
         if: matrix.os_id != 'alpine'
@@ -192,7 +192,6 @@ jobs:
         with:
           name: "${{ matrix.qbt_cross_name }}-libtorrent-v${{ matrix.qbt_libtorrent_version }}-graphs"
           path: "${{ env.qbt_build_dir }}/completed/*.png"
-
       # - name: Host - Upload build dir on error or cancel
       #   if: ( cancelled() || failure() )
       #   uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
