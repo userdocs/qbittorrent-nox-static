@@ -87,6 +87,12 @@ const rows: Row[] = [
 		example: `qbt_qt_tag="v${data.qt6 || "v6.9.1"}"`,
 	},
 	{
+		variable: "qbt_openssl_tag",
+		defaultVal: `openssl-${data.openssl || "3.4.1"}`,
+		optionsTokens: ["Any valid git tag"],
+		example: `qbt_openssl_tag="openssl-${data.openssl || "3.4.1"}"`,
+	},
+	{
 		variable: "qbt_qbittorrent_tag",
 		defaultVal: `release-${data.qbittorrent || "5.1.2"}`,
 		optionsTokens: ["Any valid git tag"],
@@ -113,7 +119,7 @@ const rows: Row[] = [
 	{
 		variable: "qbt_mcm_url",
 		defaultVal: "userdocs/qbt-musl-cross-make",
-		optionsTokens: ["n/a for general use"],
+		optionsTokens: ["userdocs/qbt-musl-cross-make", "userdocs/musl-cross-make"],
 		example: 'qbt_mcm_url="userdocs/qbt-musl-cross-make"',
 	},
 	{
@@ -163,6 +169,12 @@ const rows: Row[] = [
 		defaultVal: "no",
 		optionsTokens: ["yes", "no"],
 		example: 'qbt_optimise="yes"',
+	},
+	{
+		variable: "qbt_use_lto",
+		defaultVal: "no",
+		optionsTokens: ["yes", "no"],
+		example: 'qbt_use_lto="yes"',
 	},
 	{
 		variable: "qbt_with_qemu",

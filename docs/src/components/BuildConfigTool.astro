@@ -6,6 +6,18 @@ const response = await fetch(
 );
 const data = await response.json();
 
+const overridesResponse = await fetch(
+	"https://raw.githubusercontent.com/userdocs/qbt-workflow-files/refs/heads/main/overrides",
+);
+const overridesText = await overridesResponse.text();
+const overrides: Record<string, string> = {};
+for (const line of overridesText.split("\n")) {
+	const match = line.match(/^current_github_tag\[([^\]]+)\]="([^"]+)"/);
+	if (match) {
+		overrides[match[1]] = match[2];
+	}
+}
+
 type ConfigOption = {
 	variable: string;
 	label: string;
@@ -158,10 +170,14 @@ const configOptions: ConfigOption[] = [
 		variable: "qbt_boost_tag",
 		label: "Boost Tag",
 		description: "Specific Boost library git tag to use",
-		defaultVal: `boost-${data.boost || "1.89.0"}`,
+		defaultVal: overrides["boost"] ? `boost-${overrides["boost"]}` : "default",
 		options: [
+			...(overrides["boost"] ? [{
+				value: `boost-${overrides["boost"]}`,
+				label: `boost-${overrides["boost"]} (override)`,
+			}] : []),
 			{
-				value: `boost-${data.boost || "1.89.0"}`,
+				value: "default",
 				label: `boost-${data.boost || "1.89.0"} (default)`,
 			},
 			{ value: "boost-1.86.0", label: "boost-1.86.0 (libtorrent 1.2 max)" },
@@ -174,12 +190,20 @@ const configOptions: ConfigOption[] = [
 		variable: "qbt_libtorrent_tag",
 		label: "Libtorrent Tag",
 		description: "Specific libtorrent git tag to use",
-		defaultVal: `v${data.libtorrent_2_0 || "2.0.11"}`,
+		defaultVal: overrides["libtorrent_2_0"] ? `v${overrides["libtorrent_2_0"]}` : "default",
 		options: [
+			...(overrides["libtorrent_2_0"] ? [{
+				value: `v${overrides["libtorrent_2_0"]}`,
+				label: `v${overrides["libtorrent_2_0"]} (override)`,
+			}] : []),
 			{
-				value: `v${data.libtorrent_2_0 || "2.0.11"}`,
+				value: "default",
 				label: `v${data.libtorrent_2_0 || "2.0.11"} (default)`,
 			},
+			...(overrides["libtorrent_1_2"] ? [{
+				value: `v${overrides["libtorrent_1_2"]}`,
+				label: `v${overrides["libtorrent_1_2"]} (override)`,
+			}] : []),
 			{
 				value: `v${data.libtorrent_1_2 || "1.2.20"}`,
 				label: `v${data.libtorrent_1_2 || "1.2.20"} (1.2 series)`,
@@ -215,15 +239,61 @@ const configOptions: ConfigOption[] = [
 		variable: "qbt_qt_tag",
 		label: "Qt Tag",
 		description: "Specific Qt git tag to use",
-		defaultVal: `v${data.qt6 || "6.9.1"}`,
+		defaultVal: overrides["qt6"] ? `v${overrides["qt6"]}` : "default",
 		options: [
+			...(overrides["qt6"] ? [{
+				value: `v${overrides["qt6"]}`,
+				label: `v${overrides["qt6"]} (override)`,
+			}] : []),
 			{
-				value: `v${data.qt6 || "6.9.1"}`,
+				value: "default",
 				label: `v${data.qt6 || "6.9.1"} (default)`,
 			},
+			...(overrides["qt5"] ? [{
+				value: `v${overrides["qt5"]}`,
+				label: `v${overrides["qt5"]} (override)`,
+			}] : []),
 			{
 				value: `v${data.qt5 || "5.15.17"}`,
 				label: `v${data.qt5 || "5.15.17"} (Qt 5 LTS)`,
+			},
+			{ value: "custom", label: "Custom..." },
+		],
+		category: "advanced",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_openssl_tag",
+		label: "OpenSSL Tag",
+		description: "Specific OpenSSL git tag to use",
+		defaultVal: overrides["openssl"] ? `openssl-${overrides["openssl"]}` : "default",
+		options: [
+			...(overrides["openssl"] ? [{
+				value: `openssl-${overrides["openssl"]}`,
+				label: `openssl-${overrides["openssl"]} (override)`,
+			}] : []),
+			{
+				value: "default",
+				label: `openssl-${data.openssl || "3.4.1"} (default)`,
+			},
+			{ value: "custom", label: "Custom..." },
+		],
+		category: "advanced",
+		allowCustom: true,
+	},
+	{
+		variable: "qbt_qbittorrent_tag",
+		label: "qBittorrent Tag",
+		description: "Specific qBittorrent git tag to use",
+		defaultVal: overrides["qbittorrent"] ? `release-${overrides["qbittorrent"]}` : "default",
+		options: [
+			...(overrides["qbittorrent"] ? [{
+				value: `release-${overrides["qbittorrent"]}`,
+				label: `release-${overrides["qbittorrent"]} (override)`,
+			}] : []),
+			{
+				value: "default",
+				label: `release-${data.qbittorrent || "5.0.4"} (default)`,
 			},
 			{ value: "custom", label: "Custom..." },
 		],
@@ -274,6 +344,17 @@ const configOptions: ConfigOption[] = [
 		options: [
 			{ value: "no", label: "No" },
 			{ value: "yes", label: "Yes" },
+		],
+		category: "advanced",
+	},
+	{
+		variable: "qbt_use_lto",
+		label: "Use LTO",
+		description: "Enable Link-Time Optimization",
+		defaultVal: "no",
+		options: [
+			{ value: "yes", label: "Yes" },
+			{ value: "no", label: "No" },
 		],
 		category: "advanced",
 	},
@@ -332,6 +413,10 @@ const configOptions: ConfigOption[] = [
 			{
 				value: "userdocs/qbt-musl-cross-make",
 				label: "userdocs/qbt-musl-cross-make",
+			},
+			{
+				value: "userdocs/musl-cross-make",
+				label: "userdocs/musl-cross-make",
 			},
 			{ value: "custom", label: "Custom..." },
 		],
@@ -1127,7 +1212,8 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 				if (!v || def === undefined) return;
 				if (excludeDockerVars && dockerKeys.has(v)) return;
 				const cur = getSelectValue(s);
-				if (cur !== def && cur !== "" && cur !== "default")
+				const isOverride = s.options[s.selectedIndex]?.text.includes("(override)");
+				if ((cur !== def || isOverride) && cur !== "" && cur !== "default")
 					vars.push(`${v}="${cur}"`);
 			});
 			return vars;
@@ -1166,6 +1252,7 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 				const v = s.dataset.variable;
 				const def = s.dataset.default ?? "";
 				const cur = getSelectValue(s);
+				const isOverride = s.options[s.selectedIndex]?.text.includes("(override)");
 
 				switch (v) {
 					case "qbt_docker_base":
@@ -1186,7 +1273,7 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 						dockerUser = cur || def || "root";
 						break;
 					default:
-						if (cur !== def && cur !== "") envVars.push(`${v}="${cur}"`);
+						if ((cur !== def || isOverride) && cur !== "") envVars.push(`${v}="${cur}"`);
 				}
 			});
 
@@ -1214,19 +1301,20 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 				return [
 					"usermod -l username -d /home/username ubuntu",
 					"groupmod -n username ubuntu",
-					'printf "%s" "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username',
+					'printf "%s" "username ALL=(ALL) SETENV: NOPASSWD: ALL" > /etc/sudoers.d/username',
 					"chmod 0440 /etc/sudoers.d/username",
 				];
 			}
 			if (baseImage.includes("alpine")) {
 				return [
 					"adduser -h /home/username -Ds /bin/bash -u 1000 username",
-					'printf "%s" "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username',
+					'printf "%s" "username ALL=(ALL) SETENV: NOPASSWD: ALL" > /etc/sudoers.d/username',
+					"chmod 0440 /etc/sudoers.d/username",
 				];
 			}
 			return [
 				"useradd -ms /bin/bash -u 1000 username",
-				'printf "%s" "username ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/username',
+				'printf "%s" "username ALL=(ALL) SETENV: NOPASSWD: ALL" > /etc/sudoers.d/username',
 				"chmod 0440 /etc/sudoers.d/username",
 			];
 		}
@@ -1276,11 +1364,11 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 				const baseCmd = isLegacyMode()
 					? `bash ${scriptPath} all`
 					: `bash ${scriptPath} bootstrap_deps all`;
-				scriptCmd = isUser ? `sudo -E -H -u username ${baseCmd}` : baseCmd;
+				scriptCmd = isUser ? `sudo -E -H -u username env HOME=/home/username ${baseCmd}` : baseCmd;
 			} else {
 				const baseCmd = getScriptCmd();
 				scriptCmd = isUser
-					? `sudo -E -H -u username bash -c "${baseCmd}"`
+					? `sudo -E -H -u username bash -c "HOME=/home/username ${baseCmd}"`
 					: baseCmd;
 			}
 
@@ -1391,14 +1479,15 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 				) as HTMLElement | null;
 
 				let isDefault: boolean;
+				const isOverride = select.options[select.selectedIndex]?.text.includes("(override)");
 				if (select.value === "custom") {
 					const custom = document.getElementById(
 						`custom_input_${variable}`,
 					) as HTMLInputElement | null;
 					const val = custom?.value.trim() ?? "";
-					isDefault = val === "" || val === def;
+					isDefault = val === "" || val === def || val === "default";
 				} else {
-					isDefault = select.value === def;
+					isDefault = select.value === "default" || ((select.value === def) && !isOverride);
 				}
 
 				led?.classList.toggle("modified", !isDefault);
@@ -1705,6 +1794,64 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 					staticSel.style.opacity = cross ? "0.6" : "1";
 					staticSel.style.cursor = cross ? "not-allowed" : "pointer";
 					if (cross) staticSel.value = "no";
+				}
+			}
+
+			if (v === "qbt_use_lto") {
+				const mcmSel = document.querySelector<HTMLSelectElement>(
+					'select[data-variable="qbt_mcm_url"]',
+				);
+				const baseImgSel = document.querySelector<HTMLSelectElement>(
+					'select[data-variable="qbt_docker_base"]',
+				);
+				const isDebian = baseImgSel && (baseImgSel.value.includes("ubuntu") || baseImgSel.value.includes("debian"));
+
+				if (mcmSel && !isDebian) {
+					if (cur === "yes") {
+						mcmSel.value = "userdocs/musl-cross-make";
+					} else {
+						mcmSel.value = "userdocs/qbt-musl-cross-make";
+					}
+					handleCustomInput(mcmSel);
+				}
+			}
+
+			if (v === "qbt_mcm_url") {
+				const ltoSel = document.querySelector<HTMLSelectElement>(
+					'select[data-variable="qbt_use_lto"]',
+				);
+				const baseImgSel = document.querySelector<HTMLSelectElement>(
+					'select[data-variable="qbt_docker_base"]',
+				);
+				const isDebian = baseImgSel && (baseImgSel.value.includes("ubuntu") || baseImgSel.value.includes("debian"));
+
+				if (ltoSel && !isDebian) {
+					if (cur === "userdocs/musl-cross-make") {
+						ltoSel.value = "yes";
+					} else {
+						ltoSel.value = "no";
+					}
+					handleCustomInput(ltoSel);
+				}
+			}
+
+			if (v === "qbt_docker_base") {
+				const isDebian = cur.includes("ubuntu") || cur.includes("debian");
+				const mcmSel = document.querySelector<HTMLSelectElement>(
+					'select[data-variable="qbt_mcm_url"]',
+				);
+				const ltoSel = document.querySelector<HTMLSelectElement>(
+					'select[data-variable="qbt_use_lto"]',
+				);
+
+				if (mcmSel && ltoSel) {
+					if (isDebian && mcmSel.value === "userdocs/musl-cross-make") {
+						mcmSel.value = "userdocs/qbt-musl-cross-make";
+						handleCustomInput(mcmSel);
+					} else if (!isDebian && ltoSel.value === "yes") {
+						mcmSel.value = "userdocs/musl-cross-make";
+						handleCustomInput(mcmSel);
+					}
 				}
 			}
 		}
