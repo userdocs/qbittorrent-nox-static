@@ -1,3 +1,15 @@
+### v2.2.5 - 23/04/2026
+
+| #   | Severity | Finding                                                                                                 | Status  |
+| --- | -------- | ------------------------------------------------------------------------------------------------------- | ------- |
+| 1   | Medium   | Added Debian/Ubuntu `/usr/bin` toolchain support alongside Alpine `qbt_mcm_dir` via `qbt_cross_tool_dir`| Added   |
+| 2   | Medium   | Refactored `cxx_version_map` to `_resolve_app_cxx_val` utilizing Bash 4.3 namerefs for cleaner checks   | Updated |
+| 3   | Medium   | Deployed dynamic GCC LTO wrappers (`gcc-ar`, `gcc-nm`, `gcc-ranlib`) for cross and native targets       | Added   |
+| 4   | Medium   | Expanded `mold` linker dependency triggers across Alpine natively and Debian/Ubuntu                     | Updated |
+| 5   | Medium   | Updated `qbt_workflow_versions` logic with robust `jq` and `sed` fallback URL parsers                   | Updated |
+| 6   | Low      | Cleaned up deprecated patch files (`openssl3_linux.patch`, `api.diff`) mapping to upstream URLs         | Fixed   |
+| 7   | Medium   | Added `-ot`/`--openssl-tag` flag and `qbt_openssl_tag` to allow custom OpenSSL versions and `lts` handling| Added   |
+
 ### v2.2.4 - 29/03/2026
 
 | #   | Severity | Finding                                                                                                 | Status  |
