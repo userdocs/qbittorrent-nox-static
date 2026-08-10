@@ -27,7 +27,7 @@ on:
       icu:
         description: "Enable icu"
         required: true
-        default: false
+        default: true
         type: boolean
       debug:
         description: "Debug builds (symbols)"
