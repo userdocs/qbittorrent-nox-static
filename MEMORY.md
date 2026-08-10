@@ -21,6 +21,10 @@ This file serves as a persistent context log for AI assistants to understand the
     - Synchronized OS/Arch detection logic and toolchain linking rules across all AI tools.
 - **Linker Clarifications**: Corrected the documentation to reflect that `gold` is disabled in the toolchain and that `mold` requires explicit activation via `-fuse-ld=mold`.
 
+## Recent Changes (2026-08-10)
+- **CI Stability**: Updated `.github/workflows/ci-alpine-build.yml` so Alpine `x86` jobs set `qbt_linker_mold=no` while other architectures continue using `mold`.
+- **Failure Signature**: `mold` can fail on Alpine `x86` static ICU linking with discarded `__x86.get_pc_thunk.*` COMDAT errors from musl `libc.a`.
+
 ## Known Gotchas & Constraints
 - **I/O**: Never use `echo`; always use `printf '%s'` or `printf '%b'`.
 - **Variables**: Lowercase for script-local logic; UPPERCASE for exported ENV/Docker settings.

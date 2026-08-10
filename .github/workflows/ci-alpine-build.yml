@@ -33,7 +33,6 @@ jobs:
         qbt_libtorrent_version: ["1.2", "2.0"]
         qbt_build_tool: [""]
         qbt_openssl_tag: ["openssl-3.5.6"]
-        qbt_linker_mold: ["yes"]
         include:
           - qbt_build_tool: ""
             qbt_qt_version_name: ""
@@ -95,7 +94,7 @@ jobs:
           printf '%s\n' "qbt_with_qemu=${set_qbt_with_qemu}" >> env.custom
           printf '%s\n' "qbt_host_deps=${set_qbt_host_deps}" >> env.custom
           printf '%s\n' "qbt_host_deps_repo=${set_qbt_host_deps_repo}" >> env.custom
-          printf '%s\n\n' "qbt_linker_mold=${{ matrix.qbt_linker_mold }}" >> env.custom
+          printf '%s\n\n' "qbt_linker_mold=${{ matrix.qbt_cross_name == 'x86' && 'no' || 'yes' }}" >> env.custom
 
       - name: Host - Debian based specific env
         if: matrix.os_id != 'alpine'
