@@ -62,7 +62,7 @@ jobs:
               ;;
           esac
 
-          curl -Lo- "https://github.com/editorconfig-checker/editorconfig-checker/releases/latest/download/ec-linux-${arch}.tar.gz" | tar xzf - --strip-components=1
+          curl -Lo- "https://github.com/editorconfig-checker/editorconfig-checker/releases/latest/download/editorconfig-checker-linux-${arch}.tar.gz" | tar xzf - --strip-components=1
           ./ec-linux-${arch} --exclude '^(docs/.*|patches/.*)$' | sed 's/\x1b\[[0-9;]*m//g' | { printf '%b\n' '```bash' >> "$GITHUB_STEP_SUMMARY"; tee -a "$GITHUB_STEP_SUMMARY"; printf '%b\n' '```' >> "$GITHUB_STEP_SUMMARY"; }
           exit_code=("${PIPESTATUS[0]}")
           # exit "${exit_code}"
