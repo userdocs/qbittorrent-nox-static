@@ -63,7 +63,7 @@ jobs:
       id-token: write
       contents: read
       attestations: write
-    uses: ./.github/workflows/ci-debian-build.yml
+    uses: $/.github/workflows/ci-debian-build.yml
     with:
       workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
       icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
@@ -79,7 +79,7 @@ jobs:
       id-token: write
       contents: read
       attestations: write
-    uses: ./.github/workflows/ci-alpine-build.yml
+    uses: $/.github/workflows/ci-alpine-build.yml
     with:
       workflow-files: ${{ github.event.inputs.workflow-files == 'true' && 'yes' || 'no' }}
       icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
@@ -94,7 +94,7 @@ jobs:
       cancel-in-progress: true
     permissions:
       contents: write
-    uses: ./.github/workflows/ci-alpine-release.yml
+    uses: $/.github/workflows/ci-alpine-release.yml
 
   ci-auto-rerun-failed-jobs:
     if: failure() && (github.event.inputs.skip_rerun || 'false') == 'false'
