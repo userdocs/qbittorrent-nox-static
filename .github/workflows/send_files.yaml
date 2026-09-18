@@ -13,7 +13,7 @@ permissions: {}
 
 jobs:
   send_to_usrdx_s:
-    runs-on: ubuntu-24.04-arm
+    runs-on: ubuntu-26.04-arm
     environment: production
 
     steps:
