@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs_on: ["ubuntu-24.04-arm"]
+        runs_on: ["ubuntu-26.04-arm"]
         os_id: ["alpine"]
         os_version_id: ["edge"]
         qbt_cross_name: ["armhf", "armv7", "aarch64", "riscv64", "x86_64", "x86"]

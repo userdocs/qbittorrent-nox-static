@@ -26,7 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs_on: ["ubuntu-24.04", "ubuntu-24.04-arm"]
+        runs_on: ["ubuntu-24.04", "ubuntu-26.04-arm"]
         os_id: ["debian", "ubuntu"]
         os_version_id: ["trixie", "noble"]
         qbt_cross_name: ["default", "aarch64", "x86_64", "riscv64"]
@@ -41,13 +41,13 @@ jobs:
 
           - runs_on: "ubuntu-24.04"
             qbt_cross_name: "x86_64"
-          - runs_on: "ubuntu-24.04-arm"
+          - runs_on: "ubuntu-26.04-arm"
             qbt_cross_name: "aarch64"
 
         include:
           - runs_on: "ubuntu-24.04"
             host_name: "x86_64"
-          - runs_on: "ubuntu-24.04-arm"
+          - runs_on: "ubuntu-26.04-arm"
             host_name: "aarch64"
           - qbt_build_tool: ""
             qbt_qt_version_name: ""
