@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs-on: ["ubuntu-24.04"]
+        runs-on: ["ubuntu-26.04"]
         arch: ["amd64", "arm32v6", "arm32v7", "arm64v8", "i386", "riscv64"]
         container_image: ["ubuntu:latest", "debian:latest", "alpine:edge"]
         include:

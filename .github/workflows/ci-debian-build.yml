@@ -26,31 +26,33 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        runs_on: ["ubuntu-24.04", "ubuntu-26.04-arm"]
+        runs_on: ["ubuntu-26.04", "ubuntu-26.04-arm"]
         os_id: ["debian", "ubuntu"]
-        os_version_id: ["trixie", "noble"]
+        os_version_id: ["trixie", "resolute"]
         qbt_cross_name: ["default", "aarch64", "x86_64", "riscv64"]
         qbt_libtorrent_version: ["1.2", "2.0"]
         qbt_build_tool: [""]
         qbt_qt_version: ["6"]
         exclude:
           - os_id: "debian"
-            os_version_id: "noble"
+            os_version_id: "resolute"
           - os_id: "ubuntu"
             os_version_id: "trixie"
 
-          - runs_on: "ubuntu-24.04"
+          - runs_on: "ubuntu-26.04"
             qbt_cross_name: "x86_64"
           - runs_on: "ubuntu-26.04-arm"
             qbt_cross_name: "aarch64"
 
         include:
-          - runs_on: "ubuntu-24.04"
+          - runs_on: "ubuntu-26.04"
             host_name: "x86_64"
           - runs_on: "ubuntu-26.04-arm"
             host_name: "aarch64"
           - qbt_build_tool: ""
             qbt_qt_version_name: ""
+          - qbt_libtorrent_version: "1.2"
+            qbt_openssl_tag: "openssl-3.5.9"
 
     name: "${{ matrix.host_name }}-${{ matrix.os_id }}-${{ matrix.os_version_id }}-${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.qbt_libtorrent_version }}"
 

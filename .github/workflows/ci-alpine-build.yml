@@ -37,7 +37,7 @@ jobs:
           - qbt_build_tool: ""
             qbt_qt_version_name: ""
           - qbt_libtorrent_version: "1.2"
-            qbt_openssl_tag: "openssl-3.5.7"
+            qbt_openssl_tag: "openssl-3.5.9"
 
     name: "${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.qbt_libtorrent_version }}"
 
