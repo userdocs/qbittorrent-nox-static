@@ -19,9 +19,77 @@ on:
         description: "script name"
         required: true
         type: string
+      libtorrent_1_2:
+        description: "Build libtorrent 1.2"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_2_0:
+        description: "Build libtorrent 2.0"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_2_1:
+        description: "Build libtorrent 2.1"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_1_2_tag:
+        description: "libtorrent 1.2 tag"
+        required: false
+        type: string
+      libtorrent_1_2_qbittorrent_tag:
+        description: "qBittorrent tag for libtorrent 1.2"
+        required: false
+        type: string
+      libtorrent_2_0_tag:
+        description: "libtorrent 2.0 tag"
+        required: false
+        type: string
+      libtorrent_2_0_qbittorrent_tag:
+        description: "qBittorrent tag for libtorrent 2.0"
+        required: false
+        type: string
+      libtorrent_2_1_tag:
+        description: "libtorrent 2.1 tag"
+        required: false
+        type: string
+      libtorrent_2_1_qbittorrent_tag:
+        description: "qBittorrent tag for libtorrent 2.1"
+        required: false
+        type: string
+      openssl_tag:
+        description: "OpenSSL tag"
+        required: false
+        type: string
+      boost_tag:
+        description: "Boost tag"
+        required: false
+        type: string
+      qt_version:
+        description: "Qt version"
+        required: false
+        type: string
+      qt_tag:
+        description: "Qt tag"
+        required: false
+        type: string
 
 jobs:
+  setup:
+    runs-on: ubuntu-26.04-arm
+    outputs:
+      versions: ${{ steps.matrix.outputs.versions }}
+    steps:
+      - id: matrix
+        run: |
+          versions='[]'
+          [[ '${{ inputs.libtorrent_1_2 }}' == 'true' ]] && versions=$(printf '%s' "${versions}" | jq -c '. + ["1.2"]')
+          [[ '${{ inputs.libtorrent_2_0 }}' == 'true' ]] && versions=$(printf '%s' "${versions}" | jq -c '. + ["2.0"]')
+          [[ '${{ inputs.libtorrent_2_1 }}' == 'true' ]] && versions=$(printf '%s' "${versions}" | jq -c '. + ["2.1"]')
+          printf 'versions=%s\n' "${versions}" >> "$GITHUB_OUTPUT"
   build:
+    needs: [setup]
     runs-on: ${{ matrix.runs_on }}
     strategy:
       fail-fast: false
@@ -30,14 +98,12 @@ jobs:
         os_id: ["alpine"]
         os_version_id: ["edge"]
         qbt_cross_name: ["armhf", "armv7", "aarch64", "riscv64", "x86_64", "x86"]
-        qbt_libtorrent_version: ["1.2", "2.0"]
+        qbt_libtorrent_version: ${{ fromJSON(needs.setup.outputs.versions) }}
         qbt_build_tool: [""]
         qbt_linker_mold: ["yes"]
         include:
           - qbt_build_tool: ""
             qbt_qt_version_name: ""
-          - qbt_libtorrent_version: "1.2"
-            qbt_openssl_tag: "openssl-3.5.9"
 
     name: "${{ matrix.qbt_cross_name }}-${{ matrix.qbt_qt_version_name }}libtorrent-v${{ matrix.qbt_libtorrent_version }}"
 
@@ -70,21 +136,32 @@ jobs:
           fi
 
       - name: Host - Create Docker template env file
+        env:
+          INPUT_OPENSSL_TAG: ${{ matrix.qbt_libtorrent_version == '1.2' && 'openssl-3.5.9' || inputs.openssl_tag }}
+          INPUT_BOOST_TAG: ${{ inputs.boost_tag }}
+          MATRIX_LT_VERSION: ${{ matrix.qbt_libtorrent_version }}
+          INPUT_LT_TAG: ${{ matrix.qbt_libtorrent_version == '2.1' && inputs.libtorrent_2_1_tag || matrix.qbt_libtorrent_version == '2.0' && inputs.libtorrent_2_0_tag || inputs.libtorrent_1_2_tag }}
+          INPUT_QT_VERSION: ${{ inputs.qt_version }}
+          INPUT_QT_TAG: ${{ inputs.qt_tag }}
+          INPUT_QBT_TAG: ${{ matrix.qbt_libtorrent_version == '2.1' && inputs.libtorrent_2_1_qbittorrent_tag || matrix.qbt_libtorrent_version == '2.0' && inputs.libtorrent_2_0_qbittorrent_tag || inputs.libtorrent_1_2_qbittorrent_tag }}
+          MATRIX_BUILD_TOOL: ${{ matrix.qbt_build_tool }}
+          MATRIX_CROSS_NAME: ${{ matrix.qbt_cross_name }}
+          MATRIX_LT_MOLD: ${{ matrix.qbt_linker_mold }}
         run: |
           printf '%s\n' "qbt_revision_url=${{ github.repository }}" > env.custom
           printf '%s\n' "qbt_zlib_type=zlib" >> env.custom
           printf '%s\n' "qbt_skip_icu=${set_skip_icu}" >> env.custom
-          printf '%s\n' "qbt_openssl_tag=${{ matrix.qbt_openssl_tag }}" >> env.custom
-          printf '%s\n' "qbt_boost_tag=${{ matrix.qbt_boost_tag }}" >> env.custom
-          printf '%s\n' "qbt_libtorrent_version=${{ matrix.qbt_libtorrent_version }}" >> env.custom
-          printf '%s\n' "qbt_libtorrent_tag=${{ matrix.qbt_libtorrent_tag }}" >> env.custom
+          printf '%s\n' "qbt_openssl_tag=${INPUT_OPENSSL_TAG}" >> env.custom
+          printf '%s\n' "qbt_boost_tag=${INPUT_BOOST_TAG}" >> env.custom
+          printf '%s\n' "qbt_libtorrent_version=${MATRIX_LT_VERSION}" >> env.custom
+          printf '%s\n' "qbt_libtorrent_tag=${INPUT_LT_TAG}" >> env.custom
           printf '%s\n' "qbt_libtorrent_master_jamfile=" >> env.custom
-          printf '%s\n' "qbt_qt_version=${{ matrix.qbt_qt_version }}" >> env.custom
-          printf '%s\n' "qbt_qt_tag=${{ matrix.qbt_qt_tag }}" >> env.custom
-          printf '%s\n' "qbt_qbittorrent_tag=${{ matrix.qbt_qbittorrent_tag }}" >> env.custom
+          printf '%s\n' "qbt_qt_version=${INPUT_QT_VERSION}" >> env.custom
+          printf '%s\n' "qbt_qt_tag=${INPUT_QT_TAG}" >> env.custom
+          printf '%s\n' "qbt_qbittorrent_tag=${INPUT_QBT_TAG}" >> env.custom
           printf '%s\n' "qbt_build_dir=${qbt_build_dir}" >> env.custom
-          printf '%s\n' "qbt_build_tool=${{ matrix.qbt_build_tool }}" >> env.custom
-          printf '%s\n' "qbt_cross_name=${{ matrix.qbt_cross_name }}" >> env.custom
+          printf '%s\n' "qbt_build_tool=${MATRIX_BUILD_TOOL}" >> env.custom
+          printf '%s\n' "qbt_cross_name=${MATRIX_CROSS_NAME}" >> env.custom
           printf '%s\n' "qbt_mcm_url=${set_qbt_mcm_url}" >> env.custom
           printf '%s\n' "qbt_patches_url=${{ github.repository }}" >> env.custom
           printf '%s\n' "qbt_workflow_files=${set_workflow_files}" >> env.custom
@@ -97,7 +174,7 @@ jobs:
           printf '%s\n' "qbt_with_qemu=${set_qbt_with_qemu}" >> env.custom
           printf '%s\n' "qbt_host_deps=${set_qbt_host_deps}" >> env.custom
           printf '%s\n' "qbt_host_deps_repo=${set_qbt_host_deps_repo}" >> env.custom
-          printf '%s\n\n' "qbt_linker_mold=${{ matrix.qbt_linker_mold }}" >> env.custom
+          printf '%s\n\n' "qbt_linker_mold=${MATRIX_LT_MOLD}" >> env.custom
 
       - name: Host - Debian based specific env
         if: matrix.os_id != 'alpine'

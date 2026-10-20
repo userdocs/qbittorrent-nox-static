@@ -39,6 +39,61 @@ on:
         required: true
         default: true
         type: boolean
+      libtorrent_1_2:
+        description: "Build libtorrent 1.2"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_1_2_tag:
+        description: "libtorrent 1.2 tag | RC_1_2"
+        required: false
+        type: string
+      libtorrent_1_2_qbittorrent_tag:
+        description: "qbt tag for libtorrent 1.2 | release-5.2.2"
+        required: false
+        type: string
+      libtorrent_2_0:
+        description: "Build libtorrent 2.0"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_2_0_tag:
+        description: "libtorrent 2.0 tag | RC_2_0"
+        required: false
+        type: string
+      libtorrent_2_0_qbittorrent_tag:
+        description: "qbt tag for libtorrent 2.0 | release-5.2.2"
+        required: false
+        type: string
+      libtorrent_2_1:
+        description: "Build libtorrent 2.1"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_2_1_tag:
+        description: "libtorrent 2.1 tag | RC_2_1"
+        required: false
+        type: string
+      libtorrent_2_1_qbittorrent_tag:
+        description: "qbt tag for libtorrent 2.1 | release-5.2.2"
+        required: false
+        type: string
+      openssl_tag:
+        description: "OpenSSL tag | openssl-3.6.2"
+        required: false
+        type: string
+      boost_tag:
+        description: "Boost tag | boost-1.91.0-1"
+        required: false
+        type: string
+      qt_version:
+        description: "Qt version | 6"
+        required: false
+        type: string
+      qt_tag:
+        description: "Qt tag | v6.11.1"
+        required: false
+        type: string
       skip_rerun:
         description: "Skip rerun?"
         required: true
@@ -85,6 +140,19 @@ jobs:
       icu: ${{ github.event.inputs.icu == 'true' && 'no' || 'yes' }}
       debug: ${{ github.event.inputs.debug == 'true' && 'yes' || 'no' }}
       script_name: ${{ github.event.inputs.script_name }}
+      libtorrent_1_2: ${{ github.event.inputs.libtorrent_1_2 == 'true' }}
+      libtorrent_2_0: ${{ github.event.inputs.libtorrent_2_0 == 'true' }}
+      libtorrent_2_1: ${{ github.event.inputs.libtorrent_2_1 == 'true' }}
+      libtorrent_1_2_tag: ${{ github.event.inputs.libtorrent_1_2_tag }}
+      libtorrent_1_2_qbittorrent_tag: ${{ github.event.inputs.libtorrent_1_2_qbittorrent_tag }}
+      libtorrent_2_0_tag: ${{ github.event.inputs.libtorrent_2_0_tag }}
+      libtorrent_2_0_qbittorrent_tag: ${{ github.event.inputs.libtorrent_2_0_qbittorrent_tag }}
+      libtorrent_2_1_tag: ${{ github.event.inputs.libtorrent_2_1_tag }}
+      libtorrent_2_1_qbittorrent_tag: ${{ github.event.inputs.libtorrent_2_1_qbittorrent_tag }}
+      openssl_tag: ${{ github.event.inputs.openssl_tag }}
+      boost_tag: ${{ github.event.inputs.boost_tag }}
+      qt_version: ${{ github.event.inputs.qt_version }}
+      qt_tag: ${{ github.event.inputs.qt_tag }}
 
   ci-alpine-release:
     needs: [ci-alpine-build]
@@ -95,6 +163,10 @@ jobs:
     permissions:
       contents: write
     uses: $/.github/workflows/ci-alpine-release.yml
+    with:
+      libtorrent_1_2: ${{ github.event.inputs.libtorrent_1_2 == 'true' }}
+      libtorrent_2_0: ${{ github.event.inputs.libtorrent_2_0 == 'true' }}
+      libtorrent_2_1: ${{ github.event.inputs.libtorrent_2_1 == 'true' }}
 
   ci-auto-rerun-failed-jobs:
     if: failure() && (github.event.inputs.skip_rerun || 'false') == 'false'

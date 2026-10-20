@@ -2,22 +2,46 @@ name: ci - alpine-release
 
 on:
   workflow_call:
+    inputs:
+      libtorrent_1_2:
+        description: "Build libtorrent 1.2"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_2_0:
+        description: "Build libtorrent 2.0"
+        required: true
+        default: true
+        type: boolean
+      libtorrent_2_1:
+        description: "Build libtorrent 2.1"
+        required: true
+        default: true
+        type: boolean
 
 jobs:
+  setup:
+    runs-on: ubuntu-26.04-arm
+    outputs:
+      versions: ${{ steps.matrix.outputs.versions }}
+    steps:
+      - id: matrix
+        run: |
+          versions='[]'
+          [[ '${{ inputs.libtorrent_1_2 }}' == 'true' ]] && versions=$(printf '%s' "${versions}" | jq -c '. + ["1.2"]')
+          [[ '${{ inputs.libtorrent_2_0 }}' == 'true' ]] && versions=$(printf '%s' "${versions}" | jq -c '. + ["2.0"]')
+          [[ '${{ inputs.libtorrent_2_1 }}' == 'true' ]] && versions=$(printf '%s' "${versions}" | jq -c '. + ["2.1"]')
+          printf 'versions=%s\n' "${versions}" >> "$GITHUB_OUTPUT"
+
   release:
+    needs: [setup]
     runs-on: ubuntu-26.04-arm
     permissions:
       contents: write
     strategy:
       fail-fast: false
       matrix:
-        qbt_libtorrent_version: ["1.2", "2.0"]
-        include:
-          - qbt_libtorrent_version: "1.2"
-            preview_release: true
-
-          - qbt_libtorrent_version: "2.0"
-            preview_release: false
+        qbt_libtorrent_version: ${{ fromJSON(needs.setup.outputs.versions) }}
 
     name: "Publish release libtorrent-v${{ matrix.qbt_libtorrent_version }}"
 
@@ -49,6 +73,13 @@ jobs:
           pattern: libtorrent-v2.0-*-qbittorrent-nox
           merge-multiple: true
 
+      - name: Host - Download 2.1 qbittorrent-nox artifacts
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: "2.1"
+          pattern: libtorrent-v2.1-*-qbittorrent-nox
+          merge-multiple: true
+
       - name: Host - merge release-info
         env:
           lt_version: ${{ matrix.qbt_libtorrent_version }}
@@ -58,8 +89,8 @@ jobs:
           revision="$(jq -r .revision "${lt_version}"/*-dependency-version.json | sort -nr | head -n1)"
           boost="$(jq -r .boost "${lt_version}"/*-dependency-version.json | head -n1)"
 
-          # this need to check both 1.2 and 2.0 folders to merge the libtorrent versions in the dependency-version.json
-          for dependency_version_json in {1.2,2.0}/*-dependency-version.json; do
+          # this need to check both 1.2 and 2.0 and 2.1 folders to merge the libtorrent versions in the dependency-version.json
+          for dependency_version_json in {1.2,2.0,2.1}/*-dependency-version.json; do
             if [[ -f ${dependency_version_json} ]]; then
               sed -r 's/"boost": (.*)/BOOST_PLACEHOLDER/g' -i "${dependency_version_json}"
               sed -r 's/"revision": (.*)/REVISION_PLACEHOLDER/g' -i "${dependency_version_json}"
@@ -88,27 +119,33 @@ jobs:
           ./pandoc --wrap=preserve -f gfm tmp-release.md -t gfm -o release.md
 
       - name: Host - Bootstrap release tag
-        run: printf '%s\n' "release_tag=$(cat ${{ matrix.qbt_libtorrent_version }}/tag.md)" >> $GITHUB_ENV
+        env:
+          LT_VERSION: ${{ matrix.qbt_libtorrent_version }}
+        run: printf '%s\n' "release_tag=$(cat "${LT_VERSION}/tag.md")" >> $GITHUB_ENV
 
       - name: Host - Bootstrap release title
-        run: printf '%s\n' "release_title=$(cat ${{ matrix.qbt_libtorrent_version }}/title.md)" >> $GITHUB_ENV
+        env:
+          LT_VERSION: ${{ matrix.qbt_libtorrent_version }}
+        run: printf '%s\n' "release_title=$(cat "${LT_VERSION}/title.md")" >> $GITHUB_ENV
 
       - name: Host- Create release - tag - assets
         env:
           GH_TOKEN: "${{ github.TOKEN }}"
+          LT_VERSION: ${{ matrix.qbt_libtorrent_version }}
+          RELEASE_FLAGS: ${{ matrix.qbt_libtorrent_version == '2.1' && '--latest' || '--prerelease' }}
         run: |
           if git ls-remote --exit-code --tags origin "refs/tags/${release_tag}" >/dev/null 2>&1; then
             gh release edit "${release_tag}" \
               --title "${release_title}" \
               --notes-file release.md \
-              ${{ matrix.preview_release == true && '--prerelease' || '--latest' }}
+              ${RELEASE_FLAGS}
             gh release upload "${release_tag}" \
               --clobber \
-              ${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox dependency-version.json
+              "${LT_VERSION}"/*-qbittorrent-nox dependency-version.json
           else
             gh release create "${release_tag}" \
               --title "${release_title}" \
               --notes-file release.md \
-              ${{ matrix.preview_release == true && '--prerelease' || '--latest' }} \
-              ${{ matrix.qbt_libtorrent_version }}/*-qbittorrent-nox dependency-version.json
+              ${RELEASE_FLAGS} \
+              "${LT_VERSION}"/*-qbittorrent-nox dependency-version.json
           fi
