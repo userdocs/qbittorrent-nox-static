@@ -10,13 +10,13 @@
     "astro": "astro"
   },
   "dependencies": {
-    "@astrojs/check": "^0.9.10",
-    "@astrojs/starlight": "^0.41.9",
-    "@expressive-code/plugin-collapsible-sections": "^0.41.3",
-    "astro": "^7.2.8",
+    "@astrojs/check": "^0.9.12",
+    "@astrojs/starlight": "^0.42.7",
+    "@expressive-code/plugin-collapsible-sections": "^0.44.3",
+    "astro": "^7.4.2",
     "sharp": "^0.34.2",
-    "starlight-github-alerts": "^0.1.0",
-    "starlight-image-zoom": "^0.13.0",
+    "starlight-github-alerts": "^0.5.0",
+    "starlight-image-zoom": "^0.16.2",
     "typescript": "^5.9.2"
   },
   "devDependencies": {
