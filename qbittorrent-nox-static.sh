@@ -240,7 +240,7 @@ _set_default_values() {
 	qbt_mcm_tag="${qbt_mcm_tag:-}"
 
 	# Default to this version of libtorrent is no tag or branch is specified. qbt_libtorrent_version=1.2 or 2.0 or 2.1 or -lt v1.2.18
-	qbt_libtorrent_version="${qbt_libtorrent_version:-2.0}"
+	qbt_libtorrent_version="${qbt_libtorrent_version:-2.1}"
 
 	# Use release Jamfile unless we need a specific fix from the relevant RC branch.
 	# Using this can also break builds when non backported changes are present which will require a custom jamfile
@@ -1705,7 +1705,7 @@ _set_module_urls() {
 		github_url[zlib]="https://github.com/zlib-ng/zlib-ng.git"
 	fi
 
-	github_url[iconv]="https://git.savannah.gnu.org/git/libiconv.git"
+	github_url[iconv]="https://https.git.savannah.gnu.org/git/libiconv.git"
 	github_url[icu]="https://github.com/unicode-org/icu.git"
 	github_url[double_conversion]="https://github.com/google/double-conversion.git"
 	github_url[openssl]="https://github.com/openssl/openssl.git"
