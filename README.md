@@ -9,7 +9,7 @@ Cross-platform static builds of qBittorrent-nox with the latest dependencies.
 [Latest Release](https://github.com/userdocs/qbittorrent-nox-static/releases/latest) | [Documentation](https://userdocs.github.io/qbittorrent-nox-static/introduction/) | [All Releases](https://github.com/userdocs/qbittorrent-nox-static/tags)
 
 > [!TIP]
-> Docker: Use https://hotio.dev/containers/qbittorrent — Libtorrent `v1.2` and `v2` static builds combined into a single docker image with VPN support.
+> Docker: Use <https://hotio.dev/containers/qbittorrent> — Libtorrent `v1.2` and `v2` static builds combined into a single docker image with VPN support.
 
 ## Overview
 
@@ -23,11 +23,14 @@ A bash build script that compiles fully static `qbittorrent-nox` binaries using 
 > The quick installer `qi.bash` supports Alpine and Debian-based systems.
 
 ```bash
-# Latest release (libtorrent v2)
+# Latest release (libtorrent v2.1)
 bash <(curl -sL usrdx.github.io/s/qi.bash)
 
-# Latest release (libtorrent v1.2)
+# Latest version of libtorrent v1.2
 bash <(curl -sL usrdx.github.io/s/qi.bash) -lt v1
+
+# Latest version of libtorrent v2.0
+bash <(curl -sL usrdx.github.io/s/qi.bash) -lt v2.0
 
 # Force a specific architecture
 bash <(curl -sL usrdx.github.io/s/qi.bash) -lt v1 -fa armv7
@@ -129,6 +132,9 @@ jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_1_2)"' < <(curl -sL https://g
 
 # Libtorrent v2.0
 jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_2_0)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
+
+# Libtorrent v2.1
+jq -r '. | "release-\(.qbittorrent)_v\(.libtorrent_2_1)"' < <(curl -sL https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json)
 ```
 
 ### Build Revisions
@@ -157,7 +163,7 @@ gh attestation verify x86_64-qbittorrent-nox -o userdocs
 <details>
 <summary>Example verification output</summary>
 
-```
+```text
 Loaded digest sha256:a656ff57b03ee6218205d858679ea189246caaecbbcc38d4d2b57eb81d8e59bb for file://x86_64-qbittorrent-nox
 Loaded 1 attestation from GitHub API
 ✓ Verification succeeded!
