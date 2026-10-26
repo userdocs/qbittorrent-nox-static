@@ -22,7 +22,7 @@ handle_error() {
 check_supported_distro() {
 	# Source os-release and check ID
 	if [[ -f /etc/os-release ]]; then
-		# shellcheck source=/dev/null
+		# shellcheck source=/etc/os-release
 		source /etc/os-release
 		# Support Alpine or Debian-based distributions
 		if [[ ${ID:-} =~ ^(alpine|debian)$ ]] || [[ ${ID_LIKE:-} == *debian* ]]; then
@@ -95,15 +95,9 @@ print_output() {
 	if [[ $message == *:* ]]; then
 		local prefix="${message%%:*}:"
 		local suffix="${message#*: }"
-		# Robustly check if a suffix was actually extracted.
-		# This prevents duplication when the message ends with a colon.
-		if [[ -n $suffix && $suffix != "$message" ]]; then
-			printf '%b\n' "$color $icon $prefix ${color}$suffix $COLOR_RESET"
-		else
-			printf '%b\n' "$color $icon $message"
-		fi
+		printf '%b\n' "$color $icon $prefix ${color}$suffix $COLOR_RESET" >&2
 	else
-		printf '%b\n' "$color $icon $message"
+		printf '%b\n' "$color $icon $message" >&2
 	fi
 }
 
@@ -115,61 +109,6 @@ print_error() { print_output "ERROR" "$1"; }
 print_success() { print_output "SUCCESS" "$1"; }
 print_failure() { print_output "FAILURE" "$1"; }
 print_generic() { print_output "" "$1"; }
-
-# Print build info from JSON
-print_build_info() {
-	local json_data="$1"
-	local libtorrent_ver="$2"
-	# Extra key-value pairs appended after JSON fields, passed as "key value" arguments
-	shift 2
-	local -a extra_fields=("$@")
-	print_info "Install Configuration:"
-
-	local key_to_remove
-	if [[ $libtorrent_ver == "v2" ]]; then
-		key_to_remove="libtorrent_1_2"
-	else
-		key_to_remove="libtorrent_2_0"
-	fi
-
-	if command -v jq > /dev/null 2>&1; then
-		# Preferred method: Use jq to create "key value" pairs
-		local filtered_json
-		filtered_json=$(printf '%s' "$json_data" | jq -r "del(.$key_to_remove) | to_entries[] | \"\(.key) \(.value)\"")
-		while read -r key value; do
-			if [[ -z $key ]]; then
-				continue
-			fi
-			local aligned_text
-			aligned_text=$(printf "%-18s %s" "${key}:" "$value")
-			printf '%b\n' "$COLOR_INFO   $aligned_text $COLOR_RESET"
-		done <<< "$filtered_json"
-	else
-		# Fallback method: Use bash regex matching. It's slower but more robust.
-		while IFS= read -r line; do
-			# Filter out the unwanted libtorrent version and non-key-value lines
-			if [[ $line == *"$key_to_remove"* || ! $line =~ \"(.+)\":[[:space:]]*\"(.+)\" ]]; then
-				continue
-			fi
-			local key="${BASH_REMATCH[1]}"
-			local value="${BASH_REMATCH[2]}"
-
-			local aligned_text
-			aligned_text=$(printf "%-18s %s" "${key}:" "$value")
-			printf '%b\n' "$COLOR_INFO   $aligned_text $COLOR_RESET"
-		done <<< "$(printf '%s' "$json_data")"
-	fi
-
-	# Print any extra key-value pairs in the same aligned format
-	local i
-	for ((i = 0; i < ${#extra_fields[@]}; i += 2)); do
-		local ekey="${extra_fields[i]}"
-		local evalue="${extra_fields[i+1]}"
-		local aligned_text
-		aligned_text=$(printf "%-18s %s" "${ekey}:" "$evalue")
-		printf '%b\n' "$COLOR_INFO   $aligned_text $COLOR_RESET"
-	done
-}
 
 # Detect architecture and map to binary name
 detect_arch() {
@@ -231,6 +170,25 @@ detect_arch() {
 	esac
 }
 
+# Validate an architecture name against the published binaries
+validate_arch() {
+	case "$1" in
+		x86_64 | x86 | aarch64 | armv7 | armhf | riscv64) return 0 ;;
+		*)
+			print_error "Unsupported architecture: $1"
+			print_error "Supported architectures: x86_64, x86, aarch64, armv7, armhf, riscv64"
+			return 1
+			;;
+	esac
+}
+
+# Remove the temporary download if the script exits before installing it
+cleanup_tmp() {
+	if [[ -n ${tmp_path:-} ]]; then
+		rm -f -- "$tmp_path"
+	fi
+}
+
 # Check for wget or curl, default to curl if present
 check_download_tools() {
 	if command -v curl > /dev/null 2>&1; then
@@ -252,30 +210,6 @@ check_gh_cli() {
 	else
 		return 1
 	fi
-}
-
-# Fetch URL content using curl or wget
-fetch_url() {
-	local url="$1"
-	local tool
-	tool=$(check_download_tools)
-
-	local response
-	if [[ $tool == "wget" ]]; then
-		if ! response=$(wget -qO- "$url" 2> /dev/null); then
-			print_warning "Failed to fetch information from URL: $url"
-			printf "" # Return empty on failure
-			return 1
-		fi
-	else
-		if ! response=$(curl -sL "$url" 2> /dev/null); then
-			print_warning "Failed to fetch information from URL: $url"
-			printf "" # Return empty on failure
-			return 1
-		fi
-	fi
-
-	printf "%s" "$response"
 }
 
 # Create download function based on architecture checks
@@ -306,6 +240,7 @@ create_sha256() {
 
 # Comprehensive SHA256 verification function
 # Tries GitHub CLI first, then API, then shows local SHA as fallback
+# Returns 0 verified, 1 could not verify, 2 checksum mismatch
 verify_binary_integrity() {
 	local install_path="$1"
 	local release_tag="$2"
@@ -344,15 +279,31 @@ verify_binary_integrity() {
 	# Try GitHub API verification as fallback
 	local api_url="https://api.github.com/repos/${repo}/releases/tags/${release_tag}"
 	local tool
-	tool=$(check_download_tools)
+	tool=$(check_download_tools) || exit 1
 
 	print_action "Verifying SHA256 against GitHub API..."
 
 	# Fetch release assets from GitHub API
 	local api_response
-	api_response=$(fetch_url "$api_url")
+	case "$tool" in
+		wget)
+			api_response=$(wget -qO- "$api_url" 2> /dev/null) || {
+				print_warning "Failed to fetch release information from GitHub API"
+				print_info "Local SHA256 verification completed"
+				return 1
+			}
+			;;
+		curl)
+			api_response=$(curl -sL "$api_url" 2> /dev/null) || {
+				print_warning "Failed to fetch release information from GitHub API"
+				print_info "Local SHA256 verification completed"
+				return 1
+			}
+			;;
+	esac
+
 	if [[ -z $api_response ]]; then
-		print_warning "Failed to fetch release information from GitHub API"
+		print_warning "Empty response from GitHub API"
 		print_info "Local SHA256 verification completed"
 		return 1
 	fi
@@ -363,8 +314,8 @@ verify_binary_integrity() {
 		# Use jq if available (preferred method) - extract just the hash value
 		api_digests=$(printf '%s' "$api_response" | jq -r '.assets[].digest // empty' 2> /dev/null | sed 's/^sha256://')
 	else
-		# Fall back to grep/cut if jq is not available - more robust than a single sed
-		api_digests=$(printf '%s' "$api_response" | grep -o '"digest": *"[^"]*"' | cut -d'"' -f4 | sed 's/^sha256://')
+		# Fall back to grep if jq is not available - works on single-line and pretty-printed JSON
+		api_digests=$(printf '%s' "$api_response" | grep -Eo 'sha256:[0-9a-f]{64}' 2> /dev/null | sed 's/^sha256://')
 	fi
 
 	if [[ -z $api_digests ]]; then
@@ -396,34 +347,53 @@ verify_binary_integrity() {
 			fi
 		done <<< "$api_digests"
 		print_warning "This may indicate a corrupted download or outdated API data"
-		print_info "Local SHA256 verification completed"
-		return 1
+		return 2
 	fi
 }
-# Parse release info from JSON
-parse_release_info() {
-	local response="$1"
-	local ver="$2"
+# Get release tag from API
+get_release_tag() {
+	local api="https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json"
+	local ver="${LIBTORRENT_VERSION:-v2}"
+	local tool
+	tool=$(check_download_tools) || exit 1
 
-	# Parse release tag
-	local qbt_ver libt_ver revision libt_key
-	case "$ver" in
-		v1) libt_key="libtorrent_1_2" ;;
-		v2) libt_key="libtorrent_2_0" ;;
-		*)
-			print_error "Invalid LibTorrent version: $ver"
-			print_error "Valid options: v1, v2"
-			exit 1
+	# Fetch API response
+	local response
+	case "$tool" in
+		wget)
+			response=$(wget -qO- "$api" 2> /dev/null) || {
+				handle_error $? "wget -qO $api" "Failed to fetch release information from API"
+			}
+			;;
+		curl)
+			response=$(curl -sL "$api" 2> /dev/null) || {
+				handle_error $? "curl -sL $api" "Failed to fetch release information from API"
+			}
 			;;
 	esac
 
-	if command -v jq > /dev/null 2>&1; then
-		qbt_ver=$(printf '%s' "$response" | jq -r '.qbittorrent')
-		libt_ver=$(printf '%s' "$response" | jq -r --arg KEY "$libt_key" '.[$KEY]')
-	else
-		qbt_ver=$(printf '%s' "$response" | sed -rn 's/.*"qbittorrent": "([^"]*)".*/\1/p')
-		libt_ver=$(printf '%s' "$response" | sed -rn "s/.*\"${libt_key}\": \"([^\"]*)\".*/\1/p")
+	if [[ -z $response ]]; then
+		print_error "Failed to fetch release information - empty response"
+		print_error "API endpoint: $api"
+		exit 1
 	fi
+
+	# Parse release tag
+	local qbt_ver libt_ver json_key
+	qbt_ver=$(printf '%s' "$response" | sed -rn 's|(.*)"qbittorrent": "(.*)",|\2|p')
+
+	# v1 = 1.2, v2 = 2.1 (default), 2.0 must be requested explicitly
+	case "$ver" in
+		v1 | v1.2 | 1.2) json_key="libtorrent_1_2" ;;
+		v2.0 | 2.0) json_key="libtorrent_2_0" ;;
+		v2 | v2.1 | 2.1) json_key="libtorrent_2_1" ;;
+		*)
+			print_error "Invalid LibTorrent version: $ver"
+			print_error "Valid options: v1/v1.2/1.2, v2.0/2.0, v2/v2.1/2.1"
+			exit 1
+			;;
+	esac
+	libt_ver=$(printf '%s' "$response" | sed -rn "s|(.*)\"${json_key}\": \"(.*)\",|\2|p")
 
 	if [[ -z $qbt_ver ]] || [[ -z $libt_ver ]]; then
 		print_error "Failed to parse version information from API response"
@@ -432,61 +402,15 @@ parse_release_info() {
 		exit 1
 	fi
 
-	# Output release tag only; revision must be fetched from the tag-specific dep JSON
-	printf '%s' "release-${qbt_ver}_v${libt_ver}"
-}
-
-# Module-level variable: the service unit identified during the stop probe
-_qbt_active_service=""
-
-# Probe for a known qbittorrent user service, stop it if running, restart after install.
-# Sets _qbt_active_service to the first unit that exists (active or not).
-# Probes: qbittorrent-nox.service  qbt-nox.service  qbt.service
-manage_user_service() {
-	local action="$1" # stop | start
-	local unit="${2:-}"
-
-	# systemctl --user requires a running user bus; skip if unavailable
-	if ! command -v systemctl > /dev/null 2>&1; then
-		if [[ $action == "stop" ]]; then
-			print_info "Service check skipped: systemctl not available"
-		fi
-		return 1
+	# Parse revision field
+	local revision
+	revision=$(printf '%s' "$response" | sed -rn 's|.*"revision": "(.*)".*|\1|p')
+	if [[ -z $revision ]]; then
+		print_warning "Failed to parse revision from API response"
 	fi
 
-	if [[ $action == "stop" ]]; then
-		local candidates=("qbittorrent-nox.service" "qbt-nox.service" "qbt.service")
-		for svc in "${candidates[@]}"; do
-			# Check existence via 'cat' - works for enabled, disabled, or stopped units
-			if systemctl --user cat "$svc" > /dev/null 2>&1; then
-				print_info "Found user service: $svc"
-				_qbt_active_service="$svc"
-				# Only stop it if currently running
-				if systemctl --user is-active --quiet "$svc" 2> /dev/null; then
-					print_action "Stopping user service: $svc"
-					if systemctl --user stop "$svc" 2> /dev/null; then
-						print_success "Stopped: $svc"
-					else
-						print_warning "Failed to stop $svc - continuing anyway"
-					fi
-				else
-					print_info "Service $svc is not running - will restart after install"
-				fi
-				return 0
-			fi
-		done
-		print_info "No qbittorrent user service found - skipping service management"
-		return 1
-	fi
-
-	if [[ $action == "start" ]] && [[ -n $unit ]]; then
-		print_action "Restarting user service: $unit"
-		if systemctl --user start "$unit" 2> /dev/null; then
-			print_success "Restarted: $unit"
-		else
-			print_warning "Failed to restart $unit"
-		fi
-	fi
+	# Output release tag and revision
+	printf '%s %s' "release-${qbt_ver}_v${libt_ver}" "${revision:-}"
 }
 
 # Download file
@@ -494,7 +418,7 @@ download() {
 	local url="$1"
 	local output="$2"
 	local tool
-	tool=$(check_download_tools)
+	tool=$(check_download_tools) || exit 1
 
 	print_action "Downloading: $url"
 	case "$tool" in
@@ -527,87 +451,68 @@ main() {
 	print_info "qBittorrent-nox Static Binary Installer"
 	print_generic "======================================="
 
-	local arch="${FORCE_ARCH:-$(detect_arch)}"
-	local libtorrent_ver="${LIBTORRENT_VERSION:-v2}"
-	local install_path="$HOME/bin/qbittorrent-nox"
-
-	# Fetch latest dep JSON to build the correct release tag
-	local dep_api_url="https://github.com/userdocs/qbittorrent-nox-static/releases/latest/download/dependency-version.json"
-	local dep_json
-	dep_json=$(fetch_url "$dep_api_url")
-	if [[ -z $dep_json ]]; then
-		handle_error 1 "fetch_url $dep_api_url" "Failed to fetch dependency information"
-	fi
-
-	# Build release tag from the latest dep JSON
-	local release_tag
-	release_tag=$(parse_release_info "$dep_json" "$libtorrent_ver")
-
-	# Fetch the dep JSON for that specific tag to get the correct revision and build info
-	local tag_dep_url="https://github.com/userdocs/qbittorrent-nox-static/releases/download/${release_tag}/dependency-version.json"
-	local tag_dep_json
-	tag_dep_json=$(fetch_url "$tag_dep_url")
-	if [[ -z $tag_dep_json ]]; then
-		handle_error 1 "fetch_url $tag_dep_url" "Failed to fetch tag-specific dependency information"
-	fi
-
-	# Get revision from the tag-specific JSON
-	local revision
-	if command -v jq > /dev/null 2>&1; then
-		revision=$(printf '%s' "$tag_dep_json" | jq -r '.revision // ""')
+	# exit inside $(...) only ends the subshell, so check each capture
+	local arch="${FORCE_ARCH:-}"
+	if [[ -z $arch ]]; then
+		arch=$(detect_arch) || exit 1
 	else
-		revision=$(printf '%s' "$tag_dep_json" | sed -rn 's/.*"revision": "([^"]*)".*/\1/p')
+		validate_arch "$arch" || exit 1
 	fi
+	local install_path="$HOME/bin/qbittorrent-nox"
+	# Get release and download
+	local release_tag revision release_info libtorrent_ver
+	release_info=$(get_release_tag) || exit 1
+	read -r release_tag revision <<< "$release_info"
+	# Resolved version from the tag, e.g. release-5.3.0_v2.1.2 -> 2.1.2
+	libtorrent_ver="${release_tag##*_v}"
 
-	if [[ -z $revision ]]; then
-		print_warning "Failed to parse revision from tag-specific dependency JSON"
+	print_info "Architecture: $arch"
+	print_info "LibTorrent version: $libtorrent_ver"
+	# Output revision if available
+	if [[ -n $revision ]]; then
+		print_info "Build revision: $revision"
 	fi
-
-	local attestation_status
-	attestation_status=$(check_gh_cli && printf '%s' "enabled" || printf '%s' "disabled (gh cli not found)")
-
-	# Print merged install configuration table
-	print_build_info "$tag_dep_json" "$libtorrent_ver" \
-		"architecture" "$arch" \
-		"libtorrent" "$libtorrent_ver" \
-		"attestation" "$attestation_status"
+	print_info "Attestation verification: $(check_gh_cli && printf '%s' "enabled" || printf '%s' "disabled (gh cli not found)")"
 
 	# Prepare installation directory
-	local install_dir="$HOME/bin"
-	if [[ -f $install_dir ]]; then
-		print_error "Installation path $install_dir exists and is a file."
-		print_error "Please remove it or choose a different installation path."
-		exit 1
-	fi
-	print_action "Creating install directory: $install_dir"
-	mkdir -p "$install_dir" || {
-		handle_error $? "mkdir -p $install_dir" "Failed to create installation directory"
+	print_action "Creating install directory: $HOME/bin"
+	mkdir -p "$HOME/bin" || {
+		handle_error $? "mkdir -p $HOME/bin" "Failed to create installation directory"
 	}
-
-	# Stop any running user service before replacing the binary
-	_qbt_active_service=""
-	manage_user_service stop || true
 
 	# Get release and download
 	local url
 	url=$(create_download_url "$arch" "$release_tag")
 
-	# Download and install binary
-	download "$url" "$install_path"
+	# Download to a temp file so a failed download never clobbers a working install
+	tmp_path=$(mktemp "$HOME/bin/.qbittorrent-nox.XXXXXX") || {
+		handle_error $? "mktemp $HOME/bin/.qbittorrent-nox.XXXXXX" "Failed to create temporary file"
+	}
+	trap cleanup_tmp EXIT
+	download "$url" "$tmp_path"
 
 	# Set executable permissions
 	print_action "Setting executable permissions for: $install_path"
-	chmod 755 "$install_path" || {
-		handle_error $? "chmod 755 $install_path" "Failed to set executable permissions"
+	chmod 755 "$tmp_path" || {
+		handle_error $? "chmod 755 $tmp_path" "Failed to set executable permissions"
 	}
 
-	print_success "Installation complete: $install_path"
-
-	# Verify binary integrity (SHA256 + attestations)
-	local integrity_failed=false
-	if ! verify_binary_integrity "$install_path" "$release_tag" "$arch"; then
+	# Verify binary integrity (SHA256 + attestations) before installing
+	local integrity_failed=false integrity_rc=0
+	verify_binary_integrity "$tmp_path" "$release_tag" "$arch" || integrity_rc=$?
+	if [[ $integrity_rc -eq 2 ]]; then
+		print_failure "Checksum mismatch: refusing to install the downloaded binary"
+		exit 1
+	elif [[ $integrity_rc -ne 0 ]]; then
 		integrity_failed=true
 	fi
+
+	mv -f "$tmp_path" "$install_path" || {
+		handle_error $? "mv -f $tmp_path $install_path" "Failed to install binary"
+	}
+	tmp_path=""
+
+	print_success "Installation complete: $install_path"
 
 	# Test binary
 	local test_output test_exit_code binary_failed=false
@@ -615,7 +520,10 @@ main() {
 	test_exit_code=$?
 
 	if [[ $test_exit_code -eq 0 ]]; then
+		local version_info
+		version_info=$(printf '%s' "$test_output" | head -1)
 		print_success "Binary test passed"
+		print_info "Version: $version_info"
 	else
 		binary_failed=true
 		print_warning "Binary test failed"
@@ -630,20 +538,9 @@ main() {
 		fi
 	fi
 
-	# Restart the service only if both integrity and binary tests passed
-	if [[ -n $_qbt_active_service ]]; then
-		if [[ $integrity_failed == false && $binary_failed == false ]]; then
-			manage_user_service start "$_qbt_active_service"
-		else
-			print_warning "Skipping service restart due to failed verification"
-		fi
-	fi
-
 	# PATH check
 	if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
-		# shellcheck disable=SC2016
 		print_warning '$HOME/bin is not in your PATH'
-		# shellcheck disable=SC2016
 		print_info 'Add to ~/.bashrc: export PATH="$HOME/bin:$PATH"'
 		print_info 'Then run: source ~/.bashrc'
 	fi
@@ -655,14 +552,12 @@ main() {
 			print_info "Binary test failed - the application may not work properly"
 		fi
 		if [[ $integrity_failed == true ]]; then
-			print_info "Integrity verification failed - consider re-downloading"
+			print_info "Integrity could not be verified - consider verifying manually"
 		fi
 	else
 		print_success "Installation completed successfully!"
 	fi
-	if [[ -z $_qbt_active_service ]]; then
-		print_info "Run with: qbittorrent-nox"
-	fi
+	print_info "Run with: qbittorrent-nox"
 }
 
 # Simple argument parsing: loop through all args
@@ -675,19 +570,20 @@ while [[ $# -gt 0 ]]; do
 
 				Options:
 
-				  -lt | --libtorrent VER   LibTorrent version (v1, v2) [default: v2]
+				  -lt | --libtorrent VER   LibTorrent version (v1/v1.2/1.2, v2.0/2.0, v2/v2.1/2.1) [default: v2]
 				  -fa | --force-arch ARCH  Force architecture (x86_64, x86, aarch64, armv7, armhf, riscv64) [ENV: FORCE_ARCH]
 				  --help                   Show this help
 
 				Environment Variables:
 
-				  LIBTORRENT_VERSION       LibTorrent version (v1, v2) [default: v2]
+				  LIBTORRENT_VERSION       LibTorrent version (v1/v1.2/1.2, v2.0/2.0, v2/v2.1/2.1) [default: v2]
 				  FORCE_ARCH               Force architecture (x86_64, x86, aarch64, armv7, armhf, riscv64)
 
 				Examples:
 
-				  ./qi.bash                # Install with LibTorrent v2
-				  ./qi.bash -lt v1         # Install with LibTorrent v1
+				  ./qi.bash                # Install with LibTorrent 2.1 (v2)
+				  ./qi.bash -lt v1         # Install with LibTorrent 1.2
+				  ./qi.bash -lt 2.0        # Install with LibTorrent 2.0
 				  ./qi.bash -fa armv7      # Force armv7 architecture
 
 			EOF
@@ -696,15 +592,19 @@ while [[ $# -gt 0 ]]; do
 		-lt | --libtorrent)
 			shift
 			case "$1" in
-				v1 | v2) LIBTORRENT_VERSION="$1" ;;
+				v1 | v1.2 | 1.2 | v2.0 | 2.0 | v2 | v2.1 | 2.1) LIBTORRENT_VERSION="$1" ;;
 				*)
-					print_error "Invalid libtorrent version: $1. Use: v1 or v2"
+					print_error "Invalid libtorrent version: $1. Use: v1/v1.2/1.2, v2.0/2.0 or v2/v2.1/2.1"
 					exit 1
 					;;
 			esac
 			;;
 		-fa | --force-arch)
 			shift
+			if [[ -z ${1:-} ]]; then
+				print_error "Option -fa requires an architecture. Use -h or --help for usage"
+				exit 1
+			fi
 			FORCE_ARCH="$1"
 			;;
 		*)
