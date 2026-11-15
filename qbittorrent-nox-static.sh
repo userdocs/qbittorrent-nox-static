@@ -19,7 +19,7 @@
 #################################################################################################################################################
 # Script version = Major minor patch
 #################################################################################################################################################
-script_version="2.2.5"
+script_version="2.2.6"
 #################################################################################################################################################
 # Set some script features - https://www.gnu.org/software/bash/manual/html_node/The-Set-Builtin.html
 #################################################################################################################################################
@@ -278,12 +278,7 @@ _set_default_values() {
 		fi
 	fi
 
-	# dependency version management - Env setting for the boost tag
-	if [[ ${qbt_libtorrent_version} == "1.2" || ${qbt_libtorrent_tag} =~ ^(v1\.2\.|RC_1_2) ]]; then
-		qbt_boost_tag="${qbt_boost_tag:-boost-1.86.0}"
-	else
-		qbt_boost_tag="${qbt_boost_tag:-}"
-	fi
+	qbt_boost_tag="${qbt_boost_tag:-}"
 
 	# module management - libtorrent v1.2 is the module that requires iconv otherwise it's not needed.
 	_libtorrent_v2_iconv_check
@@ -3364,11 +3359,6 @@ while (("${#}")); do
 				fi
 				unset qbt_default_boost_github_tag
 
-				# if using libtorrent v1.2 then override workflow files since it is limited to boost-1.86.0 which is not latest
-				if [[ ${qbt_libtorrent_version} == "1.2" || ${github_tag[libtorrent]} =~ ^(v1\.2\.|RC_1_2) ]]; then
-					qbt_workflow_override[boost]="yes"
-				fi
-
 				_test_git_output "${github_tag[boost]}" "boost" "${2}"
 				shift 2
 			else
@@ -3439,13 +3429,6 @@ while (("${#}")); do
 				[[ ${github_tag[libtorrent]} =~ ^RC_ ]] && app_version[libtorrent]="RC_${app_version[libtorrent]//\./_}" # set back to RC_... so that release info has proper version context
 
 				_test_git_output "${github_tag[libtorrent]}" "libtorrent" "$2"
-
-				# If libtorrent v1.2 is used then set default boost tag to boost-1.86.0
-				if [[ ${qbt_libtorrent_version} == "1.2" || ${github_tag[libtorrent]} =~ ^(v1\.2\.|RC_1_2) ]]; then
-					github_tag[boost]="boost-1.86.0"
-					app_version[boost]="${github_tag[boost]#boost-}"
-					_boost_url
-				fi
 
 				_libtorrent_v2_iconv_check
 

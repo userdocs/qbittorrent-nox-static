@@ -137,7 +137,7 @@ jobs:
 
       - name: Host - Create Docker template env file
         env:
-          INPUT_OPENSSL_TAG: ${{ matrix.qbt_libtorrent_version == '1.2' && 'openssl-3.5.9' || inputs.openssl_tag }}
+          INPUT_OPENSSL_TAG: ${{ inputs.openssl_tag }}
           INPUT_BOOST_TAG: ${{ inputs.boost_tag }}
           MATRIX_LT_VERSION: ${{ matrix.qbt_libtorrent_version }}
           INPUT_LT_TAG: ${{ matrix.qbt_libtorrent_version == '2.1' && inputs.libtorrent_2_1_tag || matrix.qbt_libtorrent_version == '2.0' && inputs.libtorrent_2_0_tag || inputs.libtorrent_1_2_tag }}

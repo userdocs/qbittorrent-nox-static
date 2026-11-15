@@ -1,3 +1,9 @@
+### v2.2.6 - 15/11/2026
+
+A custom patch is used to give libtorrent RC_1_2 current boost (1.92.0) and openssl (v4) support.
+
+Now the script no longer forces boost 1.86.0 for libtorrent 1.2 combinations.
+
 ### v2.2.5 - 23/04/2026
 
 | #   | Severity | Finding                                                                                                 | Status  |
@@ -161,10 +167,10 @@ Context: As the qbt-musl-cross-make toolchains were being revised to properly ap
 
 | Status       | Component       | Link                                                                                             |
 | ------------ | --------------- | ------------------------------------------------------------------------------------------------ |
-| (patched)    | qBittorrent     | https://github.com/qbittorrent/qBittorrent/pull/22987                                            |
-| (unresolved) | zlib-ng         | https://github.com/zlib-ng/zlib-ng/issues/1936                                                   |
-| (patched)    | musl-cross-make | https://github.com/richfelker/musl-cross-make/tree/master/patches/binutils-2.44                  |
-| (patched)    | musl-cross-make | https://github.com/richfelker/musl-cross-make/tree/master/patches/gcc-15.1.0                     |
+| (patched)    | qBittorrent     | <https://github.com/qbittorrent/qBittorrent/pull/22987>                                            |
+| (unresolved) | zlib-ng         | <https://github.com/zlib-ng/zlib-ng/issues/1936>                                                   |
+| (patched)    | musl-cross-make | <https://github.com/richfelker/musl-cross-make/tree/master/patches/binutils-2.44>                  |
+| (patched)    | musl-cross-make | <https://github.com/richfelker/musl-cross-make/tree/master/patches/gcc-15.1.0>                     |
 | (resolved)   | openssl         | n/a - it was an issue with using `LDFLAGS=-static` which triggers unexpected behavior in openssl |
 
 ___
@@ -209,7 +215,7 @@ Only use them when not cross compiling
 
 build flags tweaked using this information as a guide:
 
-https://best.openssf.org/Compiler-Hardening-Guides/Compiler-Options-Hardening-Guide-for-C-and-C++.html#tldr-what-compiler-options-should-i-use
+<https://best.openssf.org/Compiler-Hardening-Guides/Compiler-Options-Hardening-Guide-for-C-and-C++.html#tldr-what-compiler-options-should-i-use>
 
 Hardening is preferred over performance.
 
