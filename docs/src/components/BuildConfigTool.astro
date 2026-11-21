@@ -1,508 +1,33 @@
 ---
 import { Tabs, TabItem } from "@astrojs/starlight/components";
+import { fetchRemoteBuildData } from "../utils/qbtVersions";
+import {
+	buildConfigOptions,
+	DOCKER_VAR_NAMES,
+} from "../data/buildConfigOptions";
 
-const response = await fetch(
-	"https://github.com/userdocs/qbt-workflow-files/releases/latest/download/dependency-version.json",
-);
-const data = await response.json();
-
-const overridesResponse = await fetch(
-	"https://raw.githubusercontent.com/userdocs/qbt-workflow-files/refs/heads/main/overrides",
-);
-const overridesText = await overridesResponse.text();
-const overrides: Record<string, string> = {};
-for (const line of overridesText.split("\n")) {
-	const match = line.match(/^current_github_tag\[([^\]]+)\]="([^"]+)"/);
-	if (match) {
-		overrides[match[1]] = match[2];
-	}
-}
-
-type ConfigOption = {
-	variable: string;
-	label: string;
-	description: string;
-	defaultVal: string;
-	options: Array<{ value: string; label: string }>;
-	category: "basic" | "advanced";
-	allowCustom?: boolean;
-};
-
-const configOptions: ConfigOption[] = [
-	{
-		variable: "qbt_docker_base",
-		label: "Docker Base Image",
-		description: "The base docker image for the build environment",
-		defaultVal: "alpine:latest",
-		options: [
-			{ value: "alpine:edge", label: "Alpine Edge" },
-			{ value: "alpine:latest", label: "alpine:latest (recommended)" },
-			{ value: "ubuntu:latest", label: "ubuntu:latest" },
-			{ value: "debian:latest", label: "debian:latest" },
-		],
-		category: "basic",
-	},
-	{
-		variable: "qbt_docker_port",
-		label: "Docker Port Mapping",
-		description: "Port mapping for Docker container (host:container format)",
-		defaultVal: "8080:8080",
-		options: [
-			{ value: "8080:8080", label: "8080:8080" },
-			{ value: "8081:8080", label: "8081:8080" },
-			{ value: "9090:8080", label: "9090:8080" },
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "basic",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_docker_volume",
-		label: "Docker Volume Mapping",
-		description: "Volume mapping for Docker container (host:container format)",
-		defaultVal: "~/qbt:/root",
-		options: [
-			{ value: "~/qbt:/root", label: "~/qbt:/root" },
-			{ value: "./qbt:/root", label: "./qbt:/root" },
-			{ value: "/tmp/qbt:/root", label: "/tmp/qbt:/root" },
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "basic",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_docker_user",
-		label: "Docker User",
-		description: "User to run the container as",
-		defaultVal: "root",
-		options: [
-			{ value: "root", label: "root (default)" },
-			{ value: "username", label: "username (1000:1000)" },
-		],
-		category: "basic",
-	},
-	{
-		variable: "qbt_libtorrent_version",
-		label: "Libtorrent Version",
-		description: "The libtorrent version to use - 1.2 or 2.0",
-		defaultVal: "2.0",
-		options: [
-			{ value: "1.2", label: "1.2 (Legacy)" },
-			{ value: "2.0", label: "2.0" },
-		],
-		category: "basic",
-	},
-	{
-		variable: "qbt_cross_name",
-		label: "Target Architecture",
-		description: "Cross-compilation target architecture",
-		defaultVal: "",
-		options: [
-			{ value: "", label: "Native" },
-			{ value: "aarch64", label: "aarch64" },
-			{ value: "armhf", label: "armhf" },
-			{ value: "armv7", label: "armv7" },
-			{ value: "x86_64", label: "x86_64" },
-			{ value: "x86", label: "x86" },
-		],
-		category: "basic",
-	},
-	{
-		variable: "qbt_qbittorrent_tag",
-		label: "qBittorrent Tag",
-		description: "qBittorrent git tag to use",
-		defaultVal: `release-${data.qbittorrent || "5.1.2"}`,
-		options: [
-			{
-				value: `release-${data.qbittorrent || "5.1.2"}`,
-				label: `release-${data.qbittorrent || "5.1.2"} (default)`,
-			},
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "basic",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_legacy_mode",
-		label: "Legacy Mode",
-		description: "Enable legacy build compatibility mode",
-		defaultVal: "no",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "basic",
-	},
-	{
-		variable: "qbt_advanced_view",
-		label: "Advanced View",
-		description: "Show advanced (all) build env options",
-		defaultVal: "yes",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "basic",
-	},
-	{
-		variable: "qbt_zlib_type",
-		label: "Zlib Implementation",
-		description: "Choose zlib implementation",
-		defaultVal: "zlib",
-		options: [
-			{ value: "zlib", label: "zlib" },
-			{ value: "zlib-ng", label: "zlib-ng" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_skip_icu",
-		label: "Skip ICU",
-		description: "Skip International Components for Unicode",
-		defaultVal: "yes",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_boost_tag",
-		label: "Boost Tag",
-		description: "Specific Boost library git tag to use",
-		defaultVal: overrides["boost"] ? `boost-${overrides["boost"]}` : "default",
-		options: [
-			...(overrides["boost"] ? [{
-				value: `boost-${overrides["boost"]}`,
-				label: `boost-${overrides["boost"]} (override)`,
-			}] : []),
-			{
-				value: "default",
-				label: `boost-${data.boost || "1.89.0"} (default)`,
-			},
-			{ value: "boost-1.86.0", label: "boost-1.86.0 (libtorrent 1.2 max)" },
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_libtorrent_tag",
-		label: "Libtorrent Tag",
-		description: "Specific libtorrent git tag to use",
-		defaultVal: overrides["libtorrent_2_0"] ? `v${overrides["libtorrent_2_0"]}` : "default",
-		options: [
-			...(overrides["libtorrent_2_0"] ? [{
-				value: `v${overrides["libtorrent_2_0"]}`,
-				label: `v${overrides["libtorrent_2_0"]} (override)`,
-			}] : []),
-			{
-				value: "default",
-				label: `v${data.libtorrent_2_0 || "2.0.11"} (default)`,
-			},
-			...(overrides["libtorrent_1_2"] ? [{
-				value: `v${overrides["libtorrent_1_2"]}`,
-				label: `v${overrides["libtorrent_1_2"]} (override)`,
-			}] : []),
-			{
-				value: `v${data.libtorrent_1_2 || "1.2.20"}`,
-				label: `v${data.libtorrent_1_2 || "1.2.20"} (1.2 series)`,
-			},
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_libtorrent_master_jamfile",
-		label: "Use Master Jamfile",
-		description: "Use libtorrent master branch jamfile",
-		defaultVal: "no",
-		options: [
-			{ value: "no", label: "No" },
-			{ value: "yes", label: "Yes" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_qt_version",
-		label: "Qt Version",
-		description: "Select Qt version for the GUI framework",
-		defaultVal: "6",
-		options: [
-			{ value: "5", label: "Qt 5" },
-			{ value: "6", label: "Qt 6" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_qt_tag",
-		label: "Qt Tag",
-		description: "Specific Qt git tag to use",
-		defaultVal: overrides["qt6"] ? `v${overrides["qt6"]}` : "default",
-		options: [
-			...(overrides["qt6"] ? [{
-				value: `v${overrides["qt6"]}`,
-				label: `v${overrides["qt6"]} (override)`,
-			}] : []),
-			{
-				value: "default",
-				label: `v${data.qt6 || "6.9.1"} (default)`,
-			},
-			...(overrides["qt5"] ? [{
-				value: `v${overrides["qt5"]}`,
-				label: `v${overrides["qt5"]} (override)`,
-			}] : []),
-			{
-				value: `v${data.qt5 || "5.15.17"}`,
-				label: `v${data.qt5 || "5.15.17"} (Qt 5 LTS)`,
-			},
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_openssl_tag",
-		label: "OpenSSL Tag",
-		description: "Specific OpenSSL git tag to use",
-		defaultVal: overrides["openssl"] ? `openssl-${overrides["openssl"]}` : "default",
-		options: [
-			...(overrides["openssl"] ? [{
-				value: `openssl-${overrides["openssl"]}`,
-				label: `openssl-${overrides["openssl"]} (override)`,
-			}] : []),
-			{
-				value: "default",
-				label: `openssl-${data.openssl || "3.4.1"} (default)`,
-			},
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_qbittorrent_tag",
-		label: "qBittorrent Tag",
-		description: "Specific qBittorrent git tag to use",
-		defaultVal: overrides["qbittorrent"] ? `release-${overrides["qbittorrent"]}` : "default",
-		options: [
-			...(overrides["qbittorrent"] ? [{
-				value: `release-${overrides["qbittorrent"]}`,
-				label: `release-${overrides["qbittorrent"]} (override)`,
-			}] : []),
-			{
-				value: "default",
-				label: `release-${data.qbittorrent || "5.0.4"} (default)`,
-			},
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_workflow_files",
-		label: "Use Workflow Files",
-		description: "Use workflow dependency files",
-		defaultVal: "no",
-		options: [
-			{ value: "no", label: "No" },
-			{ value: "yes", label: "Yes" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_build_debug",
-		label: "Debug Build",
-		description:
-			"Build with debug information - overrides strip binary options",
-		defaultVal: "no",
-		options: [
-			{ value: "no", label: "No" },
-			{ value: "yes", label: "Yes" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_standard",
-		label: "C++ Standard",
-		description: "C++ language standard version",
-		defaultVal: "20",
-		options: [
-			{ value: "14", label: "C++14" },
-			{ value: "17", label: "C++17" },
-			{ value: "20", label: "C++20" },
-			{ value: "23", label: "C++23" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_optimise",
-		label: "Optimizations",
-		description: "Enable additional compiler optimizations",
-		defaultVal: "no",
-		options: [
-			{ value: "no", label: "No" },
-			{ value: "yes", label: "Yes" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_use_lto",
-		label: "Use LTO",
-		description: "Enable Link-Time Optimization",
-		defaultVal: "no",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_with_qemu",
-		label: "Use QEMU",
-		description: "Use QEMU for cross-compilation testing",
-		defaultVal: "yes",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_host_deps",
-		label: "Host Dependencies",
-		description: "Build host dependencies",
-		defaultVal: "no",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_build_dir",
-		label: "Build Directory",
-		description: "Directory name for build files",
-		defaultVal: "qbt-build",
-		options: [
-			{ value: "qbt-build", label: "qbt-build" },
-			{ value: "build", label: "build" },
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_build_tool",
-		label: "Build Tool",
-		description: "Build system to use",
-		defaultVal: "cmake",
-		options: [
-			{ value: "cmake", label: "CMake" },
-			{ value: "qmake", label: "QMake" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_mcm_url",
-		label: "Musl Cross Make URL",
-		description: "GitHub repository for musl cross make toolchain",
-		defaultVal: "userdocs/qbt-musl-cross-make",
-		options: [
-			{
-				value: "userdocs/qbt-musl-cross-make",
-				label: "userdocs/qbt-musl-cross-make",
-			},
-			{
-				value: "userdocs/musl-cross-make",
-				label: "userdocs/musl-cross-make",
-			},
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_patches_url",
-		label: "Patches URL",
-		description: "GitHub repository for patches",
-		defaultVal: "userdocs/qbittorrent-nox-static",
-		options: [
-			{
-				value: "userdocs/qbittorrent-nox-static",
-				label: "userdocs/qbittorrent-nox-static",
-			},
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_cache_dir",
-		label: "Cache Directory",
-		description: "Directory for build cache (empty for no cache)",
-		defaultVal: "",
-		options: [
-			{ value: "", label: "None" },
-			{ value: ".cache", label: ".cache" },
-			{ value: "/tmp/qbt-cache", label: "/tmp/qbt-cache" },
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-	{
-		variable: "qbt_optimise_strip",
-		label: "Optimize Strip",
-		description: "Strip debug symbols for smaller binaries",
-		defaultVal: "yes",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_static_ish",
-		label: "Static-ish Build",
-		description: "Build with static-ish linking",
-		defaultVal: "no",
-		options: [
-			{ value: "yes", label: "Yes" },
-			{ value: "no", label: "No" },
-		],
-		category: "advanced",
-	},
-	{
-		variable: "qbt_host_deps_repo",
-		label: "Host Dependencies Repository",
-		description: "GitHub repository for host dependencies",
-		defaultVal: "userdocs/qbt-host-deps",
-		options: [
-			{ value: "userdocs/qbt-host-deps", label: "userdocs/qbt-host-deps" },
-			{ value: "custom", label: "Custom..." },
-		],
-		category: "advanced",
-		allowCustom: true,
-	},
-];
-
-const dockerVarNames = new Set([
-	"qbt_docker_base",
-	"qbt_docker_port",
-	"qbt_docker_volume",
-	"qbt_docker_user",
-]);
+const { versions, overrides } = await fetchRemoteBuildData();
+const configOptions = buildConfigOptions(versions, overrides);
 const basicOptions = configOptions.filter((o) => o.category === "basic");
 const advancedOptions = configOptions.filter((o) => o.category === "advanced");
+const instanceId = `bct_${Math.random().toString(36).slice(2, 8)}`;
+
+const ltSeriesDefaults = {
+	"2.1": versions.libtorrent_2_1,
+	"2.0": versions.libtorrent_2_0,
+	"1.2": versions.libtorrent_1_2,
+};
+const qtSeriesDefaults = {
+	"6": versions.qt6,
+	"5": versions.qt5,
+};
 ---
 
 <style>
 	.build-config {
 		border: 1px solid var(--code-inline-border);
-		border-radius: 0.375rem;
-		padding: 1rem;
+		border-radius: 0.5rem;
+		padding: 1.25rem;
 		margin: 1rem 0;
 		background: var(--details-1);
 		box-shadow: var(--shadow-md);
@@ -510,21 +35,24 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 
 	.config-header {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
+		justify-content: space-between;
 		gap: 0.75rem;
 		margin-bottom: 1rem;
-		padding-bottom: 0.75rem;
+		padding-bottom: 0.875rem;
 		border-bottom: 1px solid var(--code-inline-border);
 	}
 
-	.config-header * {
-		margin-top: 0 !important;
-		margin-bottom: 0 !important;
+	.header-controls {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.75rem;
 	}
 
 	.view-toggle {
 		display: flex;
-		gap: 0.75rem;
 		align-items: center;
 	}
 
@@ -533,6 +61,7 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 		display: inline-block;
 		min-width: 12rem;
 		height: 2.25rem;
+		cursor: pointer;
 	}
 
 	.view-toggle .switch input {
@@ -545,16 +74,17 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 	.view-toggle .slider {
 		position: absolute;
 		inset: 0;
-		border-radius: 999px;
-		background: var(--details-3);
+		border-radius: 4px;
+		background: var(--code-inline-background);
 		border: 1px solid var(--code-inline-border);
 		box-shadow: var(--shadow-sm);
 		overflow: hidden;
 		display: grid;
 		grid-template-columns: 1fr 1fr;
 		align-items: center;
-		font: inherit;
-		font-size: 0.9rem;
+		font-family: var(--sl-font-mono);
+		font-size: 0.8rem;
+		font-weight: 500;
 	}
 
 	.view-toggle .slider .label {
@@ -562,9 +92,9 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 		user-select: none;
 		position: relative;
 		z-index: 2;
-		color: var(--sl-color-white);
+		color: var(--code-inline-color);
 		transition: var(--transition-fast);
-		padding: 0 0.6rem;
+		padding: 0 0.75rem;
 		white-space: nowrap;
 	}
 
@@ -575,7 +105,7 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 		left: 3px;
 		width: calc(50% - 6px);
 		height: calc(100% - 6px);
-		border-radius: 999px;
+		border-radius: 3px;
 		background: var(--sl-button-bg-primary);
 		border: 1px solid var(--code-inline-border);
 		transition: var(--transition-normal);
@@ -586,9 +116,75 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 		left: calc(50% + 3px);
 	}
 
+	/* High-contrast active vs inactive labels in both dark & light themes */
+	.view-toggle .switch input:not(:checked) + .slider .label-off,
+	.view-toggle .switch input:checked + .slider .label-on {
+		color: #0b241d;
+		font-weight: 600;
+	}
+
 	.view-toggle .switch input:not(:checked) + .slider .label-on,
 	.view-toggle .switch input:checked + .slider .label-off {
-		opacity: 0.7;
+		opacity: 0.78;
+	}
+
+	.view-toggle .switch input:focus-visible + .slider {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+	}
+
+	.modified-summary {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.45rem;
+		height: 2.25rem;
+		padding: 0 0.65rem;
+		border-radius: 4px;
+		font-family: var(--sl-font-mono);
+		font-size: 0.8rem;
+		font-weight: 500;
+		background: var(--code-inline-background);
+		border: 1px solid var(--code-inline-border);
+		color: var(--code-inline-color);
+		box-sizing: border-box;
+		white-space: nowrap;
+	}
+
+	.modified-summary[data-has-changes="true"] {
+		border-color: rgba(245, 158, 11, 0.7);
+	}
+
+	:global([data-theme="light"]) .modified-summary[data-has-changes="true"] {
+		border-color: #d97706;
+	}
+
+	.reset-button {
+		padding: 0 0.9rem;
+		background: var(--code-inline-background);
+		color: var(--code-inline-color);
+		border: 1px solid var(--code-inline-border);
+		border-radius: 4px;
+		cursor: pointer;
+		font-family: var(--sl-font-mono);
+		font-size: 0.8rem;
+		font-weight: 500;
+		height: 2.25rem;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		transition: var(--transition-fast);
+	}
+
+	.reset-button:hover {
+		background: var(--sl-button-bg-primary);
+		color: #0b241d;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.reset-button:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
 	}
 
 	.config-section {
@@ -598,152 +194,156 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 	.config-options {
 		display: grid;
 		grid-template-columns: 1fr;
-		gap: 1rem;
-		max-width: 1000px;
+		gap: 0.75rem;
 	}
 
 	.config-option {
 		display: grid;
-		grid-template-columns: 1fr auto 2fr;
-		align-items: center;
-		justify-items: start;
-		gap: 1rem;
-		padding: 0 1rem;
-		background: var(--details-3);
+		grid-template-columns: minmax(0, 1.35fr) minmax(220px, 280px);
+		align-items: start;
+		gap: 0.75rem 1.25rem;
+		padding: 0.85rem 1rem;
+		background: var(--sl-color-bg);
 		border: 1px solid var(--code-inline-border);
 		border-radius: 8px;
 		transition: var(--transition-fast);
-		min-height: 60px;
-		text-align: left;
-		position: relative;
 	}
 
 	.config-option:hover {
-		background: var(--details-2);
-		transform: translateY(-1px);
-		box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+		border-color: var(--sl-color-accent);
+		box-shadow: var(--shadow-sm);
 	}
 
-	.option-info h4 {
-		margin: 0 0 0.25rem 0;
-		font-size: 0.9rem;
-		color: var(--sl-color-white);
+	.option-meta {
+		display: flex;
+		flex-direction: column;
+		gap: 0.35rem;
+		min-width: 0;
+	}
+
+	.option-heading {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.option-label {
+		margin: 0;
+		font-size: 0.925rem;
+		color: var(--sl-color-accent-high);
 		font-weight: 600;
 		line-height: 1.3;
-	}
-
-	.option-control {
-		display: contents;
-	}
-
-	.option-control select {
-		padding: 0.625rem 0.75rem;
-		border: 1px solid var(--code-inline-border);
-		border-radius: 6px;
-		background: var(--sl-color-bg);
-		color: var(--sl-color-white);
-		font-size: 0.85rem;
-		font-weight: 500;
-		transition: var(--transition-fast);
-		min-width: 200px;
-		max-width: 300px;
-		width: 200px;
 		cursor: pointer;
-		box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-		height: 2.5rem;
-		box-sizing: border-box;
-		overflow: hidden;
-		text-overflow: ellipsis;
-		white-space: nowrap;
-		justify-self: start;
 	}
 
-	.option-control select:hover {
-		border-color: var(--sl-color-accent);
-		box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-	}
-
-	.option-control select:focus {
-		outline: 2px solid var(--sl-color-accent);
-		outline-offset: 2px;
-		border-color: var(--sl-color-accent);
-	}
-
+	.option-var-badge,
 	.status-indicator {
-		display: flex;
+		display: inline-flex;
 		align-items: center;
-		justify-content: flex-end;
-		gap: 0.5rem;
-		padding: 0.375rem 0.625rem;
-		border-radius: 20px;
+		gap: 0.375rem;
+		padding: 0.15rem 0.5rem;
+		border-radius: 4px;
+		font-family: var(--sl-font-mono);
 		font-size: 0.75rem;
 		font-weight: 500;
+		line-height: 1.35;
+		background: var(--code-inline-background);
+		border: 1px solid var(--code-inline-border);
+		color: var(--code-inline-color);
 		white-space: nowrap;
-		height: 2rem;
 		box-sizing: border-box;
-		position: absolute;
-		right: 1rem;
-		top: 50%;
-		transform: translateY(-50%);
-		z-index: 10;
+	}
+
+	.status-indicator[data-modified="true"] {
+		border-color: rgba(245, 158, 11, 0.7);
+	}
+
+	:global([data-theme="light"]) .status-indicator[data-modified="true"] {
+		border-color: #d97706;
 	}
 
 	.status-led {
-		width: 8px;
-		height: 8px;
+		width: 7px;
+		height: 7px;
 		border-radius: 50%;
 		flex-shrink: 0;
-		transition: all 0.2s ease;
-		display: inline-block;
 		background-color: #10b981;
-		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
-		min-width: 8px;
-		min-height: 8px;
+		box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.22);
+		transition: var(--transition-fast);
 	}
 
 	.status-led.modified {
 		background-color: #f59e0b;
-		box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
-	}
-
-	.status-label {
-		color: var(--sl-color-gray-2);
-		text-transform: uppercase;
-		letter-spacing: 0.025em;
-		white-space: nowrap;
+		box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.25);
 	}
 
 	.option-explanation {
-		color: var(--sl-color-gray-2);
-		font-size: 0.8rem;
-		line-height: 1.4;
-		padding: 0.5rem 0.75rem;
-		background: var(--details-2);
-		border-radius: 6px;
-		border-left: 3px solid var(--sl-color-accent-soft);
 		margin: 0;
+		color: var(--sl-color-text);
+		opacity: 0.88;
+		font-size: 0.82rem;
+		line-height: 1.45;
+	}
+
+	.option-control {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+		width: 100%;
+	}
+
+	.option-control select {
+		width: 100%;
+		height: 2.4rem;
+		padding: 0.45rem 0.7rem;
+		border: 1px solid var(--code-inline-border);
+		border-radius: 6px;
+		background: var(--details-1);
+		color: var(--sl-color-text);
+		font: inherit;
+		font-size: 0.85rem;
+		font-weight: 500;
+		cursor: pointer;
+		transition: var(--transition-fast);
+		box-sizing: border-box;
+	}
+
+	.option-control select:hover:not(:disabled) {
+		border-color: var(--sl-color-accent);
+	}
+
+	.option-control select:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+	}
+
+	.option-control select:disabled {
+		opacity: 0.55;
+		cursor: not-allowed;
 	}
 
 	.custom-input {
 		width: 100%;
-		height: 2.5rem;
-		min-width: 200px;
-		padding: 10px;
+		height: 2.25rem;
+		padding: 0.4rem 0.65rem;
 		border: 1px solid var(--sl-color-accent);
-		border-radius: 4px;
-		background: var(--sl-color-bg);
-		color: var(--sl-color-white);
+		border-radius: 6px;
+		background: var(--details-1);
+		color: var(--sl-color-text);
+		font-family: var(--sl-font-mono);
 		font-size: 0.8rem;
-		font-weight: 500;
-		line-height: 1.4;
-		transition: var(--transition-fast);
 		box-sizing: border-box;
-		outline: none;
+	}
+
+	.custom-input:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 1px;
 	}
 
 	.custom-input::placeholder {
 		color: var(--sl-color-gray-3);
-		opacity: 0.7;
+		opacity: 0.8;
 	}
 
 	.advanced-section {
@@ -752,10 +352,6 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 
 	.build-config[data-view="advanced"] .advanced-section {
 		display: block;
-	}
-
-	.config-option[data-docker-only="true"] {
-		display: grid;
 	}
 
 	.build-config[data-docker-tab="false"]
@@ -774,268 +370,216 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 		border-top: 1px solid var(--code-inline-border);
 	}
 
-	.command-output-wrapper {
-		position: relative;
-		margin: 1rem 0;
+	.command-output-card {
+		margin: 0.75rem 0 0;
+		border-radius: 0.5rem;
+		overflow: hidden;
+		border: 1px solid var(--code-inline-border);
+		background-color: var(--code-inline-background);
+		box-shadow: var(--shadow-md);
 	}
 
-	.command-output-wrapper pre {
-		display: flex !important;
-		flex-direction: column;
+	.output-toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 0.75rem;
+		padding: 0.45rem 0.75rem;
+		background: var(--sl-color-bg);
+		border-bottom: 1px solid var(--code-inline-border);
+	}
+
+	.output-kind-label {
+		font-family: var(--sl-font-mono);
+		font-size: 0.75rem;
+		font-weight: 600;
+		color: var(--sl-color-text);
+		opacity: 0.85;
+	}
+
+	.output-actions {
+		display: flex;
+		gap: 0.4rem;
+	}
+
+	.action-button {
+		padding: 0.25rem 0.65rem;
+		background: var(--details-1);
+		color: var(--sl-color-text);
+		border: 1px solid var(--code-inline-border);
+		border-radius: 0.375rem;
+		font: inherit;
+		font-size: 0.78rem;
+		font-weight: 600;
+		cursor: pointer;
+		transition: var(--transition-fast);
+	}
+
+	.action-button:hover {
+		background: var(--sl-button-bg-primary);
+		color: #0b241d;
+		box-shadow: var(--shadow-sm);
+	}
+
+	.action-button:active {
+		transform: scale(0.96);
+	}
+
+	.action-button:focus-visible {
+		outline: 2px solid var(--sl-color-accent);
+		outline-offset: 2px;
+	}
+
+	.command-output-card pre {
 		margin: 0;
 		padding: 1rem;
-		border-radius: 0.5rem;
 		overflow-x: auto;
-		background-color: var(--code-inline-background) !important;
-		border: 1px solid var(--code-inline-border) !important;
+		background: transparent;
+		border: none;
 		font-family: var(--sl-font-mono);
-		font-size: 0.9rem;
-		line-height: 1.5;
+		font-size: 0.875rem;
+		line-height: 1.55;
 		color: var(--code-inline-color);
-		white-space: pre-wrap;
-		word-break: break-all;
-		box-shadow: var(--shadow-md);
-		transform: none !important;
-		transition: none !important;
+		white-space: pre;
 	}
 
-	.command-output-wrapper pre:hover {
-		box-shadow: var(--shadow-md) !important;
-		transform: none !important;
-		border-color: var(--code-inline-border) !important;
-	}
-
-	.command-output-wrapper pre code {
-		flex: 1 1 auto;
-		background: none !important;
-		padding: 0 !important;
-		border: none !important;
-		border-radius: 0 !important;
-		box-shadow: none !important;
-		outline: none !important;
+	.command-output-card pre code {
+		display: block;
+		background: none;
+		padding: 0;
+		border: none;
 		font-family: inherit;
 		font-size: inherit;
 		line-height: inherit;
 		color: inherit;
-		white-space: pre-wrap !important;
-		word-break: break-all;
-		transform: none !important;
-		transition: none !important;
+		white-space: pre;
 	}
 
-	.command-output-wrapper pre code:hover {
-		box-shadow: none !important;
-		transform: none !important;
-		outline: none !important;
+	/* Theme-aware syntax tokens */
+	.command-output-card :global(.tok-comment) {
+		color: #9ca3af;
+		font-style: italic;
 	}
 
-	.copy-button {
-		position: absolute;
-		top: 0.75rem;
-		right: 0.75rem;
-		padding: 0.375rem 0.75rem;
-		background: var(--details-3);
-		color: var(--sl-color-white);
-		border: 1px solid var(--code-inline-border);
-		border-radius: 0.375rem;
-		font-size: 0.8rem;
-		cursor: pointer;
-		transition: var(--transition-fast);
-		z-index: 10;
-		font-weight: 500;
+	.command-output-card :global(.tok-var) {
+		color: #e0af68;
 	}
 
-	.copy-button:hover {
-		background: var(--details-2);
-		box-shadow: var(--shadow-sm);
+	.command-output-card :global(.tok-string) {
+		color: #9ece6a;
 	}
 
-	.copy-button:active {
-		transform: scale(0.95);
+	.command-output-card :global(.tok-keyword),
+	.command-output-card :global(.tok-cmd) {
+		color: #7aa2f7;
+		font-weight: 600;
 	}
 
-	.reset-button {
-		padding: 0.5rem 1rem;
-		background: var(--details-3);
-		color: var(--sl-color-white);
-		border: 1px solid var(--code-inline-border);
-		border-radius: 999px;
-		cursor: pointer;
-		font-size: 0.9rem;
-		transition: var(--transition-fast);
-		font-weight: 500;
-		height: 2.25rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-left: 0;
+	.command-output-card :global(.tok-flag) {
+		color: #bb9af7;
 	}
 
-	.reset-button:hover {
-		background: var(--details-2);
-		box-shadow: var(--shadow-sm);
+	.command-output-card :global(.tok-punct) {
+		color: var(--sl-color-gray-2);
 	}
 
-	/* Override Starlight margin rules */
-	.build-config .config-option,
-	.build-config .status-indicator,
-	.build-config select {
-		margin-top: 0 !important;
-		margin-bottom: 0 !important;
+	:global([data-theme="light"]) .command-output-card :global(.tok-comment) {
+		color: #4b5563;
+	}
+
+	:global([data-theme="light"]) .command-output-card :global(.tok-var) {
+		color: #9a5b00;
+	}
+
+	:global([data-theme="light"]) .command-output-card :global(.tok-string) {
+		color: #166534;
+	}
+
+	:global([data-theme="light"]) .command-output-card :global(.tok-keyword),
+	:global([data-theme="light"]) .command-output-card :global(.tok-cmd) {
+		color: #1d4ed8;
+	}
+
+	:global([data-theme="light"]) .command-output-card :global(.tok-flag) {
+		color: #7e22ce;
 	}
 
 	@media (max-width: 768px) {
 		.build-config {
 			margin: 0.5rem 0;
-			padding: 0.75rem;
+			padding: 0.85rem;
 		}
 
 		.config-header {
 			flex-direction: column;
 			align-items: stretch;
-			gap: 1rem;
 		}
 
-		.view-toggle {
-			justify-content: center;
-		}
-
-		.reset-button {
-			align-self: center;
-			margin: 0;
-		}
-
-		.config-options {
-			grid-template-columns: 1fr;
-			gap: 0.75rem;
+		.header-controls {
+			justify-content: space-between;
 		}
 
 		.config-option {
 			grid-template-columns: 1fr;
-			gap: 0.5rem;
+			gap: 0.65rem;
 			padding: 0.75rem;
-		}
-
-		.config-option[data-docker-only="true"] {
-			display: none;
-		}
-
-		.build-config[data-docker-tab="true"]
-			.config-option[data-docker-only="true"] {
-			display: grid;
-			grid-template-columns: 1fr;
-		}
-
-		.build-config[data-dockerfile-tab="true"]
-			.config-option[data-docker-volume="true"] {
-			display: none;
-		}
-
-		.option-info h4 {
-			font-size: 0.9rem;
-		}
-
-		.option-control select {
-			width: 100%;
-			min-width: unset;
-		}
-
-		.status-indicator {
-			justify-self: start;
-			min-width: 70px;
-		}
-
-		.option-explanation {
-			grid-column: 1 / -1;
-			margin-top: 0.25rem;
-		}
-
-		.custom-input {
-			min-width: unset;
 		}
 
 		.view-toggle .switch {
-			min-width: 10rem;
+			min-width: 10.5rem;
 		}
 
-		.command-output-wrapper {
-			margin: 0.5rem 0;
-		}
-
-		.command-output-wrapper pre {
+		.command-output-card pre {
 			padding: 0.75rem;
 			font-size: 0.8rem;
-		}
-
-		.copy-button {
-			top: 0.5rem;
-			right: 0.5rem;
-			padding: 0.25rem 0.5rem;
-			font-size: 0.75rem;
 		}
 	}
 </style>
 
-<!-- Prism.js theme loader - theme-aware -->
-<script is:inline>
-	(function () {
-		let prismLink = null;
-
-		function loadPrismTheme(isLight) {
-			if (prismLink) prismLink.remove();
-			prismLink = document.createElement("link");
-			prismLink.rel = "stylesheet";
-			prismLink.href = isLight
-				? "https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism.min.css"
-				: "https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/themes/prism-dark.min.css";
-			document.head.appendChild(prismLink);
-		}
-
-		loadPrismTheme(
-			document.documentElement.getAttribute("data-theme") === "light",
-		);
-
-		new MutationObserver(() => {
-			const isLight =
-				document.documentElement.getAttribute("data-theme") === "light";
-			loadPrismTheme(isLight);
-			setTimeout(() => window.Prism?.highlightAll(), 100);
-		}).observe(document.documentElement, {
-			attributes: true,
-			attributeFilter: ["data-theme"],
-		});
-	})();
-</script>
-
-<script
-	is:inline
-	src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/prism.min.js"
-></script>
-<script
-	is:inline
-	src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-bash.min.js"
-></script>
-<script
-	is:inline
-	src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.30.0/components/prism-docker.min.js"
-></script>
-
-<div class="build-config" id="buildConfig" data-view="basic">
+<div
+	class="build-config not-content"
+	data-build-config
+	data-instance-id={instanceId}
+	data-view="basic"
+	data-docker-tab="false"
+	data-dockerfile-tab="false"
+	data-lt-defaults={JSON.stringify(ltSeriesDefaults)}
+	data-qt-defaults={JSON.stringify(qtSeriesDefaults)}
+>
 	<div class="config-header">
-		<div class="view-toggle">
-			<label class="switch">
-				<input
-					id="configViewToggle"
-					type="checkbox"
-					aria-label="Toggle expert settings"
+		<div class="header-controls">
+			<div class="view-toggle">
+				<label class="switch">
+					<input
+						id={`${instanceId}_view_toggle`}
+						data-role="view-toggle"
+						type="checkbox"
+						role="switch"
+						aria-label="Toggle expert settings"
+					/>
+					<span class="slider">
+						<span class="label label-off">Basic</span>
+						<span class="label label-on">Expert</span>
+					</span>
+				</label>
+			</div>
+			<span
+				class="modified-summary"
+				data-role="modified-summary"
+				aria-live="polite"
+				data-has-changes="false"
+			>
+				<span
+					class="status-led"
+					data-role="summary-led"
+					aria-hidden="true"
 				/>
-				<span class="slider">
-					<span class="label label-off">Basic</span>
-					<span class="label label-on">Expert</span>
-				</span>
-			</label>
+				<span data-role="summary-text">0 modified</span>
+			</span>
 		</div>
-		<button class="reset-button" id="resetButton">Reset</button>
+		<button type="button" class="reset-button" data-role="reset-button">
+			Reset
+		</button>
 	</div>
 
 	{
@@ -1048,52 +592,69 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 					{options.map((option) => (
 						<div
 							class="config-option"
+							data-category={option.category}
 							data-docker-only={
-								dockerVarNames.has(option.variable) ? "true" : undefined
+								DOCKER_VAR_NAMES.has(option.variable) ? "true" : undefined
 							}
 							data-docker-volume={
 								option.variable === "qbt_docker_volume" ? "true" : undefined
 							}
 						>
-							<div class="option-info">
-								<h4>{option.label}</h4>
-							</div>
-							<div class="option-control">
-								<div class="status-indicator">
-									<div
-										class="status-led default"
-										data-variable={option.variable}
-									/>
-									<span class="status-label" data-variable={option.variable}>
-										Default
+							<div class="option-meta">
+								<div class="option-heading">
+									<label
+										class="option-label"
+										for={`${instanceId}_config_${option.variable}`}
+									>
+										{option.label}
+									</label>
+									<code class="option-var-badge">{option.variable}</code>
+									<span
+										class="status-indicator"
+										data-indicator-for={option.variable}
+										data-modified="false"
+									>
+										<span
+											class="status-led"
+											data-led-for={option.variable}
+											aria-hidden="true"
+										/>
+										<span data-status-for={option.variable}>Default</span>
 									</span>
 								</div>
+								<p
+									class="option-explanation"
+									id={`${instanceId}_desc_${option.variable}`}
+								>
+									{option.description}
+								</p>
+							</div>
+							<div class="option-control">
 								<select
-									id={`config_${option.variable}`}
+									id={`${instanceId}_config_${option.variable}`}
 									data-variable={option.variable}
 									data-default={option.defaultVal}
+									data-default-example={option.defaultExample ?? option.defaultVal}
+									aria-describedby={`${instanceId}_desc_${option.variable}`}
 								>
 									{option.options.map((opt) => (
 										<option
 											value={opt.value}
+											data-override={opt.isOverride ? "true" : undefined}
 											selected={opt.value === option.defaultVal}
 										>
 											{opt.label}
 										</option>
 									))}
 								</select>
-							</div>
-							<div class="option-explanation">
-								<p id={`description_${option.variable}`}>
-									{option.description}
-								</p>
 								{option.allowCustom && (
 									<input
 										class="custom-input"
 										type="text"
 										placeholder={`Enter custom ${option.label.toLowerCase()}`}
-										id={`custom_input_${option.variable}`}
-										style="display: none;"
+										aria-label={`Custom ${option.label}`}
+										data-custom-for={option.variable}
+										hidden
 									/>
 								)}
 							</div>
@@ -1104,36 +665,112 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 		))
 	}
 
-	<div class="output-section">
+	<div class="output-section" data-role="output-section">
 		<Tabs syncKey="command-type">
 			<TabItem label="Native (Remote)" icon="rocket">
-				<div class="command-output-wrapper">
-					<button class="copy-button" data-output="native">Copy</button>
-					<pre><code class="language-bash" id="output-native" /></pre>
+				<div class="command-output-card">
+					<div class="output-toolbar">
+						<span class="output-kind-label">bash — remote script</span>
+						<div class="output-actions">
+							<button type="button" class="action-button copy-button" data-output="native">
+								Copy
+							</button>
+						</div>
+					</div>
+					<pre><code data-output-target="native" data-lang="bash" /></pre>
 				</div>
 			</TabItem>
 			<TabItem label="Native (Local)" icon="document">
-				<div class="command-output-wrapper">
-					<button class="copy-button" data-output="local">Copy</button>
-					<pre><code class="language-bash" id="output-local" /></pre>
+				<div class="command-output-card">
+					<div class="output-toolbar">
+						<span class="output-kind-label">bash — download &amp; run locally</span>
+						<div class="output-actions">
+							<button type="button" class="action-button copy-button" data-output="local">
+								Copy
+							</button>
+						</div>
+					</div>
+					<pre><code data-output-target="local" data-lang="bash" /></pre>
 				</div>
 			</TabItem>
 			<TabItem label="Docker (Remote)" icon="external">
-				<div class="command-output-wrapper">
-					<button class="copy-button" data-output="docker">Copy</button>
-					<pre><code class="language-bash" id="output-docker" /></pre>
+				<div class="command-output-card">
+					<div class="output-toolbar">
+						<span class="output-kind-label">docker run — remote script</span>
+						<div class="output-actions">
+							<button type="button" class="action-button copy-button" data-output="docker">
+								Copy
+							</button>
+						</div>
+					</div>
+					<pre><code data-output-target="docker" data-lang="bash" /></pre>
 				</div>
 			</TabItem>
 			<TabItem label="Docker (Local)" icon="laptop">
-				<div class="command-output-wrapper">
-					<button class="copy-button" data-output="docker-local">Copy</button>
-					<pre><code class="language-bash" id="output-docker-local" /></pre>
+				<div class="command-output-card">
+					<div class="output-toolbar">
+						<span class="output-kind-label">docker run — local script in volume</span>
+						<div class="output-actions">
+							<button
+								type="button"
+								class="action-button copy-button"
+								data-output="docker-local"
+							>
+								Copy
+							</button>
+						</div>
+					</div>
+					<pre><code data-output-target="docker-local" data-lang="bash" /></pre>
 				</div>
 			</TabItem>
 			<TabItem label="Dockerfile" icon="seti:docker">
-				<div class="command-output-wrapper">
-					<button class="copy-button" data-output="dockerfile">Copy</button>
-					<pre><code class="language-docker" id="output-dockerfile" /></pre>
+				<div class="command-output-card">
+					<div class="output-toolbar">
+						<span class="output-kind-label">Dockerfile</span>
+						<div class="output-actions">
+							<button
+								type="button"
+								class="action-button download-button"
+								data-output="dockerfile"
+								data-filename="Dockerfile"
+							>
+								Download
+							</button>
+							<button
+								type="button"
+								class="action-button copy-button"
+								data-output="dockerfile"
+							>
+								Copy
+							</button>
+						</div>
+					</div>
+					<pre><code data-output-target="dockerfile" data-lang="docker" /></pre>
+				</div>
+			</TabItem>
+			<TabItem label=".qbt_env" icon="setting">
+				<div class="command-output-card">
+					<div class="output-toolbar">
+						<span class="output-kind-label">.qbt_env — place beside qbt.bash</span>
+						<div class="output-actions">
+							<button
+								type="button"
+								class="action-button download-button"
+								data-output="qbt-env"
+								data-filename=".qbt_env"
+							>
+								Download
+							</button>
+							<button
+								type="button"
+								class="action-button copy-button"
+								data-output="qbt-env"
+							>
+								Copy
+							</button>
+						</div>
+					</div>
+					<pre><code data-output-target="qbt-env" data-lang="dotenv" /></pre>
 				</div>
 			</TabItem>
 		</Tabs>
@@ -1141,575 +778,316 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 </div>
 
 <script>
-	declare global {
-		interface Window {
-			Prism: { highlightAll(): void; highlightElement(el: Element): void };
+	import {
+		generateAllOutputs,
+		isOptionModified,
+		type BuildConfigState,
+	} from "../utils/buildCommandGenerator";
+	import { highlightCode, type HighlightLang } from "../utils/codeHighlight";
+
+	type TabContext = "native" | "docker" | "dockerfile";
+	type PortVolumeSnapshot = {
+		port: string;
+		customPort: string;
+		volume: string;
+		customVolume: string;
+	};
+
+	const VIEW_STORAGE_KEY = "buildconfig-view";
+
+	function readStorage(key: string): string | null {
+		try {
+			return window.localStorage.getItem(key);
+		} catch {
+			return null;
 		}
 	}
 
-	(function () {
-		const container = document.getElementById(
-			"buildConfig",
-		) as HTMLDivElement | null;
-		const viewToggle = document.getElementById(
-			"configViewToggle",
-		) as HTMLInputElement | null;
-		const resetButton = document.getElementById(
-			"resetButton",
-		) as HTMLButtonElement | null;
-		const selects = document.querySelectorAll(
-			"select[data-variable]",
-		) as NodeListOf<HTMLSelectElement>;
+	function writeStorage(key: string, value: string): void {
+		try {
+			window.localStorage.setItem(key, value);
+		} catch {
+			// Ignore storage failures in restricted contexts
+		}
+	}
 
-		// Saved per-context settings for port and volume (Docker vs Dockerfile tabs)
-		const savedSettings = {
+	function initBuildConfigInstance(container: HTMLElement): void {
+		if (container.dataset.initialized === "true") return;
+		container.dataset.initialized = "true";
+
+		const ltDefaults: Record<string, string> = JSON.parse(
+			container.dataset.ltDefaults ?? "{}",
+		);
+		const qtDefaults: Record<string, string> = JSON.parse(
+			container.dataset.qtDefaults ?? "{}",
+		);
+
+		const viewToggle = container.querySelector<HTMLInputElement>(
+			'[data-role="view-toggle"]',
+		);
+		const resetButton = container.querySelector<HTMLButtonElement>(
+			'[data-role="reset-button"]',
+		);
+		const modifiedSummary = container.querySelector<HTMLElement>(
+			'[data-role="modified-summary"]',
+		);
+		const summaryLed = container.querySelector<HTMLElement>(
+			'[data-role="summary-led"]',
+		);
+		const summaryText = container.querySelector<HTMLElement>(
+			'[data-role="summary-text"]',
+		);
+		const outputSection = container.querySelector<HTMLElement>(
+			'[data-role="output-section"]',
+		);
+		const selects = Array.from(
+			container.querySelectorAll<HTMLSelectElement>("select[data-variable]"),
+		);
+
+		const selectByVar = new Map<string, HTMLSelectElement>();
+		for (const select of selects) {
+			const v = select.dataset.variable;
+			if (v) selectByVar.set(v, select);
+		}
+
+		const portSelect = selectByVar.get("qbt_docker_port") ?? null;
+		const originalPortOptionsHTML = portSelect?.innerHTML ?? "";
+		const originalPortDefault = portSelect?.dataset.default ?? "8080:8080";
+		const originalPortExample =
+			portSelect?.dataset.defaultExample ?? "8080:8080";
+		const portLabelEl =
+			portSelect
+				?.closest(".config-option")
+				?.querySelector<HTMLElement>(".option-label") ?? null;
+		const originalPortLabel =
+			portLabelEl?.textContent ?? "Docker Port Mapping";
+
+		let activePortContext: "docker" | "dockerfile" = "docker";
+		const savedDockerContext: Record<
+			"docker" | "dockerfile",
+			PortVolumeSnapshot
+		> = {
 			docker: { port: "", customPort: "", volume: "", customVolume: "" },
 			dockerfile: { port: "", customPort: "", volume: "", customVolume: "" },
 		};
 
-		// ─── Helpers ──────────────────────────────────────────────────────────────
+		let latestOutputs: Record<string, string> = {};
+		const copyTimers = new WeakMap<HTMLButtonElement, number>();
 
-		function isDockerfileActive(): boolean {
-			return container?.dataset.dockerfileTab === "true";
-		}
-
-		function isLegacyMode(): boolean {
-			return (
-				(
-					document.getElementById(
-						"config_qbt_legacy_mode",
-					) as HTMLSelectElement | null
-				)?.value === "yes"
+		function getCustomInput(variable: string): HTMLInputElement | null {
+			return container.querySelector<HTMLInputElement>(
+				`input[data-custom-for="${CSS.escape(variable)}"]`,
 			);
-		}
-
-		function getScriptCmd(isLocal = false): string {
-			const sub = isLegacyMode() ? "all" : "bootstrap_deps all";
-			return isLocal
-				? `./qbt.bash ${sub}`
-				: `bash <(curl -sL usrdx.github.io/s/qbt.bash) ${sub}`;
 		}
 
 		function getSelectValue(select: HTMLSelectElement): string {
 			if (select.value !== "custom") return select.value;
-			const custom = document.getElementById(
-				`custom_input_${select.dataset.variable}`,
-			) as HTMLInputElement | null;
-			return custom?.value.trim() ?? "";
+			const v = select.dataset.variable;
+			if (!v) return "";
+			return getCustomInput(v)?.value.trim() ?? "";
 		}
 
-		function collectEnvVars(excludeDockerVars = true): string[] {
-			const dockerKeys = new Set([
-				"qbt_docker_base",
-				"qbt_docker_port",
-				"qbt_docker_volume",
-				"qbt_docker_user",
-			]);
-			const vars: string[] = [];
-			selects.forEach((s) => {
-				const v = s.dataset.variable;
-				const def = s.dataset.default;
-				if (!v || def === undefined) return;
-				if (excludeDockerVars && dockerKeys.has(v)) return;
-				const cur = getSelectValue(s);
-				const isOverride = s.options[s.selectedIndex]?.text.includes("(override)");
-				if ((cur !== def || isOverride) && cur !== "" && cur !== "default")
-					vars.push(`${v}="${cur}"`);
-			});
-			return vars;
-		}
-
-		function formatEnvVars(vars: string[], indent = ""): string {
-			return vars.map((v) => `${indent}${v} \\`).join("\n");
-		}
-
-		function highlight(): void {
-			setTimeout(() => window.Prism?.highlightAll(), 50);
-		}
-
-		// ─── Docker config extraction ─────────────────────────────────────────────
-
-		type DockerConfig = {
-			baseImage: string;
-			packageManager: string;
-			shell: string;
-			portMapping: string;
-			volumeMapping: string;
-			dockerUser: string;
-			envVars: string[];
-		};
-
-		function getDockerConfig(): DockerConfig {
-			let baseImage = "alpine:latest";
-			let packageManager = "apk update && apk add bash git curl";
-			let shell = "/bin/ash";
-			let portMapping = "8080:8080";
-			let volumeMapping = "~/qbt:/root";
-			let dockerUser = "root";
-			const envVars: string[] = [];
-
-			selects.forEach((s) => {
-				const v = s.dataset.variable;
-				const def = s.dataset.default ?? "";
-				const cur = getSelectValue(s);
-				const isOverride = s.options[s.selectedIndex]?.text.includes("(override)");
-
-				switch (v) {
-					case "qbt_docker_base":
-						baseImage = cur || def;
-						if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
-							packageManager =
-								"apt-get update && \\\n\tapt-get install -y git curl";
-							shell = "/bin/bash";
-						}
-						break;
-					case "qbt_docker_port":
-						portMapping = cur || def || "8080:8080";
-						break;
-					case "qbt_docker_volume":
-						volumeMapping = cur || def || "~/qbt:/root";
-						break;
-					case "qbt_docker_user":
-						dockerUser = cur || def || "root";
-						break;
-					default:
-						if ((cur !== def || isOverride) && cur !== "") envVars.push(`${v}="${cur}"`);
-				}
-			});
-
-			if (dockerUser === "username") {
-				packageManager = packageManager.replace("git curl", "git curl sudo");
-				if (volumeMapping.includes(":/root")) {
-					volumeMapping = volumeMapping.replace(":/root", ":/home/username");
-				}
-			}
-
-			return {
-				baseImage,
-				packageManager,
-				shell,
-				portMapping,
-				volumeMapping,
-				dockerUser,
-				envVars,
-			};
-		}
-
-		function getUserSetupCmds(baseImage: string, dockerUser: string): string[] {
-			if (dockerUser !== "username") return [];
-			if (baseImage.includes("ubuntu")) {
-				return [
-					"usermod -l username -d /home/username ubuntu",
-					"groupmod -n username ubuntu",
-					'printf "%s" "username ALL=(ALL) SETENV: NOPASSWD: ALL" > /etc/sudoers.d/username',
-					"chmod 0440 /etc/sudoers.d/username",
-				];
-			}
-			if (baseImage.includes("alpine")) {
-				return [
-					"adduser -h /home/username -Ds /bin/bash -u 1000 username",
-					'printf "%s" "username ALL=(ALL) SETENV: NOPASSWD: ALL" > /etc/sudoers.d/username',
-					"chmod 0440 /etc/sudoers.d/username",
-				];
-			}
-			return [
-				"useradd -ms /bin/bash -u 1000 username",
-				'printf "%s" "username ALL=(ALL) SETENV: NOPASSWD: ALL" > /etc/sudoers.d/username',
-				"chmod 0440 /etc/sudoers.d/username",
-			];
-		}
-
-		function getUserSetup(baseImage: string, dockerUser: string): string {
-			const cmds = getUserSetupCmds(baseImage, dockerUser);
-			return cmds.length ? ` && \\\n    ${cmds.join(" && \\\n    ")}` : "";
-		}
-
-		// ─── Command generators ───────────────────────────────────────────────────
-
-		function generateNativeCommand(): string {
-			const vars = collectEnvVars(true);
-			const cmd = getScriptCmd();
-			return vars.length ? `${formatEnvVars(vars)}\n${cmd}` : cmd;
-		}
-
-		function generateLocalCommand(): string {
-			const vars = collectEnvVars(true);
-			const download = `curl -sL usrdx.github.io/s/qbt.bash -o qbt.bash && \\\nchmod +x qbt.bash`;
-			const cmd = getScriptCmd(true);
-			return vars.length
-				? `${download}\n${formatEnvVars(vars)}\n${cmd}`
-				: `${download}\n${cmd}`;
-		}
-
-		function generateDockerCommand(isLocal: boolean): string {
-			const {
-				baseImage,
-				packageManager,
-				shell,
-				portMapping,
-				volumeMapping,
-				dockerUser,
-				envVars,
-			} = getDockerConfig();
-			const userSetup = getUserSetup(baseImage, dockerUser);
-			const workDir = dockerUser === "username" ? "/home/username" : "/root";
-			const localDir = volumeMapping.split(":")[0];
-
-			let scriptPath: string;
-			let scriptCmd: string;
-			const isUser = dockerUser === "username";
-
-			if (isLocal) {
-				scriptPath = `${workDir}/qbt.bash`;
-				const baseCmd = isLegacyMode()
-					? `bash ${scriptPath} all`
-					: `bash ${scriptPath} bootstrap_deps all`;
-				scriptCmd = isUser ? `sudo -E -H -u username env HOME=/home/username ${baseCmd}` : baseCmd;
-			} else {
-				const baseCmd = getScriptCmd();
-				scriptCmd = isUser
-					? `sudo -E -H -u username bash -c "HOME=/home/username ${baseCmd}"`
-					: baseCmd;
-			}
-
-			const downloadLine = isLocal
-				? `mkdir -p ${localDir} && chmod 755 ${localDir} && \\\ncurl -sL usrdx.github.io/s/qbt.bash -o ${localDir}/qbt.bash && \\\n`
-				: "";
-
-			const volumeLines = `\t-v ${volumeMapping} \\`;
-
-			const envBlock = envVars.length
-				? envVars.map((v) => `\t-e ${v} \\\n`).join("")
-				: "";
-
-			const debianEnvLines = "";
-
-			return (
-				`${downloadLine}docker run -it -w ${workDir} \\\n` +
-				`\t-p ${portMapping} \\\n` +
-				`${volumeLines}\n` +
-				`${debianEnvLines}` +
-				`${envBlock}` +
-				`\t${baseImage} ${shell} -c \\\n` +
-				`\t'${packageManager}${userSetup} && \\\n` +
-				`\t${scriptCmd}'`
-			);
-		}
-
-		function generateDockerfile(): string {
-			const { baseImage, dockerUser, envVars } = getDockerConfig();
-
-			let dockerfilePkgMgr = "apk update && apk add bash git curl";
-			if (baseImage.includes("ubuntu") || baseImage.includes("debian")) {
-				dockerfilePkgMgr =
-					"apt-get update && \\\n    apt-get install -y git curl";
-			}
-			if (dockerUser === "username") {
-				dockerfilePkgMgr = dockerfilePkgMgr.replace(
-					"git curl",
-					"git curl sudo",
-				);
-			}
-
-			const portSelect = document.getElementById(
-				"config_qbt_docker_port",
-			) as HTMLSelectElement | null;
-			const rawPort = portSelect ? getSelectValue(portSelect) : "8080";
-			const exposedPort = rawPort.includes(":")
-				? rawPort.split(":")[1]
-				: rawPort || "8080";
-
-			const workDir = dockerUser === "username" ? "/home/username" : "/root";
-
-			const debianEnvBlock = "";
-
-			const setupCmds = getUserSetupCmds(baseImage, dockerUser);
-			const userSetupBlock = setupCmds.length
-				? `\n\n# Set up username user\nRUN ${setupCmds.join(" && \\\n    ")}`
-				: "";
-
-			const envSection = envVars.length
-				? `\n\n# Environment variables\nENV ${envVars.map((e, i) => (i < envVars.length - 1 ? `${e} \\` : e)).join("\n    ")}`
-				: "";
-
-			const userSection = dockerUser === "username" ? "\n\nUSER username" : "";
-			const cmdArgs = isLegacyMode() ? `"all"` : `"bootstrap_deps", "all"`;
-
-			return (
-				`FROM ${baseImage}\n\n` +
-				`${debianEnvBlock}` +
-				`# Install dependencies\nRUN ${dockerfilePkgMgr}${userSetupBlock}\n\n` +
-				`# Download build script\nRUN curl -sL usrdx.github.io/s/qbt.bash -o /usr/local/bin/qbt.bash && \\\n    chmod +x /usr/local/bin/qbt.bash\n\n` +
-				`WORKDIR ${workDir}\n\n` +
-				`EXPOSE ${exposedPort}` +
-				`${envSection}` +
-				`${userSection}\n\n` +
-				`# Run build\nCMD ["qbt.bash", ${cmdArgs}]`
-			);
-		}
-
-		// ─── UI updates ───────────────────────────────────────────────────────────
-
-		function updateCommands(): void {
-			const outputs: Record<string, string> = {
-				native: generateNativeCommand(),
-				local: generateLocalCommand(),
-				docker: generateDockerCommand(false),
-				"docker-local": generateDockerCommand(true),
-				dockerfile: generateDockerfile(),
-			};
-			Object.entries(outputs).forEach(([key, text]) => {
-				const el = document.getElementById(`output-${key}`);
-				if (el) el.textContent = text;
-			});
-			highlight();
-		}
-
-		function updateLEDs(): void {
-			selects.forEach((select) => {
-				const variable = select.dataset.variable;
-				const def = select.dataset.default;
-				if (!variable || def === undefined) return;
-
-				const led = document.querySelector(
-					`.status-led[data-variable="${variable}"]`,
-				) as HTMLElement | null;
-				const label = document.querySelector(
-					`.status-label[data-variable="${variable}"]`,
-				) as HTMLElement | null;
-
-				let isDefault: boolean;
-				const isOverride = select.options[select.selectedIndex]?.text.includes("(override)");
-				if (select.value === "custom") {
-					const custom = document.getElementById(
-						`custom_input_${variable}`,
-					) as HTMLInputElement | null;
-					const val = custom?.value.trim() ?? "";
-					isDefault = val === "" || val === def || val === "default";
-				} else {
-					isDefault = select.value === "default" || ((select.value === def) && !isOverride);
-				}
-
-				led?.classList.toggle("modified", !isDefault);
-				if (label) label.textContent = isDefault ? "Default" : "Modified";
-			});
-		}
-
-		function handleCustomInput(select: HTMLSelectElement): void {
+		function syncCustomInputUI(
+			select: HTMLSelectElement,
+			{ focus = false }: { focus?: boolean } = {},
+		): void {
 			const variable = select.dataset.variable;
-			const customInput = document.getElementById(
-				`custom_input_${variable}`,
-			) as HTMLInputElement | null;
-			const descP = document.getElementById(
-				`description_${variable}`,
-			) as HTMLParagraphElement | null;
+			if (!variable) return;
+			const customInput = getCustomInput(variable);
 			if (!customInput) return;
 
 			const isCustom = select.value === "custom";
-			customInput.style.display = isCustom ? "block" : "none";
-			if (descP) descP.style.display = isCustom ? "none" : "block";
+			customInput.hidden = !isCustom;
 
 			if (isCustom) {
 				if (!customInput.value.trim()) {
-					customInput.value = select.dataset.default ?? "";
+					customInput.value =
+						select.dataset.defaultExample ?? select.dataset.default ?? "";
 				}
-				customInput.focus();
-				customInput.select();
+				if (focus) {
+					customInput.focus();
+					customInput.select();
+				}
 			} else {
 				customInput.value = "";
 			}
 		}
 
-		// ─── Port options (Docker vs Dockerfile context) ───────────────────────────
-
-		function updatePortOptions(forDockerfile: boolean): void {
-			const portSelect = document.getElementById(
-				"config_qbt_docker_port",
-			) as HTMLSelectElement | null;
-			const customInput = document.getElementById(
-				"custom_input_qbt_docker_port",
-			) as HTMLInputElement | null;
-			const labelEl = portSelect
-				?.closest(".config-option")
-				?.querySelector("h4") as HTMLElement | null;
-			if (!portSelect) return;
-
-			// Snapshot current context before switching
-			const curCtx = isDockerfileActive()
-				? savedSettings.dockerfile
-				: savedSettings.docker;
-			curCtx.port = portSelect.value;
-			curCtx.customPort = customInput?.value ?? "";
-
-			if (!portSelect.dataset.originalOptions) {
-				portSelect.dataset.originalOptions = portSelect.innerHTML;
-				portSelect.dataset.originalDefault = portSelect.dataset.default ?? "";
-			}
-
-			if (forDockerfile) {
-				portSelect.innerHTML = `
-					<option value="8080">8080 (Default)</option>
-					<option value="8081">8081</option>
-					<option value="9090">9090</option>
-					<option value="custom">Custom...</option>
-				`;
-				portSelect.dataset.default = "8080";
-				if (customInput)
-					customInput.placeholder = "Enter container port (e.g., 3000)";
-				if (labelEl) {
-					labelEl.dataset.originalText =
-						labelEl.dataset.originalText || labelEl.textContent || "";
-					labelEl.textContent = "Container Port";
-				}
-
-				const saved = savedSettings.dockerfile;
-				if (
-					saved.port &&
-					portSelect.querySelector(`option[value="${saved.port}"]`)
-				) {
-					portSelect.value = saved.port;
-				} else {
-					const cur = savedSettings.docker.port;
-					const containerPort = cur.includes(":") ? cur.split(":")[1] : cur;
-					portSelect.value = portSelect.querySelector(
-						`option[value="${containerPort}"]`,
-					)
-						? containerPort
-						: "8080";
-				}
-			} else {
-				portSelect.innerHTML = portSelect.dataset.originalOptions!;
-				portSelect.dataset.default =
-					portSelect.dataset.originalDefault ?? portSelect.dataset.default;
-				if (customInput) customInput.placeholder = "Enter custom port mapping";
-				if (labelEl?.dataset.originalText)
-					labelEl.textContent = labelEl.dataset.originalText;
-
-				const saved = savedSettings.docker;
-				if (
-					saved.port &&
-					portSelect.querySelector(`option[value="${saved.port}"]`)
-				) {
-					portSelect.value = saved.port;
-				} else {
-					portSelect.value = portSelect.options[0]?.value ?? "";
-				}
-			}
-
-			portSelect.dispatchEvent(new Event("change", { bubbles: true }));
-		}
-
-		// ─── Tab visibility ───────────────────────────────────────────────────────
-
-		const PAGE_TAB_NAMES = new Set([
-			"notes",
-			"alpine",
-			"debian",
-			"ubuntu",
-			"build helper",
-		]);
-
-		function applyTabState(tabText: string): void {
-			if (!container) return;
-			const isDocker =
-				tabText.includes("docker") || tabText.includes("dockerfile");
-			const isDockerfile = tabText.includes("dockerfile");
-
-			// Save volume settings for the outgoing context
-			const volumeSelect = document.getElementById(
-				"config_qbt_docker_volume",
-			) as HTMLSelectElement | null;
-			const volumeCustom = document.getElementById(
-				"custom_input_qbt_docker_volume",
-			) as HTMLInputElement | null;
-			const outCtx = isDockerfileActive()
-				? savedSettings.dockerfile
-				: savedSettings.docker;
-			if (volumeSelect) {
-				outCtx.volume = volumeSelect.value;
-				outCtx.customVolume = volumeCustom?.value ?? "";
-			}
-
-			container.dataset.dockerTab = isDocker ? "true" : "false";
-			container.dataset.dockerfileTab = isDockerfile ? "true" : "false";
-
-			updatePortOptions(isDockerfile);
-
-			// Restore volume settings for the incoming context
-			const inCtx = isDockerfile
-				? savedSettings.dockerfile
-				: savedSettings.docker;
-			if (
-				volumeSelect &&
-				inCtx.volume &&
-				volumeSelect.querySelector(`option[value="${inCtx.volume}"]`)
-			) {
-				volumeSelect.value = inCtx.volume;
-				if (inCtx.volume === "custom" && volumeCustom)
-					volumeCustom.value = inCtx.customVolume;
-			}
-		}
-
-		function resolveActiveTabText(): string {
-			for (const tab of document.querySelectorAll<HTMLElement>(
-				'[role="tab"][aria-selected="true"]',
-			)) {
-				const text = (tab.textContent ?? "").trim().toLowerCase();
-				if (!PAGE_TAB_NAMES.has(text)) return text;
-			}
-			const panel = document.querySelector<HTMLElement>(
-				'[role="tabpanel"]:not([hidden])',
+		function selectSeriesDefault(
+			select: HTMLSelectElement,
+			prefix: string,
+			autoLabel: string,
+			exampleTag: string,
+		): void {
+			select.dataset.defaultExample = exampleTag;
+			const defaultOpt = Array.from(select.options).find(
+				(opt) => opt.value === "default",
 			);
-			if (panel) {
-				const tabId = panel.getAttribute("aria-labelledby");
-				const tab = tabId ? document.getElementById(tabId) : null;
-				const text = (tab?.textContent ?? "").trim().toLowerCase();
-				if (tab && !PAGE_TAB_NAMES.has(text)) return text;
+			if (defaultOpt) {
+				defaultOpt.textContent = autoLabel;
+				defaultOpt.label = autoLabel;
 			}
-			return "";
-		}
 
-		function onTabClick(e: Event): void {
-			const text = ((e.currentTarget as HTMLElement).textContent ?? "")
-				.trim()
-				.toLowerCase();
-			applyTabState(text);
-			updateCommands();
-		}
-
-		function attachTabListeners(): void {
-			document.querySelectorAll<HTMLElement>('[role="tab"]').forEach((tab) => {
-				tab.removeEventListener("click", onTabClick);
-				tab.addEventListener("click", onTabClick);
-			});
-		}
-
-		// ─── Dependencies ──────────────────────────────────────────────────────────
-
-		function applyBoostCap(isLt12: boolean): void {
-			const boostSel = document.querySelector<HTMLSelectElement>(
-				'select[data-variable="qbt_boost_tag"]',
+			const overrideOpt = Array.from(select.options).find(
+				(opt) =>
+					opt.dataset.override === "true" && opt.value.startsWith(prefix),
 			);
-			const boostDesc = document.getElementById(
-				"description_qbt_boost_tag",
-			) as HTMLParagraphElement | null;
-			if (!boostSel) return;
+			select.value = overrideOpt ? overrideOpt.value : "default";
+			syncCustomInputUI(select);
+		}
 
-			if (isLt12) {
-				boostSel.value = "boost-1.86.0";
-				handleCustomInput(boostSel);
-				if (boostDesc) {
-					if (!boostDesc.dataset.originalText)
-						boostDesc.dataset.originalText = boostDesc.textContent ?? "";
-					boostDesc.textContent =
-						"Capped at boost-1.86.0 — maximum supported version for libtorrent 1.2.";
+		function syncLibtorrentSeries(series: string): void {
+			const tagSel = selectByVar.get("qbt_libtorrent_tag");
+			if (!tagSel) return;
+			const resolvedVer = ltDefaults[series] ?? ltDefaults["2.1"] ?? "2.1.2";
+			const label =
+				series === "2.1"
+					? `Auto — latest for series (v${resolvedVer})`
+					: `Auto — latest for ${series} (v${resolvedVer})`;
+			selectSeriesDefault(tagSel, `v${series}.`, label, `v${resolvedVer}`);
+		}
+
+		function syncQtSeries(series: string): void {
+			const tagSel = selectByVar.get("qbt_qt_tag");
+			if (!tagSel) return;
+			const resolvedVer = qtDefaults[series] ?? qtDefaults["6"] ?? "6.12.0";
+			const label =
+				series === "6"
+					? `Auto — latest for Qt version (v${resolvedVer})`
+					: `Auto — latest for Qt ${series} (v${resolvedVer})`;
+			selectSeriesDefault(tagSel, `v${series}.`, label, `v${resolvedVer}`);
+		}
+
+		function readState(): BuildConfigState {
+			const values: Record<string, string> = {};
+			const defaults: Record<string, string> = {};
+			const overrides = new Set<string>();
+
+			for (const select of selects) {
+				const v = select.dataset.variable;
+				if (!v) continue;
+				values[v] = getSelectValue(select);
+				defaults[v] = select.dataset.default ?? "";
+				const selectedOpt = select.options[select.selectedIndex];
+				if (selectedOpt?.dataset.override === "true") {
+					overrides.add(v);
 				}
-			} else {
-				boostSel.value = boostSel.dataset.default ?? "";
-				handleCustomInput(boostSel);
-				if (boostDesc?.dataset.originalText) {
-					boostDesc.textContent = boostDesc.dataset.originalText;
-					delete boostDesc.dataset.originalText;
+			}
+
+			return { values, defaults, overrides };
+		}
+
+		function updateOutputs(): void {
+			const state = readState();
+			const generated = generateAllOutputs(state);
+			latestOutputs = {
+				native: generated.native,
+				local: generated.local,
+				docker: generated.docker,
+				"docker-local": generated.dockerLocal,
+				dockerfile: generated.dockerfile,
+				"qbt-env": generated.qbtEnv,
+			};
+
+			for (const [key, text] of Object.entries(latestOutputs)) {
+				const codeEl = container.querySelector<HTMLElement>(
+					`code[data-output-target="${CSS.escape(key)}"]`,
+				);
+				if (!codeEl) continue;
+				const lang =
+					(codeEl.dataset.lang as HighlightLang | undefined) ?? "bash";
+				codeEl.innerHTML = highlightCode(text, lang);
+			}
+		}
+
+		function updateStatusIndicators(): void {
+			let modifiedCount = 0;
+			let hiddenExpertCount = 0;
+			let hiddenDockerCount = 0;
+			const isBasicView = container.dataset.view !== "advanced";
+			const isDockerTab = container.dataset.dockerTab === "true";
+
+			for (const select of selects) {
+				const variable = select.dataset.variable;
+				const def = select.dataset.default;
+				if (!variable || def === undefined) continue;
+
+				const selectedOpt = select.options[select.selectedIndex];
+				const isOverride = selectedOpt?.dataset.override === "true";
+				const modified = isOptionModified(
+					getSelectValue(select),
+					def,
+					isOverride,
+				);
+				if (modified) {
+					modifiedCount++;
+					const optionRow = select.closest<HTMLElement>(".config-option");
+					const isDockerOnly = optionRow?.dataset.dockerOnly === "true";
+					const isAdvanced = optionRow?.dataset.category === "advanced";
+					if (isDockerOnly && !isDockerTab) {
+						hiddenDockerCount++;
+					} else if (isAdvanced && isBasicView) {
+						hiddenExpertCount++;
+					}
+				}
+
+				const indicator = container.querySelector<HTMLElement>(
+					`[data-indicator-for="${CSS.escape(variable)}"]`,
+				);
+				const led = container.querySelector<HTMLElement>(
+					`[data-led-for="${CSS.escape(variable)}"]`,
+				);
+				const label = container.querySelector<HTMLElement>(
+					`[data-status-for="${CSS.escape(variable)}"]`,
+				);
+				if (indicator) {
+					indicator.dataset.modified = modified ? "true" : "false";
+				}
+				led?.classList.toggle("modified", modified);
+				if (label) label.textContent = modified ? "Modified" : "Default";
+			}
+
+			if (modifiedSummary) {
+				const baseText =
+					modifiedCount === 1 ? "1 modified" : `${modifiedCount} modified`;
+				const hiddenParts: string[] = [];
+				if (hiddenExpertCount > 0) hiddenParts.push(`${hiddenExpertCount} in Expert`);
+				if (hiddenDockerCount > 0) hiddenParts.push(`${hiddenDockerCount} in Docker`);
+				const labelText = hiddenParts.length
+					? `${baseText} (${hiddenParts.join(", ")})`
+					: baseText;
+				if (summaryText) {
+					summaryText.textContent = labelText;
+				} else {
+					modifiedSummary.textContent = labelText;
+				}
+				summaryLed?.classList.toggle("modified", modifiedCount > 0);
+				modifiedSummary.dataset.hasChanges = modifiedCount > 0 ? "true" : "false";
+			}
+		}
+
+		function syncTagSeriesFromValue(variable: string, cur: string): void {
+			if (variable === "qbt_libtorrent_tag") {
+				const verSel = selectByVar.get("qbt_libtorrent_version");
+				if (!verSel) return;
+				if (cur.startsWith("v2.1") || cur.startsWith("RC_2_1")) {
+					verSel.value = "2.1";
+				} else if (cur.startsWith("v2.0") || cur.startsWith("RC_2_0")) {
+					verSel.value = "2.0";
+				} else if (cur.startsWith("v1.2") || cur.startsWith("RC_1_2")) {
+					verSel.value = "1.2";
+				}
+			}
+
+			if (variable === "qbt_qt_tag") {
+				const verSel = selectByVar.get("qbt_qt_version");
+				const toolSel = selectByVar.get("qbt_build_tool");
+				if (cur.startsWith("v5.")) {
+					if (verSel) verSel.value = "5";
+					if (toolSel) toolSel.value = "qmake";
+				} else if (cur.startsWith("v6.")) {
+					if (verSel) verSel.value = "6";
+					if (toolSel) toolSel.value = "cmake";
 				}
 			}
 		}
@@ -1719,294 +1097,410 @@ const advancedOptions = configOptions.filter((o) => o.category === "advanced");
 			const cur = getSelectValue(changed);
 
 			if (v === "qbt_libtorrent_version") {
-				const tag = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_libtorrent_tag"]',
-				);
-				if (tag)
-					tag.value =
-						cur === "1.2"
-							? (tag.options[1]?.value ?? "v1.2.20")
-							: (tag.options[0]?.value ?? "v2.0.11");
-				applyBoostCap(cur === "1.2");
+				syncLibtorrentSeries(cur);
 			}
 
-			if (v === "qbt_libtorrent_tag") {
-				const ver = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_libtorrent_version"]',
-				);
-				const isLt12 = cur.startsWith("v1.2");
-				if (ver) ver.value = isLt12 ? "1.2" : "2.0";
-				applyBoostCap(isLt12);
+			if (v === "qbt_libtorrent_tag" && changed.value !== "custom") {
+				syncTagSeriesFromValue(v, cur);
 			}
 
 			if (v === "qbt_qt_version") {
-				const tag = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_qt_tag"]',
-				);
-				if (tag)
-					tag.value =
-						cur === "5"
-							? (tag.options[1]?.value ?? "v5.15.17")
-							: (tag.options[0]?.value ?? "v6.9.1");
+				const toolSel = selectByVar.get("qbt_build_tool");
+				if (toolSel) toolSel.value = cur === "5" ? "qmake" : "cmake";
+				syncQtSeries(cur);
 			}
 
-			if (v === "qbt_qt_tag") {
-				const ver = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_qt_version"]',
-				);
-				if (ver) ver.value = cur.startsWith("v5.") ? "5" : "6";
+			if (v === "qbt_build_tool") {
+				const verSel = selectByVar.get("qbt_qt_version");
+				const targetQt = cur === "qmake" ? "5" : "6";
+				if (verSel && verSel.value !== targetQt) {
+					verSel.value = targetQt;
+					syncQtSeries(targetQt);
+				}
+			}
+
+			if (v === "qbt_qt_tag" && changed.value !== "custom") {
+				syncTagSeriesFromValue(v, cur);
 			}
 
 			if (v === "qbt_docker_user") {
-				const volSel = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_docker_volume"]',
-				);
-				if (volSel) {
-					const isUser = cur === "username";
-					const fromDir = isUser ? ":/root" : ":/home/username";
-					const toDir = isUser ? ":/home/username" : ":/root";
+				const volSel = selectByVar.get("qbt_docker_volume");
+				const isUser = cur === "username";
+				const fromDir = isUser ? ":/root" : ":/home/username";
+				const toDir = isUser ? ":/home/username" : ":/root";
 
-					// Update each option value and label
-					Array.from(volSel.options).forEach((opt) => {
-						if (opt.value === "custom") return;
+				if (volSel) {
+					for (const opt of Array.from(volSel.options)) {
+						if (opt.value === "custom") continue;
 						opt.value = opt.value.replace(fromDir, toDir);
 						opt.label = opt.value;
 						opt.textContent = opt.value;
-					});
+					}
+					const customVol = getCustomInput("qbt_docker_volume");
+					if (customVol?.value) {
+						customVol.value = customVol.value.replace(fromDir, toDir);
+					}
+				}
 
-					// Update custom input placeholder path hint
-					const customInput = document.getElementById(
-						"custom_input_qbt_docker_volume",
-					) as HTMLInputElement | null;
-					if (customInput?.value) {
-						customInput.value = customInput.value.replace(fromDir, toDir);
+				for (const snap of Object.values(savedDockerContext)) {
+					if (snap.volume && snap.volume !== "custom") {
+						snap.volume = snap.volume.replace(fromDir, toDir);
+					}
+					if (snap.customVolume) {
+						snap.customVolume = snap.customVolume.replace(fromDir, toDir);
 					}
 				}
 			}
 
 			if (v === "qbt_cross_name") {
-				const staticSel = document.querySelector<HTMLSelectElement>(
-					'[data-variable="qbt_static_ish"]',
-				);
+				const staticSel = selectByVar.get("qbt_static_ish");
 				if (staticSel) {
-					const cross = cur !== "";
-					staticSel.disabled = cross;
-					staticSel.style.opacity = cross ? "0.6" : "1";
-					staticSel.style.cursor = cross ? "not-allowed" : "pointer";
-					if (cross) staticSel.value = "no";
+					const isCross = cur !== "";
+					staticSel.disabled = isCross;
+					if (isCross) staticSel.value = "no";
 				}
 			}
 
-			if (v === "qbt_use_lto") {
-				const mcmSel = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_mcm_url"]',
-				);
-				const baseImgSel = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_docker_base"]',
-				);
-				const isDebian = baseImgSel && (baseImgSel.value.includes("ubuntu") || baseImgSel.value.includes("debian"));
+			if (
+				v === "qbt_use_lto" ||
+				v === "qbt_mcm_url" ||
+				v === "qbt_docker_base" ||
+				v === "qbt_cross_name"
+			) {
+				const baseImgSel = selectByVar.get("qbt_docker_base");
+				const mcmSel = selectByVar.get("qbt_mcm_url");
+				const ltoSel = selectByVar.get("qbt_use_lto");
+				const crossSel = selectByVar.get("qbt_cross_name");
+				const baseVal = baseImgSel ? getSelectValue(baseImgSel) : "";
+				const isDebian =
+					baseVal.includes("ubuntu") || baseVal.includes("debian");
+				const isCross = (crossSel?.value ?? "") !== "";
 
-				if (mcmSel && !isDebian) {
+				if (v === "qbt_use_lto" && mcmSel && !isDebian && isCross) {
 					if (cur === "yes") {
 						mcmSel.value = "userdocs/musl-cross-make";
-					} else {
-						mcmSel.value = "userdocs/qbt-musl-cross-make";
+						syncCustomInputUI(mcmSel);
 					}
-					handleCustomInput(mcmSel);
-				}
-			}
-
-			if (v === "qbt_mcm_url") {
-				const ltoSel = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_use_lto"]',
-				);
-				const baseImgSel = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_docker_base"]',
-				);
-				const isDebian = baseImgSel && (baseImgSel.value.includes("ubuntu") || baseImgSel.value.includes("debian"));
-
-				if (ltoSel && !isDebian) {
-					if (cur === "userdocs/musl-cross-make") {
-						ltoSel.value = "yes";
-					} else {
-						ltoSel.value = "no";
+				} else if (v === "qbt_mcm_url" && ltoSel && !isDebian && isCross) {
+					if (
+						cur !== "userdocs/musl-cross-make" &&
+						ltoSel.value === "yes"
+					) {
+						ltoSel.value = "default";
 					}
-					handleCustomInput(ltoSel);
-				}
-			}
-
-			if (v === "qbt_docker_base") {
-				const isDebian = cur.includes("ubuntu") || cur.includes("debian");
-				const mcmSel = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_mcm_url"]',
-				);
-				const ltoSel = document.querySelector<HTMLSelectElement>(
-					'select[data-variable="qbt_use_lto"]',
-				);
-
-				if (mcmSel && ltoSel) {
+				} else if (v === "qbt_cross_name" && mcmSel && ltoSel && !isDebian) {
+					if (isCross && ltoSel.value === "yes") {
+						mcmSel.value = "userdocs/musl-cross-make";
+						syncCustomInputUI(mcmSel);
+					}
+				} else if (v === "qbt_docker_base" && mcmSel && ltoSel) {
 					if (isDebian && mcmSel.value === "userdocs/musl-cross-make") {
 						mcmSel.value = "userdocs/qbt-musl-cross-make";
-						handleCustomInput(mcmSel);
-					} else if (!isDebian && ltoSel.value === "yes") {
+						syncCustomInputUI(mcmSel);
+					} else if (!isDebian && isCross && ltoSel.value === "yes") {
 						mcmSel.value = "userdocs/musl-cross-make";
-						handleCustomInput(mcmSel);
+						syncCustomInputUI(mcmSel);
 					}
 				}
 			}
 		}
 
-		// ─── Event wiring ─────────────────────────────────────────────────────────
+		function switchPortContext(nextCtx: "docker" | "dockerfile"): void {
+			if (!portSelect || nextCtx === activePortContext) return;
 
-		selects.forEach((select) => {
-			select.addEventListener("change", (e) => {
-				const target = e.target as HTMLSelectElement;
-				handleCustomInput(target);
-				handleDependencies(target);
-				updateCommands();
-				updateLEDs();
+			const portCustom = getCustomInput("qbt_docker_port");
+			const volSelect = selectByVar.get("qbt_docker_volume");
+			const volCustom = getCustomInput("qbt_docker_volume");
+
+			// Snapshot outgoing context
+			savedDockerContext[activePortContext] = {
+				port: portSelect.value,
+				customPort: portCustom?.value ?? "",
+				volume: volSelect?.value ?? "",
+				customVolume: volCustom?.value ?? "",
+			};
+
+			activePortContext = nextCtx;
+			const incoming = savedDockerContext[nextCtx];
+
+			if (nextCtx === "dockerfile") {
+				portSelect.innerHTML = `
+					<option value="8080">8080 (Default)</option>
+					<option value="8081">8081</option>
+					<option value="9090">9090</option>
+					<option value="custom">Custom...</option>
+				`;
+				portSelect.dataset.default = "8080";
+				portSelect.dataset.defaultExample = "8080";
+				if (portCustom) {
+					portCustom.placeholder = "Enter container port (e.g., 3000)";
+				}
+				if (portLabelEl) portLabelEl.textContent = "Container Port";
+
+				if (
+					incoming.port &&
+					portSelect.querySelector(
+						`option[value="${CSS.escape(incoming.port)}"]`,
+					)
+				) {
+					portSelect.value = incoming.port;
+					if (portCustom) {
+						portCustom.value =
+							incoming.port === "custom" ? incoming.customPort : "";
+					}
+				} else {
+					const rawDockerPort =
+						savedDockerContext.docker.port === "custom"
+							? savedDockerContext.docker.customPort
+							: savedDockerContext.docker.port;
+					const containerPort = rawDockerPort.includes(":")
+						? (rawDockerPort.split(":").pop()?.trim() ?? "8080")
+						: rawDockerPort.trim() || "8080";
+
+					if (
+						portSelect.querySelector(
+							`option[value="${CSS.escape(containerPort)}"]`,
+						)
+					) {
+						portSelect.value = containerPort;
+						if (portCustom) portCustom.value = "";
+					} else {
+						portSelect.value = "custom";
+						if (portCustom) portCustom.value = containerPort;
+					}
+				}
+			} else {
+				portSelect.innerHTML = originalPortOptionsHTML;
+				portSelect.dataset.default = originalPortDefault;
+				portSelect.dataset.defaultExample = originalPortExample;
+				if (portCustom) {
+					portCustom.placeholder = "Enter custom docker port mapping";
+				}
+				if (portLabelEl) portLabelEl.textContent = originalPortLabel;
+
+				if (
+					incoming.port &&
+					portSelect.querySelector(
+						`option[value="${CSS.escape(incoming.port)}"]`,
+					)
+				) {
+					portSelect.value = incoming.port;
+				} else {
+					portSelect.value = originalPortDefault;
+				}
+				if (portCustom) {
+					portCustom.value =
+						portSelect.value === "custom" ? incoming.customPort : "";
+				}
+			}
+
+			syncCustomInputUI(portSelect);
+
+			if (
+				volSelect &&
+				incoming.volume &&
+				volSelect.querySelector(
+					`option[value="${CSS.escape(incoming.volume)}"]`,
+				)
+			) {
+				volSelect.value = incoming.volume;
+				if (volCustom) {
+					volCustom.value =
+						incoming.volume === "custom" ? incoming.customVolume : "";
+				}
+				syncCustomInputUI(volSelect);
+			}
+		}
+
+		function classifyTab(tabText: string): TabContext {
+			const lower = tabText.trim().toLowerCase();
+			if (lower.includes("dockerfile")) return "dockerfile";
+			if (lower.includes("docker")) return "docker";
+			return "native";
+		}
+
+		function syncActiveTab(): void {
+			if (!outputSection) return;
+			const activeTab = outputSection.querySelector<HTMLElement>(
+				'[role="tab"][aria-selected="true"]',
+			);
+			const tabCtx = classifyTab(activeTab?.textContent ?? "");
+
+			container.dataset.dockerTab =
+				tabCtx === "docker" || tabCtx === "dockerfile" ? "true" : "false";
+			container.dataset.dockerfileTab =
+				tabCtx === "dockerfile" ? "true" : "false";
+
+			if (tabCtx === "dockerfile") {
+				switchPortContext("dockerfile");
+			} else if (tabCtx === "docker") {
+				switchPortContext("docker");
+			}
+
+			updateOutputs();
+			updateStatusIndicators();
+		}
+
+		// ─── Event listeners ──────────────────────────────────────────────────────
+
+		for (const select of selects) {
+			select.addEventListener("change", () => {
+				syncCustomInputUI(select, { focus: true });
+				handleDependencies(select);
+				updateOutputs();
+				updateStatusIndicators();
 			});
-		});
 
-		setTimeout(() => {
-			document
-				.querySelectorAll<HTMLInputElement>('[id^="custom_input_"]')
-				.forEach((input) => {
-					input.addEventListener("input", () => {
-						updateCommands();
-						updateLEDs();
-					});
-				});
-		}, 100);
+			const variable = select.dataset.variable;
+			const customInput = variable ? getCustomInput(variable) : null;
+			customInput?.addEventListener("input", () => {
+				if (variable) {
+					syncTagSeriesFromValue(variable, customInput.value.trim());
+				}
+				updateOutputs();
+				updateStatusIndicators();
+			});
+		}
 
-		// View toggle
-		const savedView = localStorage.getItem("buildconfig-view") ?? "basic";
-		if (container) container.dataset.view = savedView;
+		// View toggle (Basic / Expert)
+		const savedView = readStorage(VIEW_STORAGE_KEY) ?? "basic";
+		container.dataset.view = savedView === "advanced" ? "advanced" : "basic";
 		if (viewToggle) {
-			viewToggle.checked = savedView === "advanced";
+			viewToggle.checked = container.dataset.view === "advanced";
 			viewToggle.addEventListener("change", () => {
 				const view = viewToggle.checked ? "advanced" : "basic";
-				if (container) container.dataset.view = view;
-				localStorage.setItem("buildconfig-view", view);
+				container.dataset.view = view;
+				writeStorage(VIEW_STORAGE_KEY, view);
+				updateStatusIndicators();
 			});
 		}
 
 		// Reset
 		resetButton?.addEventListener("click", () => {
-			if (container) container.dataset.view = "basic";
+			container.dataset.view = "basic";
 			if (viewToggle) {
 				viewToggle.checked = false;
-				localStorage.setItem("buildconfig-view", "basic");
+				writeStorage(VIEW_STORAGE_KEY, "basic");
 			}
 
-			savedSettings.docker = {
+			savedDockerContext.docker = {
 				port: "",
 				customPort: "",
 				volume: "",
 				customVolume: "",
 			};
-			savedSettings.dockerfile = {
+			savedDockerContext.dockerfile = {
 				port: "",
 				customPort: "",
 				volume: "",
 				customVolume: "",
 			};
 
-			selects.forEach((select) => {
-				const def = select.dataset.default ?? "";
+			// Restore canonical Docker port options before applying tab context
+			if (portSelect && activePortContext === "dockerfile") {
+				portSelect.innerHTML = originalPortOptionsHTML;
+				portSelect.dataset.default = originalPortDefault;
+				portSelect.dataset.defaultExample = originalPortExample;
+				if (portLabelEl) portLabelEl.textContent = originalPortLabel;
+				activePortContext = "docker";
+			}
 
-				// Revert volume options back to :/root paths if they were changed
-				if (select.dataset.variable === "qbt_docker_volume") {
-					Array.from(select.options).forEach((opt) => {
-						if (opt.value === "custom") return;
+			for (const select of selects) {
+				const variable = select.dataset.variable;
+				if (variable === "qbt_docker_volume") {
+					for (const opt of Array.from(select.options)) {
+						if (opt.value === "custom") continue;
 						opt.value = opt.value.replace(":/home/username", ":/root");
 						opt.label = opt.value;
 						opt.textContent = opt.value;
-					});
+					}
 				}
 
-				select.value = def;
+				select.value = select.dataset.default ?? "";
 				select.disabled = false;
-				select.style.opacity = "1";
-				select.style.cursor = "pointer";
-				const customInput = document.getElementById(
-					`custom_input_${select.dataset.variable}`,
-				) as HTMLInputElement | null;
-				const descP = document.getElementById(
-					`description_${select.dataset.variable}`,
-				) as HTMLParagraphElement | null;
-				if (customInput) {
-					customInput.style.display = "none";
-					customInput.value = "";
-				}
-				if (descP) descP.style.display = "block";
-			});
+				syncCustomInputUI(select);
+			}
 
-			updateCommands();
-			updateLEDs();
+			syncLibtorrentSeries("2.1");
+			syncQtSeries("6");
+			syncActiveTab();
 		});
 
 		// Copy buttons
-		document
-			.querySelectorAll<HTMLButtonElement>(".copy-button[data-output]")
-			.forEach((btn) => {
-				btn.addEventListener("click", async () => {
-					const text =
-						document.getElementById(`output-${btn.dataset.output}`)
-							?.textContent ?? "";
-					try {
-						await navigator.clipboard.writeText(text);
-						btn.textContent = "Copied!";
-					} catch {
-						btn.textContent = "Failed";
-					}
-					setTimeout(() => {
-						btn.textContent = "Copy";
-					}, 2000);
-				});
-			});
-
-		// ─── Initialization ───────────────────────────────────────────────────────
-
-		function init(): void {
-			if (!document.getElementById("config_qbt_legacy_mode")) {
-				setTimeout(init, 100);
-				return;
-			}
-
-			const initialText = resolveActiveTabText();
-			if (container) {
-				container.dataset.dockerTab =
-					initialText.includes("docker") || initialText.includes("dockerfile")
-						? "true"
-						: "false";
-				container.dataset.dockerfileTab = initialText.includes("dockerfile")
-					? "true"
-					: "false";
-				updatePortOptions(initialText.includes("dockerfile"));
-			}
-
-			attachTabListeners();
-
-			const tabsContainer = document.querySelector(".starlight-tabs");
-			if (tabsContainer) {
-				new MutationObserver(() => setTimeout(attachTabListeners, 50)).observe(
-					tabsContainer,
-					{ childList: true, subtree: true },
-				);
-			}
-
-			updateLEDs();
-
-			(function tryHighlight(): void {
-				if (typeof window.Prism !== "undefined") {
-					updateCommands();
-				} else {
-					setTimeout(tryHighlight, 100);
+		for (const btn of container.querySelectorAll<HTMLButtonElement>(
+			".copy-button[data-output]",
+		)) {
+			btn.addEventListener("click", async () => {
+				const key = btn.dataset.output ?? "";
+				const text = latestOutputs[key] ?? "";
+				try {
+					await navigator.clipboard.writeText(text);
+					btn.textContent = "Copied!";
+				} catch {
+					btn.textContent = "Failed";
 				}
-			})();
+				const prevTimer = copyTimers.get(btn);
+				if (prevTimer !== undefined) window.clearTimeout(prevTimer);
+				const nextTimer = window.setTimeout(() => {
+					btn.textContent = "Copy";
+					copyTimers.delete(btn);
+				}, 2000);
+				copyTimers.set(btn, nextTimer);
+			});
 		}
 
-		setTimeout(init, 200);
-	})();
+		// Download buttons (Dockerfile & .qbt_env)
+		for (const btn of container.querySelectorAll<HTMLButtonElement>(
+			".download-button[data-output]",
+		)) {
+			btn.addEventListener("click", () => {
+				const key = btn.dataset.output ?? "";
+				const filename = btn.dataset.filename ?? "config.txt";
+				const text = latestOutputs[key] ?? "";
+				const blob = new Blob([text + "\n"], {
+					type: "text/plain;charset=utf-8",
+				});
+				const url = URL.createObjectURL(blob);
+				const link = document.createElement("a");
+				link.href = url;
+				link.download = filename;
+				document.body.appendChild(link);
+				link.click();
+				link.remove();
+				URL.revokeObjectURL(url);
+			});
+		}
+
+		// Output tab observation (handles click, keyboard navigation, and Starlight syncKey)
+		if (outputSection) {
+			new MutationObserver((mutations) => {
+				if (
+					mutations.some(
+						(m) =>
+							m.type === "attributes" &&
+							(m.target as HTMLElement).getAttribute("role") === "tab",
+					)
+				) {
+					syncActiveTab();
+				}
+			}).observe(outputSection, {
+				attributes: true,
+				attributeFilter: ["aria-selected"],
+				subtree: true,
+			});
+		}
+
+		syncActiveTab();
+	}
+
+	function initAllBuildConfigs(): void {
+		for (const el of document.querySelectorAll<HTMLElement>(
+			"[data-build-config]",
+		)) {
+			initBuildConfigInstance(el);
+		}
+	}
+
+	initAllBuildConfigs();
+	document.addEventListener("astro:page-load", initAllBuildConfigs);
 </script>

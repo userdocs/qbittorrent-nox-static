@@ -11,9 +11,9 @@
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",
-    "@astrojs/starlight": "^0.42.7",
+    "@astrojs/starlight": "^0.43.1",
     "@expressive-code/plugin-collapsible-sections": "^0.44.3",
-    "astro": "^7.4.2",
+    "astro": "^7.4.13",
     "sharp": "^0.34.2",
     "starlight-github-alerts": "^0.5.0",
     "starlight-image-zoom": "^0.16.2",
